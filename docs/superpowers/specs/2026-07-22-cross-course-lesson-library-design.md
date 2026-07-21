@@ -179,15 +179,21 @@ preserved by splitting *what* from *whose*:
 
 `tools/render.py <course-manifest>`:
 
-1. Parse + **validate** the manifest (slugs exist, prereqs ordered, no duplicate slots).
+1. Parse + **validate** the manifest (slugs exist, prereqs ordered, no duplicate slots, no lesson
+   scheduled twice; refuse to overwrite a git working tree).
 2. Build the `slug → slot` map for this course.
-3. For each scheduled lesson:
-   - copy `lessons/<slug>/lab/` → `<target>/labs/<slot-prefixed-name>/` verbatim.
-   - render `slides.md` → `<target>/slides/<slotfile>.md`, injecting the marp header + `{{ … }}` tokens.
-   - render `worksheet.md`, `README.md` with tokens resolved.
-4. For non-lesson slots, emit the calendar entry only.
+3. For each scheduled lesson (flat lesson — see §4):
+   - `slides.md` (if present) → `<target>/slides/<slotfile>.md`, tokens resolved (marp header stays in
+     the source; the renderer injects only the slot label via `{{ slot_label }}`).
+   - every other file → `<target>/labs/<slot-prefixed-name>/<relpath>`: `.md` files with tokens resolved,
+     all non-`.md` lab files copied **byte-for-byte** (mode preserved).
+4. For non-lesson slots, emit the calendar entry only. *(Calendar/course-plan generation — step 5 — is a
+   follow-on plan; the pilot renders lessons only.)*
 5. Generate `course-plan.md` / syllabus table + `AGENDA.md` from the manifest (single source for the calendar).
-6. Write into the target course repo's working tree; the instructor reviews `git diff`, commits, pushes.
+6. Render is **clean-slate + atomic**: it builds a fresh staging tree and swaps it into `out_dir` only on
+   full success, so a dropped/renamed lesson leaves no stale orphan and a mid-render error keeps the
+   previous output intact. Rendering targets a dedicated staging dir; syncing that tree into the course
+   repo (deleting the repo's own orphans, then `git diff` → commit → push) is a separate step.
 
 **Idempotence:** rendering the same (lessons + manifest) twice produces a byte-identical tree — this is
 what makes the parity check (§10) and safe re-renders possible.
