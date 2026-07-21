@@ -2,7 +2,7 @@ slug: hash
 title: "Hash Functions: Cracking a Leaked Password Database"
 kind: LAB
 duration_min: 180
-tags: [crypto, hashing, integrity]
-cwe: [CWE-345]
+tags: [crypto, hashing, passwords]
+cwe: [CWE-916, CWE-327, CWE-759, CWE-760]
 prereqs: []
 flag_key: "hash"

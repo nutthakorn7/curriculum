@@ -68,12 +68,16 @@ Two upcoming drivers make the manual approach untenable:
 ```
 lessons/<slug>/
   lesson.yml        # metadata (schema below)
-  slides.md         # marp source; header carries NO slot number (renderer injects it)
-  worksheet.md
   README.md         # objectives + run instructions; refs other lessons by slug, never by number
-  lab/              # docker-compose.yml, vulnerable_app.py / fixed_app.py, exploit.py, lab README …
-  assets/           # images etc. (optional)
+  worksheet.md
+  slides.md         # optional; marp source, header carries NO slot number (renderer injects it)
+  docker-compose.yml, vulnerable_app.py / fixed_app.py, exploit.py, …   # lab code, flat, copied verbatim
 ```
+
+A lesson is flat: everything except `lesson.yml` and `slides.md` lives directly under `lessons/<slug>/`
+and is treated as lab content. On render, `slides.md` (if present) is split out to the course's
+`slides/<slotfile>.md`; every other file is copied — `.md` files with tokens resolved, everything else
+verbatim — into `labs/<labdir>/`.
 
 `lesson.yml`:
 
