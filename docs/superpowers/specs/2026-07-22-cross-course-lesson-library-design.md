@@ -246,6 +246,23 @@ KOSEN69 - curriculum/
   flags stay valid. (Handle in the plan; do not regenerate salts.)
 - **Naming.** Monorepo named `KOSEN69 - curriculum` provisionally; trivially renamed before it has remotes.
 
+## 12a. Future output targets (deliberately out of scope now)
+
+The renderer is a `manifest → output` function and the lessons are a structured library
+(`lesson.yml` + markdown, with slug/tags/cwe/prereqs/flag_key). Additional consumers of the same
+source are therefore a clean *additive* extension, never a rearchitecture:
+
+- **A 2027 LMS / HTB-THM-style platform** (deferred per the platform roadmap) would be a second output
+  target reading the same `lessons/` — building it now would be speculative (YAGNI) and premature (its
+  shape is unknown). The single-source design keeps that door open at zero present cost.
+- **Quiz bank → live-quiz platform.** Quizzes today live at repo level (`quizzes/`, `instructor/quizzes/`).
+  A natural later step is to make each lesson own its quiz (`lessons/<slug>/quiz.md`) and have the renderer
+  aggregate a per-course bank that also feeds the live-quiz platform — so quizzes become single-sourced too.
+  **Not in the pilot;** a follow-on plan.
+
+No work is committed for these now. This section only records the intent so the pilot does not accidentally
+foreclose them (e.g. keep `lesson.yml` rich; keep the renderer target-agnostic).
+
 ## 13. Locked decisions (from the brainstorm)
 
 1. Reuse is **re-scheduling only** — no per-course content variants; lessons are single-source.
