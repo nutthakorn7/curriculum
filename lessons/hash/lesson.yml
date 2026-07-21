@@ -1,0 +1,8 @@
+slug: hash
+title: "Hash Functions: Cracking a Leaked Password Database"
+kind: LAB
+duration_min: 180
+tags: [crypto, hashing, integrity]
+cwe: [CWE-345]
+prereqs: []
+flag_key: "hash"

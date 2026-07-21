@@ -1,0 +1,11 @@
+course:
+  name: "Security & Cryptography"
+  brand: "KOSEN·KMITL"
+  flag_salt_env: SC_FLAG_SALT
+  challenge_keys_env: AIRSEC_CHALLENGE_KEYS
+schedule_unit: weeks
+slot_label: "Week {n}"
+target_repo: "nutthakorn7/security-cryptography"
+schedule:
+  - {slot: 2, lesson: hash}
+  - {slot: 7, review: "Review / midterm prep"}
