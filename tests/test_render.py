@@ -74,6 +74,80 @@ def test_render_is_idempotent(tmp_path):
     assert open(os.path.join(out, "labs", "week02-hash", "README.md"), "rb").read() == first
 
 
+def test_render_is_clean_slate(tmp_path):
+    root = str(tmp_path)
+    _mk_lesson(root, "hash", {"README.md": "# Hash\n"})
+    _mk_lesson(root, "macs", {"README.md": "# MACs\n"})
+    _mk_manifest(root, [(2, "hash"), (3, "macs")])
+    out = os.path.join(root, "out")
+    lr = os.path.join(root, "lessons")
+    render.render_course(os.path.join(root, "courses", "sc.yml"), lessons_root=lr, out_dir=out)
+    assert os.path.isdir(os.path.join(out, "labs", "week03-macs"))
+
+    # re-render with macs dropped from the manifest
+    _mk_manifest(root, [(2, "hash")])
+    render.render_course(os.path.join(root, "courses", "sc.yml"), lessons_root=lr, out_dir=out)
+    assert not os.path.exists(os.path.join(out, "labs", "week03-macs"))
+    assert os.path.isdir(os.path.join(out, "labs", "week02-hash"))
+
+
+def test_render_atomic_on_error(tmp_path):
+    root = str(tmp_path)
+    _mk_lesson(root, "hash", {"README.md": "# Hash {{ slot_label }}\n"})
+    _mk_manifest(root, [(2, "hash")])
+    out = os.path.join(root, "out")
+    mpath = os.path.join(root, "courses", "sc.yml")
+    lr = os.path.join(root, "lessons")
+    render.render_course(mpath, lessons_root=lr, out_dir=out)
+    original = open(os.path.join(out, "labs", "week02-hash", "README.md"), "rb").read()
+
+    # a fresh lessons root: 'aa' is a clean, earlier-scheduled lesson; 'bb' has a token that
+    # fails at render time (validate passes because 'ghost-not-scheduled' is just text to it).
+    root2 = os.path.join(root, "root2")
+    _mk_lesson(root2, "aa", {"README.md": "# AA\n"})
+    _mk_lesson(root2, "bb", {"README.md": "# BB {{ ref('ghost-not-scheduled') }}\n"})
+    _mk_manifest(root2, [(3, "aa"), (4, "bb")])
+    mpath2 = os.path.join(root2, "courses", "sc.yml")
+    lr2 = os.path.join(root2, "lessons")
+    try:
+        render.render_course(mpath2, lessons_root=lr2, out_dir=out)
+        assert False, "expected a render error"
+    except Exception:
+        pass
+
+    # previous output intact, no partial output from the failed render, no leftover staging dir
+    assert open(os.path.join(out, "labs", "week02-hash", "README.md"), "rb").read() == original
+    assert not os.path.exists(os.path.join(out, "labs", "week03-aa"))
+    assert not os.path.isdir(out.rstrip("/") + ".tmp-render")
+
+
+def test_render_refuses_git_worktree(tmp_path):
+    root = str(tmp_path)
+    _mk_lesson(root, "hash", {"README.md": "# Hash\n"})
+    _mk_manifest(root, [(2, "hash")])
+    out = os.path.join(root, "out")
+    os.makedirs(os.path.join(out, ".git"))
+    try:
+        render.render_course(os.path.join(root, "courses", "sc.yml"),
+                             lessons_root=os.path.join(root, "lessons"), out_dir=out)
+        assert False, "expected a RenderError"
+    except render.RenderError as e:
+        assert "git" in str(e)
+
+
+def test_render_error_names_offending_file(tmp_path):
+    root = str(tmp_path)
+    _mk_lesson(root, "hash", {"README.md": "# Hash {{ ref('nope') }}\n"})
+    _mk_manifest(root, [(2, "hash")])
+    out = os.path.join(root, "out")
+    try:
+        render.render_course(os.path.join(root, "courses", "sc.yml"),
+                             lessons_root=os.path.join(root, "lessons"), out_dir=out)
+        assert False, "expected a render error"
+    except Exception as e:
+        assert "README.md" in str(e)
+
+
 def test_render_rejects_invalid_manifest(tmp_path):
     root = str(tmp_path)
     _mk_lesson(root, "hash", {"README.md": "# Hash\n"})

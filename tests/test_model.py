@@ -24,6 +24,31 @@ def test_load_lesson(tmp_path):
     assert lsn.dir == str(d)
 
 
+def test_load_lessons_rejects_dir_name_slug_mismatch(tmp_path):
+    d = tmp_path / "lessons" / "hash-v2"
+    _write(str(d / "lesson.yml"), """
+        slug: hash
+        title: "Hashing & Cookie Forgery"
+        kind: LAB
+    """)
+    try:
+        model.load_lessons(str(tmp_path / "lessons"))
+        assert False, "expected a ValueError for dir-name/slug mismatch"
+    except ValueError as e:
+        assert "hash-v2" in str(e) and "hash" in str(e)
+
+
+def test_load_lessons_accepts_matching_dir_name(tmp_path):
+    d = tmp_path / "lessons" / "hash"
+    _write(str(d / "lesson.yml"), """
+        slug: hash
+        title: "Hashing & Cookie Forgery"
+        kind: LAB
+    """)
+    lessons = model.load_lessons(str(tmp_path / "lessons"))
+    assert lessons["hash"].slug == "hash"
+
+
 def test_load_manifest(tmp_path):
     p = tmp_path / "courses" / "sc.yml"
     _write(str(p), """

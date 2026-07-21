@@ -45,6 +45,14 @@ def test_duplicate_slot(tmp_path):
     assert any("duplicate slot 2" in e for e in validate.validate_manifest(m, lessons))
 
 
+def test_duplicate_lesson_slug(tmp_path):
+    lessons = _lessons(tmp_path, {"hash": []})
+    m = _manifest([{"slot": 2, "kind": "lesson", "value": "hash"},
+                   {"slot": 5, "kind": "lesson", "value": "hash"}])
+    errs = validate.validate_manifest(m, lessons)
+    assert any("more than once" in e and "hash" in e for e in errs)
+
+
 def test_prereq_after_dependent(tmp_path):
     lessons = _lessons(tmp_path, {"hash": [], "macs": ["hash"]})
     m = _manifest([{"slot": 2, "kind": "lesson", "value": "macs"},
@@ -59,6 +67,19 @@ def test_lint_lesson_flags_week_literal(tmp_path):
     (d / "README.md").write_text("See Week 5 for the recap. Slides: slides/week02.md\n", encoding="utf-8")
     violations = validate.lint_lesson(str(d))
     assert any("Week 5" in v for v in violations) and any("slides/week02.md" in v for v in violations)
+
+
+def test_lint_lesson_flags_case_insensitive_and_plural_range(tmp_path):
+    d = tmp_path / "lessons" / "hash"
+    os.makedirs(d, exist_ok=True)
+    (d / "lesson.yml").write_text("slug: hash\ntitle: h\nkind: LAB\n", encoding="utf-8")
+    (d / "README.md").write_text(
+        "see week 5 for background. Weeks 5-6 cover MACs. Slides/week03.md has the deck.\n",
+        encoding="utf-8")
+    violations = validate.lint_lesson(str(d))
+    assert any("week 5" in v for v in violations)
+    assert any("Weeks 5-6" in v for v in violations)
+    assert any("Slides/week03.md" in v for v in violations)
 
 
 def test_lint_lesson_clean(tmp_path):

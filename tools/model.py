@@ -36,6 +36,12 @@ def load_lessons(lessons_root):
         d = os.path.join(lessons_root, name)
         if os.path.isfile(os.path.join(d, "lesson.yml")):
             lsn = load_lesson(d)
+            if name != lsn.slug:
+                raise ValueError(
+                    f"lesson directory '{name}' declares slug '{lsn.slug}'; "
+                    f"directory name must equal the slug (rename the directory to '{lsn.slug}')")
+            if lsn.slug in out:
+                raise ValueError(f"duplicate lesson slug '{lsn.slug}'")
             out[lsn.slug] = lsn
     return out
 

@@ -3,8 +3,8 @@ import os
 import re
 
 # A lesson must not hard-code a schedule number for itself or another lesson.
-_WEEK_WORD = re.compile(r"\b(?:Week|Day|Session|Lesson)\s+\d+\b")
-_SLIDE_PATH = re.compile(r"slides/(?:week|day|session|lesson)\d+\.md")
+_WEEK_WORD = re.compile(r"\b(?:Weeks?|Days?|Sessions?|Lessons?)\s+\d+(?:\s*[-–]\s*\d+)?\b", re.IGNORECASE)
+_SLIDE_PATH = re.compile(r"slides/(?:week|day|session|lesson)\d+\.md", re.IGNORECASE)
 
 
 def validate_manifest(manifest, lessons_by_slug):
@@ -21,6 +21,8 @@ def validate_manifest(manifest, lessons_by_slug):
         if s.value not in lessons_by_slug:
             errors.append(f"slot {s.slot}: unknown lesson slug '{s.value}'")
             continue
+        if s.value in seen_at:
+            errors.append(f"lesson '{s.value}' scheduled more than once (slots must map to distinct lessons)")
         for pre in lessons_by_slug[s.value].prereqs:
             if pre not in seen_at:
                 errors.append(
