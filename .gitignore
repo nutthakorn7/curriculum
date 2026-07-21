@@ -1,0 +1,17 @@
+# Instructor-only material — NEVER commit to this (public-destined) repo.
+# Salts, per-student flag tables, rosters, answer keys, research materials, .env files.
+# Same convention as the three course repos: everything under instructor/ stays local.
+instructor/
+.env
+*.env
+!.env.example
+
+# Python / tooling
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Rendered scratch output (course trees are generated into their own repos, not committed here)
+dist/
+_render/
