@@ -1,0 +1,16 @@
+services:
+  vulnerable:
+    build: .
+    command: python vulnerable_app.py
+    environment:
+      - FLAG_S3SITE=${FLAG_S3SITE:-FLAG{public_putobject_defaces_your_website}}
+    ports:
+      - "8105:5000"
+
+  fixed:
+    build: .
+    command: python fixed_app.py
+    environment:
+      - FLAG_S3SITE=${FLAG_S3SITE:-FLAG{public_putobject_defaces_your_website}}
+    ports:
+      - "8106:5000"

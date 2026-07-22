@@ -1,0 +1,8 @@
+slug: iam-policy-evaluation
+title: "IAM Policy Evaluation (Privilege Escalation)"
+kind: LAB
+duration_min: 180
+tags: [iam, policy-evaluation, least-privilege, access-control]
+cwe: ["CWE-284","CWE-668"]
+prereqs: []
+flag_keys: ["iam"]

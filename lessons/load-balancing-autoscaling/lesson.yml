@@ -1,0 +1,8 @@
+slug: load-balancing-autoscaling
+title: "Load Balancing & Auto-Scaling Under Load"
+kind: HYBRID
+duration_min: 180
+tags: [load-balancer, auto-scaling, denial-of-wallet, rate-limiting]
+cwe: ["CWE-400"]
+prereqs: []
+flag_keys: ["scaling"]

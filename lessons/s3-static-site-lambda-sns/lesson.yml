@@ -1,0 +1,8 @@
+slug: s3-static-site-lambda-sns
+title: "S3 Static Website Hosting + Lambda/SNS Event-Driven Email"
+kind: LAB
+duration_min: 180
+tags: [s3, bucket-policy, least-privilege, event-driven]
+cwe: ["CWE-284","CWE-668"]
+prereqs: []
+flag_keys: ["s3"]

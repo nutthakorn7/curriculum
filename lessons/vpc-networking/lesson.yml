@@ -1,0 +1,8 @@
+slug: vpc-networking
+title: "VPC Networking (Public/Private Subnets, NAT Gateway, Security Groups vs. NACLs)"
+kind: HYBRID
+duration_min: 180
+tags: [vpc, network-acls, security-groups, nat-gateway]
+cwe: ["CWE-863","CWE-284"]
+prereqs: []
+flag_keys: ["nacl"]

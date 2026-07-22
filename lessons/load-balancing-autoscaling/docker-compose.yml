@@ -1,0 +1,18 @@
+services:
+  vulnerable:
+    build: .
+    command: python vulnerable_app.py
+    environment:
+      - FLAG_SCALING=${FLAG_SCALING:-FLAG{denial_of_wallet_no_throttle}}
+    ports:
+      - "8109:5000"
+
+  fixed:
+    build: .
+    command: python fixed_app.py
+    environment:
+      - FLAG_SCALING=${FLAG_SCALING:-FLAG{denial_of_wallet_no_throttle}}
+      - API_KEY=${API_KEY:-s3cret-scaling-key}
+      - RATE_LIMIT_MAX_CALLS=${RATE_LIMIT_MAX_CALLS:-5}
+    ports:
+      - "8110:5000"

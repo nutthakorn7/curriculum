@@ -1,0 +1,8 @@
+slug: aws-fundamentals-intro
+title: "AWS Fundamentals: Shared Responsibility & IAM Basics"
+kind: CONCEPTUAL
+duration_min: 180
+tags: [shared-responsibility, iam, root-user, mfa]
+cwe: ["CWE-269","CWE-287"]
+prereqs: []
+flag_keys: []

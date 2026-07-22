@@ -1,0 +1,8 @@
+slug: s3-versioning-lifecycle-replication
+title: "S3 Data Protection: Versioning, Lifecycle, and Cross-Region Replication"
+kind: CONCEPTUAL
+duration_min: 180
+tags: [versioning, lifecycle-rules, cross-region-replication, disaster-recovery]
+cwe: ["CWE-1188"]
+prereqs: []
+flag_keys: []

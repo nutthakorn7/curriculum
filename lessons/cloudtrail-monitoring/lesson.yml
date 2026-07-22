@@ -1,0 +1,8 @@
+slug: cloudtrail-monitoring
+title: "CloudTrail + CloudWatch + EventBridge Monitoring"
+kind: HYBRID
+duration_min: 180
+tags: [cloudtrail, cloudwatch, aggregation-keys, password-spray]
+cwe: ["CWE-778"]
+prereqs: []
+flag_keys: ["monitor"]

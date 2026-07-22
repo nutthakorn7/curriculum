@@ -1,0 +1,8 @@
+slug: config-lambda-remediation
+title: "AWS Config + Lambda Auto-Remediation (Inverted Allowlist)"
+kind: HYBRID
+duration_min: 180
+tags: [auto-remediation, allowlist-denylist, logic-inversion, security-groups]
+cwe: ["CWE-697", "CWE-284"]
+prereqs: []
+flag_keys: ["remediate"]

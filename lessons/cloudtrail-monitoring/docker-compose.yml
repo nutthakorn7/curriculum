@@ -1,0 +1,14 @@
+services:
+  vulnerable:
+    build: .
+    command: python vulnerable_app.py
+    ports:
+      - "8111:5000"
+
+  fixed:
+    build: .
+    command: python fixed_app.py
+    environment:
+      - FLAG_MONITOR=${FLAG_MONITOR:-FLAG{aggregation_key_must_match_the_threat_model}}
+    ports:
+      - "8112:5000"

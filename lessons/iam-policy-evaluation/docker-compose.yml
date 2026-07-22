@@ -1,0 +1,16 @@
+services:
+  vulnerable:
+    build: .
+    command: python vulnerable_app.py
+    environment:
+      - FLAG_IAM=${FLAG_IAM:-FLAG{wildcard_principal_grants_the_world}}
+    ports:
+      - "8107:5000"
+
+  fixed:
+    build: .
+    command: python fixed_app.py
+    environment:
+      - FLAG_IAM=${FLAG_IAM:-FLAG{wildcard_principal_grants_the_world}}
+    ports:
+      - "8108:5000"
