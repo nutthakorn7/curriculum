@@ -26,7 +26,7 @@ Answer in 2–4 sentences each.
 
 **Learning goals:** extract data via SQLi, achieve OS command injection, exploit an unrestricted upload, then prove each fix in `solution_app.py` blocks the payload.
 
-**Prerequisites:** Docker + Docker Compose, `curl`, a browser. Working dir: `labs/week04-injection/`.
+**Prerequisites:** Docker + Docker Compose, `curl`, a browser. Working dir: `{{ labpath }}/`.
 
 ### Environment setup
 

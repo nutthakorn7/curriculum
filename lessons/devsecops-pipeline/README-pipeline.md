@@ -15,7 +15,7 @@ copy it into a repo's `.github/workflows/` directory.
 ```bash
 # From the root of the repo you want to protect:
 mkdir -p .github/workflows
-cp path/to/labs/week15-devsecops-pipeline/security-ci.yml \
+cp path/to/{{ labpath }}/security-ci.yml \
    .github/workflows/security-ci.yml
 git add .github/workflows/security-ci.yml
 git commit -m "ci: add security gate (Semgrep + Trivy + Gitleaks)"

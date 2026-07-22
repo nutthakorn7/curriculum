@@ -39,14 +39,14 @@ Answer in your own words (2–4 sentences each).
 ```bash
 # --- A) Wire the gate into a repo you own (README-pipeline.md §1) ---
 mkdir -p .github/workflows
-cp labs/week15-devsecops-pipeline/security-ci.yml .github/workflows/security-ci.yml
+cp {{ labpath }}/security-ci.yml .github/workflows/security-ci.yml
 git add .github/workflows/security-ci.yml
 git commit -m "ci: add security gate (Semgrep + Trivy + Gitleaks)"
 git push        # runs on push/PR to main
 
 # --- B) Run the sample service locally (logging + fail-closed) ---
 pip install flask
-python labs/week15-devsecops-pipeline/sample-service.py
+python {{ labpath }}/sample-service.py
 # In another shell:
 curl -s -X POST localhost:5001/login -H 'Content-Type: application/json' -d '{"token":"nope"}'   # 401 authn_failure
 curl -s localhost:5001/admin -H 'Authorization: bob-token'    # 403 authz_failure
