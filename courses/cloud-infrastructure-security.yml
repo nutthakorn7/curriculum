@@ -1,0 +1,20 @@
+course:
+  name: "Cloud Infrastructure & Security"
+  brand: "KOSEN·KMITL"
+  flag_salt_env: CIS_FLAG_SALT
+  challenge_keys_env: AIRSEC_CHALLENGE_KEYS
+target_repo: "nutthakorn7/cloud-infrastructure-security"
+schedule_unit: lessons
+slot_label: "Lesson {n}"
+schedule:
+  - {slot: 1,  lesson: aws-fundamentals-intro}
+  - {slot: 2,  lesson: ec2-lambda-beanstalk}
+  - {slot: 3,  lesson: s3-static-site-lambda-sns}
+  - {slot: 4,  lesson: load-balancing-autoscaling}
+  - {slot: 5,  lesson: iam-policy-evaluation}
+  - {slot: 6,  lesson: cloudtrail-monitoring}
+  - {slot: 7,  lesson: vpc-networking}
+  - {slot: 8,  lesson: kms-envelope-encryption}
+  - {slot: 9,  lesson: s3-versioning-lifecycle-replication}
+  - {slot: 10, lesson: config-lambda-remediation}
+  - {slot: 11, review: "Reflection & Wrap-up (AWS-graded assessments — shared baseline, not authored in this repo)"}
