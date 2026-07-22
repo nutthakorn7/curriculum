@@ -85,3 +85,76 @@ def test_lesson_flag_keys_defaults_empty(tmp_path):
     _write(str(d / "lesson.yml"), "slug: threat-modeling\ntitle: t\nkind: LAB\n")
     lsn = model.load_lesson(str(d))
     assert lsn.flag_keys == []
+
+
+def test_manifest_extra_challenge_keys_defaults_empty(tmp_path):
+    p = tmp_path / "courses" / "sc.yml"
+    _write(str(p), """
+        course: {name: "x"}
+        schedule_unit: weeks
+        slot_label: "Week {n}"
+        target_repo: "x/y"
+        schedule:
+          - {slot: 2, lesson: hash}
+    """)
+    m = model.load_manifest(str(p))
+    assert m.extra_challenge_keys == []
+
+
+def test_manifest_extra_challenge_keys_loaded(tmp_path):
+    p = tmp_path / "courses" / "swsec.yml"
+    _write(str(p), """
+        course: {name: "x"}
+        schedule_unit: weeks
+        slot_label: "Week {n}"
+        target_repo: "x/y"
+        extra_challenge_keys: [boss, xss]
+        schedule:
+          - {slot: 1, lesson: injection}
+    """)
+    m = model.load_manifest(str(p))
+    assert m.extra_challenge_keys == ["boss", "xss"]
+
+
+def test_challenge_keys_unions_lessons_and_extras(tmp_path):
+    lessons_dir = tmp_path / "lessons"
+    _write(str(lessons_dir / "injection" / "lesson.yml"),
+           "slug: injection\ntitle: t\nkind: LAB\nflag_keys: [cmdi, sqli]\n")
+    _write(str(lessons_dir / "hash" / "lesson.yml"),
+           "slug: hash\ntitle: t\nkind: LAB\nflag_keys: [hash]\n")
+    lessons = model.load_lessons(str(lessons_dir))
+
+    p = tmp_path / "courses" / "c.yml"
+    _write(str(p), """
+        course: {name: "x"}
+        schedule_unit: weeks
+        slot_label: "Week {n}"
+        target_repo: "x/y"
+        extra_challenge_keys: [boss]
+        schedule:
+          - {slot: 1, lesson: injection}
+          - {slot: 2, lesson: hash}
+          - {slot: 3, review: "Review"}
+    """)
+    m = model.load_manifest(str(p))
+    assert model.challenge_keys(m, lessons) == ["boss", "cmdi", "hash", "sqli"]
+
+
+def test_challenge_keys_dedupes_shared_key_across_lessons(tmp_path):
+    lessons_dir = tmp_path / "lessons"
+    _write(str(lessons_dir / "a" / "lesson.yml"), "slug: a\ntitle: t\nkind: LAB\nflag_keys: [shared]\n")
+    _write(str(lessons_dir / "b" / "lesson.yml"), "slug: b\ntitle: t\nkind: LAB\nflag_keys: [shared]\n")
+    lessons = model.load_lessons(str(lessons_dir))
+
+    p = tmp_path / "courses" / "c.yml"
+    _write(str(p), """
+        course: {name: "x"}
+        schedule_unit: weeks
+        slot_label: "Week {n}"
+        target_repo: "x/y"
+        schedule:
+          - {slot: 1, lesson: a}
+          - {slot: 2, lesson: b}
+    """)
+    m = model.load_manifest(str(p))
+    assert model.challenge_keys(m, lessons) == ["shared"]

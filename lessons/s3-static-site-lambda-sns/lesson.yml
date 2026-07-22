@@ -5,4 +5,4 @@ duration_min: 180
 tags: [s3, bucket-policy, least-privilege, event-driven]
 cwe: ["CWE-284","CWE-668"]
 prereqs: []
-flag_keys: ["s3"]
+flag_keys: ["s3site"]

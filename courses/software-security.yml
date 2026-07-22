@@ -8,6 +8,11 @@ course:
 schedule_unit: weeks
 slot_label: "Week {n}"
 target_repo: "nutthakorn7/software-security"
+# Static/manually-graded CTFd-only challenges with no attributable per-lesson lab (xss, crack, ecb,
+# fuzz, supplychain, misconfig, indirect), plus the capstone (boss, NoteVault) — not tied to any one
+# scheduled lesson's flag_keys, so they can't come from the lesson union. Preserves this course's
+# original 17-key challenge vocabulary; see tools/model.py's challenge_keys().
+extra_challenge_keys: [xss, crack, ecb, fuzz, supplychain, misconfig, indirect, boss]
 schedule:
   - {slot: 1,  lesson: threat-modeling}
   - {slot: 2,  lesson: sdlc-tooling}

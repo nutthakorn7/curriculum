@@ -7,6 +7,9 @@ course:
 target_repo: "nutthakorn7/software-security"
 schedule_unit: sessions
 slot_label: "Session {n}"
+# Same target_repo as courses/software-security.yml — keep this in sync with that manifest's
+# extra_challenge_keys (see its own comment for why these 8 keys can't come from the lesson union).
+extra_challenge_keys: [xss, crack, ecb, fuzz, supplychain, misconfig, indirect, boss]
 schedule:
   - {slot: 1, lesson: threat-modeling}
   - {slot: 1, lesson: sdlc-tooling}

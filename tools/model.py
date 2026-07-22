@@ -61,6 +61,9 @@ class Manifest:
     slot_label: str
     target_repo: str
     schedule: list                 # list[Slot]
+    extra_challenge_keys: list = field(default_factory=list)  # non-lesson flag keys (capstones,
+                                                                # static/manually-graded CTFd-only
+                                                                # challenges with no attributable lab)
     path: str = ""
 
     def lesson_slugs(self):
@@ -91,5 +94,17 @@ def load_manifest(path):
         slot_label=d["slot_label"],
         target_repo=d["target_repo"],
         schedule=[_parse_slot(x) for x in d["schedule"]],
+        extra_challenge_keys=d.get("extra_challenge_keys", []),
         path=path,
     )
+
+
+def challenge_keys(manifest, lessons_by_slug):
+    """This course's full flag-key vocabulary: every scheduled lesson's flag_keys, plus the
+    manifest's own extra_challenge_keys (capstones and other non-lesson, static/manually-graded
+    CTFd-only challenges with no attributable per-lesson lab). Single source of truth for
+    seed_flags.py and check_flag_keys.py — replaces a hand-maintained CHALLENGES list per repo."""
+    keys = set(manifest.extra_challenge_keys)
+    for slug in manifest.lesson_slugs():
+        keys.update(lessons_by_slug[slug].flag_keys)
+    return sorted(keys)
