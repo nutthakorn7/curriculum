@@ -3,9 +3,26 @@ course:
   brand: "KOSEN·KMITL"
   flag_salt_env: SC_FLAG_SALT
   challenge_keys_env: AIRSEC_CHALLENGE_KEYS
+target_repo: "nutthakorn7/security-cryptography"
 schedule_unit: weeks
 slot_label: "Week {n}"
-target_repo: "nutthakorn7/security-cryptography"
 schedule:
-  - {slot: 2, lesson: hash}
-  - {slot: 7, review: "Review / midterm prep"}
+  - {slot: 1,  lesson: intro}
+  - {slot: 2,  lesson: hash}
+  - {slot: 3,  lesson: macs}
+  - {slot: 4,  lesson: aes-modes}
+  - {slot: 5,  lesson: key-exchanges}
+  - {slot: 6,  lesson: aead}
+  - {slot: 7,  review: "Review (pre-Midterm)"}
+  - {slot: 8,  exam: "Midterm: Written", phase: midterm}
+  - {slot: 9,  exam: "Midterm: CTF Practical", phase: midterm}
+  - {slot: 10, lesson: hybrid-encryption}
+  - {slot: 11, lesson: signatures-zkp}
+  - {slot: 12, lesson: secure-transport}
+  - {slot: 13, lesson: e2e-encryption}
+  - {slot: 14, lesson: authentication}
+  - {slot: 15, lesson: pqc}
+  - {slot: 16, project: "Capstone Studio (CryptoVault build)"}
+  - {slot: 17, review: "Review (pre-Final)"}
+  - {slot: 18, exam: "Final: Written", phase: final}
+  - {slot: 19, exam: "Final: Capstone CTF", phase: final}
