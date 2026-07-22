@@ -1,0 +1,57 @@
+# Vulnerable topology: unauthenticated Diffie-Hellman.
+#
+# Run with:
+#   docker compose -f docker-compose.vulnerable.yml up --build
+#
+# `relay` performs a full active MITM: independent DH handshakes with both
+# Alice and Bob, decrypting Alice's message and printing
+# "RELAY INTERCEPTED: <plaintext>" before re-encrypting and forwarding it on
+# to Bob, who prints "BOB RECEIVED: <plaintext>" with no error -- the attack
+# is invisible to both endpoints.
+services:
+  bob:
+    build: .
+    container_name: week05-bob
+    command: ["bob.py"]
+    environment:
+      LISTEN_HOST: "0.0.0.0"
+      LISTEN_PORT: "5000"
+      SIGNED: ""
+    networks:
+      - labnet
+
+  relay:
+    build: .
+    container_name: week05-relay
+    command: ["relay.py"]
+    environment:
+      LISTEN_HOST: "0.0.0.0"
+      LISTEN_PORT: "5000"
+      UPSTREAM_HOST: "bob"
+      UPSTREAM_PORT: "5000"
+      SIGNED: ""
+    depends_on:
+      - bob
+    networks:
+      - labnet
+
+  alice:
+    build: .
+    container_name: week05-alice
+    command: ["alice.py"]
+    environment:
+      # Alice connects to `relay`, never to `bob` directly -- this is the
+      # premise of the lab: the attacker controls the network path, so
+      # whatever Alice thinks is "Bob" is whoever answers on that path.
+      PEER_HOST: "relay"
+      PEER_PORT: "5000"
+      SIGNED: ""
+      SECRET_MESSAGE: "the launch code is 4471"
+    depends_on:
+      - relay
+    networks:
+      - labnet
+
+networks:
+  labnet:
+    driver: bridge

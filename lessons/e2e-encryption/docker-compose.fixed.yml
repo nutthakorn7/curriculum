@@ -1,0 +1,58 @@
+# Fixed topology: true end-to-end encryption (server-cannot-read).
+#
+# Run with:
+#   docker compose -f docker-compose.fixed.yml up --build
+#
+# E2E=1 everywhere. bob generates an RSA keypair in memory and publishes his
+# PUBLIC key; alice fetches it and encrypts the secret CLIENT-SIDE (AES-256-GCM
+# + RSA-OAEP key wrap) before sending. The server -- running the SAME code as
+# in vulnerable mode -- now stores and logs only opaque base64 ciphertext:
+#     week13-server | SERVER SAW: <base64 gibberish, NOT the plaintext>
+# and bob decrypts client-side:
+#     week13-bob    | BOB DECRYPTED: meet at pier 39 at midnight
+# The plaintext never reaches the server. "SERVER SAW: meet at pier 39 at
+# midnight" NEVER appears in this topology -- that absence is the evidence the
+# E2EE actually protected the message from the provider.
+#
+# No private key is shipped: bob's RSA keypair is generated at container
+# startup and never written to disk.
+services:
+  server:
+    build: .
+    container_name: week13-server
+    command: ["server.py"]
+    environment:
+      LISTEN_HOST: "0.0.0.0"
+      LISTEN_PORT: "8080"
+      E2E: "1"
+    networks:
+      - labnet
+
+  bob:
+    build: .
+    container_name: week13-bob
+    command: ["bob.py"]
+    environment:
+      SERVER_URL: "http://server:8080"
+      E2E: "1"
+    depends_on:
+      - server
+    networks:
+      - labnet
+
+  alice:
+    build: .
+    container_name: week13-alice
+    command: ["alice.py"]
+    environment:
+      SERVER_URL: "http://server:8080"
+      E2E: "1"
+      SECRET_MESSAGE: "meet at pier 39 at midnight"
+    depends_on:
+      - server
+    networks:
+      - labnet
+
+networks:
+  labnet:
+    driver: bridge

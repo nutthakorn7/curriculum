@@ -1,0 +1,8 @@
+slug: pqc
+title: "Post-Quantum Cryptography: Lamport One-Time Signatures and Key Reuse"
+kind: LAB
+duration_min: 180
+tags: [pqc, lamport, hash-based-signatures, hndl]
+cwe: [CWE-323, CWE-347]
+prereqs: []
+flag_keys: ["pqc","hndl"]

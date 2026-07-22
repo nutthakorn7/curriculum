@@ -1,0 +1,6 @@
+flask>=3.1.3
+requests>=2.33.0
+# ecdsa: no version fixes CVE-2024-23342 (Minerva timing attack, GHSA-wj6h-64fc-37mp) --
+# the python-ecdsa project has stated side-channel attacks are out of scope, no fix planned.
+# Accepted risk for this lab -- see README.md's "Known dependency risk" note for why.
+ecdsa

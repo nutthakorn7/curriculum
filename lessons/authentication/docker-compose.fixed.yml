@@ -1,0 +1,47 @@
+# Fixed topology: challenge-response login (password never transmitted).
+#
+# Run with:
+#   docker compose -f docker-compose.fixed.yml up --build
+#
+# The client fetches a fresh nonce from /challenge, derives verifier =
+# KDF(salt, password) LOCALLY, computes proof = HMAC(verifier, nonce), and
+# posts {username, nonce, proof} to /login. The password never appears in any
+# request. The server logs only what it received:
+#     SERVER SAW: nonce=<hex> proof=<hex>
+# and NEVER logs the password (it never arrives). The client still prints
+# "LOGIN OK".
+#
+# HONEST SCOPE: this fixed path demonstrates ONLY "password never
+# transmitted". It is a simplified challenge-response, NOT a full PAKE -- it
+# does not add offline-dictionary resistance to the stored verifier and does
+# not provide mutual authentication. See README.md.
+services:
+  server:
+    build: .
+    container_name: week14-server
+    command: ["server.py"]
+    environment:
+      LISTEN_HOST: "0.0.0.0"
+      LISTEN_PORT: "8080"
+      PAKE: "1"
+    networks:
+      - labnet
+
+  client:
+    build: .
+    container_name: week14-client
+    command: ["client.py"]
+    environment:
+      SERVER_HOST: "server"
+      SERVER_PORT: "8080"
+      USERNAME: "alice"
+      PASSWORD: "correct-horse-battery"
+      PAKE: "1"
+    depends_on:
+      - server
+    networks:
+      - labnet
+
+networks:
+  labnet:
+    driver: bridge

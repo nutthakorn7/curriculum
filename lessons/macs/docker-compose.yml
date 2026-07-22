@@ -1,0 +1,31 @@
+services:
+  vulnerable:
+    image: python:3.12-slim
+    working_dir: /lab
+    ports:
+      - "8092:8092"
+    volumes:
+      - ./:/lab
+    # Per-student flag: python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env
+    environment:
+      - MAC_SECRET=${MAC_SECRET:-0123456789abcdef}
+      - FLAG_MACS=${FLAG_MACS:-FLAG{macs_demo}}
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt &&
+               echo '--- vulnerable app (secret-prefix hash) on :8092 ---' &&
+               python vulnerable_app.py"
+
+  fixed:
+    image: python:3.12-slim
+    working_dir: /lab
+    ports:
+      - "8093:8093"
+    volumes:
+      - ./:/lab
+    environment:
+      - MAC_SECRET=${MAC_SECRET:-0123456789abcdef}
+      - FLAG_MACS=${FLAG_MACS:-FLAG{macs_demo}}
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt &&
+               echo '--- fixed app (HMAC-SHA256) on :8093 ---' &&
+               python fixed_app.py"

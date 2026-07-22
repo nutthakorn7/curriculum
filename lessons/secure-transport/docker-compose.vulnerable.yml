@@ -1,0 +1,90 @@
+# Vulnerable topology: a TLS client that does NOT validate the server cert.
+#
+# Run with:
+#   docker compose -f docker-compose.vulnerable.yml up --build
+#
+# gen_certs writes a demo CA, Bob's CA-signed cert, and a self-signed impostor
+# cert into a shared volume, then exits. `mitm` presents the SELF-SIGNED
+# impostor cert (CN=bob). `alice` has VERIFY unset, so she uses CERT_NONE /
+# check_hostname=False -- she accepts the impostor cert, the handshake
+# succeeds, she sends her secret, and `mitm` prints
+# "MITM INTERCEPTED: the vault code is 7731". `bob` sits idle (Alice never
+# reaches him -- she dials `mitm`).
+services:
+  gen_certs:
+    build: .
+    container_name: week12-gencerts
+    command: ["gen_certs.py"]
+    environment:
+      CERT_DIR: "/certs"
+      SERVER_NAME: "bob"
+    volumes:
+      - certs:/certs
+    networks:
+      - labnet
+
+  bob:
+    build: .
+    container_name: week12-bob
+    command: ["bob.py"]
+    environment:
+      LISTEN_HOST: "0.0.0.0"
+      LISTEN_PORT: "8443"
+      CERT_DIR: "/certs"
+    volumes:
+      - certs:/certs
+    depends_on:
+      gen_certs:
+        condition: service_completed_successfully
+    networks:
+      - labnet
+
+  mitm:
+    build: .
+    container_name: week12-mitm
+    command: ["mitm.py"]
+    environment:
+      LISTEN_HOST: "0.0.0.0"
+      LISTEN_PORT: "8443"
+      CERT_DIR: "/certs"
+    volumes:
+      - certs:/certs
+    depends_on:
+      gen_certs:
+        condition: service_completed_successfully
+    networks:
+      - labnet
+
+  alice:
+    build: .
+    container_name: week12-alice
+    command: ["alice.py"]
+    environment:
+      # Alice dials `mitm`, never `bob` directly -- this is the premise: the
+      # attacker sits on the network path, so whatever answers at "Bob's
+      # address" is whoever is there. VERIFY is deliberately unset here.
+      PEER_HOST: "mitm"
+      PEER_PORT: "8443"
+      SERVER_HOSTNAME: "bob"
+      CERT_DIR: "/certs"
+      # VERIFY unset -> vulnerable (CERT_NONE, check_hostname=False)
+      SECRET_MESSAGE: "the vault code is 7731"
+    volumes:
+      # Mounted for parity with the fixed file (so the ONLY difference between
+      # the two files is Alice's VERIFY flag). The vulnerable client never
+      # actually reads a cert -- that is precisely the bug.
+      - certs:/certs
+    depends_on:
+      gen_certs:
+        condition: service_completed_successfully
+      mitm:
+        condition: service_started
+    networks:
+      - labnet
+
+volumes:
+  certs:
+
+networks:
+  labnet:
+    driver: bridge

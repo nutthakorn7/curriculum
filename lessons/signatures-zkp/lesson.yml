@@ -1,0 +1,8 @@
+slug: signatures-zkp
+title: "Digital Signatures & Zero-Knowledge Proofs"
+kind: HYBRID
+duration_min: 180
+tags: [digital-signatures, ecdsa, malleability, zero-knowledge-proofs]
+cwe: [CWE-347, CWE-345]
+prereqs: []
+flag_keys: ["sig"]

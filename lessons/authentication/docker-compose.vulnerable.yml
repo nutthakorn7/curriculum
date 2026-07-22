@@ -1,0 +1,41 @@
+# Vulnerable topology: plain password login.
+#
+# Run with:
+#   docker compose -f docker-compose.vulnerable.yml up --build
+#
+# The client sends the ACTUAL password in the /login request body. The server
+# receives it in plaintext and logs it:
+#     SERVER SAW PASSWORD: correct-horse-battery
+# This models a malicious / compromised / over-logging server harvesting the
+# password. TLS would encrypt this on the wire but NOT hide it from the server
+# itself (the server terminates the TLS and holds the plaintext).
+services:
+  server:
+    build: .
+    container_name: week14-server
+    command: ["server.py"]
+    environment:
+      LISTEN_HOST: "0.0.0.0"
+      LISTEN_PORT: "8080"
+      PAKE: ""
+    networks:
+      - labnet
+
+  client:
+    build: .
+    container_name: week14-client
+    command: ["client.py"]
+    environment:
+      SERVER_HOST: "server"
+      SERVER_PORT: "8080"
+      USERNAME: "alice"
+      PASSWORD: "correct-horse-battery"
+      PAKE: ""
+    depends_on:
+      - server
+    networks:
+      - labnet
+
+networks:
+  labnet:
+    driver: bridge

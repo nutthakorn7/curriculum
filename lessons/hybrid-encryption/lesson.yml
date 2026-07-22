@@ -1,0 +1,8 @@
+slug: hybrid-encryption
+title: "Asymmetric & Hybrid Encryption"
+kind: CONCEPTUAL
+duration_min: 180
+tags: [crypto, asymmetric-encryption, hybrid-encryption, aes-gcm]
+cwe: []
+prereqs: []
+flag_keys: []

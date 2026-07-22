@@ -1,0 +1,30 @@
+services:
+  vulnerable:
+    image: python:3.12-slim
+    working_dir: /lab
+    ports:
+      - "8120:8120"
+    volumes:
+      - ./:/lab
+    # Per-student flag: python3 ../../../instructor/seed_flags.py env <STUDENT_ID> > .env
+    # (challenge key: hndl). Until then FLAG_HNDL defaults below.
+    environment:
+      - FLAG_HNDL=${FLAG_HNDL:-FLAG{harvest_now_decrypt_later}}
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt &&
+               echo '--- VULNERABLE channel (single classical KEM) on :8120 ---' &&
+               python vulnerable_app.py"
+
+  fixed:
+    image: python:3.12-slim
+    working_dir: /lab
+    ports:
+      - "8121:8121"
+    volumes:
+      - ./:/lab
+    environment:
+      - FLAG_HNDL=${FLAG_HNDL:-FLAG{harvest_now_decrypt_later}}
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt &&
+               echo '--- FIXED channel (hybrid classical + ML-KEM) on :8121 ---' &&
+               python fixed_app.py"

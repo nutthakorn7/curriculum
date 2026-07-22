@@ -1,0 +1,53 @@
+# Vulnerable topology: TLS-only messaging (server-can-read).
+#
+# Run with:
+#   docker compose -f docker-compose.vulnerable.yml up --build
+#
+# E2E is UNSET everywhere, so alice sends the RAW PLAINTEXT secret to the
+# server. The server stores and logs it verbatim -- the provider (and anyone
+# who can read the server logs) sees the message in the clear:
+#     week13-server | SERVER SAW: meet at pier 39 at midnight
+#     week13-bob    | BOB RECEIVED: meet at pier 39 at midnight
+# This models a chat app that uses HTTPS in transit but keeps plaintext on the
+# server. TLS is not modelled literally here; the lesson is that even with
+# perfect transport encryption, the server operator still reads everything.
+services:
+  server:
+    build: .
+    container_name: week13-server
+    command: ["server.py"]
+    environment:
+      LISTEN_HOST: "0.0.0.0"
+      LISTEN_PORT: "8080"
+      E2E: ""
+    networks:
+      - labnet
+
+  bob:
+    build: .
+    container_name: week13-bob
+    command: ["bob.py"]
+    environment:
+      SERVER_URL: "http://server:8080"
+      E2E: ""
+    depends_on:
+      - server
+    networks:
+      - labnet
+
+  alice:
+    build: .
+    container_name: week13-alice
+    command: ["alice.py"]
+    environment:
+      SERVER_URL: "http://server:8080"
+      E2E: ""
+      SECRET_MESSAGE: "meet at pier 39 at midnight"
+    depends_on:
+      - server
+    networks:
+      - labnet
+
+networks:
+  labnet:
+    driver: bridge

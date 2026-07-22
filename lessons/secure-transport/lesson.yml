@@ -1,0 +1,8 @@
+slug: secure-transport
+title: "Secure Transport (TLS): Certificate-Validation-Bypass MITM"
+kind: HYBRID
+duration_min: 180
+tags: [tls, certificates, mitm, chain-of-trust]
+cwe: [CWE-295, CWE-300]
+prereqs: []
+flag_keys: []

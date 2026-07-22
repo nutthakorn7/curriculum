@@ -1,0 +1,31 @@
+services:
+  vulnerable:
+    image: python:3.12-slim
+    working_dir: /lab
+    ports:
+      - "8096:8096"
+    volumes:
+      - ./:/lab
+    # Per-student flag: python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env
+    environment:
+      - AES_KEY=${AES_KEY:-00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff}
+      - FLAG_AES=${FLAG_AES:-FLAG{aes_cbc_is_malleable}}
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt &&
+               echo '--- vulnerable app (unauthenticated AES-256-CBC) on :8096 ---' &&
+               python vulnerable_app.py"
+
+  fixed:
+    image: python:3.12-slim
+    working_dir: /lab
+    ports:
+      - "8097:8097"
+    volumes:
+      - ./:/lab
+    environment:
+      - AES_KEY=${AES_KEY:-00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff}
+      - FLAG_AES=${FLAG_AES:-FLAG{aes_cbc_is_malleable}}
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt &&
+               echo '--- fixed app (authenticated AES-256-GCM) on :8097 ---' &&
+               python fixed_app.py"

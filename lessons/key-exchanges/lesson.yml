@@ -1,0 +1,8 @@
+slug: key-exchanges
+title: "Key Exchanges: MITM Against Unauthenticated Diffie-Hellman"
+kind: HYBRID
+duration_min: 180
+tags: [diffie-hellman, mitm, key-exchange, forward-secrecy]
+cwe: [CWE-322, CWE-300]
+prereqs: []
+flag_keys: []

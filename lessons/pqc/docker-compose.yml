@@ -1,0 +1,33 @@
+services:
+  vulnerable:
+    image: python:3.12-slim
+    working_dir: /lab
+    ports:
+      - "8100:8100"
+    volumes:
+      - ./:/lab
+    # Per-student flag: python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env
+    # (once this course's seed_flags.py exists; until then FLAG_PQC defaults below).
+    # LAMPORT_SEED is optional and only for reproducible grading; leave unset for random keys.
+    environment:
+      - FLAG_PQC=${FLAG_PQC:-FLAG{lamport_one_time_only}}
+      - LAMPORT_SEED=${LAMPORT_SEED:-}
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt &&
+               echo '--- vulnerable app (REUSES one Lamport key) on :8100 ---' &&
+               python vulnerable_app.py"
+
+  fixed:
+    image: python:3.12-slim
+    working_dir: /lab
+    ports:
+      - "8101:8101"
+    volumes:
+      - ./:/lab
+    environment:
+      - FLAG_PQC=${FLAG_PQC:-FLAG{lamport_one_time_only}}
+      - LAMPORT_SEED=${LAMPORT_SEED:-}
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt &&
+               echo '--- fixed app (one-time key enforced) on :8101 ---' &&
+               python fixed_app.py"

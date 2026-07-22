@@ -1,0 +1,8 @@
+slug: macs
+title: "MACs: Hash-Only Cookies and Length-Extension"
+kind: LAB
+duration_min: 180
+tags: [macs, hmac, length-extension, hashing]
+cwe: [CWE-347, CWE-290]
+prereqs: []
+flag_keys: [macs]

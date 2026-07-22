@@ -1,0 +1,68 @@
+# Student-task topology: runs YOUR alice_student.py against the same impostor
+# `mitm` the vulnerable/fixed pair uses. Unlike docker-compose.fixed.yml (which
+# runs the pre-built, reference alice.py with VERIFY=1), this runs the file
+# YOU edit -- alice_student.py -- with no VERIFY toggle, because there's only
+# one path to write: the correct one.
+#
+# Run with:
+#   docker compose -f docker-compose.student-task.yml up --build
+#
+# Expect: "CERT VERIFICATION FAILED - ABORTING" from alice, and mitm never
+# prints "MITM INTERCEPTED" (the impostor cert never got a chance to be
+# accepted). If you instead see a Python traceback, build_client_context()
+# in alice_student.py isn't finished yet.
+services:
+  gen_certs:
+    build: .
+    container_name: week12-gencerts-student
+    command: ["gen_certs.py"]
+    environment:
+      CERT_DIR: "/certs"
+      SERVER_NAME: "bob"
+    volumes:
+      - certs_student:/certs
+    networks:
+      - labnet_student
+
+  mitm:
+    build: .
+    container_name: week12-mitm-student
+    command: ["mitm.py"]
+    environment:
+      LISTEN_HOST: "0.0.0.0"
+      LISTEN_PORT: "8443"
+      CERT_DIR: "/certs"
+    volumes:
+      - certs_student:/certs
+    depends_on:
+      gen_certs:
+        condition: service_completed_successfully
+    networks:
+      - labnet_student
+
+  alice:
+    build: .
+    container_name: week12-alice-student
+    command: ["alice_student.py"]
+    environment:
+      PEER_HOST: "mitm"
+      PEER_PORT: "8443"
+      SERVER_HOSTNAME: "bob"
+      CERT_DIR: "/certs"
+      SECRET_MESSAGE: "the vault code is 7731"
+    volumes:
+      - certs_student:/certs
+    depends_on:
+      gen_certs:
+        condition: service_completed_successfully
+      mitm:
+        condition: service_started
+    networks:
+      - labnet_student
+
+volumes:
+  certs_student:
+
+networks:
+  labnet_student:
+    driver: bridge

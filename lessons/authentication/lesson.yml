@@ -1,0 +1,8 @@
+slug: authentication
+title: "User Authentication: The Server Sees Your Password (Unless It Can't)"
+kind: HYBRID
+duration_min: 180
+tags: [authentication, challenge-response, pake, mfa]
+cwe: [CWE-522, CWE-319, CWE-532]
+prereqs: []
+flag_keys: []

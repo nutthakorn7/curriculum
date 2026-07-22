@@ -1,0 +1,64 @@
+# Fixed topology: HMAC-authenticated Diffie-Hellman public keys.
+#
+# Run with:
+#   docker compose -f docker-compose.fixed.yml up --build
+#
+# Alice and Bob share AUTH_KEY (relay does NOT have it) and each HMAC-signs
+# their DH public key with it, verifying the peer's tag before deriving any
+# session key. `relay` still attempts the same key-substitution attack as in
+# the vulnerable topology, but without AUTH_KEY it cannot forge a valid tag
+# for its substituted keys, so Alice's and Bob's verification fails and each
+# prints "AUTH FAILED - ABORTING" and exits nonzero. `relay` never reaches
+# the point of decrypting anything, so "RELAY INTERCEPTED" is never printed
+# in this topology.
+services:
+  bob:
+    build: .
+    container_name: week05-bob
+    command: ["bob.py"]
+    environment:
+      LISTEN_HOST: "0.0.0.0"
+      LISTEN_PORT: "5000"
+      SIGNED: "1"
+      AUTH_KEY: "super-secret-preshared-key"
+    networks:
+      - labnet
+
+  relay:
+    build: .
+    container_name: week05-relay
+    command: ["relay.py"]
+    environment:
+      LISTEN_HOST: "0.0.0.0"
+      LISTEN_PORT: "5000"
+      UPSTREAM_HOST: "bob"
+      UPSTREAM_PORT: "5000"
+      SIGNED: "1"
+      # Deliberately NO AUTH_KEY here -- relay is the attacker and must not
+      # know the pre-shared key, or it could forge a valid HMAC tag.
+    depends_on:
+      - bob
+    networks:
+      - labnet
+
+  alice:
+    build: .
+    container_name: week05-alice
+    command: ["alice.py"]
+    environment:
+      # Alice connects to `relay`, never to `bob` directly -- this is the
+      # premise of the lab: the attacker controls the network path, so
+      # whatever Alice thinks is "Bob" is whoever answers on that path.
+      PEER_HOST: "relay"
+      PEER_PORT: "5000"
+      SIGNED: "1"
+      AUTH_KEY: "super-secret-preshared-key"
+      SECRET_MESSAGE: "the launch code is 4471"
+    depends_on:
+      - relay
+    networks:
+      - labnet
+
+networks:
+  labnet:
+    driver: bridge

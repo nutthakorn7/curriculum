@@ -1,0 +1,31 @@
+services:
+  vulnerable:
+    image: python:3.12-slim
+    working_dir: /lab
+    ports:
+      - "8098:8098"
+    volumes:
+      - ./:/lab
+    # Per-student flag: python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env
+    environment:
+      - FLAG_AEAD=${FLAG_AEAD:-FLAG{padding_oracle_leaks_all}}
+      - AES_KEY_HEX=${AES_KEY_HEX:-00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff}
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt &&
+               echo '--- vulnerable app (unauthenticated CBC + padding oracle) on :8098 ---' &&
+               python vulnerable_app.py"
+
+  fixed:
+    image: python:3.12-slim
+    working_dir: /lab
+    ports:
+      - "8099:8099"
+    volumes:
+      - ./:/lab
+    environment:
+      - FLAG_AEAD=${FLAG_AEAD:-FLAG{padding_oracle_leaks_all}}
+      - AES_KEY_HEX=${AES_KEY_HEX:-00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff}
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt &&
+               echo '--- fixed app (AES-256-GCM / AEAD) on :8099 ---' &&
+               python fixed_app.py"

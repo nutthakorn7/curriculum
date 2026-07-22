@@ -1,0 +1,29 @@
+services:
+  vulnerable:
+    image: python:3.12-slim
+    working_dir: /lab
+    ports:
+      - "8102:8102"
+    volumes:
+      - ./:/lab
+    # Per-student flag: python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env
+    environment:
+      - FLAG_SIG=${FLAG_SIG:-FLAG{ecdsa_malleable_double_spend}}
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt &&
+               echo '--- vulnerable bank (dedup by signature hash) on :8102 ---' &&
+               python vulnerable_app.py"
+
+  fixed:
+    image: python:3.12-slim
+    working_dir: /lab
+    ports:
+      - "8103:8103"
+    volumes:
+      - ./:/lab
+    environment:
+      - FLAG_SIG=${FLAG_SIG:-FLAG{ecdsa_malleable_double_spend}}
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt &&
+               echo '--- fixed bank (low-S / BIP-62) on :8103 ---' &&
+               python fixed_app.py"

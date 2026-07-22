@@ -1,0 +1,8 @@
+slug: aes-modes
+title: "AES / Block-Cipher Modes: CBC Bit-Flipping and Malleability"
+kind: LAB
+duration_min: 180
+tags: [aes, block-cipher-modes, malleability, aead]
+cwe: [CWE-353, CWE-649, CWE-347]
+prereqs: []
+flag_keys: [aes]

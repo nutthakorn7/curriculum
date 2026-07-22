@@ -1,0 +1,8 @@
+slug: intro
+title: "Security Mindset & Threat-Modeling a Cryptographic System"
+kind: CONCEPTUAL
+duration_min: 180
+tags: [threat-modeling, cia-triad, trust-boundaries, key-management]
+cwe: [CWE-320, CWE-330]
+prereqs: []
+flag_keys: []
