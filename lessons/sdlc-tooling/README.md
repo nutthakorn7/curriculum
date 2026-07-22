@@ -32,7 +32,7 @@ docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest detect -s /repo -v
 
 ## Mini-lab — "Fuzzing Race" (intro)
 First team to make the target crash wins. `harness.c` (in this folder) has one planted
-memory-safety bug for libFuzzer to find. A deeper fuzzing+exploit lab follows in [{{ ref('memory-safety') }}](../week11-memory-safety-exploitation/).
+memory-safety bug for libFuzzer to find. A deeper fuzzing+exploit lab follows in [{{ ref('memory-safety-exploitation') }}]({{ ref('memory-safety-exploitation', link=True) }}).
 ```bash
 # run inside labs/toolbox (Apple clang has no libFuzzer runtime)
 clang -g -fsanitize=address,fuzzer harness.c -o fuzz && ./fuzz

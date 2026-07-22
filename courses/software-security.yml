@@ -11,15 +11,15 @@ target_repo: "nutthakorn7/software-security"
 schedule:
   - {slot: 1,  lesson: threat-modeling}
   - {slot: 2,  lesson: sdlc-tooling}
-  - {slot: 3,  lesson: crypto-fundamentals}
+  - {slot: 3,  lesson: cryptography}
   - {slot: 4,  lesson: injection}
-  - {slot: 5,  lesson: xss}
+  - {slot: 5,  lesson: xss-client-side}
   - {slot: 6,  lesson: authn-authz}
   - {slot: 7,  review: "Reflection & Review (pre-Midterm)"}
   - {slot: 8,  exam: "Midterm: Written / Concept Exam", phase: midterm}
   - {slot: 9,  exam: "Midterm: Hands-on CTF Practical", phase: midterm}
   - {slot: 10, lesson: api-security}
-  - {slot: 11, lesson: memory-safety}
+  - {slot: 11, lesson: memory-safety-exploitation}
   - {slot: 12, lesson: supply-chain}
   - {slot: 13, lesson: cloud-container}
   - {slot: 14, lesson: ai-llm-security}

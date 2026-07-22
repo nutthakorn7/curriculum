@@ -44,3 +44,9 @@ def test_unscheduled_ref_raises():
 def test_plain_markdown_untouched():
     ctx = crossref.context(_manifest(), current_slug="hash")
     assert crossref.render("# Hashing\nNo tokens here.\n", ctx) == "# Hashing\nNo tokens here.\n"
+
+
+def test_labname_has_no_labs_prefix():
+    ctx = crossref.context(_manifest(), current_slug="macs")
+    assert crossref.render("{{ labname }}", ctx) == "week03-macs"
+    assert crossref.render("{{ labpath }}", ctx) == "labs/week03-macs"

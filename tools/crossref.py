@@ -50,6 +50,7 @@ def context(manifest, current_slug):
         "ref": ref,
         "slides": f"slides/{slotfile(unit, my_slot)}.md",          # this lesson's slide path
         "labpath": f"labs/{labdir(unit, my_slot, current_slug)}",  # this lesson's lab dir (for `cd labs/…`)
+        "labname": labdir(unit, my_slot, current_slug),  # this lesson's bare lab dir name, no labs/ prefix
         "slot": my_slot,
         "slot_label": label_tmpl.format(n=my_slot),
         "prev": label(ordered[here - 1]) if here > 0 else "",

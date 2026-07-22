@@ -1,4 +1,4 @@
-slug: xss
+slug: xss-client-side
 title: "Cross-Site Scripting (XSS) & Client-Side Risks"
 kind: LAB
 duration_min: 180

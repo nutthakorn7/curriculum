@@ -32,7 +32,7 @@ Answer in your own words (2–4 sentences each).
 
 **Learning goals:** find cloud/container misconfigurations with Trivy, map each to a CWE, and rebuild the IAM policy + Dockerfile to least privilege / hardened so the findings drop.
 
-**Prerequisites:** Docker installed and running; the `week13-cloud-container/` lab folder; internet access to pull `aquasec/trivy:latest`.
+**Prerequisites:** Docker installed and running; the `{{ labname }}/` lab folder; internet access to pull `aquasec/trivy:latest`.
 
 ### Environment setup (real commands)
 

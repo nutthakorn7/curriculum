@@ -25,7 +25,7 @@ Answer in your own words (2–4 sentences each).
 
 **Environment setup**
 ```bash
-cd labs/week03-cryptography
+cd {{ labpath }}
 docker compose up           # installs pycryptodome + argon2-cffi, runs both scripts
 # or locally:
 pip install pycryptodome argon2-cffi

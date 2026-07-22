@@ -26,12 +26,12 @@ Answer in 2–4 sentences each.
 
 **Learning goals:** land reflected + stored XSS, abuse a JS-readable cookie, build a CSRF PoC against the comment board, then prove `fixed_app.py` blocks all of it.
 
-**Prerequisites:** Docker + Docker Compose, a browser with DevTools, a text editor. Working dir: `labs/week05-xss-client-side/`.
+**Prerequisites:** Docker + Docker Compose, a browser with DevTools, a text editor. Working dir: `{{ labpath }}/`.
 
 ### Environment setup
 
 ```bash
-cd labs/week05-xss-client-side
+cd {{ labpath }}
 docker compose up            # python:3.12-slim + flask, runs vulnerable_app.py
 # vulnerable app -> http://localhost:8080   (service name: xss-lab, port 8080)
 ```

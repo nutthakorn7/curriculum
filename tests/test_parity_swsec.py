@@ -7,9 +7,9 @@ SRC_LABS = SRC_REPO / "labs"
 
 LESSON_DIRS = {
     "threat-modeling": "week01-threat-modeling", "sdlc-tooling": "week02-sdlc-tooling",
-    "crypto-fundamentals": "week03-cryptography", "injection": "week04-injection",
-    "xss": "week05-xss-client-side", "authn-authz": "week06-authn-authz",
-    "api-security": "week10-api-security", "memory-safety": "week11-memory-safety-exploitation",
+    "cryptography": "week03-cryptography", "injection": "week04-injection",
+    "xss-client-side": "week05-xss-client-side", "authn-authz": "week06-authn-authz",
+    "api-security": "week10-api-security", "memory-safety-exploitation": "week11-memory-safety-exploitation",
     "supply-chain": "week12-supply-chain", "cloud-container": "week13-cloud-container",
     "ai-llm-security": "week14-ai-llm-security", "devsecops-pipeline": "week15-devsecops-pipeline",
 }
