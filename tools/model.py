@@ -17,7 +17,7 @@ class Lesson:
     tags: list = field(default_factory=list)
     cwe: list = field(default_factory=list)
     prereqs: list = field(default_factory=list)
-    flag_key: str | None = None
+    flag_keys: list = field(default_factory=list)
     dir: str = ""                  # filesystem path to lessons/<slug>/
 
 
@@ -51,6 +51,7 @@ class Slot:
     slot: int
     kind: str                      # "lesson" or a NON_LESSON_KINDS value
     value: str                     # lesson slug, or the calendar-entry title
+    phase: str | None = None       # optional; groups exam slots into a required assessment period
 
 
 @dataclass
@@ -69,6 +70,7 @@ class Manifest:
 def _parse_slot(entry):
     e = dict(entry)
     slot = e.pop("slot")
+    phase = e.pop("phase", None)
     # exactly one remaining key names the kind; lesson is the common case
     if not e:
         raise ValueError(f"slot {slot} has no kind (expected 'lesson' or one of {NON_LESSON_KINDS})")
@@ -77,7 +79,7 @@ def _parse_slot(entry):
     kind, value = next(iter(e.items()))
     if kind != "lesson" and kind not in NON_LESSON_KINDS:
         raise ValueError(f"slot {slot}: unknown kind '{kind}'")
-    return Slot(slot=slot, kind=kind, value=value)
+    return Slot(slot=slot, kind=kind, value=value, phase=phase)
 
 
 def load_manifest(path):

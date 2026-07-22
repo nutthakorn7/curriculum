@@ -5,4 +5,4 @@ duration_min: 180
 tags: [crypto, hashing, passwords]
 cwe: [CWE-916, CWE-327, CWE-759, CWE-760]
 prereqs: []
-flag_key: "hash"
+flag_keys: ["hash"]
