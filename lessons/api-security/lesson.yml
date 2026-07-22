@@ -1,0 +1,8 @@
+slug: api-security
+title: "API Security"
+kind: LAB
+duration_min: 180
+tags: [bola, mass-assignment, rate-limiting]
+cwe: []
+prereqs: []
+flag_keys: [bola, massassign]

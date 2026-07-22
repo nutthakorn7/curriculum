@@ -49,15 +49,15 @@ directory's file count and compose presence.
 |---|---|---|
 | `week01-threat-modeling` | `threat-modeling` | yes |
 | `week02-sdlc-tooling` | `sdlc-tooling` | yes |
-| `week03-cryptography` | `crypto-fundamentals` | yes *(not `crypto` / `hash` / `macs` — those slugs belong to `security-cryptography`'s per-primitive weeks; this is a broad one-week survey, a different lesson)* |
+| `week03-cryptography` | `cryptography` | yes *(not `crypto` / `hash` / `macs` — those slugs belong to `security-cryptography`'s per-primitive weeks; this is a broad one-week survey, a different lesson)* |
 | `week04-injection` | `injection` | yes |
-| `week05-xss-client-side` | `xss` | yes |
+| `week05-xss-client-side` | `xss-client-side` | yes |
 | `week06-authn-authz` | `authn-authz` | yes |
 | `week07-review-midterm-prep` | — | no (review) |
 | `week08-midterm-written` | — | no (exam) |
 | `week09-midterm-practical` | — | no (exam) |
 | `week10-api-security` | `api-security` | yes |
-| `week11-memory-safety-exploitation` | `memory-safety` | yes |
+| `week11-memory-safety-exploitation` | `memory-safety-exploitation` | yes |
 | `week12-supply-chain` | `supply-chain` | yes |
 | `week13-cloud-container` | `cloud-container` | yes |
 | `week14-ai-llm-security` | `ai-llm-security` | yes |
@@ -72,13 +72,13 @@ directory's file count and compose presence.
 | Slug | `flag_keys` (grep of `FLAG_*` in the lesson dir) | Cross-refs found in `README.md`/`worksheet.md` (tokenize each) |
 |---|---|---|
 | `threat-modeling` | `[]` | Self only: `**Week 1**` → `{{ slot_label }}`; `slides/week01.md` → `{{ slides }}`; `cd labs/week01-threat-modeling` → `cd {{ labpath }}`. **No `{{ prev }}`** — this is the first lesson. |
-| `sdlc-tooling` | `[]` | `Week 1 *Lab 0*; skim last week's recap` → `{{ ref('threat-modeling') }} *Lab 0*; skim {{ prev }}'s recap`; self week/slides/labpath tokens; **forward ref**: `A deeper fuzzing+exploit lab follows in [Week 11](../week11-memory-safety-exploitation/)` → `[{{ ref('memory-safety') }}]({{ ref('memory-safety', link=True) }})`. |
-| `crypto-fundamentals` | `[]` | `Week 1 *Lab 0*; skim last week's recap` → same pattern as above (`ref('threat-modeling')` + `{{ prev }}`); self tokens. |
+| `sdlc-tooling` | `[]` | `Week 1 *Lab 0*; skim last week's recap` → `{{ ref('threat-modeling') }} *Lab 0*; skim {{ prev }}'s recap`; self week/slides/labpath tokens; **forward ref**: `A deeper fuzzing+exploit lab follows in [Week 11](../week11-memory-safety-exploitation/)` → `[{{ ref('memory-safety-exploitation') }}]({{ ref('memory-safety-exploitation', link=True) }})`. |
+| `cryptography` | `[]` | `Week 1 *Lab 0*; skim last week's recap` → same pattern as above (`ref('threat-modeling')` + `{{ prev }}`); self tokens. |
 | `injection` | `[FLAG_CMDI, FLAG_SQLI]` | Same `Week 1`/`last week`/self pattern. |
-| `xss` | `[]` | Same pattern. |
+| `xss-client-side` | `[]` | Same pattern. |
 | `authn-authz` | `[FLAG_IDOR, FLAG_JWT]` | Same pattern. |
 | `api-security` | `[FLAG_BOLA, FLAG_MASSASSIGN]` | Same pattern. |
-| `memory-safety` | `[FLAG_PWN]` | Same `Week 1`/`last week` pattern; self tokens (no incoming link text to fix here — the link target itself, since it's tokenized at the *source* lesson `sdlc-tooling`). |
+| `memory-safety-exploitation` | `[FLAG_PWN]` | Same `Week 1`/`last week` pattern; self tokens (no incoming link text to fix here — the link target itself, since it's tokenized at the *source* lesson `sdlc-tooling`). |
 | `supply-chain` | `[]` | Same pattern. |
 | `cloud-container` | `[]` | Same pattern. |
 | `ai-llm-security` | `[FLAG_PROMPTINJ]` | Same pattern. |
@@ -106,15 +106,15 @@ slot_label: "Week {n}"
 schedule:
   - {slot: 1,  lesson: threat-modeling}
   - {slot: 2,  lesson: sdlc-tooling}
-  - {slot: 3,  lesson: crypto-fundamentals}
+  - {slot: 3,  lesson: cryptography}
   - {slot: 4,  lesson: injection}
-  - {slot: 5,  lesson: xss}
+  - {slot: 5,  lesson: xss-client-side}
   - {slot: 6,  lesson: authn-authz}
   - {slot: 7,  review: "Reflection & Review (pre-Midterm)"}
   - {slot: 8,  exam: "Midterm: Written / Concept Exam", phase: midterm}
   - {slot: 9,  exam: "Midterm: Hands-on CTF Practical", phase: midterm}
   - {slot: 10, lesson: api-security}
-  - {slot: 11, lesson: memory-safety}
+  - {slot: 11, lesson: memory-safety-exploitation}
   - {slot: 12, lesson: supply-chain}
   - {slot: 13, lesson: cloud-container}
   - {slot: 14, lesson: ai-llm-security}
@@ -148,13 +148,13 @@ slot_label: "Session {n}"
 schedule:
   - {slot: 1, lesson: threat-modeling}
   - {slot: 1, lesson: sdlc-tooling}
-  - {slot: 2, lesson: crypto-fundamentals}
+  - {slot: 2, lesson: cryptography}
   - {slot: 2, lesson: injection}
-  - {slot: 3, lesson: xss}
+  - {slot: 3, lesson: xss-client-side}
   - {slot: 3, lesson: authn-authz}
   - {slot: 4, exam: "Midterm: written (AM) + CTF practical (PM)", phase: midterm}
   - {slot: 5, lesson: api-security}
-  - {slot: 5, lesson: memory-safety}
+  - {slot: 5, lesson: memory-safety-exploitation}
   - {slot: 5, lesson: supply-chain}
   - {slot: 6, lesson: cloud-container}
   - {slot: 6, lesson: ai-llm-security}
@@ -447,8 +447,8 @@ for slug in sorted(os.listdir('lessons')):
 
 - [ ] **Step 4: Commit**
 ```bash
-git add lessons/threat-modeling lessons/sdlc-tooling lessons/crypto-fundamentals lessons/injection \
-        lessons/xss lessons/authn-authz lessons/api-security lessons/memory-safety \
+git add lessons/threat-modeling lessons/sdlc-tooling lessons/cryptography lessons/injection \
+        lessons/xss-client-side lessons/authn-authz lessons/api-security lessons/memory-safety-exploitation \
         lessons/supply-chain lessons/cloud-container lessons/ai-llm-security lessons/devsecops-pipeline
 git status --short          # verify ONLY the 12 lessons/ dirs are staged
 git commit -m "import: all 12 software-security lessons (threat-modeling through devsecops-pipeline)"
@@ -476,9 +476,9 @@ SRC_LABS = SRC_REPO / "labs"
 
 LESSON_DIRS = {
     "threat-modeling": "week01-threat-modeling", "sdlc-tooling": "week02-sdlc-tooling",
-    "crypto-fundamentals": "week03-cryptography", "injection": "week04-injection",
-    "xss": "week05-xss-client-side", "authn-authz": "week06-authn-authz",
-    "api-security": "week10-api-security", "memory-safety": "week11-memory-safety-exploitation",
+    "cryptography": "week03-cryptography", "injection": "week04-injection",
+    "xss-client-side": "week05-xss-client-side", "authn-authz": "week06-authn-authz",
+    "api-security": "week10-api-security", "memory-safety-exploitation": "week11-memory-safety-exploitation",
     "supply-chain": "week12-supply-chain", "cloud-container": "week13-cloud-container",
     "ai-llm-security": "week14-ai-llm-security", "devsecops-pipeline": "week15-devsecops-pipeline",
 }

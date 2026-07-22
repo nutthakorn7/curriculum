@@ -1,0 +1,8 @@
+slug: ai-llm-security
+title: "Security of AI / LLM-Powered Applications"
+kind: LAB
+duration_min: 180
+tags: [prompt-injection, llm-security, guardrails]
+cwe: []
+prereqs: []
+flag_keys: [promptinj]

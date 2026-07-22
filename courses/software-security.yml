@@ -1,0 +1,30 @@
+course:
+  name: "Software Security"
+  code: "1305315"
+  brand: "KOSEN·KMITL"
+  flag_salt_env: SWSEC_FLAG_SALT
+  challenge_keys_env: AIRSEC_CHALLENGE_KEYS
+  target_repo: "nutthakorn7/software-security"
+schedule_unit: weeks
+slot_label: "Week {n}"
+target_repo: "nutthakorn7/software-security"
+schedule:
+  - {slot: 1,  lesson: threat-modeling}
+  - {slot: 2,  lesson: sdlc-tooling}
+  - {slot: 3,  lesson: cryptography}
+  - {slot: 4,  lesson: injection}
+  - {slot: 5,  lesson: xss-client-side}
+  - {slot: 6,  lesson: authn-authz}
+  - {slot: 7,  review: "Reflection & Review (pre-Midterm)"}
+  - {slot: 8,  exam: "Midterm: Written / Concept Exam", phase: midterm}
+  - {slot: 9,  exam: "Midterm: Hands-on CTF Practical", phase: midterm}
+  - {slot: 10, lesson: api-security}
+  - {slot: 11, lesson: memory-safety-exploitation}
+  - {slot: 12, lesson: supply-chain}
+  - {slot: 13, lesson: cloud-container}
+  - {slot: 14, lesson: ai-llm-security}
+  - {slot: 15, lesson: devsecops-pipeline}
+  - {slot: 16, project: "Capstone Studio & CTF Warm-up"}
+  - {slot: 17, review: "Reflection & Review (pre-Final)"}
+  - {slot: 18, exam: "Final: Written Exam", phase: final}
+  - {slot: 19, exam: "Final: Capstone CTF Tournament + Project Demos", phase: final}

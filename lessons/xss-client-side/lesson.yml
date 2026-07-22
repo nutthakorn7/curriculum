@@ -1,0 +1,8 @@
+slug: xss-client-side
+title: "Cross-Site Scripting (XSS) & Client-Side Risks"
+kind: LAB
+duration_min: 180
+tags: [xss, csrf, csp]
+cwe: [CWE-79, CWE-352]
+prereqs: []
+flag_keys: []

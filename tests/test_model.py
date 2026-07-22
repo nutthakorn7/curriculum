@@ -17,10 +17,10 @@ def test_load_lesson(tmp_path):
         duration_min: 180
         tags: [crypto, hashing]
         prereqs: []
-        flag_key: hash
+        flag_keys: [hash]
     """)
     lsn = model.load_lesson(str(d))
-    assert lsn.slug == "hash" and lsn.kind == "LAB" and lsn.flag_key == "hash"
+    assert lsn.slug == "hash" and lsn.kind == "LAB" and lsn.flag_keys == ["hash"]
     assert lsn.dir == str(d)
 
 
@@ -66,3 +66,22 @@ def test_load_manifest(tmp_path):
     assert [(s.slot, s.kind, s.value) for s in m.schedule] == [
         (2, "lesson", "hash"), (7, "review", "Midterm review"), (8, "exam", "Midterm (written)")]
     assert m.lesson_slugs() == ["hash"]
+
+
+def test_lesson_flag_keys_list(tmp_path):
+    d = tmp_path / "lessons" / "injection"
+    _write(str(d / "lesson.yml"), """
+        slug: injection
+        title: "Injection & Input Handling"
+        kind: LAB
+        flag_keys: [cmdi, sqli]
+    """)
+    lsn = model.load_lesson(str(d))
+    assert lsn.flag_keys == ["cmdi", "sqli"]
+
+
+def test_lesson_flag_keys_defaults_empty(tmp_path):
+    d = tmp_path / "lessons" / "threat-modeling"
+    _write(str(d / "lesson.yml"), "slug: threat-modeling\ntitle: t\nkind: LAB\n")
+    lsn = model.load_lesson(str(d))
+    assert lsn.flag_keys == []

@@ -1,0 +1,8 @@
+slug: injection
+title: "Injection & Input Handling"
+kind: LAB
+duration_min: 180
+tags: [sqli, command-injection, input-validation]
+cwe: [CWE-89, CWE-78]
+prereqs: []
+flag_keys: [cmdi, sqli]
