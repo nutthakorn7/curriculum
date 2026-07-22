@@ -1,0 +1,31 @@
+services:
+  vulnerable:
+    image: python:3.12-slim
+    working_dir: /lab
+    ports:
+      - "8094:8094"
+    volumes:
+      - ./:/lab
+    # Per-student flag: python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env
+    environment:
+      - FLAG_HASH=${FLAG_HASH:-FLAG{hash_crack_me}}
+      - SESSION_KEY=${SESSION_KEY:-week2-demo-session-key}
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt &&
+               echo '--- vulnerable app (unsalted MD5 store) on :8094 ---' &&
+               python vulnerable_app.py"
+
+  fixed:
+    image: python:3.12-slim
+    working_dir: /lab
+    ports:
+      - "8095:8095"
+    volumes:
+      - ./:/lab
+    environment:
+      - FLAG_HASH=${FLAG_HASH:-FLAG{hash_crack_me}}
+      - SESSION_KEY=${SESSION_KEY:-week2-demo-session-key}
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt &&
+               echo '--- fixed app (bcrypt store) on :8095 ---' &&
+               python fixed_app.py"
