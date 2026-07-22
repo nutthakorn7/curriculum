@@ -10,12 +10,18 @@ proof this whole project exists for), and verify both render to byte-parity with
 published.
 
 **Architecture:** Same engine as the pilot (`tools/model.py`, `crossref.py`, `validate.py`,
-`render.py`), extended by two small, real gaps the source content surfaced:
+`render.py`), extended by three small, real gaps the source content surfaced:
 1. A lesson can mint **more than one** `FLAG_*` (week04, week06, week10 each mint two) — `lesson.yml`'s
    `flag_key: str` becomes `flag_keys: list[str]`.
 2. MFU packs **more than one lesson into the same session** (e.g. Session 1 = Week 1 + Week 2) —
    `validate_manifest`'s "duplicate slot" check must stop rejecting two *different* lessons sharing a
    slot number, while still rejecting the *same* lesson slug used twice (already correct).
+3. **A compressed schedule must never silently drop required content.** The 16-week baseline
+   (expanded to this course's real 19 calendar slots) is the source of truth for what MUST be taught;
+   MFU compresses it into 7 sessions but every lesson-kind slot in the canonical manifest must still
+   appear somewhere in the compressed one. This needs a general, reusable **coverage check** — not a
+   hand-typed list of slugs a plan author has to remember to keep in sync — so it also protects every
+   future compressed variant (a different institution, a future short course) automatically.
 
 No other engine change is needed — `labdir()` already keys on slug (so co-scheduled lessons don't
 collide) and `prev`/`next` already derive from schedule-list order, not slot number.
@@ -199,6 +205,32 @@ def test_non_lesson_slots_still_reject_duplicates(tmp_path):
     m = _manifest([{"slot": 4, "kind": "exam", "value": "Midterm A"},
                    {"slot": 4, "kind": "exam", "value": "Midterm B"}])
     assert any("duplicate slot 4" in e for e in validate.validate_manifest(m, lessons))
+
+
+def test_missing_lessons_finds_gap(tmp_path):
+    canonical = _manifest([{"slot": 1, "kind": "lesson", "value": "threat-modeling"},
+                           {"slot": 2, "kind": "lesson", "value": "sdlc-tooling"}])
+    compressed = _manifest([{"slot": 1, "kind": "lesson", "value": "threat-modeling"}])
+    assert validate.missing_lessons(canonical, compressed) == {"sdlc-tooling"}
+
+
+def test_missing_lessons_empty_when_fully_covered(tmp_path):
+    canonical = _manifest([{"slot": 1, "kind": "lesson", "value": "threat-modeling"},
+                           {"slot": 2, "kind": "lesson", "value": "sdlc-tooling"}])
+    # the compressed manifest packs both into one slot — order/slot differ, content is still covered
+    compressed = _manifest([{"slot": 1, "kind": "lesson", "value": "sdlc-tooling"},
+                            {"slot": 1, "kind": "lesson", "value": "threat-modeling"}])
+    assert validate.missing_lessons(canonical, compressed) == set()
+
+
+def test_missing_lessons_ignores_non_lesson_slots():
+    """Review/exam/project slots are calendar entries, not required content — a compressed manifest
+    dropping/merging them is not a coverage gap; only missing LESSON slugs are."""
+    canonical = _manifest([{"slot": 1, "kind": "lesson", "value": "threat-modeling"},
+                           {"slot": 2, "kind": "review", "value": "Review week"}])
+    compressed = _manifest([{"slot": 1, "kind": "lesson", "value": "threat-modeling"},
+                            {"slot": 2, "kind": "exam", "value": "Combined review+exam session"}])
+    assert validate.missing_lessons(canonical, compressed) == set()
 ```
 (`test_duplicate_slot` already in the file used two *lesson* slots colliding — update that existing test
 to expect NO error now that duplicate lesson slots are legal; rename it
@@ -206,7 +238,8 @@ to expect NO error now that duplicate lesson slots are legal; rename it
 case must now succeed. Do not leave the old contradictory assertion in place.)
 
 - [ ] **Step 2: Run, confirm failures** — `flag_keys` doesn't exist yet (`TypeError`/`AttributeError`);
-  the slot-collision tests fail because the current code still flags any repeated slot number.
+  the slot-collision tests fail because the current code still flags any repeated slot number;
+  `missing_lessons` doesn't exist yet (`AttributeError`).
 
 - [ ] **Step 3: Update `tools/model.py`.** In the `Lesson` dataclass, replace:
 ```python
@@ -250,15 +283,28 @@ def validate_manifest(manifest, lessons_by_slug):
     return errors
 ```
 
-- [ ] **Step 5: Run tests, confirm pass** — then the FULL suite: `.venv/bin/python -m pytest tests/ -q`.
+- [ ] **Step 5: Add the coverage-check function to `tools/validate.py`.** The 16-week baseline is the
+  source of truth for what must be taught; a compressed schedule (MFU, a future short course, a
+  different institution) must never silently drop a required lesson. This is a general check — it takes
+  two `Manifest`s and returns which lesson slugs the first requires but the second omits, independent
+  of which slot number or session either one uses it at:
+```python
+def missing_lessons(canonical_manifest, compressed_manifest):
+    """Lesson slugs required by canonical_manifest but absent from compressed_manifest. Only
+    lesson-kind slots count as "required content" — non-lesson calendar entries (exam/review/project)
+    may be freely merged or dropped by a compressed schedule without that being a coverage gap."""
+    return set(canonical_manifest.lesson_slugs()) - set(compressed_manifest.lesson_slugs())
+```
+
+- [ ] **Step 6: Run tests, confirm pass** — then the FULL suite: `.venv/bin/python -m pytest tests/ -q`.
   Every pre-existing test must still pass EXCEPT the one you deliberately updated in Step 1
   (`test_duplicate_lesson_slots_are_allowed`) — if any other pre-existing test now fails, investigate;
   do not weaken it to force a pass.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 ```bash
 git add tools/model.py tools/validate.py tests/test_model.py tests/test_validate.py
-git commit -m "model+validate: multi-flag lessons (flag_keys list) + allow distinct lessons sharing one slot"
+git commit -m "model+validate: multi-flag lessons (flag_keys list), allow distinct lessons sharing one slot, coverage check"
 ```
 
 ---
@@ -474,14 +520,16 @@ def test_mfu_content_matches_library_source_verbatim(tmp_path):
     assert a_lines == b_lines, "content diverged between the 19-slot and MFU renderings of the same lesson"
 
 
-def test_mfu_all_12_lessons_present():
-    from tools import model
-    m = model.load_manifest(str(MFU_MANIFEST))
-    assert sorted(m.lesson_slugs()) == sorted([
-        "threat-modeling", "sdlc-tooling", "crypto-fundamentals", "injection", "xss", "authn-authz",
-        "api-security", "memory-safety", "supply-chain", "cloud-container", "ai-llm-security",
-        "devsecops-pipeline",
-    ])
+def test_mfu_covers_every_required_lesson():
+    """The 16-week baseline (this course's real 19-slot manifest) is the source of truth for what
+    MUST be taught. MFU compresses it into 7 sessions, but nothing required may silently vanish in
+    the compression — checked generally via validate.missing_lessons(), not a hand-typed slug list,
+    so this guard also protects every future compressed variant (a different institution, a short
+    course) without anyone having to remember to update a duplicated list here."""
+    from tools import model, validate
+    canonical = model.load_manifest(str(ROOT / "courses" / "software-security.yml"))
+    mfu = model.load_manifest(str(MFU_MANIFEST))
+    assert validate.missing_lessons(canonical, mfu) == set()
 
 
 def test_mfu_capstone_deliberately_absent():
@@ -526,7 +574,10 @@ git commit -m "manifest: MFU 7-session schedule; proves re-scheduling changes on
   (spec's non-goal #1 already anticipated re-scheduling as the *only* form of reuse; this is exactly
   that, just N lessons at once) · full 19-slot import + non-lesson calendar entries (design §5) · MFU as
   "just another manifest" (design §1's founding motivation — this task is the concrete payoff) ·
-  byte-parity gate (design §10/§11) for both manifests.
+  byte-parity gate (design §10/§11) for both manifests · **coverage guarantee** (a requirement raised
+  after the design was approved: the 16-week baseline must fully survive a 7-session compression, machine
+  -checked via `validate.missing_lessons()` rather than trusted by inspection — this generalizes beyond
+  MFU to any future compressed variant for free).
 - **Type/name consistency:** `Lesson.flag_keys` (renamed from `flag_key`) is used identically in Task 1's
   model change and Task 2's per-lesson `lesson.yml` write-up. `validate_manifest`'s new
   `seen_nonlesson_slots`/`seen_at` variables are internal to Task 1 and don't leak into any other
