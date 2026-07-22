@@ -111,8 +111,8 @@ schedule:
   - {slot: 5,  lesson: xss}
   - {slot: 6,  lesson: authn-authz}
   - {slot: 7,  review: "Reflection & Review (pre-Midterm)"}
-  - {slot: 8,  exam: "Midterm: Written / Concept Exam"}
-  - {slot: 9,  exam: "Midterm: Hands-on CTF Practical"}
+  - {slot: 8,  exam: "Midterm: Written / Concept Exam", phase: midterm}
+  - {slot: 9,  exam: "Midterm: Hands-on CTF Practical", phase: midterm}
   - {slot: 10, lesson: api-security}
   - {slot: 11, lesson: memory-safety}
   - {slot: 12, lesson: supply-chain}
@@ -121,9 +121,15 @@ schedule:
   - {slot: 15, lesson: devsecops-pipeline}
   - {slot: 16, project: "Capstone Studio & CTF Warm-up"}
   - {slot: 17, review: "Reflection & Review (pre-Final)"}
-  - {slot: 18, exam: "Final: Written Exam"}
-  - {slot: 19, exam: "Final: Capstone CTF Tournament + Project Demos"}
+  - {slot: 18, exam: "Final: Written Exam", phase: final}
+  - {slot: 19, exam: "Final: Capstone CTF Tournament + Project Demos", phase: final}
 ```
+`phase` marks an exam slot as belonging to a required assessment period — unlike `review`/`project`
+slots (freely mergeable/droppable by a compressed schedule), every `phase` that appears among the
+canonical manifest's exam slots MUST still appear among the compressed manifest's exam slots
+somewhere, even if the compressed schedule combines multiple canonical exam slots (written + practical)
+into one session. This is what lets `missing_phases()` (Task 1) machine-verify "midterm and final exam
+are both still present" the same way `missing_lessons()` verifies lesson coverage.
 
 **7-session `courses/software-security-mfu.yml`** — from `syllabus-mfu.md` §5, mapped by **topic name**
 (not the stale "Wk N" numbers in that doc's prose, which refer to an older 16-week baseline predating
@@ -146,14 +152,14 @@ schedule:
   - {slot: 2, lesson: injection}
   - {slot: 3, lesson: xss}
   - {slot: 3, lesson: authn-authz}
-  - {slot: 4, exam: "Midterm: written (AM) + CTF practical (PM)"}
+  - {slot: 4, exam: "Midterm: written (AM) + CTF practical (PM)", phase: midterm}
   - {slot: 5, lesson: api-security}
   - {slot: 5, lesson: memory-safety}
   - {slot: 5, lesson: supply-chain}
   - {slot: 6, lesson: cloud-container}
   - {slot: 6, lesson: ai-llm-security}
   - {slot: 6, lesson: devsecops-pipeline}
-  - {slot: 7, exam: "Final: written (AM) + capstone CTF + project demos (PM)"}
+  - {slot: 7, exam: "Final: written (AM) + capstone CTF + project demos (PM)", phase: final}
 ```
 
 Note: `week16-capstone` content is deliberately **absent** from this manifest (per the source syllabus,
@@ -223,14 +229,46 @@ def test_missing_lessons_empty_when_fully_covered(tmp_path):
     assert validate.missing_lessons(canonical, compressed) == set()
 
 
-def test_missing_lessons_ignores_non_lesson_slots():
-    """Review/exam/project slots are calendar entries, not required content — a compressed manifest
-    dropping/merging them is not a coverage gap; only missing LESSON slugs are."""
+def test_missing_lessons_ignores_untagged_non_lesson_slots():
+    """Review/project slots, and exam slots with NO phase tag, are calendar entries a compressed
+    manifest may freely merge or drop without that being a lesson-coverage gap — only missing LESSON
+    slugs count here. (Exam slots that DO carry a phase tag are checked separately by
+    missing_phases() below — they represent a required assessment, not free-form calendar content.)"""
     canonical = _manifest([{"slot": 1, "kind": "lesson", "value": "threat-modeling"},
                            {"slot": 2, "kind": "review", "value": "Review week"}])
     compressed = _manifest([{"slot": 1, "kind": "lesson", "value": "threat-modeling"},
                             {"slot": 2, "kind": "exam", "value": "Combined review+exam session"}])
     assert validate.missing_lessons(canonical, compressed) == set()
+
+
+def test_missing_phases_finds_gap(tmp_path):
+    canonical = _manifest([
+        {"slot": 8, "kind": "exam", "value": "Midterm written", "phase": "midterm"},
+        {"slot": 9, "kind": "exam", "value": "Midterm practical", "phase": "midterm"},
+        {"slot": 18, "kind": "exam", "value": "Final written", "phase": "final"},
+    ])
+    compressed = _manifest([{"slot": 4, "kind": "exam", "value": "Midterm combined", "phase": "midterm"}])
+    assert validate.missing_phases(canonical, compressed) == {"final"}
+
+
+def test_missing_phases_empty_when_merged_but_present(tmp_path):
+    """The compressed manifest may combine two canonical exam slots (written + practical) into ONE
+    session — as long as the phase tag itself still appears somewhere, that's full coverage."""
+    canonical = _manifest([
+        {"slot": 8, "kind": "exam", "value": "Midterm written", "phase": "midterm"},
+        {"slot": 9, "kind": "exam", "value": "Midterm practical", "phase": "midterm"},
+    ])
+    compressed = _manifest([{"slot": 4, "kind": "exam", "value": "Midterm: written + practical combined",
+                             "phase": "midterm"}])
+    assert validate.missing_phases(canonical, compressed) == set()
+
+
+def test_missing_phases_ignores_untagged_exams():
+    """An exam slot with no phase tag isn't a required assessment period for this check — only
+    tagged phases must survive."""
+    canonical = _manifest([{"slot": 8, "kind": "exam", "value": "Pop quiz", "phase": None}])
+    compressed = _manifest([])
+    assert validate.missing_phases(canonical, compressed) == set()
 ```
 (`test_duplicate_slot` already in the file used two *lesson* slots colliding — update that existing test
 to expect NO error now that duplicate lesson slots are legal; rename it
@@ -239,7 +277,8 @@ case must now succeed. Do not leave the old contradictory assertion in place.)
 
 - [ ] **Step 2: Run, confirm failures** — `flag_keys` doesn't exist yet (`TypeError`/`AttributeError`);
   the slot-collision tests fail because the current code still flags any repeated slot number;
-  `missing_lessons` doesn't exist yet (`AttributeError`).
+  `missing_lessons`/`missing_phases` don't exist yet (`AttributeError`); the `phase` kwarg to `Slot(...)`
+  fails (`TypeError: unexpected keyword argument 'phase'`).
 
 - [ ] **Step 3: Update `tools/model.py`.** In the `Lesson` dataclass, replace:
 ```python
@@ -250,6 +289,35 @@ with:
     flag_keys: list = field(default_factory=list)
 ```
 (`field` and `field(default_factory=list)` are already imported/used elsewhere in this file for `tags`.)
+
+  In the same file, add an optional `phase` field to the `Slot` dataclass — it tags a non-lesson exam
+  slot as belonging to a required assessment period (e.g. `midterm`, `final`) so a compressed schedule
+  can be checked for having kept it, even if it merges several canonical exam slots into one:
+```python
+@dataclass
+class Slot:
+    slot: int
+    kind: str                      # "lesson" or a NON_LESSON_KINDS value
+    value: str                     # lesson slug, or the calendar-entry title
+    phase: str | None = None       # optional; groups exam slots into a required assessment period
+```
+  And update `_parse_slot` to read it (pop `phase` before the "exactly one remaining key" check, so it
+  isn't mistaken for a second kind):
+```python
+def _parse_slot(entry):
+    e = dict(entry)
+    slot = e.pop("slot")
+    phase = e.pop("phase", None)
+    # exactly one remaining key names the kind; lesson is the common case
+    if not e:
+        raise ValueError(f"slot {slot} has no kind (expected 'lesson' or one of {NON_LESSON_KINDS})")
+    if len(e) != 1:
+        raise ValueError(f"slot {slot} has multiple kinds {list(e)}; a slot carries exactly one")
+    kind, value = next(iter(e.items()))
+    if kind != "lesson" and kind not in NON_LESSON_KINDS:
+        raise ValueError(f"slot {slot}: unknown kind '{kind}'")
+    return Slot(slot=slot, kind=kind, value=value, phase=phase)
+```
 
 - [ ] **Step 4: Update `tools/validate.py`'s `validate_manifest`.** Only flag a duplicate slot number
   when it is **not** two distinct lessons — i.e. drop the blanket duplicate-slot check for `kind ==
@@ -296,15 +364,32 @@ def missing_lessons(canonical_manifest, compressed_manifest):
     return set(canonical_manifest.lesson_slugs()) - set(compressed_manifest.lesson_slugs())
 ```
 
-- [ ] **Step 6: Run tests, confirm pass** — then the FULL suite: `.venv/bin/python -m pytest tests/ -q`.
+- [ ] **Step 6: Add the exam-phase coverage function to `tools/validate.py`, right after
+  `missing_lessons`.** Lessons aren't the only required content — a midterm and a final exam are
+  graded assessment events that must happen; they must not silently vanish the way a `review` week
+  legitimately can. A `phase`-tagged exam slot (Step 3) is required to survive **somewhere** in the
+  compressed schedule, even if several canonical exam slots (written + practical) collapse into one:
+```python
+def missing_phases(canonical_manifest, compressed_manifest):
+    """Exam-kind phases (e.g. 'midterm', 'final') required by canonical_manifest but absent from
+    compressed_manifest. Only exam slots carrying a `phase` tag are "required assessment periods" —
+    an untagged exam/review/project slot is ordinary calendar content and isn't checked here. A
+    compressed schedule MAY merge multiple canonical exam slots sharing one phase into a single slot;
+    it may NOT drop a phase entirely."""
+    def phases(manifest):
+        return {s.phase for s in manifest.schedule if s.kind == "exam" and s.phase}
+    return phases(canonical_manifest) - phases(compressed_manifest)
+```
+
+- [ ] **Step 7: Run tests, confirm pass** — then the FULL suite: `.venv/bin/python -m pytest tests/ -q`.
   Every pre-existing test must still pass EXCEPT the one you deliberately updated in Step 1
   (`test_duplicate_lesson_slots_are_allowed`) — if any other pre-existing test now fails, investigate;
   do not weaken it to force a pass.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 ```bash
 git add tools/model.py tools/validate.py tests/test_model.py tests/test_validate.py
-git commit -m "model+validate: multi-flag lessons (flag_keys list), allow distinct lessons sharing one slot, coverage check"
+git commit -m "model+validate: multi-flag lessons, distinct lessons may share a slot, lesson+exam-phase coverage checks"
 ```
 
 ---
@@ -532,6 +617,18 @@ def test_mfu_covers_every_required_lesson():
     assert validate.missing_lessons(canonical, mfu) == set()
 
 
+def test_mfu_covers_midterm_and_final_exam():
+    """Coverage means more than lessons: the midterm and final exam are graded assessment events
+    that must survive the compression too, not just be implied by 'the lessons are all there.'
+    Checked generally via validate.missing_phases() against the canonical manifest's phase-tagged
+    exam slots — if a future edit ever dropped Session 4 or Session 7 from the MFU schedule, this
+    is what would catch it."""
+    from tools import model, validate
+    canonical = model.load_manifest(str(ROOT / "courses" / "software-security.yml"))
+    mfu = model.load_manifest(str(MFU_MANIFEST))
+    assert validate.missing_phases(canonical, mfu) == set()
+
+
 def test_mfu_capstone_deliberately_absent():
     """week16-capstone is explicitly self-study between sessions in the source syllabus — it must
     never be scheduled as a lesson in the MFU manifest."""
@@ -577,7 +674,10 @@ git commit -m "manifest: MFU 7-session schedule; proves re-scheduling changes on
   byte-parity gate (design §10/§11) for both manifests · **coverage guarantee** (a requirement raised
   after the design was approved: the 16-week baseline must fully survive a 7-session compression, machine
   -checked via `validate.missing_lessons()` rather than trusted by inspection — this generalizes beyond
-  MFU to any future compressed variant for free).
+  MFU to any future compressed variant for free) · **exam coverage** (a follow-up requirement: midterm
+  and final are graded events, not optional calendar filler, so they get their own machine check —
+  `Slot.phase` + `validate.missing_phases()` — rather than being silently implied by lesson coverage
+  alone).
 - **Type/name consistency:** `Lesson.flag_keys` (renamed from `flag_key`) is used identically in Task 1's
   model change and Task 2's per-lesson `lesson.yml` write-up. `validate_manifest`'s new
   `seen_nonlesson_slots`/`seen_at` variables are internal to Task 1 and don't leak into any other
