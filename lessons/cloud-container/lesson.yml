@@ -1,0 +1,8 @@
+slug: cloud-container
+title: "Cloud & Container Security"
+kind: LAB
+duration_min: 180
+tags: [cloud-security, container-hardening, iam, misconfiguration]
+cwe: [CWE-732, CWE-16]
+prereqs: []
+flag_keys: []

@@ -1,0 +1,8 @@
+slug: memory-safety
+title: "Memory-Safety & Exploitation"
+kind: LAB
+duration_min: 180
+tags: [memory-safety, fuzzing, exploitation, mitigations]
+cwe: [CWE-787, CWE-121, CWE-416, CWE-134, CWE-193]
+prereqs: []
+flag_keys: [pwn]

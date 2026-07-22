@@ -1,0 +1,8 @@
+slug: devsecops-pipeline
+title: "DevSecOps: Putting It Together"
+kind: LAB
+duration_min: 180
+tags: [devsecops, ci-cd, fail-closed, logging]
+cwe: [CWE-636, CWE-532, CWE-209, CWE-489, CWE-798]
+prereqs: []
+flag_keys: [devsecops]

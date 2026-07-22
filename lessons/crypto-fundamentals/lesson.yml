@@ -1,0 +1,8 @@
+slug: crypto-fundamentals
+title: "Cryptography Used Correctly (and Misused)"
+kind: LAB
+duration_min: 180
+tags: [cryptography, hashing, kdf, crypto-misuse]
+cwe: [CWE-327, CWE-916, CWE-330]
+prereqs: []
+flag_keys: []

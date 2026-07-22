@@ -1,0 +1,8 @@
+slug: sdlc-tooling
+title: "Secure SDLC & Tooling"
+kind: LAB
+duration_min: 180
+tags: [sast, secret-scanning, fuzzing, devsecops]
+cwe: [CWE-798, CWE-89, CWE-78, CWE-327, CWE-489]
+prereqs: []
+flag_keys: []

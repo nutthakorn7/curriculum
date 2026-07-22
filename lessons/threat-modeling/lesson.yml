@@ -1,0 +1,8 @@
+slug: threat-modeling
+title: "Security Mindset & Threat Modeling"
+kind: LAB
+duration_min: 180
+tags: [threat-modeling, stride, dfd, secure-design]
+cwe: [CWE-1059]
+prereqs: []
+flag_keys: []
