@@ -3,7 +3,7 @@
 **OWASP API Security Top 10:** API1 BOLA · API3 broken object property level auth (mass assignment) · API4 unrestricted resource consumption
 
 ## ✅ This week — what to do
-1. **Before class** — Docker Desktop working ({{ ref('threat-modeling') }} *Lab 0*); skim {{ prev }}'s recap.
+1. **Before class** — Docker Desktop working ({{ ref('threat-modeling') }} *Lab 0*); skim last week's recap.
 2. **Lecture (120 min)** — weekly quiz first (~10 min), then the lecture. Slides: `{{ slides }}`.
 3. **Lab (180 min)** — play this week's game, then complete **Worksheet 10** (`worksheet.md`, Parts 1–4, incl. *Audit the AI* + *EiPE/Prompt*). Kickoff: `docker compose up → :8080 (insecure) / :8081 (secure)`.
 4. **Submit** — worksheet PDF → Classroom · code → GitHub · weekly quiz → Google Form. (How: [SUBMISSION.md](../../SUBMISSION.md).)

@@ -3,7 +3,7 @@
 **OWASP 2025:** A04 Cryptographic Failures · **CWE:** CWE-327, CWE-916, CWE-330
 
 ## ✅ This week — what to do
-1. **Before class** — Docker Desktop working ({{ ref('threat-modeling') }} *Lab 0*); skim {{ prev }}'s recap.
+1. **Before class** — Docker Desktop working ({{ ref('threat-modeling') }} *Lab 0*); skim last week's recap.
 2. **Lecture (120 min)** — weekly quiz first (~10 min), then the lecture. Slides: `{{ slides }}`.
 3. **Lab (180 min)** — play this week's game, then complete **Worksheet 3** (`worksheet.md`, Parts 1–4, incl. *Audit the AI* + *EiPE/Prompt*). Kickoff: `docker compose up`.
 4. **Submit** — worksheet PDF → Classroom · code → GitHub · weekly quiz → Google Form. (How: [SUBMISSION.md](../../SUBMISSION.md).)

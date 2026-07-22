@@ -3,7 +3,7 @@
 **OWASP 2025:** A09 Security Logging & Alerting Failures, A10 Mishandling of Exceptional Conditions
 
 ## ✅ This week — what to do
-1. **Before class** — Docker Desktop working ({{ ref('threat-modeling') }} *Lab 0*); skim {{ prev }}'s recap.
+1. **Before class** — Docker Desktop working ({{ ref('threat-modeling') }} *Lab 0*); skim last week's recap.
 2. **Lecture (120 min)** — weekly quiz first (~10 min), then the lecture. Slides: `{{ slides }}`.
 3. **Lab (180 min)** — play this week's game, then complete **Worksheet 15** (`worksheet.md`, Parts 1–4, incl. *Audit the AI* + *EiPE/Prompt*). Two run paths: **(a)** spawn the local target `docker compose up` → the **insecure** service on `:8090` (fails OPEN) vs the **secure** service on `:8091` (fails CLOSED + logs); **(b)** `push security-ci.yml → GitHub Actions` for the pipeline gate.
 4. **Submit** — worksheet PDF → Classroom · code → GitHub · weekly quiz → Google Form. (How: [SUBMISSION.md](../../SUBMISSION.md).)

@@ -67,7 +67,7 @@ visible results *and* a red build.
 
 ---
 
-## 5. "Break the Build" game (see {{ slot_label }}'s README)
+## 5. "Break the Build" game (see week15 README)
 
 - **Blue:** keep the gate green by fixing findings.
 - **Red:** open PRs that try to sneak past — e.g. add an old `urllib3`, a

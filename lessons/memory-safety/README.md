@@ -5,7 +5,7 @@
 **CWE:** CWE-787 (out-of-bounds write), CWE-121 (stack overflow), CWE-416 (use-after-free), CWE-134 (format string), CWE-193 (off-by-one)
 
 ## ✅ This week — what to do
-1. **Before class** — Docker Desktop working ({{ ref('threat-modeling') }} *Lab 0*); skim {{ prev }}'s recap.
+1. **Before class** — Docker Desktop working ({{ ref('threat-modeling') }} *Lab 0*); skim last week's recap.
 2. **Lecture (120 min)** — weekly quiz first (~10 min), then the lecture. Slides: `{{ slides }}`.
 3. **Lab (180 min)** — play this week's game, then complete **Worksheet 11** (`worksheet.md`, Parts 1–4, incl. *Audit the AI* + *EiPE/Prompt*). Kickoff: in the **toolbox container** (`labs/toolbox`), run `clang -fsanitize=address,fuzzer fuzz_harness.c -o fuzz && ./fuzz`.
 4. **Submit** — worksheet PDF → Classroom · code → GitHub · weekly quiz → Google Form. (How: [SUBMISSION.md](../../SUBMISSION.md).)

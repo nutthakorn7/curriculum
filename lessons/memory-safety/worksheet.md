@@ -31,7 +31,7 @@
 # from the repo root, build the toolbox once, then open a shell IN this week's folder:
 docker build -t softsec-toolbox labs/toolbox
 docker run -it --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
-    -v "$PWD/{{ labpath }}":/work -w /work softsec-toolbox
+    -v "$PWD/labs/week11-memory-safety-exploitation":/work -w /work softsec-toolbox
 # --- inside the container ---
 make vuln                                          # teaching build: mitigations OFF
 make vuln-hardened                                 # mitigations ON

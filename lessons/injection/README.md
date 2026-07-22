@@ -3,7 +3,7 @@
 **OWASP 2025:** A05 Injection · **CWE:** CWE-89 (SQLi), CWE-78 (command injection)
 
 ## ✅ This week — what to do
-1. **Before class** — Docker Desktop working (see {{ ref('threat-modeling') }} *Lab 0*); skim {{ prev }}'s recap.
+1. **Before class** — Docker Desktop working (see {{ ref('threat-modeling') }} *Lab 0*); skim last week's recap.
 2. **Lecture (120 min)** — weekly quiz first (~10 min), then the lecture. Slides: `{{ slides }}`.
 3. **Lab (180 min)** — play the game below, then complete **Worksheet 4** (`worksheet.md`, Parts 1–4, incl. *Audit the AI* + *EiPE/Prompt*). Kickoff: `docker compose up` → http://localhost:8080.
 4. **Submit** — worksheet PDF → Classroom · fixed code → GitHub · weekly quiz → Google Form. (How/where: [SUBMISSION.md](../../SUBMISSION.md).)

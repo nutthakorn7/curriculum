@@ -32,7 +32,7 @@ Answer in your own words (2–4 sentences each).
 
 **Learning goals:** perform direct and indirect prompt injection, demonstrate improper output handling, climb the Gandalf ladder, then add and verify guardrails.
 
-**Prerequisites:** Docker; the `{{ labpath }}/` folder; a browser; `curl`. Internet for the Gandalf task.
+**Prerequisites:** Docker; the `week14-ai-llm-security/` folder; a browser; `curl`. Internet for the Gandalf task.
 
 ### Environment setup (real commands)
 
