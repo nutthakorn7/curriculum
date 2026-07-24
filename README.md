@@ -6,6 +6,6 @@ own repo (`software-security`, `security-cryptography`, `cloud-infrastructure-se
 new courses, and site-specific re-scheduling (e.g. MFU) are each just another manifest.
 
 - **Design:** [`docs/superpowers/specs/2026-07-22-cross-course-lesson-library-design.md`](docs/superpowers/specs/2026-07-22-cross-course-lesson-library-design.md)
-- **Status:** design approved; implementation not started.
+- **Status:** engine + all three courses built. 34 lessons (software-security 12 · security-cryptography 12 · cloud-infrastructure-security 10), 4 course manifests, atomic renderer, 120 passing tests (unit + byte/content parity vs. every published source repo). Remaining before the source repos are generated *from* here (rather than kept in parity): the cutover itself, calendar/AGENDA generation, and porting existing slide decks into the library.
 
 > `instructor/` is git-ignored (salts, flag tables, rosters, answer keys) — never committed.

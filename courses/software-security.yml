@@ -4,7 +4,6 @@ course:
   brand: "KOSEN·KMITL"
   flag_salt_env: SWSEC_FLAG_SALT
   challenge_keys_env: AIRSEC_CHALLENGE_KEYS
-  target_repo: "nutthakorn7/software-security"
 schedule_unit: weeks
 slot_label: "Week {n}"
 target_repo: "nutthakorn7/software-security"
