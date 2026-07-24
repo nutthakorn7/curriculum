@@ -84,7 +84,7 @@ exploit confirms the defacement persisted (the site now really does serve the at
 demonstrating that this is a real overwrite, not just an accepted-but-discarded request.
 
 Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
-`instructor/seed_flags.py` already exists and its `CHALLENGES` list already includes `"s3site"`.
+`instructor/seed_flags.py` already exists and already mints this lesson's `s3site` flag (keys now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES list).
 Without it, `FLAG_S3SITE` defaults to `FLAG{public_putobject_defaces_your_website}` and can be
 overridden: `FLAG_S3SITE=FLAG{...} docker compose up`.
 

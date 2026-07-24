@@ -96,7 +96,7 @@ falls through to the implicit default **deny** on both apps, matching AWS's own 
 of an implicit deny-all when nothing matches.
 
 Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
-`instructor/seed_flags.py` already exists and its `CHALLENGES` list already includes `"nacl"`.
+`instructor/seed_flags.py` already exists and already mints this lesson's `nacl` flag (keys now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES list).
 Without it, `FLAG_NACL` defaults to `FLAG{low_numbered_allow_shadows_the_deny}` and can be
 overridden: `FLAG_NACL=FLAG{...} docker compose up`.
 

@@ -53,9 +53,12 @@ Response (alert fires — fixed app only, once threshold is reached):
 {"status": "recorded", "alert": true, "reason": "...", "flag": "FLAG{...}"}
 ```
 
-A successful login (`"success": true`) resets that key's failure streak, same as a real
-CloudWatch metric filter that only increments on `ConsoleLogin` failure events would stop
-accumulating once a login for that key succeeds.
+A successful login (`"success": true`) resets that key's failure streak — **a lab
+simplification**. (Real CloudWatch is different: a metric filter is a *stateless* counter of
+matching failure events, and its alarm sums those over a fixed evaluation window. A success just
+produces no datapoint; it does **not** zero or pause the count, so failures on either side of an
+intervening success within the same window still add up. Real reset-on-success would need custom
+logic, e.g. an EventBridge → Lambda rule.)
 
 ### The vulnerability
 
@@ -112,7 +115,7 @@ identically shaped, are in the actual run output.) Negative control confirmed se
 key choice that misses the password-spray pattern, not a broken counter.
 
 Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
-`instructor/seed_flags.py` already exists and its `CHALLENGES` list already includes `"monitor"`.
+`instructor/seed_flags.py` already exists and already mints this lesson's `monitor` flag (keys now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES list).
 Unlike the other lessons, `vulnerable_app.py`'s `FLAG_MONITOR = os.environ.get("FLAG_MONITOR")`
 has **no default value** — if it's unset, the response simply never includes a `flag` key at all
 (by design: the vulnerable app's own code path must never leak one, see below). Set it explicitly

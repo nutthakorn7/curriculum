@@ -89,7 +89,7 @@ the correct `X-Api-Key` still gets capped — 5 successful calls (`current_insta
 is the defense-in-depth proof: the fix is auth **and** a throttle together, not either one alone.
 
 Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
-`instructor/seed_flags.py` already exists and its `CHALLENGES` list already includes `"scaling"`.
+`instructor/seed_flags.py` already exists and already mints this lesson's `scaling` flag (keys now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES list).
 Without it, `FLAG_SCALING` defaults to `FLAG{denial_of_wallet_no_throttle}` and can be overridden:
 `FLAG_SCALING=FLAG{...} docker compose up`.
 

@@ -44,7 +44,7 @@ internalized *who is responsible for what* (not just the vocabulary) will catch.
 
 ## Deliverable
 Which variant you were assigned, the exact planted error, why it's wrong, and the corrected
-sentence — plus the two Part 1 essay-style questions if you're in the Conventional block instead.
+sentence — plus the four Part 1 essay-style questions if you're in the Conventional block instead.
 Full tasks: `worksheet.md`.
 
 ## References

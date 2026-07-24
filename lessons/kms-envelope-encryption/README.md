@@ -22,9 +22,11 @@ category — this lesson is about correct KMS use, not a coding bug).
   encrypt the object directly, and what KMS actually returns (a plaintext copy **and** an
   encrypted copy of that data key).
 - State precisely what S3 keeps and what it discards after encrypting an object with SSE-KMS.
-- Explain the **blast radius** of disabling or deleting a KMS key: every object ever encrypted
-  under that key becomes permanently unreadable, because the *encrypted* data key stored in each
-  object's metadata can no longer be decrypted.
+- Explain the **blast radius** of disabling vs. deleting a KMS key: disabling it makes every
+  object ever encrypted under that key unreadable **while it stays disabled** — but this is
+  *reversible* (re-enabling the key restores access); *deleting* it (after the mandatory
+  7–30-day waiting period) is irreversible and makes those objects **permanently** unreadable,
+  because the *encrypted* data key stored in each object's metadata can then never be decrypted.
 
 ## 🔎 Signature exercise — "Audit the Envelope"
 No lab/flag this lesson (CONCEPTUAL) — the personalized, attributable artifact is **which planted

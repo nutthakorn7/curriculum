@@ -31,9 +31,10 @@ def login_attempt():
     EVENTS.append({"username": username, "success": success, "source_ip": source_ip})
 
     if success:
-        # A successful login resets the per-key failure streak, same as a
-        # real CloudWatch metric filter keyed on failed-login events only
-        # would stop incrementing once a login succeeds for that key.
+        # A successful login resets the per-key failure streak — a LAB SIMPLIFICATION.
+        # (A real CloudWatch metric filter is a stateless counter of matching failure
+        # events; a success just yields no datapoint, it doesn't zero/pause the count.
+        # Real reset-on-success would need custom logic, e.g. an EventBridge->Lambda rule.)
         FAILED_COUNTS.pop((source_ip, username), None)
         return jsonify({"status": "ok", "alert": False})
 

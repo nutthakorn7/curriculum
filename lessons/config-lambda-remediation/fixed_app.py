@@ -6,8 +6,6 @@ from remediation_engine import ALLOWED_PORTS, remediate_correct, seed_rules
 
 app = Flask(__name__)
 
-FLAG_REMEDIATE = os.environ.get("FLAG_REMEDIATE", "FLAG{inverted_allowlist_leaves_ssh_open}")
-
 DANGEROUS_PORTS = {22, 3389}
 
 security_group = {"rules": seed_rules()}
@@ -17,10 +15,12 @@ security_group = {"rules": seed_rules()}
 def get_security_group():
     rules = security_group["rules"]
     dangerous = [r for r in rules if r["port"] in DANGEROUS_PORTS and r["cidr"] == "0.0.0.0/0"]
-    resp = {"rules": rules, "dangerous_rules_present": bool(dangerous)}
-    if dangerous:
-        resp["flag"] = FLAG_REMEDIATE
-    return jsonify(resp)
+    # Control app: it NEVER emits FLAG_REMEDIATE. The flag is evidence of the vulnerable
+    # app's inverted-remediation bug (a dangerous rule surviving a remediation attempt).
+    # The correctly-fixed app has no such bug, so it has no flag to return — emitting one
+    # here (even gated) would let a student harvest the evidence flag without exploiting
+    # anything.
+    return jsonify({"rules": rules, "dangerous_rules_present": bool(dangerous)})
 
 
 @app.route("/reset", methods=["POST"])

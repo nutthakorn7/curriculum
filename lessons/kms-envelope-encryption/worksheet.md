@@ -53,8 +53,9 @@ Report:
 
 ### 2b. EiPE (Explain-in-Plain-English)
 In 3–4 sentences a non-technical stakeholder could understand: why does disabling a KMS key
-make old data permanently unreadable, when disabling, say, a database user account usually
-doesn't destroy the database's existing data?
+make old data unreadable (until the key is re-enabled), even though the encrypted objects are
+still sitting in the bucket — whereas disabling, say, one database user account doesn't make the
+database's existing data unreadable? (And how does *deleting* the key differ from disabling it?)
 
 ### 2c. Viva prompt (spot-check, in class)
 Be ready to answer without notes: "If S3 kept the plaintext data key around after encrypting,

@@ -83,8 +83,9 @@ either target is idempotent (fixed app stays at `{80, 443}`; vulnerable app stay
 bug isn't a one-time fluke, it's the function's steady-state behavior.
 
 Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
-`instructor/seed_flags.py` already exists and its `CHALLENGES` list already includes
-`"remediate"`. Without it, `FLAG_REMEDIATE` defaults to `FLAG{inverted_allowlist_leaves_ssh_open}`
+`instructor/seed_flags.py` already exists and already mints this lesson's `remediate` flag (keys
+now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES
+list). Without it, `FLAG_REMEDIATE` defaults to `FLAG{inverted_allowlist_leaves_ssh_open}`
 and can be overridden: `FLAG_REMEDIATE=FLAG{...} docker compose up`.
 
 **Evidence artifact.** The attributable evidence is the captured `flag` value returned by the

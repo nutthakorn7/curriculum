@@ -78,7 +78,7 @@ Exit code `0`. Negative controls confirmed separately: `devuser`/anonymous calle
 crash.
 
 Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
-`instructor/seed_flags.py` already exists and its `CHALLENGES` list already includes `"iam"`.
+`instructor/seed_flags.py` already exists and already mints this lesson's `iam` flag (keys now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES list).
 Without it, `FLAG_IAM` defaults to `FLAG{wildcard_principal_grants_the_world}` and can be
 overridden: `FLAG_IAM=FLAG{...} docker compose up`.
 

@@ -98,7 +98,7 @@ uses `:8104` (vulnerable) and `:8117` (fixed) instead — both confirmed free ac
 lesson's `docker-compose.yml` in this repo at the time of writing.
 
 Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
-`instructor/seed_flags.py` already exists and its `CHALLENGES` list already includes `"ec2"`.
+`instructor/seed_flags.py` already exists and already mints this lesson's `ec2` flag (keys now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES list).
 Without it, `FLAG_EC2` defaults to `FLAG{ssrf_steals_the_instance_role}` and can be overridden:
 `FLAG_EC2=FLAG{...} docker compose up`.
 
