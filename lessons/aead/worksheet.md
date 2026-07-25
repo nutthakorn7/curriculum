@@ -140,9 +140,9 @@ would checking the **tag first** and returning a **uniform** error still kill th
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
 Below is an AI assistant's "secure decrypt-and-validate" helper for an AES-CBC service. It looks
-careful — it validates padding, it validates the message format, it logs errors — but it
-**reintroduces a padding oracle** through its error handling, plus one deeper design flaw. Your
-job: find them.
+careful — it validates padding, it validates the message format, it returns precise per-case error
+codes — but it **reintroduces a padding oracle** through its error handling, plus one deeper design
+flaw. Your job: find them.
 
 > **AI's answer — "a safe CBC decrypt endpoint":**
 >

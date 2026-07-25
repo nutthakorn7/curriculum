@@ -88,15 +88,24 @@ D0364141` (the SECP256k1 group order), compute `s' = n − s` for your captured 
 (`≤ n//2`) — exactly one is. *Deliverable:* your `s'`, the two txids, and which one is low-S.
 
 **Task 3 — Double-spend & capture the flag (20 min).** *Goal:* process one authorization twice.
-*Steps:* run `python exploit.py` (or the container form in the README). It submits `(r, s)`
-(accepted, `total_withdrawn=100`) then the twin `(r, n−s)` (accepted again, `total_withdrawn=200`
-→ flag). *Also* reproduce the second `POST` by hand with `curl` to convince yourself the script
-isn't doing anything hidden:
+*Steps:* do the double-spend **by hand with `curl` first**, so its JSON response is your own
+from-scratch proof — the bank's `_total_withdrawn` is global, in-memory state that never resets
+between requests, so this must be the *first* withdrawal attempt against a freshly started
+container (don't run `exploit.py` yet): `curl localhost:8102/sign` for a fresh `(r, s)`, then
+submit both signatures in order:
 ```bash
+curl -s -X POST localhost:8102/withdraw -H 'Content-Type: application/json' \
+  -d '{"message":"withdraw 100 to attacker","sig_r":"<r>","sig_s":"<s>"}'
 curl -s -X POST localhost:8102/withdraw -H 'Content-Type: application/json' \
   -d '{"message":"withdraw 100 to attacker","sig_r":"<r>","sig_s":"<n-s>"}'
 ```
-*Deliverable:* the flag + your `curl` command and its JSON response (must show
+*Then* run `python exploit.py` (or the container form in the README) as an automated
+confirmation of the same attack. Its own totals will now start above 100 since the bank's state
+persists across requests — that's expected, not a bug; if you run `exploit.py` first instead,
+the by-hand reproduction can no longer land on `total_withdrawn:200` (a repeat of the *same*
+signature gets `409 replay`, and even a *fresh* one lands on 300/400 because the counter never
+reset), so keep this order.
+*Deliverable:* the flag + your two `curl` commands and the second one's JSON response (must show
 `double_spend_detected` and `total_withdrawn:200`).
 
 **Task 4 — Confirm the fix rejects the same trick (20 min).** *Goal:* prove the fix works, not
