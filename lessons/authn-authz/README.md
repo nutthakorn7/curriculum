@@ -1,6 +1,6 @@
 # {{ slot_label }} — Authentication, Sessions & Access Control
 
-**OWASP 2025:** A01 Broken Access Control, A07 Authentication Failures · **CWE:** CWE-639 (IDOR), CWE-287
+**OWASP 2025:** A01 Broken Access Control, A07 Authentication Failures · **CWE:** CWE-639 (IDOR), CWE-287, CWE-347 (improper signature verification), CWE-321 (weak hardcoded key)
 
 ## ✅ This week — what to do
 1. **Before class** — Docker Desktop working ({{ ref('threat-modeling') }} *Lab 0*); skim last week's recap.
