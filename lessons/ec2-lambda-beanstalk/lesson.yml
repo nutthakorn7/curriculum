@@ -1,7 +1,7 @@
 slug: ec2-lambda-beanstalk
 title: "EC2 Instance Roles, Lambda Basics, Elastic Beanstalk"
 kind: HYBRID
-duration_min: 180
+duration_min: 60
 tags: [ec2-instance-roles, ssrf, imds, credential-theft]
 cwe: ["CWE-918"]
 prereqs: []

@@ -52,8 +52,8 @@ own policy hands write access to *anyone who asks*, no authentication required a
 ```bash
 cd {{ labpath }}
 docker compose up -d          # vulnerable_app.py on :8107, fixed_app.py on :8108
-pip install requests          # once, on the host
-python exploit.py
+python3 -m pip install requests          # once, on the host
+python3 exploit.py
 ```
 Expect two `PASS` lines and exit `0`: an anonymous write to bucket3 + flag on `:8107`, a
 rejected anonymous write (no flag) on `:8108`.

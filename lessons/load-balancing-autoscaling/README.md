@@ -64,8 +64,8 @@ script and runs up a large bill before anyone notices.
 ```bash
 cd {{ labpath }}
 docker compose up -d          # vulnerable_app.py on :8109, fixed_app.py on :8110
-pip install requests          # once, on the host
-python exploit.py
+python3 -m pip install requests          # once, on the host
+python3 exploit.py
 ```
 Expect two `PASS` lines and exit `0`: the vulnerable app reaching max instances (6) and
 returning the flag in well under 100 anonymous calls, and the fixed app rejecting the anonymous

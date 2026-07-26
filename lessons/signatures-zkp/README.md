@@ -13,7 +13,7 @@ EUF-CMA, Schnorr identification, signatures as non-interactive zero-knowledge pr
 2. **Lecture (120 min)** — signatures vs. MACs; RSA/ECDSA/EdDSA; the Schnorr identification
    protocol and the Fiat–Shamir transform (challenge → hash) that turns a zero-knowledge *proof
    of knowledge* into a *signature*; why an ECDSA signature `(r, s)` has a valid twin `(r, n−s)`
-   (malleability). Slides: `{{ slides }}` *(not yet written — see course-plan-19weeks.md)*.
+   (malleability). Slides: `{{ slides }}`.
 3. **Lab (180 min)** — play the signature game below, capture your flag, then complete
    **Worksheet 11** (`worksheet.md`, Part 1 conventional essays + Part 2 AIR-Sec arm). Kickoff:
    `docker compose up`.

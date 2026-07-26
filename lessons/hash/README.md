@@ -12,8 +12,7 @@ Hash Without a Salt / With a Predictable Salt)
    skim the course intro on what a cryptographic hash is (one-way, fixed-size digest).
 2. **Lecture (120 min)** — hash security properties (preimage / second-preimage / collision
    resistance); why MD5 and SHA-1 are broken and where that matters; why a *fast* hash is the
-   wrong tool for passwords; salts, peppers, and slow KDFs. Slides: `{{ slides }}`
-   *(not yet written — see course-plan-19weeks.md)*.
+   wrong tool for passwords; salts, peppers, and slow KDFs. Slides: `{{ slides }}`.
 3. **Lab (180 min)** — play the cracking game below, capture your flag, then complete
    **Worksheet 2** (`worksheet.md`, Part 2 Conventional essays + Part 3 AIR-Sec lab, Audit-the-AI,
    EiPE/Prompt). Kickoff: `docker compose up`.

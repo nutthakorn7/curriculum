@@ -6,10 +6,10 @@
 Storage Cheat Sheet
 
 ## This week — what to do
-1. **Before class** — skim last week's recap (Key Exchanges). No environment setup needed —
+1. **Before class** — skim the Week 6 recap (AEAD — the previous teaching week; Weeks 7–9 are review and the midterm sittings). No environment setup needed —
    this week is Python-only, standard library + `cryptography` (already used in earlier weeks).
 2. **Lecture (120 min)** — weekly quiz first (~10 min), then the lecture. Slides:
-   `{{ slides }}` *(not yet written — see `course-plan-19weeks.md`)*.
+   `{{ slides }}`.
 3. **Lab (180 min)** — complete **Worksheet 10** (`worksheet.md`, Parts 1–5, including the
    *Audit-the-AI* task in `audit_the_ai/`, plus EiPE + Prompt Problem).
 4. **Submit** — worksheet PDF → Classroom · code (`audit_the_ai/fixed_hybrid_encrypt.py`,

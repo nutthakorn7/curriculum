@@ -13,7 +13,7 @@ Cryptographic Signature)
 2. **Lecture (120 min)** — AES the block cipher vs. the *mode* that wraps it; why ECB leaks
    patterns; CBC/IV mechanics; malleability of unauthenticated CBC; nonces in GCM and why reuse
    is catastrophic; AEAD (GCM / ChaCha20-Poly1305) as the modern default. Slides:
-   `{{ slides }}` *(not yet written — see course-plan-19weeks.md)*.
+   `{{ slides }}`.
 3. **Lab (180 min)** — play the token game below, capture your flag, then complete
    **Worksheet 4** (`worksheet.md`, Part 1 Conventional + Part 2 AIR-Sec incl. *Audit the AI* +
    *EiPE* + *Prompt Problem* + viva). Kickoff: `docker compose up`.

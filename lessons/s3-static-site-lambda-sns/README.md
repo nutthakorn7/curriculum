@@ -59,8 +59,8 @@ is supposed to be public; public write is the mistake.
 ```bash
 cd {{ labpath }}
 docker compose up -d --build   # vulnerable_app.py on :8105, fixed_app.py on :8106
-pip install requests           # once, on the host
-python exploit.py
+python3 -m pip install requests           # once, on the host
+python3 exploit.py
 ```
 Expect two `PASS` lines and exit `0`: an anonymous defacement + flag on `:8105`, a rejected
 anonymous write (no flag) on `:8106`, with public GET succeeding on both.

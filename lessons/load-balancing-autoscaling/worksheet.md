@@ -1,7 +1,7 @@
 # Worksheet — {{ slot_label }}: Load Balancing & Auto-Scaling Under Load
 
-Section is assigned Block 1 = AIR-Sec or Block 2 = Conventional per `course-plan.md`'s block
-table — complete only the part assigned to you this block.
+This lesson is **Block 1** per `course-plan.md`'s block table. Section A = Block 1 **AIR-Sec**;
+Section B = Block 1 **Conventional**. Complete only the part assigned to your section this block.
 
 ## Part 1 — Conventional arm (essay)
 

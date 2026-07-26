@@ -70,8 +70,8 @@ case is decided before the general case ever gets a chance to match.
 ```bash
 cd {{ labpath }}
 docker compose up -d --build   # vulnerable_app.py on :8113, fixed_app.py on :8114
-pip install requests           # once, on the host
-python exploit.py
+python3 -m pip install requests           # once, on the host
+python3 exploit.py
 ```
 Expect two `PASS` lines and exit `0`: an external IP allowed + flag on `:8113`, the identical
 external IP denied (no flag) on `:8114`.

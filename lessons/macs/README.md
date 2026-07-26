@@ -9,8 +9,7 @@ Signature), CWE-290 (Authentication Bypass by Spoofing)
 1. **Before class** — Docker Desktop working (same Docker-first setup as `software-security`);
    skim last week's recap ({{ ref('hash') }} — hash functions / password cracking).
 2. **Lecture (120 min)** — MACs vs. hashes vs. signatures; why `H(key || message)` is not a MAC;
-   HMAC's nested construction; timing attacks on tag comparison. Slides: `{{ slides }}`
-   *(not yet written — see course-plan-19weeks.md)*.
+   HMAC's nested construction; timing attacks on tag comparison. Slides: `{{ slides }}`.
 3. **Lab (180 min)** — play the signature game below, capture your flag, then complete
    **Worksheet 3** (`worksheet.md`, Parts 1–3 incl. *Audit the AI* + *EiPE/Prompt*; Part 5 is an
    appendix, not assigned this week). Kickoff: `docker compose up`.

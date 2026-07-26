@@ -11,8 +11,7 @@ Validation), CWE-300 (Channel Accessible by Non-Endpoint)
    TLS-layer sequel.
 2. **Lecture (120 min)** — weekly quiz first (~10 min), then the lecture: SSL→TLS 1.3 evolution,
    what the handshake actually authenticates, and why "the traffic is encrypted" is not the same
-   claim as "encrypted *to the right person*". Slides: `{{ slides }}` *(not yet written — see
-   `course-plan-19weeks.md`)*.
+   claim as "encrypted *to the right person*". Slides: `{{ slides }}` **.
 3. **Lab (180 min)** — run the demo in both modes below, then complete **Worksheet 12**
    (`worksheet.md`, Part 1 — Conventional essays; Part 2 — AIR-Sec arm: lab evidence,
    Audit-the-AI, EiPE, Prompt Problem, viva prep).

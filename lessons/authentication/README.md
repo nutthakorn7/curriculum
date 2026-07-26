@@ -13,7 +13,7 @@ of Sensitive Information into Log File)
    verifier, never the password").
 2. **Lecture (120 min)** — weekly quiz first (~10 min), then the lecture: why "log in by sending
    your password" hands the plaintext to the *server*, and what a challenge-response / PAKE buys
-   you. Slides: `{{ slides }}` *(not yet written — see `course-plan-19weeks.md`)*.
+   you. Slides: `{{ slides }}`.
 3. **Lab (180 min)** — run the demo in both modes below, then complete **Worksheet 14**
    (`worksheet.md`, Part 1 — Conventional essays; Part 2 — AIR-Sec arm: lab evidence, Audit-the-AI,
    EiPE, Prompt Problem, viva prep).

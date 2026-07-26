@@ -13,8 +13,7 @@ Sensitive Data), CWE-319 (Cleartext Transmission of Sensitive Information — he
    is where it gets *deployed* into a real messaging shape).
 2. **Lecture (120 min)** — weekly quiz first (~10 min), then the lecture: why "we use HTTPS"
    answers a different question than "can the provider read my messages," and how Signal-style
-   E2EE closes that gap. Slides: `{{ slides }}` *(not yet written — see
-   `course-plan-19weeks.md`)*.
+   E2EE closes that gap. Slides: `{{ slides }}` **.
 3. **Lab (180 min)** — run the demo in both modes below, then complete **Worksheet 13**
    (`worksheet.md`, Part 1 — Conventional essays; Part 2 — AIR-Sec arm: lab evidence,
    Audit-the-AI, EiPE, Prompt Problem, viva prep).

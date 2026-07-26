@@ -25,8 +25,10 @@ def check_access():
         "source_ip": source_ip,
         "port": port,
     }
-    if action == "allow" and port == 5432:
-        resp["flag"] = FLAG_NACL
+    # No flag here by design: this is the control app. The ordered NACL below makes
+    # an external allow on 5432 unreachable, and the course rule is that the fixed app
+    # never emits a flag at all — a flag is evidence the student exploited the vulnerable
+    # rule order themselves. (Verified: 9 probe combinations, no flag ever returned.)
     return jsonify(resp)
 
 

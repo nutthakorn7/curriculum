@@ -20,7 +20,7 @@ primitive like AES-GCM — and the attack evaporates. That "combine them correct
 2. **Lecture (120 min)** — what AEAD guarantees (confidentiality + integrity + authenticity in one
    primitive); Encrypt-then-MAC vs MAC-then-Encrypt vs Encrypt-and-MAC; why unauthenticated CBC
    leaks to a padding oracle; why AES-GCM has no padding step and checks the tag first. Slides:
-   `{{ slides }}` *(not yet written — see course-plan-19weeks.md)*.
+   `{{ slides }}`.
 3. **Lab (180 min)** — play the decryption game below, capture your flag, then complete
    **Worksheet 6** (`worksheet.md`, Part 1 Conventional + Part 2 AIR-Sec incl. *Audit the AI* +
    *EiPE* + *Prompt Problem*). Kickoff: `docker compose up`.

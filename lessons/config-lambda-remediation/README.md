@@ -57,8 +57,8 @@ look like success.**
 ```bash
 cd {{ labpath }}
 docker compose up -d --build       # vulnerable_app.py on :8115, fixed_app.py on :8116
-pip install requests               # once, on the host
-python exploit.py
+python3 -m pip install requests               # once, on the host
+python3 exploit.py
 ```
 Expect two `PASS` lines and exit `0`: the dangerous SSH rule + flag surviving remediation on
 `:8115`, and the dangerous rule being correctly removed (no flag) on `:8116`.

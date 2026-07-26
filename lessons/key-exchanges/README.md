@@ -9,8 +9,7 @@ Entity Authentication), CWE-300 (Channel Accessible by Non-Endpoint)
 1. **Before class** — Docker Desktop working (same Docker-first setup as `software-security` and
    this course's {{ ref('macs') }}); skim last week's recap.
 2. **Lecture (120 min)** — weekly quiz first (~10 min), then the lecture: why raw DH gives you
-   secrecy against eavesdroppers but no identity guarantee at all. Slides: `{{ slides }}`
-   *(not yet written — see `course-plan-19weeks.md`)*.
+   secrecy against eavesdroppers but no identity guarantee at all. Slides: `{{ slides }}`.
 3. **Lab (180 min)** — run the demo in both modes below, then complete **Worksheet 5**
    (`worksheet.md`, Part 1 — Conventional essays; Part 2 — AIR-Sec arm: lab evidence, EiPE,
    Prompt Problem, viva prep).

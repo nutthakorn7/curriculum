@@ -84,7 +84,7 @@ guessing credentials) and should trip the same control.
 ```bash
 cd {{ labpath }}
 docker compose up -d --build     # vulnerable_app.py on :8111, fixed_app.py on :8112
-pip install requests             # once, on the host
+python3 -m pip install requests             # once, on the host
 python3 exploit.py
 ```
 Expect two `PASS` lines and exit `0`: the vulnerable app never alerts across 20 rotating-username

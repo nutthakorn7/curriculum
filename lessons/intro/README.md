@@ -12,7 +12,7 @@ Cryptographic Storage Cheat Sheet · CWE-320 (Key Management Errors) · CWE-330
    writing-based; no Docker, no code. Skim the course README and
    `course-plan-19weeks.md` so you know what's coming.
 2. **Lecture (120 min)** — weekly quiz first (~10 min), then the lecture. Slides:
-   `{{ slides }}` *(not yet written — see `course-plan-19weeks.md`)*.
+   `{{ slides }}`.
 3. **Lab (180 min)** — complete **Worksheet 1** (`worksheet.md`, Parts 1–5, including the
    *Audit-the-AI* task, plus EiPE + Prompt Problem).
 4. **Submit** — worksheet PDF (with your threat model + Audit-the-AI critique + prompt
