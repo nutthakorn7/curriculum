@@ -41,6 +41,13 @@ schedule:
 
 See `courses/EXAMPLE-web-app-security-short.yml` for a complete two-day one.
 
+> **A real short course is planned** (confirmed 2026-07-29, no date set). When it
+> becomes concrete, the one thing missing is that the platform's `/learn` content
+> plane reads `labs/week*/` — the *rendered output of one course* — rather than a
+> manifest. A second course would need its own rendered tree, or `/learn` taught
+> to serve any manifest. Deliberately not built yet: the shape of that route
+> should follow a real course's requirements rather than a guess at them.
+
 ### Ordering is checked, because intuition gets it wrong
 
 Each lesson declares what its own material assumes:
