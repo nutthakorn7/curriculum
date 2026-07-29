@@ -1,0 +1,45 @@
+# Dependabot for the curriculum monorepo.
+#
+# THE POINT OF THIS FILE: `lessons/` is teaching material, and several lessons
+# are insecure ON PURPOSE. Merging a dependency bump there does not fix
+# anything — it deletes the exercise. Worse than in a normal repo, because this
+# monorepo is the SOURCE that renders into three course repos: one merged bump
+# here silently changes what students receive in all of them and breaks the
+# byte-parity gates that are supposed to catch exactly that.
+#
+# Known-deliberate, verified 2026-07-29 (each is annotated in the file itself):
+#   lessons/supply-chain/requirements.txt   outdated pins so SCA tools have
+#                                           something real to find (the lesson)
+#   lessons/supply-chain/Dockerfile         FROM python:3.9-slim, intentionally old
+#   lessons/cloud-container/Dockerfile.insecure  FROM python:latest — the defect
+#                                           the hardened variant is compared against
+#   lessons/signatures-zkp/requirements.txt ecdsa: NO version fixes CVE-2024-23342;
+#                                           upstream declared side-channels out of
+#                                           scope. Accepted, documented risk — a
+#                                           bump PR would be noise with nowhere to go.
+#
+# Everything else audited clean the same day (pip-audit over all 23 manifests).
+#
+# So: Dependabot watches the BUILD TOOLING only. The lessons are reviewed by a
+# human when a lesson is revised, which is when their versions are a pedagogical
+# decision rather than a maintenance one.
+version: 2
+updates:
+  # The renderer/validator toolchain — this must stay current, it is real code.
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+
+# Deliberately NOT configured: any `directory:` under /lessons. Dependabot only
+# scans directories it is told about, so omitting them is the guard. If you add
+# an entry for a lesson, you are opting that lesson into automated bumps —
+# re-read the top of this file first.
