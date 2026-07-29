@@ -4,5 +4,5 @@ kind: HYBRID
 duration_min: 60
 tags: [cloudtrail, cloudwatch, aggregation-keys, password-spray]
 cwe: ["CWE-778"]
-prereqs: []
+prereqs: [aws-fundamentals-intro]
 flag_keys: ["monitor"]

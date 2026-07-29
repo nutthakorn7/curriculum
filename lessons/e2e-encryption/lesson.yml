@@ -4,5 +4,5 @@ kind: HYBRID
 duration_min: 180
 tags: [e2ee, tls, hybrid-encryption, key-distribution]
 cwe: [CWE-311, CWE-319]
-prereqs: []
+prereqs: [secure-transport, hybrid-encryption]
 flag_keys: []

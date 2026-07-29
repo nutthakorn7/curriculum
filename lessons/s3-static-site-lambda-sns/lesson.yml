@@ -4,5 +4,5 @@ kind: LAB
 duration_min: 60
 tags: [s3, bucket-policy, least-privilege, event-driven]
 cwe: ["CWE-284","CWE-668"]
-prereqs: []
+prereqs: [aws-fundamentals-intro]
 flag_keys: ["s3site"]

@@ -4,5 +4,5 @@ kind: CONCEPTUAL
 duration_min: 180
 tags: [versioning, lifecycle-rules, cross-region-replication, disaster-recovery]
 cwe: ["CWE-1188"]
-prereqs: []
+prereqs: [s3-static-site-lambda-sns]
 flag_keys: []

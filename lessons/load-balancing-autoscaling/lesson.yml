@@ -4,5 +4,5 @@ kind: HYBRID
 duration_min: 60
 tags: [load-balancer, auto-scaling, denial-of-wallet, rate-limiting]
 cwe: ["CWE-400"]
-prereqs: []
+prereqs: [ec2-lambda-beanstalk]
 flag_keys: ["scaling"]

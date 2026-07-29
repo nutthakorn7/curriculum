@@ -4,5 +4,5 @@ kind: LAB
 duration_min: 180
 tags: [aead, aes-gcm, padding-oracle, encrypt-then-mac]
 cwe: [CWE-347, CWE-757, CWE-208]
-prereqs: []
+prereqs: [aes-modes, macs]
 flag_keys: ["aead"]

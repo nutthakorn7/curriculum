@@ -4,5 +4,5 @@ kind: CONCEPTUAL
 duration_min: 180
 tags: [kms, envelope-encryption, data-keys, blast-radius]
 cwe: ["CWE-320"]
-prereqs: []
+prereqs: [s3-static-site-lambda-sns]
 flag_keys: []

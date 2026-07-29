@@ -4,5 +4,5 @@ kind: LAB
 duration_min: 180
 tags: [pqc, lamport, hash-based-signatures, hndl]
 cwe: [CWE-323, CWE-347]
-prereqs: []
+prereqs: [hash, signatures-zkp]
 flag_keys: ["pqc","hndl"]

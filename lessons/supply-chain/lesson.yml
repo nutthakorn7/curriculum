@@ -4,5 +4,5 @@ kind: LAB
 duration_min: 180
 tags: [supply-chain, sbom, dependency-confusion, slsa]
 cwe: [CWE-1104, CWE-829]
-prereqs: []
+prereqs: [sdlc-tooling]
 flag_keys: []

@@ -1,0 +1,32 @@
+# EXAMPLE — a short course assembled from existing lessons, nothing copied.
+#
+# This file exists to be read, not run: it is the smallest complete demonstration
+# that `lessons/` is a reusable library and a course is just an ordering over it.
+# Delete it, or copy it as the starting point for a real one.
+#
+# The ordering below is NOT arbitrary. An earlier draft put api-security first,
+# which reads fine to a human and is wrong — `tools/validate.py` refused it:
+#
+#   slot 1: lesson 'api-security' needs prereq 'authn-authz' scheduled earlier
+#   slot 3: lesson 'authn-authz' needs prereq 'cryptography' scheduled earlier
+#
+# BOLA is IDOR moved to the API layer, and JWT forgery is a signature exercise.
+# Neither is obvious when you are picking modules by topic name, which is the
+# whole reason the check exists.
+course:
+  name: "Web Application Security — 2-day intensive"
+  brand: "KOSEN·KMITL"
+  flag_salt_env: FLAG_SALT
+  challenge_keys_env: AIRSEC_CHALLENGE_KEYS
+target_repo: "nutthakorn7/web-app-security-short"
+schedule_unit: modules
+slot_label: "Module {n}"
+schedule:
+  # Day 1 — the ground the rest stands on
+  - {slot: 1, lesson: threat-modeling}
+  - {slot: 2, lesson: cryptography}
+  - {slot: 3, lesson: injection}
+  # Day 2 — the web-specific classes
+  - {slot: 4, lesson: xss-client-side}
+  - {slot: 5, lesson: authn-authz}
+  - {slot: 6, lesson: api-security}

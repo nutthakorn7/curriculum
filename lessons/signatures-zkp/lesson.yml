@@ -4,5 +4,5 @@ kind: HYBRID
 duration_min: 180
 tags: [digital-signatures, ecdsa, malleability, zero-knowledge-proofs]
 cwe: [CWE-347, CWE-345]
-prereqs: []
+prereqs: [hash]
 flag_keys: ["sig"]

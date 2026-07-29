@@ -4,5 +4,5 @@ kind: LAB
 duration_min: 180
 tags: [idor, jwt, access-control]
 cwe: [CWE-639, CWE-287]
-prereqs: []
+prereqs: [cryptography]
 flag_keys: [idor, jwt]

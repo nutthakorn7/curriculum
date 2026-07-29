@@ -4,5 +4,5 @@ kind: HYBRID
 duration_min: 180
 tags: [authentication, challenge-response, pake, mfa]
 cwe: [CWE-522, CWE-319, CWE-532]
-prereqs: []
+prereqs: [hash]
 flag_keys: []

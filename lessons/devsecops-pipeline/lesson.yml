@@ -4,5 +4,5 @@ kind: LAB
 duration_min: 180
 tags: [devsecops, ci-cd, fail-closed, logging]
 cwe: [CWE-636, CWE-532, CWE-209, CWE-489, CWE-798]
-prereqs: []
+prereqs: [sdlc-tooling, supply-chain]
 flag_keys: [devsecops]

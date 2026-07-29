@@ -151,3 +151,85 @@ def test_missing_phases_ignores_untagged_exams():
     canonical = _manifest([{"slot": 8, "kind": "exam", "value": "Pop quiz", "phase": None}])
     compressed = _manifest([])
     assert validate.missing_phases(canonical, compressed) == set()
+
+
+# --- the real lesson graph, not synthetic fixtures --------------------------
+#
+# prereqs were empty on all 34 lessons until 2026-07-29 — the mechanism existed
+# and was tested, but declared nothing, so it protected nothing. These tests are
+# about the REAL declarations: that they are coherent, and that every shipped
+# course ordering actually satisfies them.
+
+def _real(root=None):
+    import os
+    from tools import model
+    here = root or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return model.load_lessons(os.path.join(here, "lessons")), here
+
+
+def test_every_declared_prereq_names_a_lesson_that_exists():
+    lessons, _ = _real()
+    for slug, lsn in lessons.items():
+        for pre in lsn.prereqs:
+            assert pre in lessons, f"{slug} requires '{pre}', which is not a lesson"
+
+
+def test_the_prereq_graph_has_no_cycles():
+    """A cycle makes every ordering invalid and the error message unhelpful."""
+    lessons, _ = _real()
+    seen, stack = set(), set()
+
+    def walk(slug, path):
+        if slug in stack:
+            raise AssertionError("prereq cycle: " + " -> ".join(path + [slug]))
+        if slug in seen:
+            return
+        stack.add(slug); seen.add(slug)
+        for pre in lessons[slug].prereqs:
+            walk(pre, path + [slug])
+        stack.discard(slug)
+
+    for slug in lessons:
+        walk(slug, [])
+
+
+def test_no_lesson_requires_itself():
+    lessons, _ = _real()
+    for slug, lsn in lessons.items():
+        assert slug not in lsn.prereqs, f"{slug} requires itself"
+
+
+def test_every_shipped_course_satisfies_its_prereqs():
+    """The declarations must describe the courses we actually teach. If a real
+    ordering violates one, either the ordering is wrong or the prereq is."""
+    import glob, os
+    from tools import model, validate
+    lessons, here = _real()
+    manifests = sorted(glob.glob(os.path.join(here, "courses", "*.yml")))
+    assert manifests, "no course manifests found"
+    for f in manifests:
+        m = model.load_manifest(f)
+        bad = [e for e in validate.validate_manifest(m, lessons) if "prereq" in e]
+        assert not bad, f"{os.path.basename(f)}:\n  " + "\n  ".join(bad)
+
+
+def test_a_mis_ordered_short_course_is_refused():
+    """The point of the whole feature: pulling modules into a new course and
+    ordering them by intuition must fail loudly, not silently teach students
+    material that assumes something they haven't been taught."""
+    import os, textwrap, tempfile
+    from tools import model, validate
+    lessons, _ = _real()
+    with tempfile.TemporaryDirectory() as d:
+        p = os.path.join(d, "short.yml")
+        open(p, "w").write(textwrap.dedent("""
+            course: {name: "bad", brand: "x"}
+            target_repo: "x/y"
+            schedule_unit: modules
+            slot_label: "Module {n}"
+            schedule:
+              - {slot: 1, lesson: api-security}
+              - {slot: 2, lesson: authn-authz}
+        """).strip())
+        errs = validate.validate_manifest(model.load_manifest(p), lessons)
+    assert any("api-security" in e and "authn-authz" in e for e in errs), errs

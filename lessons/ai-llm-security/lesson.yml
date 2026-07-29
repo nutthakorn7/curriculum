@@ -4,5 +4,5 @@ kind: LAB
 duration_min: 180
 tags: [prompt-injection, llm-security, guardrails]
 cwe: []
-prereqs: []
+prereqs: [injection]
 flag_keys: [promptinj]

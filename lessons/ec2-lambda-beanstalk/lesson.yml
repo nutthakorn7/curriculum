@@ -4,5 +4,5 @@ kind: HYBRID
 duration_min: 60
 tags: [ec2-instance-roles, ssrf, imds, credential-theft]
 cwe: ["CWE-918"]
-prereqs: []
+prereqs: [aws-fundamentals-intro]
 flag_keys: ["ec2"]

@@ -4,5 +4,5 @@ kind: HYBRID
 duration_min: 60
 tags: [auto-remediation, allowlist-denylist, logic-inversion, security-groups]
 cwe: ["CWE-697", "CWE-284"]
-prereqs: []
+prereqs: [vpc-networking]
 flag_keys: ["remediate"]

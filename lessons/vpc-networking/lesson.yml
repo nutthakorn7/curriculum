@@ -4,5 +4,5 @@ kind: HYBRID
 duration_min: 60
 tags: [vpc, network-acls, security-groups, nat-gateway]
 cwe: ["CWE-863","CWE-284"]
-prereqs: []
+prereqs: [aws-fundamentals-intro]
 flag_keys: ["nacl"]
