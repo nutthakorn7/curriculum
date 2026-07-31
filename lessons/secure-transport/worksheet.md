@@ -74,8 +74,8 @@ directly — that is the premise: an active attacker controls the network path.
    **This is your personalized/attributable artifact for this HYBRID week, in place of a CTF
    flag.** The message text itself is fixed for every student (`SECRET_MESSAGE` is a lab constant,
    not per-student), so what makes your submission *yours* is not the string — it's the same
-   identity-proof mechanism as every other week: your terminal screenshot must show your `whoami`
-   / login and a timestamp alongside the captured log, per the Evidence & Integrity section below.
+   identity-proof mechanism as every other week: you must attach the identity stamp the Evidence & Integrity section below
+   specifies, in the same image as the captured log.
    Note in one line: Alice logs that the TLS handshake **succeeded** — so the channel really is
    encrypted. Why did encryption not protect the secret?
 2. Tear down: `Ctrl-C`, then `docker compose -f docker-compose.vulnerable.yml down -v`.
@@ -247,8 +247,12 @@ essay questions and the detailed lab/audit/viva grading notes.
 
 ## Evidence & Integrity (required)
 
-- **Identity proof:** every screenshot/log capture must show your **`whoami` / login email /
-  student ID** and a **timestamp**. Generic or borrowed evidence is not accepted.
+- **Identity proof:** every screenshot/log capture must show a terminal running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in
+  the same image as the evidence**. When the evidence is a browser page, a DevTools panel or a
+  rendered response, put that terminal **beside the browser and capture the whole screen** — a
+  cropped window carries nothing that identifies you, and the lab's own output is
+  byte-identical for the whole cohort *by design*, so the stamp is the only thing that makes
+  the shot yours. Generic or borrowed evidence is not accepted.
 - **Personalized/attributable artifact:** the `MITM INTERCEPTED: the vault code is 7731` line from
   Part 2a, submitted **together with** your identity-proof screenshot — the identity proof is what
   makes it yours, not the message text (see Part 2a for why). Submitting someone else's captured
