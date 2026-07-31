@@ -27,7 +27,7 @@ and well-documented real-world cloud incident patterns of the last decade.
 2. **This add-on lab (45–60 min)** — a local, from-scratch simulation of the SSRF-to-credential-
    theft concept: a tiny Flask "instance" with a fake attached instance role and a link-preview
    feature you can attack without an AWS account. Kickoff: `docker compose up -d`.
-3. **Submit** — worksheet + flag → Classroom.
+3. **Submit** — worksheet + flag → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Simulation limits (read this before you start)
 On a real EC2 instance, `169.254.169.254` is a **link-local address reachable only from processes

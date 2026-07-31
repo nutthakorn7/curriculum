@@ -24,7 +24,7 @@ primitive like AES-GCM — and the attack evaporates. That "combine them correct
 3. **Lab (180 min)** — play the decryption game below, capture your flag, then complete
    **Worksheet 6** (`worksheet.md`, Part 1 Conventional + Part 2 AIR-Sec incl. *Audit the AI* +
    *EiPE* + *Prompt Problem*). Kickoff: `docker compose up`.
-4. **Submit** — worksheet PDF + flag → Classroom · exploit notes → GitHub. (How: [SUBMISSION.md](../../SUBMISSION.md).)
+4. **Submit** — worksheet PDF + flag → see [SUBMISSION.md](../../SUBMISSION.md) · exploit notes → GitHub.
 
 ## Objectives
 - State what **AEAD** stands for and the three guarantees it delivers in one primitive.

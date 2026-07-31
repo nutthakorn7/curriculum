@@ -18,7 +18,7 @@ either rule's content is individually wrong.
 2. **This add-on lab (45–60 min)** — a local, from-scratch simulation of one specific,
    easy-to-miss Network ACL bug: rule *number* order, not just rule *content*, decides the
    outcome. Kickoff: `docker compose up -d`.
-3. **Submit** — worksheet + flag → Classroom.
+3. **Submit** — worksheet + flag → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Objectives
 - State the difference between **security groups** (stateful, instance-level, allow-only) and

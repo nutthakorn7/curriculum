@@ -13,7 +13,7 @@ Signature), CWE-290 (Authentication Bypass by Spoofing)
 3. **Lab (180 min)** — play the signature game below, capture your flag, then complete
    **Worksheet 3** (`worksheet.md`, Parts 1–3 incl. *Audit the AI* + *EiPE/Prompt*; Part 5 is an
    appendix, not assigned this week). Kickoff: `docker compose up`.
-4. **Submit** — worksheet PDF + flag → Classroom · exploit code → GitHub. (How: [SUBMISSION.md](../../SUBMISSION.md).)
+4. **Submit** — worksheet PDF + flag → see [SUBMISSION.md](../../SUBMISSION.md) · exploit code → GitHub.
 
 ## Objectives
 - Explain why a bare hash of `key || message` (or `message || key`) is **not** a secure MAC.

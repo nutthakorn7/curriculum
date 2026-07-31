@@ -12,8 +12,8 @@ Storage Cheat Sheet
    `{{ slides }}`.
 3. **Lab (180 min)** — complete **Worksheet 10** (`worksheet.md`, Parts 1–5, including the
    *Audit-the-AI* task in `audit_the_ai/`, plus EiPE + Prompt Problem).
-4. **Submit** — worksheet PDF → Classroom · code (`audit_the_ai/fixed_hybrid_encrypt.py`,
-   your proof script) → GitHub · weekly quiz → Google Form.
+4. **Submit** — worksheet PDF → see [SUBMISSION.md](../../SUBMISSION.md) · code (`audit_the_ai/fixed_hybrid_encrypt.py`,
+   your proof script) → GitHub · weekly quiz → see [SUBMISSION.md](../../SUBMISSION.md).
 5. **Project** — if your term project sends data between two parties that don't already share a
    secret, this week's pattern (RSA-OAEP wraps an AES session key) is directly applicable.
 

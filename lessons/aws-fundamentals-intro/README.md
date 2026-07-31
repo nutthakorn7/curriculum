@@ -15,7 +15,7 @@ coding bug in any artifact.
    (intro to cloud concepts, security fundamentals, and the IAM Knowledge Checks).
 2. **This add-on (45–60 min, no Docker)** — an Audit-the-AI exercise on the Shared Responsibility
    Model and basic IAM hygiene, personalized per student.
-3. **Submit** — worksheet → Classroom.
+3. **Submit** — worksheet → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Objectives
 - State the AWS Shared Responsibility Model's split precisely for an IaaS service like EC2: AWS

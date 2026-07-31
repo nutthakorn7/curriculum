@@ -17,7 +17,7 @@ Sensitive Data), CWE-319 (Cleartext Transmission of Sensitive Information — he
 3. **Lab (180 min)** — run the demo in both modes below, then complete **Worksheet 13**
    (`worksheet.md`, Part 1 — Conventional essays; Part 2 — AIR-Sec arm: lab evidence,
    Audit-the-AI, EiPE, Prompt Problem, viva prep).
-4. **Submit** — worksheet PDF + captured log evidence → Classroom · code unchanged (this is a
+4. **Submit** — worksheet PDF + captured log evidence → see [SUBMISSION.md](../../SUBMISSION.md) · code unchanged (this is a
    read/run/observe lab, not an exploit-and-fix-the-code lab) → GitHub. (How: [SUBMISSION.md](../../SUBMISSION.md).)
 
 ## Objectives

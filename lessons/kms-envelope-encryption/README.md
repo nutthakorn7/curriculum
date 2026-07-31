@@ -15,7 +15,7 @@ category — this lesson is about correct KMS use, not a coding bug).
    setup, uploading/viewing an encrypted object, the CloudTrail `GenerateDataKey` event).
 2. **This add-on (45–60 min, no Docker)** — an Audit-the-AI exercise on the envelope-encryption
    concept, personalized per student.
-3. **Submit** — worksheet → Classroom.
+3. **Submit** — worksheet → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Objectives
 - Explain **envelope encryption**: why S3 asks KMS for a *data key* instead of asking KMS to

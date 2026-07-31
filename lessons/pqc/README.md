@@ -23,7 +23,7 @@ Pair in Encryption), CWE-347 (Improper Verification of Cryptographic Signature)
    **reused Lamport one-time key**, capture your flag, then complete **Worksheet 15**
    (`worksheet.md`, Part 2 Conventional + Part 3 AIR-Sec incl. *Audit the AI* + *EiPE/Prompt*).
    Kickoff: `docker compose up`.
-4. **Submit** — worksheet PDF + flag → Classroom · exploit code → GitHub. (How: [SUBMISSION.md](../../SUBMISSION.md).)
+4. **Submit** — worksheet PDF + flag → see [SUBMISSION.md](../../SUBMISSION.md) · exploit code → GitHub.
 
 ## Objectives
 - Explain **why quantum matters for cryptography**: Shor's algorithm breaks RSA/ECC outright,

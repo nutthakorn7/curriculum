@@ -20,7 +20,7 @@ outright.
    concept: a tiny Flask service that stands in for "a fleet behind a load balancer," with an
    internal counter that plays the role of an Auto Scaling Group's `current_instances`. Kickoff:
    `docker compose up -d`.
-3. **Submit** — worksheet → Classroom (Part 1 essay for everyone; Part 2 AIR-Sec students also
+3. **Submit** — worksheet → see [SUBMISSION.md](../../SUBMISSION.md) (Part 1 essay for everyone; Part 2 AIR-Sec students also
    submit the flag).
 
 ## Objectives

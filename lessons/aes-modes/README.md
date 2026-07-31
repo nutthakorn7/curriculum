@@ -17,7 +17,7 @@ Cryptographic Signature)
 3. **Lab (180 min)** — play the token game below, capture your flag, then complete
    **Worksheet 4** (`worksheet.md`, Part 1 Conventional + Part 2 AIR-Sec incl. *Audit the AI* +
    *EiPE* + *Prompt Problem* + viva). Kickoff: `docker compose up`.
-4. **Submit** — worksheet PDF + flag → Classroom · exploit code → GitHub. (How: [SUBMISSION.md](../../SUBMISSION.md).)
+4. **Submit** — worksheet PDF + flag → see [SUBMISSION.md](../../SUBMISSION.md) · exploit code → GitHub.
 
 ## Objectives
 - Explain why **AES itself being secure** does not make an AES-*based* scheme secure — the

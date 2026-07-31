@@ -17,7 +17,7 @@ CWE-284 (Improper Access Control).
    auto-remediation concept: a tiny Flask API standing in for "a security group" plus a
    "remediation function" you can inspect and attack without an AWS account. Kickoff:
    `docker compose up -d`.
-3. **Submit** — worksheet + flag → Classroom.
+3. **Submit** — worksheet + flag → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Objectives
 - Explain, at a high level, how AWS Config flags a resource NON_COMPLIANT and how a Lambda-based

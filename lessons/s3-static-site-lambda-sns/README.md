@@ -15,7 +15,7 @@ public-write, principle of least privilege on a resource-based policy, event-dri
 2. **This add-on lab (45–60 min)** — a local, from-scratch simulation of the S3 static-website
    bucket-policy concept: a tiny "S3 website endpoint"-like API you can inspect and attack
    without an AWS account. Kickoff: `docker compose up -d`.
-3. **Submit** — worksheet + flag → Classroom.
+3. **Submit** — worksheet + flag → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Background — the two bugs this lab is and isn't about
 When you enable S3 static website hosting, the bucket must serve pages to anonymous browsers,

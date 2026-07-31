@@ -16,7 +16,7 @@ Hash Without a Salt / With a Predictable Salt)
 3. **Lab (180 min)** — play the cracking game below, capture your flag, then complete
    **Worksheet 2** (`worksheet.md`, Part 2 Conventional essays + Part 3 AIR-Sec lab, Audit-the-AI,
    EiPE/Prompt). Kickoff: `docker compose up`.
-4. **Submit** — worksheet PDF + flag → Classroom · exploit code → GitHub. (How: [SUBMISSION.md](../../SUBMISSION.md).)
+4. **Submit** — worksheet PDF + flag → see [SUBMISSION.md](../../SUBMISSION.md) · exploit code → GitHub.
 
 ## Objectives
 - State the three hash security properties (preimage, second-preimage, collision resistance) and

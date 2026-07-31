@@ -16,7 +16,7 @@ and runs, but its aggregation key silently excludes the real attack shape.
 2. **This add-on lab (45–60 min)** — a local, from-scratch simulation of the same monitoring
    concept: a tiny Flask service that stands in for "CloudTrail recorded this login event, did
    our alerting pipeline fire?" without needing an AWS account. Kickoff: `docker compose up -d`.
-3. **Submit** — worksheet + flag → Classroom.
+3. **Submit** — worksheet + flag → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Signature exercise — "The Spray That Never Alerts"
 

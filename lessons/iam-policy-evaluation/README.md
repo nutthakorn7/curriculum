@@ -14,7 +14,7 @@ Control), CWE-668 (Exposure of Resource to Wrong Sphere).
 2. **This add-on lab (60–90 min)** — a local, from-scratch simulation of the same IAM concept:
    a tiny "S3-and-IAM-like" API with a policy engine you can inspect and attack without an AWS
    account. Kickoff: `docker compose up -d`.
-3. **Submit** — worksheet + flag → Classroom.
+3. **Submit** — worksheet + flag → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Objectives
 - Explain why a caller with **no identity-based grant at all** can still access a resource,

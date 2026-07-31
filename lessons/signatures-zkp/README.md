@@ -17,7 +17,7 @@ EUF-CMA, Schnorr identification, signatures as non-interactive zero-knowledge pr
 3. **Lab (180 min)** — play the signature game below, capture your flag, then complete
    **Worksheet 11** (`worksheet.md`, Part 1 conventional essays + Part 2 AIR-Sec arm). Kickoff:
    `docker compose up`.
-4. **Submit** — worksheet PDF + flag → Classroom · exploit code → GitHub. (How: [SUBMISSION.md](../../SUBMISSION.md).)
+4. **Submit** — worksheet PDF + flag → see [SUBMISSION.md](../../SUBMISSION.md) · exploit code → GitHub.
 
 ## Objectives
 - Explain the difference between a digital signature and a MAC (asymmetric vs. symmetric key,

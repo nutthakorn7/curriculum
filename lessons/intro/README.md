@@ -16,7 +16,7 @@ Cryptographic Storage Cheat Sheet · CWE-320 (Key Management Errors) · CWE-330
 3. **Lab (180 min)** — complete **Worksheet 1** (`worksheet.md`, Parts 1–5, including the
    *Audit-the-AI* task, plus EiPE + Prompt Problem).
 4. **Submit** — worksheet PDF (with your threat model + Audit-the-AI critique + prompt
-   artifacts) → Classroom · weekly quiz → Google Form.
+   artifacts) → see [SUBMISSION.md](../../SUBMISSION.md) · weekly quiz → see [SUBMISSION.md](../../SUBMISSION.md).
 5. **Project** — start thinking about your term project's trust boundaries now (see
    `project/README.md`); {{ ref('aes-modes') }} formally kicks the project off (team + design doc), but the
    earlier you can name "what data crosses what boundary, encrypted with what," the better your

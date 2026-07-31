@@ -18,7 +18,7 @@ bug) / general data-protection misconfiguration category.
    replication).
 2. **This add-on (45–60 min, no Docker)** — an Audit-the-AI exercise on versioning/lifecycle/CRR
    concepts, personalized per student.
-3. **Submit** — worksheet → Classroom.
+3. **Submit** — worksheet → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Objectives
 - Explain why enabling **versioning** on a bucket protects against accidental delete and
