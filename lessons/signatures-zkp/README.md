@@ -75,11 +75,31 @@ exceeds the authorized amount, it returns the flag.
 > returned.**
 
 ## Run it
+
+> **Do the worksheet's Task 3 *before* you run `exploit.py`, or tear down first.**
+> The bank's `_total_withdrawn` and `_seen_txids` are module-level globals in
+> `vulnerable_app.py`: they never reset while the container is up. `exploit.py`
+> spends the one authorization, and after it has run the by-hand reproduction
+> Task 3 grades cannot happen — the very first `curl` you send comes back
+> `total_withdrawn:300, double_spend_detected:true` **with the flag**, so a single
+> ordinary withdrawal appears to be the double-spend and malleability demonstrates
+> nothing. (Reproduced: 300 then 400, both flagged.)
+>
+> `exploit.py` is the *confirmation* of an attack you have already done by hand.
+> If you have already run it, reset the state and start over:
+> ```bash
+> docker compose down && docker compose up -d
+> ```
+> A fresh container gives the sequence the worksheet asks for: `total_withdrawn:100`
+> on the first submission, then `200` + `double_spend_detected` + the flag on the
+> malleated twin.
+
 ```bash
 cd {{ labpath }}
 docker compose up -d          # vulnerable_app.py on :8102, fixed_app.py on :8103
 pip install ecdsa requests    # once, on the host
-python exploit.py             # defaults to localhost:8102 / localhost:8103 — both ports are published
+python exploit.py             # AFTER worksheet Task 3 — see the note above
+                              # defaults to localhost:8102 / localhost:8103 — both ports are published
 ```
 No Docker network name to get right — both apps publish their ports to the host, so `exploit.py`
 just talks to `localhost`. (If you'd rather not install anything on the host, run it in a
