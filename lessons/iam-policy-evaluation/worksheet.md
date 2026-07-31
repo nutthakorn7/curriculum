@@ -23,6 +23,11 @@ Answer in your own words (no AI-resilience layer, no flag — graded on the writ
 ## Part 2 — AIR-Sec arm
 
 ### 2a. The lab
+
+```sim
+iam-evaluation
+```
+
 Run the "Assume the Wrong Role" exercise (`README.md`). Record:
 - The exact request (method, URL, headers) that got you the flag on the vulnerable app.
 - The captured flag.
