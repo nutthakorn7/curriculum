@@ -105,8 +105,12 @@ to the attacker? (b) Why does resuming compression from that state let the attac
 
 ## Evidence & Integrity (required)
 
-- **Identity proof:** your terminal/screenshot evidence for Tasks 1–4 must show your
-  `whoami` / login email / student ID and a timestamp.
+- **Identity proof:** your terminal/screenshot evidence for Tasks 1–4 must show a terminal
+  running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in the same image as the evidence**. When the evidence is a browser page,
+  a DevTools panel or a rendered response, put that terminal **beside the browser and capture
+  the whole screen** — a cropped window carries nothing that identifies you, and the lab's own
+  output is byte-identical for the whole cohort *by design*, so the stamp is the only thing
+  that makes the shot yours.
 - **Personalized flag:** ____________________
   *Flags are unique per student (via `MAC_SECRET`/`FLAG_MACS` env override — see README) —
   submitting another student's flag is a violation.*

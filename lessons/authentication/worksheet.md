@@ -73,9 +73,8 @@ password `correct-horse-battery`.
    plus `LOGIN OK` from the client. **This `SERVER SAW PASSWORD` line is your
    personalized/attributable artifact for this HYBRID week, in place of a CTF flag.** The password
    string is a lab constant (the same for every student), so what makes your submission *yours* is
-   the identity proof you attach: your terminal screenshot must show your `whoami` / login email /
-   student ID and a timestamp alongside the captured log, per the Evidence & Integrity section
-   below. In one line, note **which service printed the password and why** — i.e. what does the
+   the identity proof you attach: you must attach the identity stamp the Evidence & Integrity section below
+   specifies, in the same image as the captured log. In one line, note **which service printed the password and why** — i.e. what does the
    server having your plaintext in a request handler let a malicious operator do that TLS did not
    prevent?
 2. Tear down: `docker compose -f docker-compose.vulnerable.yml down`.
@@ -212,8 +211,12 @@ essay questions, the Audit-the-AI fix, and the detailed lab/viva grading notes.
 
 ## Evidence & Integrity (required)
 
-- **Identity proof:** every screenshot/log capture must show your **`whoami` / login email /
-  student ID** and a **timestamp**. Generic or borrowed evidence is not accepted.
+- **Identity proof:** every screenshot/log capture must show a terminal running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in
+  the same image as the evidence**. When the evidence is a browser page, a DevTools panel or a
+  rendered response, put that terminal **beside the browser and capture the whole screen** — a
+  cropped window carries nothing that identifies you, and the lab's own output is
+  byte-identical for the whole cohort *by design*, so the stamp is the only thing that makes
+  the shot yours. Generic or borrowed evidence is not accepted.
 - **Personalized/attributable artifact:** the `SERVER SAW PASSWORD: correct-horse-battery` line from
   Part 2a vulnerable mode, submitted **together with** your identity-proof screenshot — the identity
   proof is what makes it yours, not the password text (which is a lab constant). For fixed mode, the
