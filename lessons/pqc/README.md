@@ -88,7 +88,7 @@ python exploit.py             # PASS on :8100 (flag), PASS on :8101 (correctly d
 Per-student flag: `python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env` before
 `docker compose up` (once this course's `instructor/seed_flags.py` exists — see the shared
 `software-security` template; add a `"pqc"` entry to its `CHALLENGES` list). Until then
-`FLAG_PQC` defaults to `FLAG{lamport_one_time_only}`. Set `LAMPORT_SEED=<anything>` to make the
+`FLAG_PQC` falls back to a shared placeholder that is the same for everyone. Set `LAMPORT_SEED=<anything>` to make the
 keypair deterministic for reproducible grading (unset = fresh random key each boot).
 
 **Verified:** `docker compose up -d` followed by `python exploit.py` was run against live

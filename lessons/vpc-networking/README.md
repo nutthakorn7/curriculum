@@ -81,8 +81,8 @@ host against the published ports. Real captured output:
 ```
 === VULNERABLE (allow-all at #90 shadows deny-all at #100) (http://localhost:8113) ===
 [*] rule set (ascending order) -> [{'action': 'allow', 'cidr': '0.0.0.0/0', 'port': 5432, 'rule_number': 90}, {'action': 'deny', 'cidr': '0.0.0.0/0', 'port': 5432, 'rule_number': 100}]
-[*] external IP 203.0.113.55 -> port 5432 -> 200 {'action': 'allow', 'flag': 'FLAG{low_numbered_allow_shadows_the_deny}', 'matched_rule_number': 90, 'port': 5432, 'source_ip': '203.0.113.55'}
-PASS: external IP was ALLOWED to the DB port on the vulnerable app (rule #90 matched first), flag = FLAG{low_numbered_allow_shadows_the_deny}
+[*] external IP 203.0.113.55 -> port 5432 -> 200 {'action': 'allow', 'flag': 'FLAG{...}', 'matched_rule_number': 90, 'port': 5432, 'source_ip': '203.0.113.55'}
+PASS: external IP was ALLOWED to the DB port on the vulnerable app (rule #90 matched first), flag = FLAG{...}
 
 === FIXED (scoped allow at #90 evaluated first, catch-all deny at #100) (http://localhost:8114) ===
 [*] rule set (ascending order) -> [{'action': 'allow', 'cidr': '10.0.1.0/24', 'port': 5432, 'rule_number': 90}, {'action': 'deny', 'cidr': '0.0.0.0/0', 'port': 5432, 'rule_number': 100}]
@@ -97,7 +97,7 @@ of an implicit deny-all when nothing matches.
 
 Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
 `instructor/seed_flags.py` already exists and already mints this lesson's `nacl` flag (keys now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES list).
-Without it, `FLAG_NACL` defaults to `FLAG{low_numbered_allow_shadows_the_deny}` and can be
+Without it, `FLAG_NACL` falls back to a shared placeholder that is the same for everyone and can be
 overridden: `FLAG_NACL=FLAG{...} docker compose up`.
 
 **Evidence artifact.** The attributable evidence is the captured `flag` value returned by the

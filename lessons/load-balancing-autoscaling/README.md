@@ -75,8 +75,8 @@ caller (401) before it can accumulate any meaningful load.
 host against the published ports. Real captured output:
 ```
 === VULNERABLE (no auth, no rate limit) (http://localhost:8109) ===
-[*] call 40: anonymous POST /generate-load -> 200 {'current_instances': 6, 'flag': 'FLAG{denial_of_wallet_no_throttle}', 'load_units': 40, 'max_instances': 6, 'min_instances': 2, 'status': 'job-accepted'}
-PASS: anonymous caller drove current_instances to 6 in 40 calls on the vulnerable app, flag = FLAG{denial_of_wallet_no_throttle}
+[*] call 40: anonymous POST /generate-load -> 200 {'current_instances': 6, 'flag': 'FLAG{...}', 'load_units': 40, 'max_instances': 6, 'min_instances': 2, 'status': 'job-accepted'}
+PASS: anonymous caller drove current_instances to 6 in 40 calls on the vulnerable app, flag = FLAG{...}
 
 === FIXED (X-Api-Key required + rate limit) (http://localhost:8110) ===
 [*] call 1: anonymous POST /generate-load -> 401 {'error': 'Unauthorized', 'reason': 'missing or invalid X-Api-Key'}
@@ -90,7 +90,7 @@ is the defense-in-depth proof: the fix is auth **and** a throttle together, not 
 
 Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
 `instructor/seed_flags.py` already exists and already mints this lesson's `scaling` flag (keys now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES list).
-Without it, `FLAG_SCALING` defaults to `FLAG{denial_of_wallet_no_throttle}` and can be overridden:
+Without it, `FLAG_SCALING` falls back to a shared placeholder that is the same for everyone and can be overridden:
 `FLAG_SCALING=FLAG{...} docker compose up`.
 
 **Evidence artifact.** The attributable evidence is the captured `flag` value returned by the

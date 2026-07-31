@@ -92,8 +92,7 @@ on `:8103`.
 
 Per-student flag: `python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env` before
 `docker compose up` (once this course's `instructor/seed_flags.py` exists — see
-`course-plan-19weeks.md` open decision #4; until then `FLAG_SIG` defaults to
-`FLAG{ecdsa_malleable_double_spend}`).
+`course-plan-19weeks.md` open decision #4; until then `FLAG_SIG` falls back to a shared placeholder that is the same for everyone).
 
 **Evidence artifact (HYBRID note).** This week is HYBRID in the 19-week skeleton but is delivered
 with the **flag pattern** (single `docker-compose.yml`, per-student `FLAG_SIG`): the attributable
@@ -112,8 +111,8 @@ container on the compose network. Real captured output:
 [*] (vuln) txid(r,n-s)  = 5350b66936e15245   (different txid, same transaction)
 [*] (vuln) submit (r,s)     -> 200 {"amount":100,"status":"processed","total_withdrawn":100,...}
 [*] (vuln) submit (r,n-s)   -> 200 {"amount":100,"double_spend_detected":true,
-                                    "flag":"FLAG{ecdsa_malleable_double_spend}","total_withdrawn":200,...}
-PASS: malleated twin double-spent on vulnerable app (:8102) -- total_withdrawn=200, flag = FLAG{ecdsa_malleable_double_spend}
+                                    "flag":"FLAG{...}","total_withdrawn":200,...}
+PASS: malleated twin double-spent on vulnerable app (:8102) -- total_withdrawn=200, flag = FLAG{...}
 
 === Target 2: FIXED bank (low-S / BIP-62 enforcement) ===
 [*] (fixed) submit (r,s)     -> 200 {"total_withdrawn":100,...}

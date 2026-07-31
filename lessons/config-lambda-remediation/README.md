@@ -69,8 +69,8 @@ host against the published ports. Real captured output:
 === VULNERABLE (inverted allowlist condition) (http://localhost:8115) ===
 [*] seeded starting rules                 -> 200 [{'cidr': '0.0.0.0/0', 'port': 80}, {'cidr': '0.0.0.0/0', 'port': 443}, {'cidr': '0.0.0.0/0', 'port': 22}]
 [*] POST /remediate                        -> 200 after=[{'cidr': '0.0.0.0/0', 'port': 22}]
-[*] GET /security-group (post-remediation)  -> 200 {'dangerous_rules_present': True, 'flag': 'FLAG{inverted_allowlist_leaves_ssh_open}', 'rules': [{'cidr': '0.0.0.0/0', 'port': 22}]}
-PASS: vulnerable app's remediation left port 22 open to 0.0.0.0/0 and wrongly revoked 80/443, flag = FLAG{inverted_allowlist_leaves_ssh_open}
+[*] GET /security-group (post-remediation)  -> 200 {'dangerous_rules_present': True, 'flag': 'FLAG{...}', 'rules': [{'cidr': '0.0.0.0/0', 'port': 22}]}
+PASS: vulnerable app's remediation left port 22 open to 0.0.0.0/0 and wrongly revoked 80/443, flag = FLAG{...}
 
 === FIXED (correct allowlist condition) (http://localhost:8116) ===
 [*] seeded starting rules                 -> 200 [{'cidr': '0.0.0.0/0', 'port': 80}, {'cidr': '0.0.0.0/0', 'port': 443}, {'cidr': '0.0.0.0/0', 'port': 22}]
@@ -85,7 +85,7 @@ bug isn't a one-time fluke, it's the function's steady-state behavior.
 Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
 `instructor/seed_flags.py` already exists and already mints this lesson's `remediate` flag (keys
 now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES
-list). Without it, `FLAG_REMEDIATE` defaults to `FLAG{inverted_allowlist_leaves_ssh_open}`
+list). Without it, `FLAG_REMEDIATE` falls back to a shared placeholder that is the same for everyone
 and can be overridden: `FLAG_REMEDIATE=FLAG{...} docker compose up`.
 
 **Evidence artifact.** The attributable evidence is the captured `flag` value returned by the

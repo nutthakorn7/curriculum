@@ -75,8 +75,7 @@ container).
 
 Per-student flag: `python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env` before
 `docker compose up` (once this course's `instructor/seed_flags.py` exists — see
-`course-plan-19weeks.md` open decision #4; until then `FLAG_HASH` defaults to
-`FLAG{hash_crack_me}`).
+`course-plan-19weeks.md` open decision #4; until then `FLAG_HASH` falls back to a shared placeholder that is the same for everyone).
 
 **Verified:** `docker compose up -d` followed by `python exploit.py` was run against live
 containers on this machine — the admin MD5 was cracked from the 101-word wordlist in ~0.1 ms to

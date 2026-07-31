@@ -80,14 +80,13 @@ docker compose down
 ```
 Per-student flag: `python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env` before
 `docker compose up` (once this course's `instructor/seed_flags.py` exists — see
-`course-plan-19weeks.md` open decision; until then `FLAG_AEAD` defaults to
-`FLAG{padding_oracle_leaks_all}`). The exploit derives the block count from `/secret`, so
+`course-plan-19weeks.md` open decision; until then `FLAG_AEAD` falls back to a shared placeholder that is the same for everyone). The exploit derives the block count from `/secret`, so
 flags of any length work.
 
 **Verified:** `docker compose up -d --build` (from a scratch copy — OneDrive placeholders can
 break in-place `docker build`) followed by `python exploit.py` was run against live containers on
 this machine. Both PASS checks printed and the script exited `0`: the padding oracle recovered
-the full plaintext `msg:FLAG{padding_oracle_leaks_all}` from `:8098` **without the key**, and the
+the full plaintext `msg:FLAG{...}` from `:8098` **without the key**, and the
 identical attack recovered **nothing** from the AES-GCM app on `:8099` (uniform `403`). The
 `FLAG_AEAD` env-override was confirmed with a different-length flag (`FLAG{aead_student_42_xyz}` →
 a 2-block ciphertext instead of 3) — the exploit derived the new block count from `/secret` and

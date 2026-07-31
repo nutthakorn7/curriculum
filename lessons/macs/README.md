@@ -61,8 +61,7 @@ python exploit.py             # PASS on :8092 (flag), PASS on :8093 (correctly r
 ```
 Per-student flag: `python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env` before
 `docker compose up` (once this course's `instructor/seed_flags.py` exists — see
-`course-plan-19weeks.md` open decision #4; until then `FLAG_MACS` defaults to
-`FLAG{macs_demo}`).
+`course-plan-19weeks.md` open decision #4; until then `FLAG_MACS` falls back to a shared placeholder that is the same for everyone).
 
 **Verified:** `docker compose up -d` followed by `python exploit.py` was run against live
 containers on this machine; both PASS checks printed and the script exited `0`. `MAC_SECRET`

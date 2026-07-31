@@ -70,8 +70,8 @@ host against the published ports. Real captured output:
 ```
 === VULNERABLE (bucket policy grants Principal:'*' both Get+PutObject) (http://localhost:8105) ===
 [*] anonymous GET index.html (public website hosting) -> 200 {'content': '<html><body><h1>Welcome to our official site</h1></body></html>', 'key': 'index.html'}
-[*] anonymous (no auth header at all) PUT index.html   -> 200 {'content': '<html><body><h1>PWNED by anonymous PUT</h1></body></html>', 'flag': 'FLAG{public_putobject_defaces_your_website}', 'key': 'index.html', 'status': 'uploaded'}
-PASS: anonymous caller defaced index.html on the vulnerable app, flag = FLAG{public_putobject_defaces_your_website}
+[*] anonymous (no auth header at all) PUT index.html   -> 200 {'content': '<html><body><h1>PWNED by anonymous PUT</h1></body></html>', 'flag': 'FLAG{...}', 'key': 'index.html', 'status': 'uploaded'}
+PASS: anonymous caller defaced index.html on the vulnerable app, flag = FLAG{...}
 
 === FIXED (bucket policy grants Principal:'*' GetObject only) (http://localhost:8106) ===
 [*] anonymous GET index.html (public website hosting) -> 200 {'content': '<html><body><h1>Welcome to our official site</h1></body></html>', 'key': 'index.html'}
@@ -85,7 +85,7 @@ demonstrating that this is a real overwrite, not just an accepted-but-discarded 
 
 Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
 `instructor/seed_flags.py` already exists and already mints this lesson's `s3site` flag (keys now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES list).
-Without it, `FLAG_S3SITE` defaults to `FLAG{public_putobject_defaces_your_website}` and can be
+Without it, `FLAG_S3SITE` falls back to a shared placeholder that is the same for everyone and can be
 overridden: `FLAG_S3SITE=FLAG{...} docker compose up`.
 
 **Evidence artifact.** The attributable evidence is the captured `flag` value returned by the
