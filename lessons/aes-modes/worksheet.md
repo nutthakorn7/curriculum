@@ -191,7 +191,7 @@ flaw** that is exactly this week's topic. Your job: find it.
    rewrite should make the vuln side start *rejecting* the flip too).
 
 > Disclose your AI use (if any, beyond this provided artifact) in the Student Information table.
-> This task counts toward your Defense + Reflection score.
+> This task counts toward the **Audit the AI** row of the grading rubric.
 
 ---
 

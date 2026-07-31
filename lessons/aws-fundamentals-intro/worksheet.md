@@ -65,5 +65,6 @@ custom kernel for compatibility reasons — and why is that a hint about who act
 control here?"
 
 ## Submit
-Your variant + error + correction + Part 2b/2c → Classroom. Conventional-arm students submit
+Your variant + error + correction + Part 2b → Classroom. Viva (2c) is a live spot-check
+during lab time or office hours, not a written submission. Conventional-arm students submit
 Part 1 only.

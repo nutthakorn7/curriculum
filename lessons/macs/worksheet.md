@@ -161,7 +161,7 @@ Your job: find it.
    insufficient even though the cookie *would pass its own described verification step*.
 
 > Disclose your AI use (if any, beyond this provided artifact) in the Part 1 table. This task
-> counts toward your Defense + Reflection score.
+> counts toward the **Audit the AI** row of the grading rubric.
 
 ---
 
