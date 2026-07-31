@@ -69,5 +69,6 @@ never ran a Batch Replication job for the objects that existed before that day, 
 region is destroyed today, what happens to those older objects — and whose assumption was wrong?"
 
 ## Submit
-Your variant + error + correction + Part 2b/2c → Classroom. Conventional-arm students submit
+Your variant + error + correction + Part 2b → Classroom. Viva (2c) is a live spot-check
+during lab time or office hours, not a written submission. Conventional-arm students submit
 Part 1 only.

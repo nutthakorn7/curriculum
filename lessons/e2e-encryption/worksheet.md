@@ -161,7 +161,7 @@ in reassuring language. Your job: find the flaw.
    endpoints*).
 
 > Disclose any AI use (beyond this provided artifact) in the Part 0 table. This task counts toward
-> your Defense + Reflection score.
+> the **Audit the AI** row of the grading rubric.
 
 ---
 

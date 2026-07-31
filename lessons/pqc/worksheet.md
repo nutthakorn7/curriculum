@@ -200,7 +200,7 @@ kind this week is about.
    XMSS/SPHINCS+) and why a `raise` on the second `sign()` call is the *minimum* correct fix.
 
 > Disclose your AI use (if any, beyond this provided artifact) in the Part 1 table. This task
-> counts toward your Defense + Reflection score.
+> counts toward the **Audit the AI** row of the grading rubric.
 
 ---
 

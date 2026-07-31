@@ -63,5 +63,6 @@ Be ready to answer without notes: "If S3 kept the plaintext data key around afte
 what would that defeat the *entire point* of envelope encryption?"
 
 ## Submit
-Your variant + error + correction + Part 2b/2c → Classroom. Conventional-arm students submit
+Your variant + error + correction + Part 2b → Classroom. Viva (2c) is a live spot-check
+during lab time or office hours, not a written submission. Conventional-arm students submit
 Part 1 only.
