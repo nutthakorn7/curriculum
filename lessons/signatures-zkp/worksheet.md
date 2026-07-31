@@ -80,6 +80,10 @@ what makes malleability exploitable here.
 `curl localhost:8102/sign`; record `sig_r`, `sig_s`, and the fixed `message`. Also
 `curl localhost:8102/pubkey`. *Deliverable:* the `(r, s)` pair and the pubkey hex.
 
+```sim
+ecdsa-malleability
+```
+
 **Task 2 — Do the malleation by hand (30 min).** *Goal:* understand the math, not just run a
 script. *Steps:* with `n = 0xFFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFE BAAEDCE6 AF48A03B BFD25E8C
 D0364141` (the SECP256k1 group order), compute `s' = n − s` for your captured `s` (Python:
