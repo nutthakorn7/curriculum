@@ -26,6 +26,7 @@ FAKE_CREDENTIALS = {
 # self-contained version of this exploit actually takes.
 BLOCKED_HOSTS = {"169.254.169.254", "localhost", "127.0.0.1", "0.0.0.0"}
 BLOCKED_METADATA_PREFIX = "/latest/meta-data"
+MAX_REDIRECTS = 3
 
 
 def is_blocked(url):
@@ -66,15 +67,31 @@ def fetch_preview():
     if is_blocked(url):
         return jsonify({"error": "blocked", "reason": "internal/metadata URL not allowed", "url": url}), 403
 
+    # FIX: requests.get()'s default allow_redirects=True would follow a 3xx
+    # from an allowed host straight to a blocked target without ever
+    # re-checking is_blocked() — an attacker-controlled URL that itself
+    # passes the check can redirect here to the metadata path. Each hop is
+    # validated exactly like re-entering fetch_preview with the new URL.
+    current_url = url
     try:
-        upstream = requests.get(url, timeout=3)
+        for _ in range(MAX_REDIRECTS + 1):
+            upstream = requests.get(current_url, timeout=3, allow_redirects=False)
+            if not upstream.is_redirect:
+                break
+            location = upstream.headers.get("Location", "")
+            if is_blocked(location):
+                return jsonify({"error": "blocked", "reason": "redirect target not allowed",
+                                "url": location}), 403
+            current_url = location
+        else:
+            return jsonify({"error": "too many redirects"}), 502
     except requests.RequestException as exc:
         return jsonify({"error": "fetch failed", "detail": str(exc)}), 502
 
     return jsonify(
         {
             "status": "fetched",
-            "url": url,
+            "url": current_url,
             "status_code": upstream.status_code,
             "body": upstream.text,
         }

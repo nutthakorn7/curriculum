@@ -148,6 +148,31 @@ def test_render_error_names_offending_file(tmp_path):
         assert "README.md" in str(e)
 
 
+def test_render_rejects_symlinks(tmp_path):
+    # A lesson symlink pointing outside the lesson dir would otherwise get its
+    # target's contents laundered into the published output as an ordinary
+    # file (shutil.copy2 and open() both follow symlinks by default).
+    root = str(tmp_path)
+    secret_path = os.path.join(root, "secret.env")
+    with open(secret_path, "w", encoding="utf-8") as f:
+        f.write("SUPER_SECRET_VALUE\n")
+
+    _mk_lesson(root, "hash", {"README.md": "# Hash\n"})
+    _mk_manifest(root, [(2, "hash")])
+    lesson_dir = os.path.join(root, "lessons", "hash")
+    os.symlink(secret_path, os.path.join(lesson_dir, "leak.bin"))
+
+    out = os.path.join(root, "out")
+    try:
+        render.render_course(os.path.join(root, "courses", "sc.yml"),
+                             lessons_root=os.path.join(root, "lessons"), out_dir=out)
+        assert False, "expected a RenderError for the symlink"
+    except render.RenderError as e:
+        assert "symlink" in str(e).lower()
+
+    assert not os.path.exists(os.path.join(out, "labs", "week02-hash", "leak.bin"))
+
+
 def test_render_rejects_invalid_manifest(tmp_path):
     root = str(tmp_path)
     _mk_lesson(root, "hash", {"README.md": "# Hash\n"})
