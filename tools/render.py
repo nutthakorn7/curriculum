@@ -33,6 +33,15 @@ def _render_lesson(manifest, lesson, out_dir):
             if name == "lesson.yml":
                 continue
             src = os.path.join(root, name)
+            if os.path.islink(src):
+                # A symlink here would get its TARGET's content silently copied
+                # into the published output — shutil.copy2 and open() both
+                # follow symlinks by default. No lesson has a legitimate reason
+                # to contain one, so refuse outright rather than try to confine
+                # the resolved path.
+                raise RenderError(
+                    f"refusing to render a symlink: {os.path.relpath(src, lesson.dir)} "
+                    f"(lessons must be plain files)")
             rel = os.path.relpath(src, lesson.dir)
             if rel == "slides.md":
                 dst = os.path.join(out_dir, "slides", f"{crossref.slotfile(unit, n)}.md")

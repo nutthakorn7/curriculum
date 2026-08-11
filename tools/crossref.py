@@ -1,5 +1,6 @@
 # tools/crossref.py — resolve slug-based cross-reference tokens against a course's schedule.
 import jinja2
+from jinja2.sandbox import SandboxedEnvironment
 
 
 class CrossRefError(Exception):
@@ -59,8 +60,8 @@ def context(manifest, current_slug):
     }
 
 
-_ENV = jinja2.Environment(undefined=jinja2.StrictUndefined, autoescape=False,
-                          keep_trailing_newline=True)
+_ENV = SandboxedEnvironment(undefined=jinja2.StrictUndefined, autoescape=False,
+                            keep_trailing_newline=True)
 
 
 def render(text, ctx):
