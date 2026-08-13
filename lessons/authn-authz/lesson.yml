@@ -3,6 +3,6 @@ title: "Authentication, Sessions & Access Control"
 kind: LAB
 duration_min: 180
 tags: [idor, jwt, access-control]
-cwe: [CWE-639, CWE-287]
+cwe: [CWE-639, CWE-347, CWE-321]
 prereqs: [cryptography]
 flag_keys: [idor, jwt]
