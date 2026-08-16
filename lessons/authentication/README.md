@@ -82,7 +82,7 @@ transmitted, so a compromised or logging server has nothing to harvest.
 >
 > **Do not present this demo as a complete PAKE.** Its single, real, demonstrable lesson is
 > "password never sent" — which is precisely the property the log evidence below proves. Worksheet
-> Q4 and Part 2b ask you to reason about the two properties this demo is missing.
+> Q4 and Part 2c ask you to reason about the two properties this demo is missing.
 
 ## Run it
 
