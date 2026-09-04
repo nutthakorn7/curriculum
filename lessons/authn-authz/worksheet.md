@@ -98,6 +98,7 @@ jwt-forge
   )
   curl -s http://localhost:8080/api/orders/2 -H "Authorization: Bearer $FORGED2"
   ```
+- *Note:* recent PyJWT prints an `InsecureKeyLengthWarning` to **stderr** because `"secret"` is only 6 bytes — that is expected, the token still mints and is accepted.
 - *Deliverable:* token + screenshot + 2–3 sentences on why secret strength + key management matter.
 
 **Task 4 — Privilege/identity escalation reasoning (25 min).**
