@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 460" role="img"
+     aria-label="Two horizontal bands sharing the same wordlist. Top: an unsalted MD5 password store — a leaked file feeds a candidate wordlist through a single real MD5 pass, compared directly against the stored hash, cracking the target instantly and, for free, any other row that happens to share the same password. Bottom: the same wordlist aimed at a per-user salted, iterated KDF store — the identical fast technique matches nothing because the stored format differs entirely, and only an attacker who adapts to redo the real salted iterations per guess still finds the password, at a cost that multiplies with the iteration count.">
+  <title>Unsalted hash vs. salted KDF: same wordlist, different price</title>
+  <style>
+    .z    { fill: none; stroke: #b9b4aa; stroke-dasharray: 6 4 }
+    .zl   { font: 600 11px system-ui, sans-serif; fill: #6b7280;
+            letter-spacing: .06em; text-transform: uppercase }
+    .battack { fill: #fff6f0; stroke: #E35205; stroke-width: 1.5; rx: 6 }
+    .bresA   { fill: #fff6f0; stroke: #E35205; stroke-width: 2.5; rx: 8 }
+    .bsafe   { fill: #f4faff; stroke: #017BC4; stroke-width: 1.5; rx: 6 }
+    .bresB   { fill: #f4faff; stroke: #017BC4; stroke-width: 2.5; rx: 8 }
+    .bl   { font: 700 13px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .bls  { font: 600 11px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .comp { font: 600 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .eattack { stroke: #E35205; stroke-width: 1.8; marker-end: url(#o) }
+    .esafe   { stroke: #017BC4; stroke-width: 1.8; marker-end: url(#b) }
+    .elink   { stroke: #6b7280; stroke-width: 1.4; stroke-dasharray: 5 4; marker-end: url(#g) }
+    .el   { font: 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .linklabel { font: 11px system-ui, sans-serif; fill: #6b7280 }
+    .x    { font: 700 12px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .ok   { font: 700 12px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .arrowO { fill: #E35205 }
+    .arrowB { fill: #017BC4 }
+    .arrowG { fill: #6b7280 }
+    .icon { font-size: 18px; text-anchor: middle }
+    @media (prefers-color-scheme: dark) {
+      .z { stroke: #3a4149 } .zl { fill: #9aa3ad }
+      .battack, .bresA { fill: #2a1c14; stroke: #ff7a3d }
+      .bsafe, .bresB { fill: #13202b; stroke: #4aa3dd }
+      .bl, .bls { fill: #e6e8ea }
+      .comp, .el, .linklabel { fill: #9aa3ad } .elink { stroke: #9aa3ad }
+      .eattack { stroke: #ff7a3d } .esafe { stroke: #4aa3dd }
+      .arrowO { fill: #ff7a3d } .arrowB { fill: #4aa3dd } .arrowG { fill: #9aa3ad }
+      .x { fill: #ff7a3d } .ok { fill: #4aa3dd }
+    }
+  </style>
+  <defs>
+    <marker id="o" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrowO" d="M0 0 L8 4 L0 8 z"/></marker>
+    <marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrowB" d="M0 0 L8 4 L0 8 z"/></marker>
+    <marker id="g" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrowG" d="M0 0 L8 4 L0 8 z"/></marker>
+  </defs>
+
+  <rect class="z" x="10" y="10" width="980" height="190" rx="8"/>
+  <text class="zl" x="18" y="30">Store A — unsalted MD5: one attack clears every row it touches</text>
+
+  <rect class="battack" x="40" y="58" width="140" height="52"/>
+  <text class="icon" x="110" y="78">📄</text>
+  <text class="bls" x="110" y="98">leaked store</text>
+
+  <path class="eattack" d="M180 84 L220 84"/>
+
+  <rect class="battack" x="220" y="58" width="150" height="52"/>
+  <text class="bl" x="295" y="80">wordlist.txt</text>
+  <text class="bls" x="295" y="98">101 candidates</text>
+
+  <path class="eattack" d="M370 84 L460 84"/>
+  <text class="comp" x="415" y="74">1 real pass</text>
+
+  <rect class="battack" x="460" y="54" width="170" height="60"/>
+  <text class="bl" x="545" y="80">md5(word) ==</text>
+  <text class="bls" x="545" y="98">stored hash?</text>
+
+  <path class="eattack" d="M630 84 L690 84"/>
+  <text class="comp" x="660" y="74">✓ match</text>
+
+  <rect class="bresA" x="690" y="52" width="200" height="64"/>
+  <text class="bl" x="790" y="78">CRACKED instantly</text>
+  <text class="bls" x="790" y="96">same pw → same hash, free</text>
+
+  <text class="el" x="500" y="175">Any two rows sharing a password get the exact same hash string — crack one, read the rest off the table for free.</text>
+
+  <path class="elink" d="M295 110 L295 268"/>
+  <text class="linklabel" x="310" y="135">same wordlist,</text>
+  <text class="linklabel" x="310" y="149">both stores ↓</text>
+
+  <rect class="z" x="10" y="220" width="980" height="225" rx="8"/>
+  <text class="zl" x="18" y="240">Store B — per-user salt + iterated KDF: the same technique buys nothing free</text>
+
+  <rect class="bsafe" x="40" y="268" width="140" height="52"/>
+  <text class="icon" x="110" y="288">🧂</text>
+  <text class="bls" x="110" y="308">salted store</text>
+
+  <path class="esafe" d="M180 294 L220 294"/>
+
+  <rect class="bsafe" x="220" y="268" width="150" height="52"/>
+  <text class="bl" x="295" y="290">wordlist.txt</text>
+  <text class="bls" x="295" y="308">101 candidates</text>
+
+  <path class="esafe" d="M370 294 L460 294"/>
+  <text class="comp" x="415" y="284">× cost passes</text>
+
+  <rect class="bsafe" x="460" y="264" width="170" height="60"/>
+  <text class="bl" x="545" y="286">KDF(salt‖word)</text>
+  <text class="bls" x="545" y="304">== stored digest?</text>
+
+  <path class="esafe" d="M630 294 L690 294"/>
+  <text class="comp" x="660" y="284">adapted ✓</text>
+
+  <rect class="bresB" x="690" y="262" width="200" height="64"/>
+  <text class="bl" x="790" y="284">raw check: 0 matches</text>
+  <text class="bls" x="790" y="302">adapted: cracks, far slower</text>
+
+  <text class="el" x="500" y="390">Same technique here: 0 matches — wrong format entirely; a working attack must redo real KDF ops, per guess, at cost× the price.</text>
+
+  <text class="ok" x="500" y="433">Same real MD5 both times — what changed is the price of a guess, not the primitive.</text>
+</svg>

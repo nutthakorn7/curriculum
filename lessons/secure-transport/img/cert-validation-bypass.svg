@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 455" role="img"
+     aria-label="A single impostor certificate presented by whoever answers on the network, self-signed and claiming CN=bob, SAN=DNS:bob, forks into two client paths. In the top lane, a validating client checks the hostname, which matches, then checks the certificate's signature against a trusted certificate authority it already holds, finds no chain from the self-signed certificate to that authority, and aborts the handshake before any secret is sent. In the bottom lane, a client with certificate validation turned off skips both checks entirely, accepts the same certificate unconditionally, and sends its secret straight to the impostor, which logs it as intercepted.">
+  <title>Certificate-validation bypass: the same impostor cert, two different clients</title>
+  <style>
+    .z    { fill: none; stroke: #b9b4aa; stroke-dasharray: 6 4 }
+    .zl   { font: 600 11px system-ui, sans-serif; fill: #6b7280;
+            letter-spacing: .06em; text-transform: uppercase }
+    .bcert{ fill: #fff6f0; stroke: #E35205; stroke-width: 1.5; rx: 8 }
+    .b    { fill: #fffdf9; stroke: #017BC4; stroke-width: 1.5; rx: 6 }
+    .battack { fill: #fff6f0; stroke: #E35205; stroke-width: 1.5; rx: 6 }
+    .bca  { fill: #fffdf9; stroke: #017BC4; stroke-width: 1.5; stroke-dasharray: 4 3; rx: 6 }
+    .bok  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2.5; rx: 8 }
+    .bbad { fill: #fff6f0; stroke: #E35205; stroke-width: 2.5; rx: 8 }
+    .bl   { font: 600 12px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .bls  { font: 500 10.5px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .e    { fill: none; stroke: #6b7280; stroke-width: 1.6; marker-end: url(#a) }
+    .eattack { fill: none; stroke: #E35205; stroke-width: 1.8; marker-end: url(#b) }
+    .icon { font-size: 20px; text-anchor: middle }
+    .x    { font: 700 11px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .ok   { font: 700 13px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .bad  { font: 700 12px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .tag  { font: 600 12px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .arrow{ fill: #6b7280 }
+    .arrowbad { fill: #E35205 }
+    @media (prefers-color-scheme: dark) {
+      .z { stroke: #3a4149 } .zl { fill: #9aa3ad }
+      .bcert, .battack, .bbad { fill: #2a1c14; stroke: #ff7a3d }
+      .b, .bca, .bok { fill: #151a20; stroke: #4aa3dd }
+      .bl, .bls, .tag { fill: #e6e8ea }
+      .e { stroke: #9aa3ad } .eattack { stroke: #ff7a3d }
+      .arrow { fill: #9aa3ad } .arrowbad { fill: #ff7a3d }
+      .x { fill: #ff7a3d } .ok { fill: #4aa3dd } .bad { fill: #ff7a3d }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrow" d="M0 0 L8 4 L0 8 z"/></marker>
+    <marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrowbad" d="M0 0 L8 4 L0 8 z"/></marker>
+  </defs>
+
+  <rect class="z" x="10" y="10" width="980" height="195" rx="8"/>
+  <text class="zl" x="18" y="30">Client B — validates before trusting</text>
+
+  <rect class="z" x="10" y="215" width="980" height="220" rx="8"/>
+  <text class="zl" x="18" y="272">Client A — never checks who signed it</text>
+
+  <!-- shared starting point: the certificate whoever answered presents -->
+  <rect class="bcert" x="40" y="158" width="170" height="100"/>
+  <text class="icon" x="125" y="190">🎭</text>
+  <text class="bl" x="125" y="210">impostor cert</text>
+  <text class="bls" x="125" y="227">CN=bob · SAN=DNS:bob</text>
+  <text class="x" x="125" y="244">self-signed — no CA</text>
+
+  <path class="e" d="M210 208 L245 208"/>
+
+  <!-- top lane: Client B -->
+  <path class="e" d="M245 208 L245 102 L280 102"/>
+
+  <rect class="bca" x="540" y="16" width="170" height="44"/>
+  <text class="bl" x="625" y="34">Trusted CA</text>
+  <text class="bls" x="625" y="50">public key (e, n)</text>
+  <path class="e" d="M625 60 L625 76"/>
+
+  <rect class="b" x="280" y="76" width="190" height="52"/>
+  <text class="bl" x="375" y="96">① hostname check</text>
+  <text class="bls" x="375" y="114">SAN matches "bob" → PASS</text>
+
+  <path class="e" d="M470 102 L520 102"/>
+
+  <rect class="b" x="520" y="76" width="210" height="52"/>
+  <text class="bl" x="625" y="96">② chain check (live)</text>
+  <text class="bls" x="625" y="114">sig^e mod n vs. hash</text>
+
+  <path class="e" d="M730 102 L780 102"/>
+
+  <rect class="bok" x="780" y="74" width="200" height="56"/>
+  <text class="ok" x="880" y="94">✗ ABORTED</text>
+  <text class="bls" x="880" y="111">no chain to trusted CA</text>
+  <text class="bls" x="880" y="126">no secret sent</text>
+
+  <!-- bottom lane: Client A -->
+  <path class="eattack" d="M245 208 L245 312 L280 312"/>
+
+  <rect class="battack" x="280" y="286" width="230" height="52"/>
+  <text class="bl" x="395" y="306">① + ② skipped</text>
+  <text class="bls" x="395" y="324">CERT_NONE, no hostname check</text>
+
+  <path class="eattack" d="M510 312 L560 312"/>
+
+  <rect class="battack" x="560" y="286" width="210" height="52"/>
+  <text class="bl" x="665" y="306">accepts unconditionally</text>
+  <text class="bls" x="665" y="324">whoever answered = trusted</text>
+
+  <path class="eattack" d="M770 312 L820 312"/>
+
+  <rect class="bbad" x="820" y="280" width="160" height="64"/>
+  <text class="bad" x="900" y="300">✓ secret sent</text>
+  <text class="bls" x="900" y="316">MITM</text>
+  <text class="bad" x="900" y="332">INTERCEPTED</text>
+
+  <text class="tag" x="500" y="398">Same impostor certificate, same attacker — the only difference is whether the client asked</text>
+  <text class="tag" x="500" y="414">"did a CA I trust vouch for this?" before sending anything.</text>
+</svg>

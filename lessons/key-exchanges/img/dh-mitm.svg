@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 470" role="img"
+     aria-label="Two independent Diffie-Hellman handshakes run side by side at the top of the diagram: on the left, Alice exchanges public values with Relay posing as Bob and both sides honestly derive the identical shared secret K_A, while on the right, Relay posing as Alice exchanges public values with Bob and both sides honestly derive a different shared secret K_B, with nothing linking K_A to K_B and neither side ever comparing them; both secrets then feed straight down into Relay in the middle of the diagram, the only party holding both keys, which decrypts Alice's message with K_A to expose the plaintext, re-encrypts that same plaintext with K_B, and forwards it down to Bob, who decrypts it successfully and never suspects a substitution occurred.">
+  <title>Man-in-the-middle on unauthenticated Diffie-Hellman: two honest handshakes, secrets that never get compared</title>
+  <style>
+    .z    { fill: none; stroke: #b9b4aa; stroke-dasharray: 6 4 }
+    .zl   { font: 600 11px system-ui, sans-serif; fill: #6b7280;
+            letter-spacing: .06em; text-transform: uppercase }
+    .b    { fill: #fffdf9; stroke: #017BC4; stroke-width: 1.5; rx: 6 }
+    .battack { fill: #fff6f0; stroke: #E35205; stroke-width: 1.5; rx: 6 }
+    .bdigest { fill: #fffdf9; stroke: #017BC4; stroke-width: 2.5; rx: 8 }
+    .bforged { fill: #fff6f0; stroke: #E35205; stroke-width: 2.5; rx: 8 }
+    .bl   { font: 600 13px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .bls  { font: 600 11px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .e    { stroke: #6b7280; stroke-width: 1.6; marker-end: url(#a) }
+    .eattack { stroke: #E35205; stroke-width: 1.8; marker-end: url(#b) }
+    .el   { font: 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .x    { font: 700 12px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .ok   { font: 700 12px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .arrow{ fill: #6b7280 }
+    .arrowbad { fill: #E35205 }
+    @media (prefers-color-scheme: dark) {
+      .z { stroke: #3a4149 } .zl { fill: #9aa3ad }
+      .b { fill: #151a20; stroke: #4aa3dd } .bl, .bls { fill: #e6e8ea }
+      .battack, .bforged { fill: #2a1c14; stroke: #ff7a3d }
+      .bdigest { fill: #151a20; stroke: #4aa3dd }
+      .e, .el { stroke: #9aa3ad } .el { fill: #9aa3ad }
+      .eattack { stroke: #ff7a3d } .arrow { fill: #9aa3ad } .arrowbad { fill: #ff7a3d }
+      .x { fill: #ff7a3d } .ok { fill: #4aa3dd }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrow" d="M0 0 L8 4 L0 8 z"/></marker>
+    <marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrowbad" d="M0 0 L8 4 L0 8 z"/></marker>
+  </defs>
+
+  <rect class="z" x="10" y="10" width="980" height="180" rx="8"/>
+  <text class="zl" x="18" y="30">Two independent DH handshakes — Relay is a genuine peer to each side</text>
+
+  <!-- Half A: Alice's handshake -->
+  <rect class="b" x="40" y="58" width="100" height="56"/>
+  <text class="bl" x="90" y="80">Alice</text>
+  <text class="bls" x="90" y="98">g^a mod p</text>
+
+  <path class="e" d="M140 86 L170 86"/>
+
+  <rect class="battack" x="170" y="58" width="140" height="56"/>
+  <text class="bls" x="240" y="78">Relay</text>
+  <text class="bls" x="240" y="96">posing as Bob</text>
+
+  <path class="e" d="M310 86 L340 86"/>
+
+  <rect class="bdigest" x="340" y="58" width="110" height="56"/>
+  <text class="bl" x="395" y="80">K_A</text>
+  <text class="bls" x="395" y="98">shared secret</text>
+
+  <!-- divider between the two independent handshakes -->
+  <path class="z" d="M505 55 L505 120"/>
+
+  <!-- Half B: Bob's handshake -->
+  <rect class="battack" x="560" y="58" width="140" height="56"/>
+  <text class="bls" x="630" y="78">Relay</text>
+  <text class="bls" x="630" y="96">posing as Alice</text>
+
+  <path class="e" d="M700 86 L730 86"/>
+
+  <rect class="b" x="730" y="58" width="100" height="56"/>
+  <text class="bl" x="780" y="80">Bob</text>
+  <text class="bls" x="780" y="98">g^b mod p</text>
+
+  <path class="e" d="M830 86 L860 86"/>
+
+  <rect class="bdigest" x="860" y="58" width="110" height="56"/>
+  <text class="bl" x="915" y="80">K_B</text>
+  <text class="bls" x="915" y="98">shared secret</text>
+
+  <path class="eattack" d="M395 114 L395 270"/>
+  <path class="eattack" d="M915 114 L915 270"/>
+
+  <!-- Drawn after the arrows so the two vertical lines pass BEHIND this text,
+       not through the middle of a glyph — same reason box fills are opaque. -->
+  <text class="el" x="500" y="145">K_A = (g^a)^r1 mod p = (g^r1)^a mod p on both sides — honestly identical</text>
+  <text class="el" x="500" y="165">K_B is a DIFFERENT value, the same honest way — nothing ties the two, and neither side compares</text>
+
+  <rect class="z" x="10" y="210" width="980" height="250" rx="8"/>
+  <text class="zl" x="18" y="230">Relay — the only party holding both keys</text>
+
+  <rect class="bforged" x="300" y="270" width="660" height="80"/>
+  <text class="bl" x="630" y="298">decrypt(K_A) → plaintext → encrypt(K_B)</text>
+  <text class="x" x="630" y="320">PLAINTEXT VISIBLE — everything a MITM needs</text>
+
+  <path class="eattack" d="M630 350 L630 380"/>
+
+  <rect class="bforged" x="530" y="380" width="200" height="56"/>
+  <text class="bl" x="630" y="402">Bob decrypts with K_B</text>
+  <text class="bls" x="630" y="420">never suspects a thing</text>
+
+  <text class="ok" x="500" y="450">Same real DH math both honest parties would run — the only missing step is checking WHO answered.</text>
+</svg>

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 420" role="img"
+     aria-label="One authorized withdrawal produces two valid-looking transaction ids. Top: the attacker holds a valid signature (r, s) and, using only the public curve order n, computes its twin (r, n minus s) — no private key needed, both verify true against the same message and key. Bottom: the bank computes a transaction id as a hash of the signature bytes; because (r, s) and (r, n minus s) are different bytes, they hash to two different ids, so the bank's seen-set never recognizes the second submission as a duplicate and processes the same authorized withdrawal twice.">
+  <title>Signature malleability: same authorization, two transaction ids</title>
+  <style>
+    .z    { fill: none; stroke: #b9b4aa; stroke-dasharray: 6 4 }
+    .zl   { font: 600 11px system-ui, sans-serif; fill: #6b7280;
+            letter-spacing: .06em; text-transform: uppercase }
+    .b    { fill: #fffdf9; stroke: #017BC4; stroke-width: 1.5; rx: 6 }
+    .battack { fill: #fff6f0; stroke: #E35205; stroke-width: 1.5; rx: 6 }
+    .bbad { fill: #fdeceb; stroke: #c0392b; stroke-width: 2; rx: 8 }
+    .bl   { font: 600 13px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .bls  { font: 600 11px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .comp { font: 600 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .e    { stroke: #6b7280; stroke-width: 1.6; marker-end: url(#a) }
+    .eattack { stroke: #E35205; stroke-width: 1.8; marker-end: url(#b) }
+    .el   { font: 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .ok   { font: 700 12px system-ui, sans-serif; fill: #c0392b; text-anchor: middle }
+    .arrow{ fill: #6b7280 }
+    .arrowbad { fill: #E35205 }
+    @media (prefers-color-scheme: dark) {
+      .z { stroke: #3a4149 } .zl { fill: #9aa3ad }
+      .b { fill: #151a20; stroke: #4aa3dd } .bl, .bls { fill: #e6e8ea }
+      .battack { fill: #2a1c14; stroke: #ff7a3d }
+      .bbad { fill: #3a1a18; stroke: #ff6b5e }
+      .e, .comp, .el { stroke: #9aa3ad } .comp, .el { fill: #9aa3ad }
+      .eattack { stroke: #ff7a3d } .arrow { fill: #9aa3ad } .arrowbad { fill: #ff7a3d }
+      .ok { fill: #ff6b5e }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrow" d="M0 0 L8 4 L0 8 z"/></marker>
+    <marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrowbad" d="M0 0 L8 4 L0 8 z"/></marker>
+  </defs>
+
+  <rect class="z" x="10" y="10" width="980" height="130" rx="8"/>
+  <text class="zl" x="18" y="30">The attacker — never touches the private key</text>
+
+  <rect class="b" x="60" y="55" width="190" height="56"/>
+  <text class="bl" x="155" y="78">valid sig</text>
+  <text class="bls" x="155" y="96">(r, s)</text>
+
+  <path class="eattack" d="M250 83 L400 83"/>
+  <text class="comp" x="325" y="70">n − s  (public curve order n — no key needed)</text>
+
+  <rect class="battack" x="400" y="55" width="190" height="56"/>
+  <text class="bl" x="495" y="78">twin sig</text>
+  <text class="bls" x="495" y="96">(r, n − s)</text>
+
+  <text class="el" x="750" y="83">both verify(msg, pubkey) == True</text>
+
+  <rect class="z" x="10" y="160" width="980" height="250" rx="8"/>
+  <text class="zl" x="18" y="180">The bank — dedups by hash(r, s), not by (message, pubkey)</text>
+
+  <path class="e" d="M155 111 L155 210"/>
+  <rect class="b" x="60" y="210" width="190" height="50"/>
+  <text class="bls" x="155" y="240">txid = sha256(r ‖ s)</text>
+
+  <path class="eattack" d="M495 111 L495 210"/>
+  <rect class="battack" x="400" y="210" width="190" height="50"/>
+  <text class="bls" x="495" y="240">txid′ = sha256(r ‖ (n−s))</text>
+
+  <path class="e" d="M155 260 L155 300"/>
+  <path class="eattack" d="M495 260 L495 300"/>
+  <text class="el" x="155" y="292">txid ≠ txid′ — different bytes in, different hash out</text>
+
+  <rect class="bbad" x="60" y="305" width="530" height="60"/>
+  <text class="bl" x="325" y="330">seen = {txid}  →  txid′ not in seen  →  processed AGAIN</text>
+  <text class="ok" x="325" y="350">same authorization, withdrawn twice</text>
+
+  <rect class="b" x="640" y="220" width="330" height="130" rx="8"/>
+  <text class="bl" x="805" y="245">total_withdrawn</text>
+  <text class="bls" x="805" y="270">after (r, s): 100</text>
+  <text class="bls" x="805" y="290">after (r, n−s): 200</text>
+  <text class="el" x="805" y="315">one authorized withdrawal,</text>
+  <text class="el" x="805" y="332">the bank's own ledger says two</text>
+</svg>

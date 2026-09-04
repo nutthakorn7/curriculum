@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400" role="img"
+     aria-label="Two zones sharing one comparison point. Top: the intended design expands a seed assumed to be one of 2^128 possible values into a private key, then publishes a one-way commitment to it -- safe only if that assumption holds. Bottom: in the real deployment the seed actually comes from a narrow, guessable source such as a process ID, so an attacker who only ever sees the published commitment runs every one of the roughly 32,768 real candidates through the identical expand and commit functions, compares each result against that published commitment, and recovers the exact private key in under a second.">
+  <title>Entropy collapse: sound functions, a keyspace too small to hide in</title>
+  <style>
+    .z    { fill: none; stroke: #b9b4aa; stroke-dasharray: 6 4 }
+    .zl   { font: 600 11px system-ui, sans-serif; fill: #6b7280;
+            letter-spacing: .06em; text-transform: uppercase }
+    .b    { fill: #fffdf9; stroke: #017BC4; stroke-width: 1.5; rx: 6 }
+    .blocked { fill: #f0efe9; stroke: #6b7280; stroke-width: 1.5; stroke-dasharray: 3 3; rx: 6 }
+    .battack { fill: #fff6f0; stroke: #E35205; stroke-width: 1.5; rx: 6 }
+    .bdigest { fill: #fffdf9; stroke: #017BC4; stroke-width: 2.5; rx: 8 }
+    .bforged { fill: #fff6f0; stroke: #E35205; stroke-width: 2.5; rx: 8 }
+    .bl   { font: 600 13px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .bls  { font: 600 11px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .comp { font: 600 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .e    { stroke: #6b7280; stroke-width: 1.6; marker-end: url(#a) }
+    .eattack { stroke: #E35205; stroke-width: 1.8; marker-end: url(#b) }
+    .el   { font: 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .x    { font: 700 12px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .ok   { font: 700 12px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .arrow{ fill: #6b7280 }
+    .arrowbad { fill: #E35205 }
+    .lock { font-size: 16px; text-anchor: middle }
+    @media (prefers-color-scheme: dark) {
+      .z { stroke: #3a4149 } .zl { fill: #9aa3ad }
+      .b { fill: #151a20; stroke: #4aa3dd } .bl, .bls { fill: #e6e8ea }
+      .blocked { fill: #22262b; stroke: #9aa3ad }
+      .battack, .bforged { fill: #2a1c14; stroke: #ff7a3d }
+      .bdigest { fill: #151a20; stroke: #4aa3dd }
+      .e, .comp, .el { stroke: #9aa3ad } .comp, .el { fill: #9aa3ad }
+      .eattack { stroke: #ff7a3d } .arrow { fill: #9aa3ad } .arrowbad { fill: #ff7a3d }
+      .x { fill: #ff7a3d } .ok { fill: #4aa3dd }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrow" d="M0 0 L8 4 L0 8 z"/></marker>
+    <marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrowbad" d="M0 0 L8 4 L0 8 z"/></marker>
+  </defs>
+
+  <rect class="z" x="10" y="10" width="980" height="150" rx="8"/>
+  <text class="zl" x="18" y="30">The intended design — a seed assumed to be truly random</text>
+
+  <rect class="blocked" x="50" y="60" width="130" height="52"/>
+  <text class="lock" x="115" y="82">🎲</text>
+  <text class="bls" x="115" y="100">assumed random</text>
+
+  <path class="e" d="M180 86 L238 86"/>
+  <text class="comp" x="209" y="76">expand()</text>
+
+  <rect class="b" x="238" y="60" width="150" height="52"/>
+  <text class="bl" x="313" y="82">private key</text>
+  <text class="bls" x="313" y="98">= expand(seed)</text>
+
+  <path class="e" d="M388 86 L456 86"/>
+  <text class="comp" x="422" y="76">commit()</text>
+
+  <rect class="bdigest" x="456" y="58" width="190" height="56"/>
+  <text class="bl" x="551" y="80">commitment</text>
+  <text class="bls" x="551" y="98">= commit(private key)</text>
+
+  <text class="el" x="500" y="140">expand()/commit() are strong — safe only if the seed truly has 2^128 possible values</text>
+
+  <rect class="z" x="10" y="200" width="980" height="180" rx="8"/>
+  <text class="zl" x="18" y="220">The attacker — sees only the real seed source and the published commitment</text>
+
+  <path class="eattack" d="M551 114 L551 248"/>
+  <text class="x" x="551" y="234" text-anchor="middle">the published commitment is every guess's target ↓</text>
+
+  <rect class="battack" x="50" y="250" width="160" height="60"/>
+  <text class="bls" x="130" y="270">narrow seed source</text>
+  <text class="bls" x="130" y="286">(Debian PID bug,</text>
+  <text class="bls" x="130" y="302">only 32,768 values)</text>
+
+  <path class="eattack" d="M210 280 L268 280"/>
+  <text class="comp" x="239" y="270">expand()</text>
+
+  <rect class="battack" x="268" y="252" width="140" height="56"/>
+  <text class="bl" x="338" y="274">candidate key</text>
+  <text class="bls" x="338" y="290">= expand(guess)</text>
+
+  <path class="eattack" d="M408 280 L466 280"/>
+  <text class="comp" x="437" y="270">commit()</text>
+
+  <rect class="battack" x="466" y="248" width="170" height="64"/>
+  <text class="bl" x="551" y="270">compare</text>
+  <text class="bls" x="551" y="286">candidate vs.</text>
+  <text class="bls" x="551" y="302">published commitment</text>
+
+  <path class="eattack" d="M636 280 L694 280"/>
+  <text class="x" x="665" y="270">match ✓</text>
+
+  <rect class="bforged" x="694" y="246" width="180" height="68"/>
+  <text class="bl" x="784" y="270">key recovered</text>
+  <text class="bls" x="784" y="286">all candidates</text>
+  <text class="bls" x="784" y="302">checked in &lt; 1s</text>
+
+  <text class="ok" x="500" y="368">Same expand()/commit() functions as the top row. The break is entropy — a range this small is nothing to enumerate.</text>
+</svg>

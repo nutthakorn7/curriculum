@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 470" role="img"
+     aria-label="Two decrypt chains that share the same C1 and the same decrypt function, arranged top to bottom. Top: the server's real decrypt path takes the token's actual ciphertext block C0, decrypts C1 with the secret key, XORs in C0, and produces the plaintext role=guest, exactly as it does for every request. Bottom: the attacker's version reuses that identical decrypt code and the same C1, but XORs a five-byte delta into C0 first, producing C0-prime, without ever touching the key; because CBC XORs that block straight into the output, the plaintext flips byte-for-byte into role=admin, which the admin check accepts and returns the flag.">
+  <title>CBC decryption: the same code path, a flipped C0</title>
+  <style>
+    .z     { fill: none; stroke: #b9b4aa; stroke-dasharray: 6 4 }
+    .zl    { font: 600 11px system-ui, sans-serif; fill: #6b7280;
+             letter-spacing: .06em; text-transform: uppercase }
+    .b     { fill: #fffdf9; stroke: #017BC4; stroke-width: 1.5; rx: 6 }
+    .bemph { fill: #fffdf9; stroke: #017BC4; stroke-width: 2.5; rx: 8 }
+    .binh  { fill: #f0efe9; stroke: #6b7280; stroke-width: 1.5; stroke-dasharray: 3 3; rx: 6 }
+    .battack { fill: #fff6f0; stroke: #E35205; stroke-width: 2.5; rx: 8 }
+    .bl    { font: 600 13px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .bls   { font: 600 11px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .e     { stroke: #6b7280; stroke-width: 1.6; fill: none; marker-end: url(#a) }
+    .eattack { stroke: #E35205; stroke-width: 1.8; fill: none; marker-end: url(#b) }
+    .el    { font: 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .cap   { font: 11px system-ui, sans-serif; fill: #6b7280 }
+    .gate  { fill: #fffdf9; stroke: #017BC4; stroke-width: 1.8 }
+    .gatex { fill: #fff6f0; stroke: #E35205; stroke-width: 1.8 }
+    .gl    { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .glx   { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .arrow { fill: #6b7280 }
+    .arrowbad { fill: #E35205 }
+    @media (prefers-color-scheme: dark) {
+      .z { stroke: #3a4149 } .zl { fill: #9aa3ad }
+      .b, .bemph { fill: #151a20; stroke: #4aa3dd } .bl, .bls { fill: #e6e8ea }
+      .binh { fill: #22262b; stroke: #9aa3ad }
+      .battack { fill: #2a1c14; stroke: #ff7a3d }
+      .e { stroke: #9aa3ad } .el, .cap { fill: #9aa3ad }
+      .eattack { stroke: #ff7a3d }
+      .arrow { fill: #9aa3ad } .arrowbad { fill: #ff7a3d }
+      .gate { fill: #151a20; stroke: #4aa3dd } .gl { fill: #4aa3dd }
+      .gatex { fill: #2a1c14; stroke: #ff7a3d } .glx { fill: #ff7a3d }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrow" d="M0 0 L8 4 L0 8 z"/></marker>
+    <marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrowbad" d="M0 0 L8 4 L0 8 z"/></marker>
+  </defs>
+
+  <!-- ================= ZONE A: the server's real decrypt (10..225) ================= -->
+  <rect class="z" x="10" y="10" width="980" height="215" rx="8"/>
+  <text class="zl" x="18" y="30">The server's real decrypt — runs on every /admin request</text>
+
+  <rect class="bemph" x="480" y="48" width="130" height="40"/>
+  <text class="bl" x="545" y="64">C0</text>
+  <text class="bls" x="545" y="78">real C0, from /login</text>
+
+  <path class="e" d="M545 88 L545 128"/>
+
+  <rect class="b" x="50" y="118" width="110" height="52"/>
+  <text class="bl" x="105" y="140">C1</text>
+  <text class="bls" x="105" y="156">ciphertext block 1</text>
+
+  <path class="e" d="M160 144 L210 144"/>
+
+  <rect class="b" x="210" y="118" width="120" height="52"/>
+  <text class="bl" x="270" y="140">D_k(&#183;)</text>
+  <text class="bls" x="270" y="156">decrypt — needs the key</text>
+
+  <path class="e" d="M330 144 L380 144"/>
+
+  <rect class="b" x="380" y="118" width="120" height="52"/>
+  <text class="bl" x="440" y="140">D(C1)</text>
+  <text class="bls" x="440" y="156">intermediate state</text>
+
+  <path class="e" d="M500 144 L529 144"/>
+  <circle class="gate" cx="545" cy="144" r="16"/>
+  <text class="gl" x="545" y="150">&#8853;</text>
+  <path class="e" d="M561 144 L590 144"/>
+
+  <rect class="bemph" x="590" y="112" width="300" height="64"/>
+  <text class="bl" x="740" y="138">P1 = "role=guest;xpad0"</text>
+  <text class="bls" x="740" y="156">ordinary login — not privileged</text>
+
+  <text class="cap" x="18" y="200">Real decrypt: P1 = D(C1) XOR C0 — exactly what /whoami and /admin run every time</text>
+
+  <!-- cross-zone: the attacker's one and only move -->
+  <path class="eattack" d="M515 88 L515 283"/>
+  <text class="el" x="515" y="237">attacker XORs a 5-byte delta into C0 — never touches the key &#8595;</text>
+
+  <!-- ================= ZONE B: the attacker's version (245..460) ================= -->
+  <rect class="z" x="10" y="245" width="980" height="215" rx="8"/>
+  <text class="zl" x="18" y="265">The attacker's version — identical code, only C0 changed</text>
+
+  <rect class="battack" x="480" y="283" width="130" height="40"/>
+  <text class="bl" x="545" y="299">C0&#8242;</text>
+  <text class="bls" x="545" y="313">5 bytes flipped (21&#8211;25)</text>
+
+  <path class="eattack" d="M545 323 L545 363"/>
+
+  <rect class="binh" x="50" y="353" width="110" height="52"/>
+  <text class="bl" x="105" y="375">C1</text>
+  <text class="bls" x="105" y="391">same bytes — untouched</text>
+
+  <path class="e" d="M160 379 L210 379"/>
+
+  <rect class="binh" x="210" y="353" width="120" height="52"/>
+  <text class="bl" x="270" y="375">D_k(&#183;)</text>
+  <text class="bls" x="270" y="391">identical decrypt code</text>
+
+  <path class="e" d="M330 379 L380 379"/>
+
+  <rect class="binh" x="380" y="353" width="120" height="52"/>
+  <text class="bl" x="440" y="375">D(C1)</text>
+  <text class="bls" x="440" y="391">identical output</text>
+
+  <path class="e" d="M500 379 L529 379"/>
+  <circle class="gatex" cx="545" cy="379" r="16"/>
+  <text class="glx" x="545" y="385">&#8853;</text>
+  <path class="eattack" d="M561 379 L590 379"/>
+
+  <rect class="battack" x="590" y="347" width="300" height="64"/>
+  <text class="bl" x="740" y="373">P1&#8242; = "role=admin;xpad0"</text>
+  <text class="bls" x="740" y="391">/admin accepts — flag returned</text>
+
+  <text class="cap" x="18" y="430">Forged decrypt: P1&#8242; = D(C1) XOR C0&#8242; = P1 XOR delta — same code path, only C0 changed</text>
+</svg>

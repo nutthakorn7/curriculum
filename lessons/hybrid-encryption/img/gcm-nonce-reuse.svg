@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 470" role="img"
+     aria-label="Two zones, top to bottom. Top: Bob's session takes one AES key and one nonce, mixes them into a keystream, and reuses that identical keystream to XOR message one into ciphertext one and message two into ciphertext two — the bug already exists here, before any attacker is involved. Bottom: an eavesdropper who only ever sees ciphertext one and ciphertext two, never the key, XORs the two together to recover message one exclusive-or message two for free, then XORs that against a guessed fragment of message one to reveal the matching real bytes of message two.">
+  <title>Nonce reuse: one keystream, two ciphertexts, zero key needed</title>
+  <style>
+    .z    { fill: none; stroke: #b9b4aa; stroke-dasharray: 6 4 }
+    .zl   { font: 600 11px system-ui, sans-serif; fill: #6b7280;
+            letter-spacing: .06em; text-transform: uppercase }
+    .b    { fill: #fffdf9; stroke: #017BC4; stroke-width: 1.5; rx: 6 }
+    .blocked { fill: #f0efe9; stroke: #6b7280; stroke-width: 1.5; stroke-dasharray: 3 3; rx: 6 }
+    .battack { fill: #fff6f0; stroke: #E35205; stroke-width: 1.5; rx: 6 }
+    .bdigest { fill: #fffdf9; stroke: #017BC4; stroke-width: 2.5; rx: 8 }
+    .bforged { fill: #fff6f0; stroke: #E35205; stroke-width: 2.5; rx: 8 }
+    .bl   { font: 600 13px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .bls  { font: 600 11px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .comp { font: 600 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .e    { fill: none; stroke: #6b7280; stroke-width: 1.6; marker-end: url(#a) }
+    .eattack { fill: none; stroke: #E35205; stroke-width: 1.8; marker-end: url(#b) }
+    .x    { font: 700 12px system-ui, sans-serif; fill: #E35205 }
+    .ok   { font: 700 12px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .cap  { font: 11px system-ui, sans-serif; fill: #6b7280 }
+    .opnode  { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .optext  { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .arrow    { fill: #6b7280 }
+    .arrowbad { fill: #E35205 }
+    @media (prefers-color-scheme: dark) {
+      .z { stroke: #3a4149 } .zl { fill: #9aa3ad }
+      .b { fill: #151a20; stroke: #4aa3dd } .bl, .bls { fill: #e6e8ea }
+      .blocked { fill: #22262b; stroke: #9aa3ad }
+      .battack, .bforged { fill: #2a1c14; stroke: #ff7a3d }
+      .bdigest { fill: #151a20; stroke: #4aa3dd }
+      .e { stroke: #9aa3ad } .comp { fill: #9aa3ad } .cap { fill: #9aa3ad }
+      .eattack { stroke: #ff7a3d } .arrow { fill: #9aa3ad } .arrowbad { fill: #ff7a3d }
+      .x { fill: #ff7a3d } .ok { fill: #4aa3dd }
+      .opnode { fill: #2a1c14; stroke: #ff7a3d } .optext { fill: #ff7a3d }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrow" d="M0 0 L8 4 L0 8 z"/></marker>
+    <marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrowbad" d="M0 0 L8 4 L0 8 z"/></marker>
+  </defs>
+
+  <rect class="z" x="10" y="10" width="980" height="210" rx="8"/>
+  <text class="zl" x="18" y="30">Bob's session — one AES-256 key, one nonce, reused for every message</text>
+
+  <rect class="blocked" x="40" y="70" width="170" height="52"/>
+  <text class="bls" x="125" y="92">🔒 session key</text>
+  <text class="bls" x="125" y="110">nonce = 00…00, reused</text>
+
+  <path class="e" d="M210 96 L250 96"/>
+
+  <rect class="b" x="250" y="70" width="150" height="52"/>
+  <text class="bl" x="325" y="92">keystream</text>
+  <text class="bls" x="325" y="110">KS = f(key, nonce)</text>
+
+  <path class="e" d="M400 96 L470 56"/>
+  <text class="comp" x="435" y="68">⊕ message 1</text>
+
+  <path class="e" d="M400 96 L470 138"/>
+  <text class="comp" x="435" y="130">⊕ message 2</text>
+
+  <text class="x" x="660" y="100">← same KS both times — that's the bug</text>
+
+  <rect class="bdigest" x="470" y="30" width="170" height="52"/>
+  <text class="bl" x="555" y="52">ciphertext 1</text>
+  <text class="bls" x="555" y="70">= message 1 ⊕ KS</text>
+
+  <rect class="bdigest" x="470" y="112" width="170" height="52"/>
+  <text class="bl" x="555" y="134">ciphertext 2</text>
+  <text class="bls" x="555" y="152">= message 2 ⊕ KS</text>
+
+  <text class="cap" x="18" y="195">ciphertext = message ⊕ KS — correct each time. The bug: KS repeats.</text>
+
+  <rect class="z" x="10" y="235" width="980" height="225" rx="8"/>
+  <text class="zl" x="18" y="255">The eavesdropper — never sees the zone above, only ciphertext 1 and ciphertext 2 crossing the boundary</text>
+
+  <path class="eattack" d="M540 82 L540 298"/>
+  <path class="eattack" d="M570 164 L570 298"/>
+
+  <circle class="opnode" cx="555" cy="320" r="22"/>
+  <text class="optext" x="555" y="327">⊕</text>
+
+  <path class="eattack" d="M577 320 L620 320"/>
+
+  <rect class="battack" x="620" y="294" width="280" height="52"/>
+  <text class="bl" x="760" y="316">message 1 ⊕ message 2</text>
+  <text class="bls" x="760" y="334">= real plaintext bits, zero key needed</text>
+
+  <path class="eattack" d="M760 346 L760 355 L350 355 L350 374"/>
+
+  <rect class="battack" x="40" y="370" width="260" height="52"/>
+  <text class="bl" x="170" y="392">your crib guess</text>
+  <text class="bls" x="170" y="410">(assumed text of message 1)</text>
+
+  <path class="eattack" d="M300 396 L328 396"/>
+
+  <circle class="opnode" cx="350" cy="396" r="22"/>
+  <text class="optext" x="350" y="403">⊕</text>
+
+  <path class="eattack" d="M372 396 L420 396"/>
+
+  <rect class="bforged" x="420" y="370" width="340" height="52"/>
+  <text class="bl" x="590" y="392">recovered fragment of message 2</text>
+  <text class="bls" x="590" y="410">= accepted as real plaintext</text>
+
+  <text class="ok" x="500" y="448">Same trick breaks any stream cipher under nonce reuse — AES-GCM, AES-CTR, ChaCha20, RC4/WEP.</text>
+</svg>

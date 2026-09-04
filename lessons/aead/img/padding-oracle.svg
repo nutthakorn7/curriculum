@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1250 430" role="img"
+     aria-label="Two zones, top to bottom, left to right. Top: the server decrypts an attacker-forged blob by computing D of the ciphertext block XORed with the attacker's forged previous block to get a candidate plaintext, then checks only whether its PKCS-7 padding is valid, returning 200 for valid or 403 for invalid. Bottom: the attacker, who never sees the key or the decrypted plaintext, tries all 256 values for one byte of the forged previous block, finds the single value the server accepts as 200, and from that single accepted guess derives one real byte of the intermediate decrypted value and hence one real byte of the actual plaintext, repeating this to recover the entire secret without ever learning the encryption key.">
+  <title>Padding oracle: a 200-or-403 response leaks one plaintext byte per query</title>
+  <style>
+    .z    { fill: none; stroke: #b9b4aa; stroke-dasharray: 6 4 }
+    .zl   { font: 600 11px system-ui, sans-serif; fill: #6b7280;
+            letter-spacing: .06em; text-transform: uppercase }
+    .b    { fill: #fffdf9; stroke: #017BC4; stroke-width: 1.5; rx: 6 }
+    .blocked { fill: #f0efe9; stroke: #6b7280; stroke-width: 1.5; stroke-dasharray: 3 3; rx: 6 }
+    .battack { fill: #fff6f0; stroke: #E35205; stroke-width: 1.5; rx: 6 }
+    .bdigest { fill: #fffdf9; stroke: #017BC4; stroke-width: 2.5; rx: 8 }
+    .bforged { fill: #fff6f0; stroke: #E35205; stroke-width: 2.5; rx: 8 }
+    .bl   { font: 600 13px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .bls  { font: 600 11px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .bltiny { font: 600 9px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .comp { font: 600 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .e    { stroke: #6b7280; stroke-width: 1.6; marker-end: url(#a) }
+    .eattack { stroke: #E35205; stroke-width: 1.8; marker-end: url(#b) }
+    .el   { font: 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .x    { font: 700 12px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .ok   { font: 700 12px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .arrow{ fill: #6b7280 }
+    .arrowbad { fill: #E35205 }
+    .lock { font-size: 16px; text-anchor: middle }
+    @media (prefers-color-scheme: dark) {
+      .z { stroke: #3a4149 } .zl { fill: #9aa3ad }
+      .b { fill: #151a20; stroke: #4aa3dd } .bl, .bls { fill: #e6e8ea }
+      .bltiny { fill: #9aa3ad }
+      .blocked { fill: #22262b; stroke: #9aa3ad }
+      .battack, .bforged { fill: #2a1c14; stroke: #ff7a3d }
+      .bdigest { fill: #151a20; stroke: #4aa3dd }
+      .e, .comp, .el { stroke: #9aa3ad } .comp, .el { fill: #9aa3ad }
+      .eattack { stroke: #ff7a3d } .arrow { fill: #9aa3ad } .arrowbad { fill: #ff7a3d }
+      .x { fill: #ff7a3d } .ok { fill: #4aa3dd }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrow" d="M0 0 L8 4 L0 8 z"/></marker>
+    <marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrowbad" d="M0 0 L8 4 L0 8 z"/></marker>
+  </defs>
+
+  <rect class="z" x="10" y="10" width="1230" height="160" rx="8"/>
+  <text class="zl" x="18" y="30">The server — decrypts using the key, but the key itself never leaves this zone</text>
+
+  <rect class="blocked" x="50" y="60" width="110" height="52"/>
+  <text class="lock" x="105" y="82">🔒</text>
+  <text class="bls" x="105" y="100">AES key</text>
+
+  <path class="e" d="M160 86 L188 86"/>
+
+  <rect class="b" x="188" y="58" width="280" height="56"/>
+  <text class="bl" x="328" y="80">D(C_t) ⊕ forged_prev</text>
+  <text class="bl" x="328" y="98">= candidate plaintext P</text>
+
+  <path class="e" d="M468 86 L498 86"/>
+
+  <rect class="bdigest" x="498" y="54" width="244" height="64"/>
+  <text class="bl" x="620" y="80">PKCS#7 padding</text>
+  <text class="bls" x="620" y="100">valid?</text>
+
+  <text class="el" x="620" y="142">Ordinary CBC math — P = D(ciphertext) ⊕ previous block — just fed the attacker's forged_prev instead of the real one</text>
+
+  <rect class="z" x="10" y="200" width="1230" height="210" rx="8"/>
+  <text class="zl" x="18" y="220">The attacker — sees only 200/403 from the check above, never the key or the plaintext directly</text>
+
+  <path class="eattack" d="M620 118 L620 246"/>
+  <text class="x" x="620" y="234" text-anchor="middle">200 valid / 403 invalid — the ONLY bit the attacker ever sees ↓</text>
+
+  <rect class="battack" x="500" y="248" width="240" height="64"/>
+  <text class="bls" x="620" y="272">try forged_prev[pos]</text>
+  <text class="bls" x="620" y="290">= 0, 1, 2, …, 255</text>
+
+  <path class="eattack" d="M740 280 L770 280"/>
+
+  <rect class="battack" x="770" y="244" width="220" height="72"/>
+  <text class="bl" x="880" y="270">exactly one guess</text>
+  <text class="bl" x="880" y="288">returns 200 (valid)</text>
+  <text class="bltiny" x="880" y="304">(false positives re-checked)</text>
+
+  <path class="eattack" d="M990 280 L1020 280"/>
+  <text class="comp" x="1005" y="270">XOR</text>
+
+  <rect class="bforged" x="1020" y="236" width="190" height="88"/>
+  <text class="bl" x="1115" y="258">D(C_t)[pos]</text>
+  <text class="bls" x="1115" y="276">= guess ⊕ pad_val</text>
+  <text class="bl" x="1115" y="296">→ P[pos] recovered</text>
+  <text class="bltiny" x="1115" y="312">no key needed</text>
+
+  <text class="ok" x="625" y="390">Repeat for pad_val 2→16 (…0x02 0x02, …0x03 0x03 0x03, …) → the whole block, ~256 queries per byte, key never touched</text>
+</svg>

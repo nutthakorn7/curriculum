@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 530" role="img"
+     aria-label="Two lanes, read top to bottom, each showing Alice on the left sending toward Bob on the right through a server box in the middle: the top lane, vulnerable mode, sends the message over TLS to the server, which decrypts, stores, and logs the plaintext in the clear before re-encrypting and forwarding it on to Bob, so the provider itself can read everything; the bottom lane, fixed mode, first has Bob publish his public key which the server relays to Alice, who trusts it blindly, then Alice encrypts the message client-side with a hybrid scheme, AES-256-GCM wrapped in RSA-OAEP, before sending, so the server now stores and logs only opaque base64 ciphertext it structurally cannot decrypt, and only Bob's device recovers the plaintext; a dashed orange warning box at the bottom of the fixed lane flags the one gap neither lane closes, that a malicious server could substitute its own key at the public-key-fetch step, read the plaintext itself, and quietly re-encrypt a working copy to the real Bob so nothing looks wrong, which is the root-of-trust problem this week's lab does not demonstrate.">
+  <title>TLS-only vs. hybrid E2EE: where the plaintext boundary moves</title>
+  <style>
+    .z    { fill: none; stroke: #b9b4aa; stroke-dasharray: 6 4 }
+    .zl   { font: 600 11px system-ui, sans-serif; fill: #6b7280;
+            letter-spacing: .06em; text-transform: uppercase }
+    .b    { fill: #fffdf9; stroke: #017BC4; stroke-width: 1.5; rx: 6 }
+    .bexposed { fill: #fff6f0; stroke: #E35205; stroke-width: 2.5; rx: 8 }
+    .bsafe    { fill: #fffdf9; stroke: #017BC4; stroke-width: 2.5; rx: 8 }
+    .bl   { font: 600 13px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .bls  { font: 600 11px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .e    { stroke: #6b7280; stroke-width: 1.6; marker-end: url(#a) }
+    .epubkey { stroke: #E35205; stroke-width: 1.8; stroke-dasharray: 5 4; marker-end: url(#b) }
+    .el   { font: 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .cap  { font: 600 11px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .logline { font: 600 12px ui-monospace, SFMono-Regular, Menlo, monospace; text-anchor: middle }
+    .logline.bad { fill: #E35205 }
+    .logline.ok  { fill: #017BC4 }
+    .warnbox { fill: #fff6f0; stroke: #E35205; stroke-width: 1.6; stroke-dasharray: 6 4; rx: 6 }
+    .warntext { font: 600 12px system-ui, sans-serif; fill: #b8420a; text-anchor: middle }
+    .arrow{ fill: #6b7280 }
+    .arrowbad { fill: #E35205 }
+    .lock { font-size: 15px; text-anchor: middle }
+    .hub  { fill: #6b7280 }
+    @media (prefers-color-scheme: dark) {
+      .z { stroke: #3a4149 } .zl { fill: #9aa3ad }
+      .b { fill: #151a20; stroke: #4aa3dd } .bl, .bls { fill: #e6e8ea }
+      .bexposed { fill: #2a1c14; stroke: #ff7a3d }
+      .bsafe { fill: #151a20; stroke: #4aa3dd }
+      .e { stroke: #9aa3ad } .el { fill: #9aa3ad }
+      .epubkey { stroke: #ff7a3d } .cap { fill: #ff7a3d }
+      .logline.bad { fill: #ff7a3d } .logline.ok { fill: #4aa3dd }
+      .warnbox { fill: #2a1c14; stroke: #ff7a3d } .warntext { fill: #ffb088 }
+      .arrow { fill: #9aa3ad } .arrowbad { fill: #ff7a3d } .hub { fill: #9aa3ad }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrow" d="M0 0 L8 4 L0 8 z"/></marker>
+    <marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrowbad" d="M0 0 L8 4 L0 8 z"/></marker>
+  </defs>
+
+  <!-- ── Lane 1: vulnerable — TLS only, server holds plaintext ── -->
+  <rect class="z" x="10" y="10" width="980" height="195" rx="8"/>
+  <text class="zl" x="18" y="30">Vulnerable mode — TLS protects the wire, not the operator</text>
+
+  <rect class="b" x="40" y="83" width="160" height="64"/>
+  <text class="bl" x="120" y="109">Alice</text>
+  <text class="bls" x="120" y="127">sends the raw message</text>
+
+  <path class="e" d="M200 115 L350 115"/>
+  <text class="el" x="275" y="107">TLS</text>
+
+  <rect class="bexposed" x="350" y="79" width="300" height="72"/>
+  <text class="lock" x="378" y="112">🔓</text>
+  <text class="bl" x="510" y="109">Server</text>
+  <text class="bls" x="510" y="127">holds &amp; LOGS the plaintext</text>
+
+  <path class="e" d="M650 115 L800 115"/>
+  <text class="el" x="725" y="107">TLS</text>
+
+  <rect class="b" x="800" y="83" width="160" height="64"/>
+  <text class="bl" x="880" y="109">Bob</text>
+  <text class="bls" x="880" y="127">reads it — same as the server</text>
+
+  <text class="logline bad" x="500" y="180">SERVER SAW: meet at pier 39 at midnight</text>
+
+  <!-- ── Lane 2: fixed — hybrid E2EE moves the boundary to the endpoints ── -->
+  <rect class="z" x="10" y="220" width="980" height="300" rx="8"/>
+  <text class="zl" x="18" y="240">Fixed mode — hybrid E2EE moves the boundary to the endpoints</text>
+
+  <text class="cap" x="500" y="262">① Bob's public key → relayed by the server → Alice fetches it, trusting it blindly</text>
+  <path class="epubkey" d="M880 278 L120 278"/>
+  <circle class="hub" cx="500" cy="278" r="4"/>
+
+  <rect class="b" x="40" y="318" width="160" height="64"/>
+  <text class="bl" x="120" y="344">Alice</text>
+  <text class="bls" x="120" y="362">encrypts client-side</text>
+
+  <path class="e" d="M200 350 L350 350"/>
+  <text class="el" x="275" y="342">② ciphertext</text>
+
+  <rect class="bsafe" x="350" y="314" width="300" height="72"/>
+  <text class="lock" x="378" y="347">🔒</text>
+  <text class="bl" x="510" y="344">Server</text>
+  <text class="bls" x="510" y="362">stores &amp; logs only ciphertext</text>
+
+  <path class="e" d="M650 350 L800 350"/>
+  <text class="el" x="725" y="342">② ciphertext</text>
+
+  <rect class="b" x="800" y="318" width="160" height="64"/>
+  <text class="bl" x="880" y="344">Bob</text>
+  <text class="bls" x="880" y="362">decrypts client-side</text>
+
+  <text class="logline ok" x="500" y="415">SERVER SAW: eyJlbmNfa2V5Ijog... (opaque base64)</text>
+
+  <rect class="warnbox" x="40" y="440" width="920" height="65"/>
+  <text class="warntext" x="500" y="462">⚠ root of trust — not demonstrated by this lab: a malicious server could hand Alice its own key at step ①,</text>
+  <text class="warntext" x="500" y="480">read the plaintext itself, then quietly re-encrypt it to the real Bob so nothing looks wrong. (Worksheet Q2)</text>
+</svg>

@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 530" role="img"
+     aria-label="Two lanes read top to bottom, each showing a client on the left, a server in the middle, and a log reader on the right. Top lane, vulnerable mode with PAKE unset: the client sends its actual password to the server, which receives it and prints it verbatim to the server's own log, so the log reader on the right recovers the password in full and gains a standing, reusable credential. Bottom lane, fixed mode with PAKE equals 1: the server first issues the client a fresh single-use nonce, the client locally derives a verifier by hashing the salt and password together and computes a proof by keying an HMAC with that verifier over the nonce, so the password itself never leaves the client, the server then verifies and logs only the nonce and the proof, and the same log reader who succeeded in the top lane now recovers nothing usable, because the logged proof is a one-way function of a password that was never transmitted; a dashed orange warning box at the bottom flags the one gap this simplified demo does not close, that a leaked copy of the server's stored verifier would be password-equivalent here, which is exactly what a real PAKE such as SRP or OPAQUE additionally protects against.">
+  <title>Plain password vs. challenge-response: what ends up in the server's log</title>
+  <style>
+    .z    { fill: none; stroke: #b9b4aa; stroke-dasharray: 6 4 }
+    .zl   { font: 600 11px system-ui, sans-serif; fill: #6b7280;
+            letter-spacing: .06em; text-transform: uppercase }
+    .b    { fill: #fffdf9; stroke: #017BC4; stroke-width: 1.5; rx: 6 }
+    .bexposed { fill: #fff6f0; stroke: #E35205; stroke-width: 2.5; rx: 8 }
+    .bsafe    { fill: #fffdf9; stroke: #017BC4; stroke-width: 2.5; rx: 8 }
+    .bl   { font: 600 13px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .bls  { font: 600 11px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .e    { stroke: #6b7280; stroke-width: 1.6; marker-end: url(#a) }
+    .enonce { stroke: #017BC4; stroke-width: 1.8; stroke-dasharray: 5 4; marker-end: url(#c) }
+    .el   { font: 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .cap  { font: 600 11px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .logline { font: 600 12px ui-monospace, SFMono-Regular, Menlo, monospace; text-anchor: middle }
+    .logline.bad { fill: #E35205 }
+    .logline.ok  { fill: #017BC4 }
+    .warnbox { fill: #fff6f0; stroke: #E35205; stroke-width: 1.6; stroke-dasharray: 6 4; rx: 6 }
+    .warntext { font: 600 12px system-ui, sans-serif; fill: #b8420a; text-anchor: middle }
+    .arrow{ fill: #6b7280 }
+    .arrowok { fill: #017BC4 }
+    .lock { font-size: 15px; text-anchor: middle }
+    @media (prefers-color-scheme: dark) {
+      .z { stroke: #3a4149 } .zl { fill: #9aa3ad }
+      .b { fill: #151a20; stroke: #4aa3dd } .bl, .bls { fill: #e6e8ea }
+      .bexposed { fill: #2a1c14; stroke: #ff7a3d }
+      .bsafe { fill: #151a20; stroke: #4aa3dd }
+      .e { stroke: #9aa3ad } .el { fill: #9aa3ad }
+      .enonce { stroke: #4aa3dd } .cap { fill: #4aa3dd }
+      .logline.bad { fill: #ff7a3d } .logline.ok { fill: #4aa3dd }
+      .warnbox { fill: #2a1c14; stroke: #ff7a3d } .warntext { fill: #ffb088 }
+      .arrow { fill: #9aa3ad } .arrowok { fill: #4aa3dd }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrow" d="M0 0 L8 4 L0 8 z"/></marker>
+    <marker id="c" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrowok" d="M0 0 L8 4 L0 8 z"/></marker>
+  </defs>
+
+  <!-- ── Lane 1: vulnerable — the server receives, and logs, the actual password ── -->
+  <rect class="z" x="10" y="10" width="980" height="195" rx="8"/>
+  <text class="zl" x="18" y="30">Vulnerable mode — PAKE unset: the server receives the actual password</text>
+
+  <rect class="b" x="40" y="83" width="160" height="64"/>
+  <text class="bl" x="120" y="109">Client</text>
+  <text class="bls" x="120" y="127">sends the raw password</text>
+
+  <path class="e" d="M200 115 L350 115"/>
+  <text class="el" x="275" y="107">POST /login {password}</text>
+
+  <rect class="bexposed" x="350" y="79" width="300" height="72"/>
+  <text class="lock" x="378" y="112">🔓</text>
+  <text class="bl" x="510" y="109">Server</text>
+  <text class="bls" x="510" y="127">receives &amp; LOGS the plaintext</text>
+
+  <path class="e" d="M650 115 L800 115"/>
+  <text class="el" x="725" y="107">reads the log</text>
+
+  <rect class="bexposed" x="800" y="83" width="160" height="64"/>
+  <text class="bl" x="880" y="109">Log reader</text>
+  <text class="bls" x="880" y="127">has the password</text>
+
+  <text class="logline bad" x="500" y="180">SERVER SAW PASSWORD: correct-horse-battery</text>
+
+  <!-- ── Lane 2: fixed — the server verifies, and logs, only a nonce + proof ── -->
+  <rect class="z" x="10" y="220" width="980" height="300" rx="8"/>
+  <text class="zl" x="18" y="240">Fixed mode — PAKE=1: the server never receives or logs the password</text>
+
+  <text class="cap" x="500" y="262">① GET /challenge → server issues a fresh, single-use nonce</text>
+  <path class="enonce" d="M500 278 L120 278"/>
+
+  <rect class="b" x="40" y="318" width="160" height="64"/>
+  <text class="lock" x="68" y="351">🔒</text>
+  <text class="bl" x="120" y="344">Client</text>
+  <text class="bls" x="120" y="362">computes proof locally</text>
+
+  <path class="e" d="M200 350 L350 350"/>
+  <text class="el" x="275" y="342">② {nonce, proof}</text>
+
+  <rect class="bsafe" x="350" y="314" width="300" height="72"/>
+  <text class="lock" x="378" y="347">🔒</text>
+  <text class="bl" x="510" y="344">Server</text>
+  <text class="bls" x="510" y="362">verifies &amp; LOGS only nonce+proof</text>
+
+  <path class="e" d="M650 350 L800 350"/>
+  <text class="el" x="725" y="342">reads the log</text>
+
+  <rect class="bsafe" x="800" y="318" width="160" height="64"/>
+  <text class="bl" x="880" y="344">Log reader</text>
+  <text class="bls" x="880" y="362">no password recoverable</text>
+
+  <text class="logline ok" x="500" y="415">SERVER SAW: nonce=327decae... proof=40e70117...</text>
+
+  <rect class="warnbox" x="40" y="440" width="920" height="65"/>
+  <text class="warntext" x="500" y="462">⚠ not shown here: a leaked copy of the server's stored verifier is password-equivalent in THIS simplified demo —</text>
+  <text class="warntext" x="500" y="480">a real PAKE (SRP/OPAQUE) adds offline-dictionary resistance so a leaked verifier alone isn't enough. (Worksheet Q4)</text>
+</svg>

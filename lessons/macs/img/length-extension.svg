@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400" role="img"
+     aria-label="Two block chains sharing one starting point. Top: the server's real MAC computation feeds a locked secret block and a data block through the hash's compression function to produce a digest. Bottom: the attacker never sees the secret, but takes that same digest as their own starting state and feeds it, left to right, through glue-padding then extension blocks through the identical compression function, producing a forged digest the server accepts as valid.">
+  <title>Length-extension: the digest IS the resumable internal state</title>
+  <style>
+    .z    { fill: none; stroke: #b9b4aa; stroke-dasharray: 6 4 }
+    .zl   { font: 600 11px system-ui, sans-serif; fill: #6b7280;
+            letter-spacing: .06em; text-transform: uppercase }
+    .b    { fill: #fffdf9; stroke: #017BC4; stroke-width: 1.5; rx: 6 }
+    .blocked { fill: #f0efe9; stroke: #6b7280; stroke-width: 1.5; stroke-dasharray: 3 3; rx: 6 }
+    .battack { fill: #fff6f0; stroke: #E35205; stroke-width: 1.5; rx: 6 }
+    .bdigest { fill: #fffdf9; stroke: #017BC4; stroke-width: 2.5; rx: 8 }
+    .bforged { fill: #fff6f0; stroke: #E35205; stroke-width: 2.5; rx: 8 }
+    .bl   { font: 600 13px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .bls  { font: 600 11px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .comp { font: 600 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .e    { stroke: #6b7280; stroke-width: 1.6; marker-end: url(#a) }
+    .eattack { stroke: #E35205; stroke-width: 1.8; marker-end: url(#b) }
+    .el   { font: 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .x    { font: 700 12px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .ok   { font: 700 12px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .arrow{ fill: #6b7280 }
+    .arrowbad { fill: #E35205 }
+    .lock { font-size: 16px; text-anchor: middle }
+    @media (prefers-color-scheme: dark) {
+      .z { stroke: #3a4149 } .zl { fill: #9aa3ad }
+      .b { fill: #151a20; stroke: #4aa3dd } .bl, .bls { fill: #e6e8ea }
+      .blocked { fill: #22262b; stroke: #9aa3ad }
+      .battack, .bforged { fill: #2a1c14; stroke: #ff7a3d }
+      .bdigest { fill: #151a20; stroke: #4aa3dd }
+      .e, .comp, .el { stroke: #9aa3ad } .comp, .el { fill: #9aa3ad }
+      .eattack { stroke: #ff7a3d } .arrow { fill: #9aa3ad } .arrowbad { fill: #ff7a3d }
+      .x { fill: #ff7a3d } .ok { fill: #4aa3dd }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrow" d="M0 0 L8 4 L0 8 z"/></marker>
+    <marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7"
+            markerHeight="7" orient="auto"><path class="arrowbad" d="M0 0 L8 4 L0 8 z"/></marker>
+  </defs>
+
+  <rect class="z" x="10" y="10" width="980" height="150" rx="8"/>
+  <text class="zl" x="18" y="30">The server — only it ever holds the secret</text>
+
+  <rect class="blocked" x="60" y="60" width="90" height="52"/>
+  <text class="lock" x="105" y="82">🔒</text>
+  <text class="bls" x="105" y="100">secret</text>
+
+  <path class="e" d="M150 86 L168 86"/>
+
+  <rect class="b" x="168" y="60" width="140" height="52"/>
+  <text class="bl" x="238" y="82">"user=alice</text>
+  <text class="bl" x="238" y="98">&amp;admin=false"</text>
+
+  <path class="e" d="M308 86 L378 86"/>
+  <text class="comp" x="343" y="76">compress</text>
+
+  <rect class="bdigest" x="378" y="58" width="150" height="56"/>
+  <text class="bl" x="453" y="80">digest</text>
+  <text class="bls" x="453" y="98">= this week's mac</text>
+
+  <text class="el" x="238" y="140">Real MAC = compress(compress(secret), data) — ordinary, correct hashing</text>
+
+  <rect class="z" x="10" y="200" width="980" height="180" rx="8"/>
+  <text class="zl" x="18" y="220">The attacker — never sees the box above, only its output</text>
+
+  <path class="eattack" d="M453 114 L453 240"/>
+  <text class="x" x="453" y="234" text-anchor="middle">digest becomes the attacker's own starting state ↓</text>
+
+  <rect class="battack" x="378" y="250" width="150" height="60"/>
+  <text class="bls" x="453" y="272">glue padding</text>
+  <text class="bls" x="453" y="288">(computed from a</text>
+  <text class="bls" x="453" y="302">length guess)</text>
+
+  <path class="eattack" d="M528 280 L588 280"/>
+  <text class="comp" x="558" y="270">compress</text>
+
+  <rect class="battack" x="588" y="252" width="150" height="56"/>
+  <text class="bls" x="663" y="274">"&amp;admin=true"</text>
+  <text class="bls" x="663" y="292">(attacker's own bytes)</text>
+
+  <path class="eattack" d="M738 280 L798 280"/>
+  <text class="comp" x="768" y="270">compress</text>
+
+  <rect class="bforged" x="798" y="248" width="150" height="60"/>
+  <text class="bl" x="873" y="270">forged digest</text>
+  <text class="bls" x="873" y="288">= accepted</text>
+  <text class="bls" x="873" y="302">as valid</text>
+
+  <text class="ok" x="500" y="368">Same compression function, same inputs the server would use — minus the one block the attacker never had.</text>
+</svg>

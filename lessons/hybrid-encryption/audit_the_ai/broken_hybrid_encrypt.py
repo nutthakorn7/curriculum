@@ -9,7 +9,7 @@ Design:
   - Every message in the session is then encrypted with that same AES-256
     key using AES-GCM (authenticated encryption), so we get confidentiality
     AND integrity/authenticity on each message without paying RSA's cost
-    (and RSA's ~470-byte plaintext ceiling) per message.
+    (and RSA's ~446-byte plaintext ceiling) per message.
   - Alice decrypts the wrapped key once with her RSA private key, then uses
     it to open every GCM ciphertext in the session.
 

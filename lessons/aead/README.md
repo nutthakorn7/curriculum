@@ -3,8 +3,8 @@
 **Topic:** *(new topic — not in KOSEN68; built fresh)* · **Kind:** LAB
 **Concepts:** authenticated encryption (AEAD), unauthenticated-CBC malleability, PKCS#7 padding
 oracle, AES-GCM, encrypt-then-MAC · **Analogous CWE:** CWE-347 (Improper Verification of
-Cryptographic Signature), CWE-757 (Selection of Less-Secure Algorithm), CWE-208
-(Observable Timing/Response Discrepancy — the side channel)
+Cryptographic Signature), CWE-757 (Selection of Less-Secure Algorithm), CWE-204
+(Observable Response Discrepancy — the side channel)
 
 This is the **capstone of the symmetric block**: {{ ref('macs') }} gave you a MAC (integrity), {{ ref('aes-modes') }} gave
 you AES-CBC (confidentiality) and showed CBC ciphertext is *malleable*. Bolt those two together
