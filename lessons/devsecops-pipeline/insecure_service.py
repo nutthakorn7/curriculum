@@ -15,9 +15,9 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# The admin "secret" is the per-student flag when spawned on the platform
-# (docker-compose injects FLAG_DEVSECOPS from seed_flags.py); the default only
-# applies to a bare local run.
+# The admin "secret" is the per-student flag when spawned on the hosted CTFd
+# platform (it injects FLAG_DEVSECOPS per student); the default only applies to
+# a bare local run, which is practice only.
 SECRET = os.environ.get("FLAG_DEVSECOPS", "FLAG{devsecops_fail_open_leaks_admin}")
 
 # Toy token store. In real life: hashed creds + a real IdP.
