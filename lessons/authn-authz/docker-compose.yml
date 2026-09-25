@@ -6,7 +6,8 @@ services:
       - "8080:5000"
     volumes:
       - ./:/lab
-    # Per-student flags: python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env
+    # PRACTICE build: with no .env the app serves public demo flags (FLAG{..._demo}).
+    # Graded flags come only from your hosted CTFd instance, never from this local run.
     environment:
       - FLAG_IDOR
       - FLAG_JWT

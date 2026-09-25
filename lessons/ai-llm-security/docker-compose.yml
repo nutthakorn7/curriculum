@@ -6,7 +6,8 @@ services:
       - ./:/lab
     ports:
       - "8082:8082"
-    # Per-student flags: python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env
+    # PRACTICE build: with no .env the app serves public demo flags (FLAG{..._demo}).
+    # Graded flags come only from your hosted CTFd instance, never from this local run.
     environment:
       - FLAG_PROMPTINJ
     command: >
@@ -21,7 +22,8 @@ services:
       - ./:/lab
     ports:
       - "8083:8083"
-    # Per-student flags: python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env
+    # PRACTICE build: with no .env the app serves public demo flags (FLAG{..._demo}).
+    # Graded flags come only from your hosted CTFd instance, never from this local run.
     environment:
       - FLAG_PROMPTINJ
     command: >
