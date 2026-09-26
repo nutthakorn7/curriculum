@@ -2,7 +2,7 @@
 
 # Hardening Checklist — Misconfig → Fix
 
-**OWASP 2025:** A02 Security Misconfiguration · **CWE:** CWE-732, CWE-16, CWE-250, CWE-798
+**OWASP 2025:** A02 Security Misconfiguration · **CWE:** CWE-732, CWE-16, CWE-250, CWE-526 (plus CWE-798, which OWASP files under A07)
 
 Run `./scan.sh` against the *insecure* artifacts, fix each row, then re-run to
 watch the findings disappear.
@@ -12,7 +12,7 @@ watch the findings disappear.
 | # | Misconfiguration (insecure) | CWE | Fix (hardened) |
 |---|------------------------------|-----|----------------|
 | 1 | `FROM python:latest` (unpinned, mutable) | CWE-1104 / CWE-16 | Pin to a **digest** (`@sha256:...`); use a slim/distroless base |
-| 2 | Secret in `ENV API_TOKEN=...` | CWE-798 / CWE-200 | **No secrets in image.** Inject at runtime via secrets manager / mounted secret |
+| 2 | Secret in `ENV API_TOKEN=...` | CWE-526 / CWE-798 / CWE-200 | **No secrets in image.** Inject at runtime via secrets manager / mounted secret |
 | 3 | `COPY . .` (whole context) | CWE-538 | Copy only needed files; add a `.dockerignore` (exclude `.git`, `.env`, keys) |
 | 4 | `chmod -R 777 /app` | CWE-732 | Default perms; app owned by non-root, not world-writable |
 | 5 | Runs as root (no `USER`) | CWE-250 | `USER 65532:65532` (non-root); distroless `nonroot` |

@@ -1,7 +1,7 @@
 # Worksheet 3 — Cryptography Used Correctly (and Misused) (3 hrs)
 
 > **Course:** Software Security (KOSEN69) · **{{ slot_label }}**
-> **Aligned to:** OWASP 2025 A04 Cryptographic Failures · CWE-327, CWE-916, CWE-330, CWE-798
+> **Aligned to:** OWASP 2025 (A04 Cryptographic Failures [CWE-327, CWE-916, CWE-330, CWE-321], A07 Authentication Failures [CWE-798]) · CWE-327, CWE-916, CWE-330, CWE-321, CWE-798
 > **Signature game:** "Capture the Hash" (recover plaintext from weak hashes)
 
 > **Ethics note:** Crack only the hashes provided in `hashes.txt` on your own machine. Password-cracking against accounts or systems you don't own is illegal. Wordlists and recovered values stay inside the lab VM.
@@ -49,7 +49,7 @@ aes-modes
 
 **Task 3 — Predictable token (15 min)** · *Goal:* show the reset token is guessable. *Steps:* call `reset_token()` repeatedly; argue why a 6-digit `random` token (10^6 space, non-CSPRNG) is brute-forceable (CWE-330). *Deliverable:* sample tokens + a one-line attack estimate.
 
-**Task 4 — Hardcoded key (5 min)** · *Goal:* identify the key-management flaw. *Steps:* find `HARDCODED_KEY` in `vulnerable_crypto.py`; explain why shipping a key in source is CWE-798. *Deliverable:* the line + a 2-sentence mitigation.
+**Task 4 — Hardcoded key (5 min)** · *Goal:* identify the key-management flaw. *Steps:* find `HARDCODED_KEY` in `vulnerable_crypto.py`; explain why shipping a key in source is CWE-798 (its cryptographic-key case is CWE-321). *Deliverable:* the line + a 2-sentence mitigation.
 
 **Task 5 — Crack the project target's hashes (25 min)** · *Goal:* apply cracking to your term project. *Steps:* **NoteVault** stores unsalted MD5 password hashes; obtain them (via the app's `/admin` once you can reach it, or from its `seed()`), and crack them with `hashcat -m 0`. *Deliverable:* the recovered password(s) + note the CWE — record this finding for your project report (`project/REPORT-TEMPLATE.md` in the repo root).
 
