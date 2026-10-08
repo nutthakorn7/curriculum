@@ -7,13 +7,16 @@
     .stl         { font: 600 14px system-ui, sans-serif; fill: #16191d }
     .spl         { font: 11px system-ui, sans-serif; fill: #6b7280 }
     .cap         { font: 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
+    .bg          { fill: #ffffff }
     @media (prefers-color-scheme: dark) {
       .stl { fill: #e6e8ea }
       .spl, .cap { fill: #9aa3ad }
       .badge { fill: #4aa3dd }
       .badgeletter { fill: #0b0d10 }
+      .bg { fill: #0b0d10 }
     }
   </style>
+  <rect class="bg" x="0" y="0" width="720" height="350"/>
   <circle class="badge" cx="46"  cy="60"  r="26"/>
   <text class="badgeletter" x="46" y="67">S</text>
   <text class="stl" x="86" y="55">Spoofing</text>
