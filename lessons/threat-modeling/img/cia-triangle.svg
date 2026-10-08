@@ -6,12 +6,15 @@
     .bl   { font: 600 13px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
     .el   { font: 11px system-ui, sans-serif; fill: #6b7280; text-anchor: middle }
     .tri  { stroke: #6b7280; stroke-width: 1.6 }
+    .bg   { fill: #ffffff }
     @media (prefers-color-scheme: dark) {
       .el   { fill: #9aa3ad }
       .tri  { stroke: #9aa3ad }
       .b    { fill: #151a20; stroke: #4aa3dd } .bl { fill: #e6e8ea }
+      .bg   { fill: #0b1220 }
     }
   </style>
+  <rect class="bg" x="0" y="0" width="640" height="420"/>
   <path class="tri" d="M260 92 L190 300"/>
   <path class="tri" d="M380 92 L450 300"/>
   <path class="tri" d="M225 326 L415 326"/>
