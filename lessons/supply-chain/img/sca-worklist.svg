@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 452" role="img" aria-label="How Software Composition Analysis turns a dependency file into a remediation worklist. On the left, the input: requirements.txt, with pinned but outdated versions such as Flask 1.1.4, Jinja2 2.11.3 and urllib3 1.26.4. An arrow leads to the middle, where two scanners run against it: trivy fs, which matches versions to the CVE database, and pip-audit, which checks the same packages against PyPI's advisory database. Neither reads your code — they read your dependency list. An arrow leads to the right, the output: a remediation worklist, one row per vulnerable package. Flask 1.1.4 is fixed in 2.3.2, CVE-2023-30861, high severity. Jinja2 2.11.3 is fixed in 2.11.4, CVE-2020-28493, a ReDoS, medium. urllib3 1.26.4 is fixed in 1.26.17, CVE-2023-43804, high. Each row says bump this to that version. A note at the foot contrasts SCA with SAST: SAST reads the code you wrote and finds your bugs; SCA reads the versions you depend on and finds other people's known, already-patched bugs. They are different tools answering different questions, which is why the worksheet maps SCA to CWE-1104, unmaintained component, CWE-829, inclusion of untrusted functionality, and CWE-1395, dependency on a vulnerable third-party component.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 452" role="img" aria-label="How Software Composition Analysis turns a dependency file into a remediation worklist. On the left, the input: requirements.txt, with pinned but outdated versions such as Flask 1.1.4, Werkzeug 1.0.1 and urllib3 1.26.4. An arrow leads to the middle, where two scanners run against it: trivy fs, which matches versions to the CVE database, and pip-audit, which checks the same packages against PyPI's advisory database. Neither reads your code — they read your dependency list. An arrow leads to the right, the output: a remediation worklist, one row per vulnerable package. Flask 1.1.4 is fixed in 2.3.2, CVE-2023-30861, high severity. Werkzeug 1.0.1 is fixed in 3.0.3, CVE-2024-34069, high. urllib3 1.26.4 is fixed in 1.26.17, CVE-2023-43804, high. Each row says bump this to that version. A note at the foot contrasts SCA with SAST: SAST reads the code you wrote and finds your bugs; SCA reads the versions you depend on and finds other people's known, already-patched bugs. They are different tools answering different questions, which is why the worksheet maps SCA to CWE-1104, unmaintained component, CWE-829, inclusion of untrusted functionality, and CWE-1395, dependency on a vulnerable third-party component.">
   <title>SCA — from dependency list to remediation worklist</title>
   <style>
     .bg     { fill:#ffffff; }
@@ -88,7 +88,7 @@
   <rect class="inbox" x="30" y="100" width="164" height="150" rx="8"/>
   <text class="inh" x="44" y="124">requirements.txt</text>
   <text class="dep" x="44" y="150">Flask==<tspan class="depv">1.1.4</tspan></text>
-  <text class="dep" x="44" y="170">Jinja2==<tspan class="depv">2.11.3</tspan></text>
+  <text class="dep" x="44" y="170">Werkzeug==<tspan class="depv">1.0.1</tspan></text>
   <text class="dep" x="44" y="190">urllib3==<tspan class="depv">1.26.4</tspan></text>
   <text class="dep" x="44" y="210">requests==<tspan class="depv">2.25.1</tspan></text>
   <text class="tools" x="44" y="236" style="font-style:italic">pinned, but outdated</text>
@@ -121,9 +121,9 @@
   <text class="sev" x="532" y="156">CVE-2023-30861 · HIGH</text>
   <line class="wlrule" x1="528" y1="166" x2="682" y2="166"/>
 
-  <text class="wlcell" x="532" y="184">Jinja2</text>
-  <text class="wlfix" x="628" y="184">2.11.4</text>
-  <text class="sev" x="532" y="198">CVE-2020-28493 · ReDoS</text>
+  <text class="wlcell" x="532" y="184">Werkzeug</text>
+  <text class="wlfix" x="628" y="184">3.0.3</text>
+  <text class="sev" x="532" y="198">CVE-2024-34069 · HIGH</text>
   <line class="wlrule" x1="528" y1="208" x2="682" y2="208"/>
 
   <text class="wlcell" x="532" y="226">urllib3</text>
