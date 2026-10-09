@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 508" role="img" aria-label="A two-part software integrity diagram for Week 12, mapped to OWASP 2025 A08 Software or Data Integrity Failures. On the left, an SBOM, a Software Bill of Materials in CycloneDX or SPDX format, drawn as the build's itemized ingredient label: it lists every component and version baked into the image, here the lab's pinned dependencies Flask 1.1.4, Werkzeug 1.0.1, Jinja2 2.11.3, urllib3 1.26.4 and PyYAML 5.4.1, plus the python 3.9-slim base layers. Its value, shown at the foot of the label, is that when the next Log4Shell-class vulnerability drops you search the SBOM for the affected package and answer are-we-affected in seconds rather than weeks. On the right, SLSA is drawn as an ascending staircase of build-provenance levels, L0 at the bottom rising to L3 at the top, with an upward arrow labelled more proof: L0 no guarantees and no provenance; L1 provenance exists but is forgeable; L2 a hosted build platform producing signed, tamper-evident provenance; L3 hardened, isolated builds that resist tampering during the build and whose provenance cannot be forged. A footnote notes this is the SLSA Build Track, L0 to L3, which replaces the old levels 1 to 4. The closing banner ties the two together: SBOM lets you KNOW what is in the artifact, SLSA lets you PROVE how it was built, and both are integrity controls answering OWASP A08:2025 Software or Data Integrity Failures.">
+  <title>Prove what you shipped: SBOM + SLSA</title>
+  <style>
+    .bg      { fill:#ffffff; }
+    .title   { fill:#111827; font:700 19px system-ui,sans-serif; }
+    .sub     { fill:#6b7280; font:400 12.5px system-ui,sans-serif; }
+    .lane    { fill:#4b5563; font:700 12px system-ui,sans-serif; letter-spacing:0.5px; text-anchor:middle; }
+
+    .card    { fill:#f4f9fd; stroke:#017BC4; stroke-width:2; }
+    .hband   { fill:#017BC4; }
+    .hbandt  { fill:#ffffff; font:700 15px system-ui,sans-serif; }
+    .hbands  { fill:#ffffff; font:400 10.5px system-ui,sans-serif; text-anchor:end; }
+    .cardsub { fill:#6b7280; font:italic 400 11px system-ui,sans-serif; }
+    .colh2   { fill:#4b5563; font:700 11px system-ui,sans-serif; letter-spacing:0.4px; }
+    .rule    { stroke:#d7dde3; stroke-width:1.2; }
+    .comp    { fill:#6b7280; font:400 12px ui-monospace,Menlo,Consolas,monospace; }
+    .compr   { fill:#6b7280; font:400 12px ui-monospace,Menlo,Consolas,monospace; text-anchor:end; }
+    .compv   { fill:#0f2233; font:700 12px ui-monospace,Menlo,Consolas,monospace; text-anchor:end; }
+    .note2   { fill:#6b7280; font:italic 400 10.5px system-ui,sans-serif; }
+    .valh    { fill:#015a8f; font:700 11px system-ui,sans-serif; }
+    .val     { fill:#374151; font:400 11px system-ui,sans-serif; }
+
+    .step    { fill:#f2f8fc; stroke:#017BC4; stroke-width:2; }
+    .step0   { fill:#f6f8fa; stroke:#9aa3ad; stroke-width:1.8; }
+    .stepacc { fill:#017BC4; }
+    .stepacc0{ fill:#9aa3ad; }
+    .steph   { fill:#0f2233; font:700 13px system-ui,sans-serif; }
+    .steph0  { fill:#4b5563; font:700 13px system-ui,sans-serif; }
+    .steps   { fill:#6b7280; font:400 11px system-ui,sans-serif; }
+
+    .uparrow { stroke:#017BC4; stroke-width:2.5; fill:none; }
+    .uplabel { fill:#015a8f; font:700 11px system-ui,sans-serif; letter-spacing:1px; text-anchor:middle; }
+    .ahb     { fill:#017BC4; }
+    .foot    { fill:#6b7280; font:400 10px system-ui,sans-serif; text-anchor:middle; }
+
+    .note    { fill:#f4f9fd; stroke:#017BC4; stroke-width:1.8; }
+    .noteacc { fill:#017BC4; }
+    .noteh   { fill:#015a8f; font:700 13px system-ui,sans-serif; }
+    .notel   { fill:#374151; font:400 11.5px system-ui,sans-serif; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg      { fill:#0b1016; }
+      .title   { fill:#f3f4f6; }
+      .sub     { fill:#9aa3ad; }
+      .lane    { fill:#c4ccd4; }
+
+      .card    { fill:#0f1c26; stroke:#4aa3dd; }
+      .hband   { fill:#4aa3dd; }
+      .hbandt  { fill:#0b1016; }
+      .hbands  { fill:#0b1016; }
+      .cardsub { fill:#9aa3ad; }
+      .colh2   { fill:#c4ccd4; }
+      .rule    { stroke:#33404c; }
+      .comp    { fill:#9aa3ad; }
+      .compr   { fill:#9aa3ad; }
+      .compv   { fill:#e5eef5; }
+      .note2   { fill:#9aa3ad; }
+      .valh    { fill:#4aa3dd; }
+      .val     { fill:#c4ccd4; }
+
+      .step    { fill:#101d27; stroke:#4aa3dd; }
+      .step0   { fill:#141a20; stroke:#5b6670; }
+      .stepacc { fill:#4aa3dd; }
+      .stepacc0{ fill:#5b6670; }
+      .steph   { fill:#e5eef5; }
+      .steph0  { fill:#c4ccd4; }
+      .steps   { fill:#9aa3ad; }
+
+      .uparrow { stroke:#4aa3dd; }
+      .uplabel { fill:#4aa3dd; }
+      .ahb     { fill:#4aa3dd; }
+      .foot    { fill:#9aa3ad; }
+
+      .note    { fill:#0f1c26; stroke:#4aa3dd; }
+      .noteacc { fill:#4aa3dd; }
+      .noteh   { fill:#4aa3dd; }
+      .notel   { fill:#c4ccd4; }
+    }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="720" height="508"/>
+
+  <defs>
+    <marker id="sbslaUp" viewBox="0 0 10 10" refX="5" refY="8" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path class="ahb" d="M0,10 L5,0 L10,10 z"/>
+    </marker>
+  </defs>
+
+  <!-- ============ HEADER ============ -->
+  <text class="title" x="30" y="32">Prove what you shipped: SBOM + SLSA</text>
+  <text class="sub" x="30" y="54">Week 12 · OWASP 2025 A08 Software or Data Integrity Failures</text>
+
+  <!-- lane labels -->
+  <text class="lane" x="165" y="84">SBOM — KNOW WHAT'S IN IT</text>
+  <text class="lane" x="518" y="84">SLSA — PROVE HOW IT WAS BUILT</text>
+
+  <!-- ====================================================== -->
+  <!-- LEFT — SBOM ingredient label                           -->
+  <!-- ====================================================== -->
+  <rect class="card" x="30" y="100" width="270" height="300" rx="8"/>
+  <path class="hband" d="M30,108 A8,8 0 0 1 38,100 L292,100 A8,8 0 0 1 300,108 L300,134 L30,134 Z"/>
+  <text class="hbandt" x="46" y="122">SBOM</text>
+  <text class="hbands" x="286" y="121">CycloneDX / SPDX</text>
+
+  <text class="cardsub" x="46" y="156">the build's itemized ingredient list</text>
+
+  <text class="colh2" x="46" y="184">COMPONENTS</text>
+  <text class="compr" x="286" y="184">name == version</text>
+  <line class="rule" x1="42" y1="192" x2="288" y2="192"/>
+
+  <text class="comp"  x="46"  y="214">Flask</text>
+  <text class="compv" x="286" y="214">1.1.4</text>
+  <text class="comp"  x="46"  y="236">Werkzeug</text>
+  <text class="compv" x="286" y="236">1.0.1</text>
+  <text class="comp"  x="46"  y="258">Jinja2</text>
+  <text class="compv" x="286" y="258">2.11.3</text>
+  <text class="comp"  x="46"  y="280">urllib3</text>
+  <text class="compv" x="286" y="280">1.26.4</text>
+  <text class="comp"  x="46"  y="302">PyYAML</text>
+  <text class="compv" x="286" y="302">5.4.1</text>
+  <text class="note2" x="46"  y="324">+ base image layers (python:3.9-slim)</text>
+
+  <line class="rule" x1="42" y1="338" x2="288" y2="338"/>
+  <text class="valh" x="46" y="358">When the next Log4Shell drops:</text>
+  <text class="val"  x="46" y="376">search the SBOM for the package —</text>
+  <text class="val"  x="46" y="392">answer are-we-affected in seconds, not weeks.</text>
+
+  <!-- ====================================================== -->
+  <!-- RIGHT — SLSA ascending ladder of build-provenance      -->
+  <!-- ====================================================== -->
+  <!-- ascent arrow + label -->
+  <path class="uparrow" d="M344,392 L344,202" marker-end="url(#sbslaUp)"/>
+  <text class="uplabel" transform="rotate(-90 332 300)" x="332" y="300">MORE PROOF</text>
+
+  <!-- version footnote (top-right, above the staircase) -->
+  <text class="foot" x="560" y="138">SLSA Build Track</text>
+  <text class="foot" x="560" y="154">L0 – L3 (replaces the old levels 1 – 4)</text>
+
+  <!-- L3 — top / strongest -->
+  <rect class="step" x="426" y="208" width="250" height="46" rx="7"/>
+  <rect class="stepacc" x="426" y="208" width="5" height="46" rx="2.5"/>
+  <text class="steph" x="442" y="228">L3 · Hardened builds</text>
+  <text class="steps" x="442" y="245">tamper-resistant during the build</text>
+
+  <!-- L2 -->
+  <rect class="step" x="404" y="254" width="250" height="46" rx="7"/>
+  <rect class="stepacc" x="404" y="254" width="5" height="46" rx="2.5"/>
+  <text class="steph" x="420" y="274">L2 · Hosted, signed provenance</text>
+  <text class="steps" x="420" y="291">tamper-evident after the build</text>
+
+  <!-- L1 -->
+  <rect class="step" x="382" y="300" width="250" height="46" rx="7"/>
+  <rect class="stepacc" x="382" y="300" width="5" height="46" rx="2.5"/>
+  <text class="steph" x="398" y="320">L1 · Provenance exists</text>
+  <text class="steps" x="398" y="337">how it was built — but forgeable</text>
+
+  <!-- L0 — baseline / grey -->
+  <rect class="step0" x="360" y="346" width="250" height="46" rx="7"/>
+  <rect class="stepacc0" x="360" y="346" width="5" height="46" rx="2.5"/>
+  <text class="steph0" x="376" y="366">L0 · No guarantees</text>
+  <text class="steps" x="376" y="383">no provenance at all</text>
+
+  <!-- ====================================================== -->
+  <!-- CLOSING TIE — both are A08 integrity controls          -->
+  <!-- ====================================================== -->
+  <rect class="note" x="30" y="416" width="660" height="78" rx="8"/>
+  <rect class="noteacc" x="30" y="416" width="5" height="78" rx="2.5"/>
+  <text class="noteh" x="52" y="444">SBOM knows what's in it · SLSA proves how it was built</text>
+  <text class="notel" x="52" y="466">SBOM = the ingredient list, for fast incident response.  SLSA = build provenance you can verify.</text>
+  <text class="notel" x="52" y="486">Both are integrity controls — OWASP A08:2025 Software or Data Integrity Failures.</text>
+</svg>
