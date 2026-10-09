@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 470" role="img" aria-label="BOLA, broken object level authorization, shown as the difference between an endpoint with no ownership check and one with a correct check. Top half, the insecure API on port 8080. Alice, authenticated, sends GET /api/users/2/orders. The server has no ownership check at all — it never reads who is calling — so it returns user 2's orders, which belong to bob. This is API1 BOLA: not a check you can spoof, but no check at all. Bottom half, the secure API on port 8081, which adds one ownership check and produces a three-rung ladder of responses. First rung: a request with no identity header returns 401 Unauthorized — the server does not know who you are. Second rung: alice, identity 1, requests user 3's orders, which belong to carol, and gets 403 Forbidden — the server knows who she is and that the object is not hers. Third rung: alice, identity 1, requests her own user 1 orders and gets 200 OK with her data. The lesson at the foot: BOLA is IDOR at API scale, and the entire fix is one question asked on every request — does the caller own this object? — not input validation, escaping, or a WAF rule, because the JSON was always well formed.">
+  <title>BOLA — no ownership check (8080) vs one check, three outcomes (8081)</title>
+  <style>
+    .bg     { fill:#ffffff; }
+    .title  { fill:#111827; font:700 19px system-ui,sans-serif; }
+    .sub    { fill:#6b7280; font:400 12.5px system-ui,sans-serif; }
+    .mono   { font-family:ui-monospace,Menlo,Consolas,monospace; }
+
+    .badlane{ fill:#b23f00; font:700 12px system-ui,sans-serif; letter-spacing:0.4px; }
+    .goodlane{ fill:#015a8f; font:700 12px system-ui,sans-serif; letter-spacing:0.4px; }
+    .rule   { stroke:#d7dde3; stroke-width:1.5; }
+
+    .actor  { fill:#f6f8fa; stroke:#9aa3ad; stroke-width:1.8; }
+    .actorh { fill:#0f2233; font:700 12px system-ui,sans-serif; }
+    .actors { fill:#6b7280; font:400 10.5px system-ui,sans-serif; }
+
+    .req    { fill:#374151; font:700 12px ui-monospace,Menlo,Consolas,monospace; }
+    .reql   { fill:#6b7280; font:400 10.5px system-ui,sans-serif; }
+
+    .nocheck{ fill:#fff6f1; stroke:#E35205; stroke-width:2; }
+    .nocheckh{ fill:#b23f00; font:700 12.5px system-ui,sans-serif; }
+    .nochecks{ fill:#374151; font:400 11px system-ui,sans-serif; }
+
+    .leak   { fill:#E35205; font:700 12px ui-monospace,Menlo,Consolas,monospace; }
+    .arrowA { stroke:#E35205; stroke-width:2.5; fill:none; }
+    .ahA    { fill:#E35205; }
+    .arrowC { stroke:#017BC4; stroke-width:2.5; fill:none; }
+    .ahC    { fill:#017BC4; }
+
+    .code401{ fill:#6b7280; font:700 13px ui-monospace,Menlo,Consolas,monospace; }
+    .code403{ fill:#b23f00; font:700 13px ui-monospace,Menlo,Consolas,monospace; }
+    .code200{ fill:#015a8f; font:700 13px ui-monospace,Menlo,Consolas,monospace; }
+    .rung   { fill:#f4f9fd; stroke:#017BC4; stroke-width:1.6; }
+    .rungt  { fill:#0f2233; font:400 11px system-ui,sans-serif; }
+    .rungm  { fill:#374151; font:400 11px ui-monospace,Menlo,Consolas,monospace; }
+
+    .banner { fill:#f4f9fd; stroke:#017BC4; stroke-width:2; }
+    .bant   { fill:#0f2233; font:700 13px system-ui,sans-serif; }
+    .banl   { fill:#374151; font:400 11.5px system-ui,sans-serif; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg     { fill:#0b1016; }
+      .title  { fill:#f3f4f6; }
+      .sub    { fill:#9aa3ad; }
+      .badlane{ fill:#ff7a3d; }
+      .goodlane{ fill:#4aa3dd; }
+      .rule   { stroke:#33404c; }
+
+      .actor  { fill:#141a20; stroke:#5b6670; }
+      .actorh { fill:#e5eef5; }
+      .actors { fill:#9aa3ad; }
+
+      .req    { fill:#c4ccd4; }
+      .reql   { fill:#9aa3ad; }
+
+      .nocheck{ fill:#241812; stroke:#ff7a3d; }
+      .nocheckh{ fill:#ff7a3d; }
+      .nochecks{ fill:#c4ccd4; }
+
+      .leak   { fill:#ff7a3d; }
+      .arrowA { stroke:#ff7a3d; }
+      .ahA    { fill:#ff7a3d; }
+      .arrowC { stroke:#4aa3dd; }
+      .ahC    { fill:#4aa3dd; }
+
+      .code401{ fill:#9aa3ad; }
+      .code403{ fill:#ff7a3d; }
+      .code200{ fill:#4aa3dd; }
+      .rung   { fill:#0f1c26; stroke:#4aa3dd; }
+      .rungt  { fill:#e5eef5; }
+      .rungm  { fill:#c4ccd4; }
+
+      .banner { fill:#0f1c26; stroke:#4aa3dd; }
+      .bant   { fill:#e5eef5; }
+      .banl   { fill:#c4ccd4; }
+    }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="720" height="470"/>
+
+  <defs>
+    <marker id="bahA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahA" d="M0,0 L10,5 L0,10 z"/></marker>
+    <marker id="bahC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahC" d="M0,0 L10,5 L0,10 z"/></marker>
+  </defs>
+
+  <!-- ============ HEADER ============ -->
+  <text class="title" x="30" y="32">BOLA — the server never checks who owns the object</text>
+  <text class="sub" x="30" y="54">Week 10 · API1:2023 · it's IDOR at API scale — one missing check</text>
+
+  <!-- ============ INSECURE (8080) ============ -->
+  <text class="badlane" x="30" y="84">INSECURE · :8080 — no ownership check at all</text>
+  <line class="rule" x1="30" y1="92" x2="690" y2="92"/>
+
+  <rect class="actor" x="30" y="104" width="120" height="58" rx="8"/>
+  <text class="actorh" x="44" y="128">alice</text>
+  <text class="actors" x="44" y="146">authenticated</text>
+
+  <path class="arrowA" d="M150,133 L186,133" marker-end="url(#bahA)"/>
+  <text class="req" x="196" y="124">GET /api/users/<tspan class="leak">2</tspan>/orders</text>
+  <text class="reql" x="196" y="140">asks for id 2 — not hers</text>
+
+  <path class="arrowA" d="M470,133 L506,133" marker-end="url(#bahA)"/>
+
+  <rect class="nocheck" x="516" y="104" width="174" height="58" rx="8"/>
+  <text class="nocheckh" x="530" y="126">returns bob's orders</text>
+  <text class="leak mono" x="530" y="146" style="font-size:11px">200 OK · {bob's data}</text>
+
+  <text class="nochecks" x="196" y="180" style="font-style:italic">The code never reads <tspan class="mono" style="font-weight:700;font-style:normal">who</tspan> is calling — there's no check to spoof, none runs at all.</text>
+
+  <!-- ============ SECURE (8081) ============ -->
+  <text class="goodlane" x="30" y="214">SECURE · :8081 — one ownership check → a 3-rung ladder</text>
+  <line class="rule" x1="30" y1="222" x2="690" y2="222"/>
+
+  <!-- rung 1: 401 -->
+  <rect class="rung" x="30" y="234" width="660" height="46" rx="7"/>
+  <text class="code401" x="48" y="262">401</text>
+  <text class="rungt" x="104" y="256">No identity header sent</text>
+  <text class="rungm" x="104" y="272">the server doesn't know who you are → Unauthorized</text>
+
+  <!-- rung 2: 403 -->
+  <rect class="rung" x="30" y="290" width="660" height="46" rx="7"/>
+  <text class="code403" x="48" y="318">403</text>
+  <text class="rungt" x="104" y="312"><tspan class="mono">X-User-Id: 1</tspan> (alice) requests id 3 (carol)</text>
+  <text class="rungm" x="104" y="328">knows who she is, and the object isn't hers → Forbidden</text>
+
+  <!-- rung 3: 200 -->
+  <rect class="rung" x="30" y="346" width="660" height="46" rx="7"/>
+  <text class="code200" x="48" y="374">200</text>
+  <text class="rungt" x="104" y="368"><tspan class="mono">X-User-Id: 1</tspan> (alice) requests her own id 1</text>
+  <text class="rungm" x="104" y="384">caller owns the object → OK, her data</text>
+
+  <!-- ============ BANNER ============ -->
+  <rect class="banner" x="30" y="406" width="660" height="52" rx="8"/>
+  <text class="bant" x="48" y="430">The whole fix is one question, asked every request: does the caller own this object?</text>
+  <text class="banl" x="48" y="449">Not escaping, not a WAF rule — the JSON was always well formed. BOLA is a missing check, not bad input.</text>
+</svg>

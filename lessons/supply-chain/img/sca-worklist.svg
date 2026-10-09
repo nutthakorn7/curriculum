@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 452" role="img" aria-label="How Software Composition Analysis turns a dependency file into a remediation worklist. On the left, the input: requirements.txt, with pinned but outdated versions such as Flask 1.1.4, Jinja2 2.11.3 and urllib3 1.26.4. An arrow leads to the middle, where two scanners run against it: trivy fs, which matches versions to the CVE database, and pip-audit, which checks the same packages against PyPI's advisory database. Neither reads your code — they read your dependency list. An arrow leads to the right, the output: a remediation worklist, one row per vulnerable package. Flask 1.1.4 is fixed in 2.3.2, CVE-2023-30861, high severity. Jinja2 2.11.3 is fixed in 2.11.4, CVE-2020-28493, a ReDoS, medium. urllib3 1.26.4 is fixed in 1.26.17, CVE-2023-43804, high. Each row says bump this to that version. A note at the foot contrasts SCA with SAST: SAST reads the code you wrote and finds your bugs; SCA reads the versions you depend on and finds other people's known, already-patched bugs. They are different tools answering different questions, which is why the worksheet maps SCA to CWE-1104, unmaintained component, CWE-829, inclusion of untrusted functionality, and CWE-1395, dependency on a vulnerable third-party component.">
+  <title>SCA — from dependency list to remediation worklist</title>
+  <style>
+    .bg     { fill:#ffffff; }
+    .title  { fill:#111827; font:700 19px system-ui,sans-serif; }
+    .sub    { fill:#6b7280; font:400 12.5px system-ui,sans-serif; }
+    .lane   { fill:#4b5563; font:700 12px system-ui,sans-serif; letter-spacing:0.5px; text-anchor:middle; }
+
+    .inbox  { fill:#f6f8fa; stroke:#9aa3ad; stroke-width:1.8; }
+    .inh    { fill:#0f2233; font:700 12.5px system-ui,sans-serif; }
+    .mono   { font-family:ui-monospace,Menlo,Consolas,monospace; }
+    .dep    { fill:#6b7280; font:400 11px ui-monospace,Menlo,Consolas,monospace; }
+    .depv   { fill:#b23f00; font:700 11px ui-monospace,Menlo,Consolas,monospace; }
+
+    .tool   { fill:#f2f8fc; stroke:#017BC4; stroke-width:2; }
+    .toolh  { fill:#015a8f; font:700 12px ui-monospace,Menlo,Consolas,monospace; }
+    .tools  { fill:#6b7280; font:400 10.5px system-ui,sans-serif; }
+
+    .spine  { stroke:#017BC4; stroke-width:2.5; fill:none; }
+    .ahb    { fill:#017BC4; }
+    .flow   { fill:#6b7280; font:400 10px system-ui,sans-serif; text-anchor:middle; }
+
+    .wl     { fill:#fff6f1; stroke:#E35205; stroke-width:2; }
+    .wlhrow { fill:#E35205; }
+    .wlht   { fill:#ffffff; font:700 10.5px system-ui,sans-serif; }
+    .wlcell { fill:#374151; font:400 11px ui-monospace,Menlo,Consolas,monospace; }
+    .wlfix  { fill:#015a8f; font:700 11px ui-monospace,Menlo,Consolas,monospace; }
+    .sev    { fill:#E35205; font:700 10px system-ui,sans-serif; }
+    .wlrule { stroke:#f0d6c6; stroke-width:1; }
+
+    .note   { fill:#f4f9fd; stroke:#017BC4; stroke-width:1.8; }
+    .noteacc{ fill:#017BC4; }
+    .noteh  { fill:#015a8f; font:700 12.5px system-ui,sans-serif; }
+    .notel  { fill:#374151; font:400 11px system-ui,sans-serif; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg     { fill:#0b1016; }
+      .title  { fill:#f3f4f6; }
+      .sub    { fill:#9aa3ad; }
+      .lane   { fill:#c4ccd4; }
+
+      .inbox  { fill:#141a20; stroke:#5b6670; }
+      .inh    { fill:#e5eef5; }
+      .dep    { fill:#9aa3ad; }
+      .depv   { fill:#ff7a3d; }
+
+      .tool   { fill:#101d27; stroke:#4aa3dd; }
+      .toolh  { fill:#4aa3dd; }
+      .tools  { fill:#9aa3ad; }
+
+      .spine  { stroke:#4aa3dd; }
+      .ahb    { fill:#4aa3dd; }
+      .flow   { fill:#9aa3ad; }
+
+      .wl     { fill:#241812; stroke:#ff7a3d; }
+      .wlhrow { fill:#ff7a3d; }
+      .wlht   { fill:#0b1016; }
+      .wlcell { fill:#c4ccd4; }
+      .wlfix  { fill:#4aa3dd; }
+      .sev    { fill:#ff7a3d; }
+      .wlrule { stroke:#3a2417; }
+
+      .note   { fill:#0f1c26; stroke:#4aa3dd; }
+      .noteacc{ fill:#4aa3dd; }
+      .noteh  { fill:#4aa3dd; }
+      .notel  { fill:#c4ccd4; }
+    }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="720" height="452"/>
+
+  <defs>
+    <marker id="sahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="ahb" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+
+  <!-- ============ HEADER ============ -->
+  <text class="title" x="30" y="32">SCA — from a dependency list to a fix-it worklist</text>
+  <text class="sub" x="30" y="54">Week 12 · scanning versions you depend on, not code you wrote</text>
+
+  <!-- lane labels -->
+  <text class="lane" x="112" y="84">INPUT</text>
+  <text class="lane" x="360" y="84">SCANNERS</text>
+  <text class="lane" x="596" y="84">OUTPUT</text>
+
+  <!-- ============ INPUT: requirements.txt ============ -->
+  <rect class="inbox" x="30" y="100" width="164" height="150" rx="8"/>
+  <text class="inh" x="44" y="124">requirements.txt</text>
+  <text class="dep" x="44" y="150">Flask==<tspan class="depv">1.1.4</tspan></text>
+  <text class="dep" x="44" y="170">Jinja2==<tspan class="depv">2.11.3</tspan></text>
+  <text class="dep" x="44" y="190">urllib3==<tspan class="depv">1.26.4</tspan></text>
+  <text class="dep" x="44" y="210">requests==<tspan class="depv">2.25.1</tspan></text>
+  <text class="tools" x="44" y="236" style="font-style:italic">pinned, but outdated</text>
+
+  <!-- arrow input -> scanners -->
+  <path class="spine" d="M194,175 L232,175" marker-end="url(#sahb)"/>
+
+  <!-- ============ SCANNERS ============ -->
+  <rect class="tool" x="244" y="110" width="232" height="60" rx="7"/>
+  <text class="toolh" x="258" y="136">trivy fs</text>
+  <text class="tools" x="258" y="156">matches versions → CVE database</text>
+
+  <rect class="tool" x="244" y="180" width="232" height="60" rx="7"/>
+  <text class="toolh" x="258" y="206">pip-audit</text>
+  <text class="tools" x="258" y="226">same packages → PyPI advisories</text>
+
+  <!-- arrow scanners -> worklist -->
+  <path class="spine" d="M476,175 L508,175" marker-end="url(#sahb)"/>
+
+  <!-- ============ OUTPUT: worklist ============ -->
+  <rect class="wl" x="520" y="100" width="170" height="150" rx="8"/>
+  <!-- header row -->
+  <rect class="wlhrow" x="520" y="100" width="170" height="22" rx="8"/>
+  <rect class="wlhrow" x="520" y="111" width="170" height="11"/>
+  <text class="wlht" x="532" y="115">PACKAGE</text>
+  <text class="wlht" x="628" y="115">→ FIXED IN</text>
+  <!-- rows -->
+  <text class="wlcell" x="532" y="142">Flask</text>
+  <text class="wlfix" x="628" y="142">2.3.2</text>
+  <text class="sev" x="532" y="156">CVE-2023-30861 · HIGH</text>
+  <line class="wlrule" x1="528" y1="166" x2="682" y2="166"/>
+
+  <text class="wlcell" x="532" y="184">Jinja2</text>
+  <text class="wlfix" x="628" y="184">2.11.4</text>
+  <text class="sev" x="532" y="198">CVE-2020-28493 · ReDoS</text>
+  <line class="wlrule" x1="528" y1="208" x2="682" y2="208"/>
+
+  <text class="wlcell" x="532" y="226">urllib3</text>
+  <text class="wlfix" x="628" y="226">1.26.17</text>
+  <text class="sev" x="532" y="240">CVE-2023-43804 · HIGH</text>
+
+  <!-- flow caption -->
+  <text class="flow" x="360" y="268">neither reads your code — both read your dependency list</text>
+
+  <!-- ============ SAST vs SCA NOTE ============ -->
+  <rect class="note" x="30" y="286" width="660" height="140" rx="8"/>
+  <rect class="noteacc" x="30" y="286" width="5" height="140" rx="2.5"/>
+  <text class="noteh" x="52" y="314">SCA is not SAST — different tool, different question</text>
+  <text class="notel" x="52" y="340">SAST reads the code <tspan style="font-weight:700">you wrote</tspan> and finds <tspan style="font-weight:700">your</tspan> bugs.</text>
+  <text class="notel" x="52" y="360">SCA reads the versions <tspan style="font-weight:700">you depend on</tspan> and finds <tspan style="font-weight:700">other people's</tspan> bugs —</text>
+  <text class="notel" x="52" y="380">ones already known and already patched. The fix is a version bump, not a code change.</text>
+  <text class="notel" x="52" y="406" style="font-style:italic">Maps to CWE-1104 (unmaintained), CWE-829 (untrusted inclusion), CWE-1395 (vulnerable dependency).</text>
+</svg>

@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 430" role="img" aria-label="Why an API is a harder attack surface than a browser-fronted web app, shown side by side. On the left, the classic web app: a user talks to a browser, and the browser sits between the user and the server as a layer of safety the server gets for free — same-origin policy, SameSite cookies, CSP, and CSRF tokens all live in that browser layer and constrain what a page can send. The server is partly shielded because a real browser enforces rules before the request leaves. On the right, the API: the client is any program the attacker controls — curl, Postman, a script, a modified mobile app — and it talks straight to a raw JSON endpoint. There is no browser layer, so none of those protections exist; every byte of the request, every header, every field, is chosen by the attacker. Two consequences are called out. First, object IDs are exposed by REST design, so incrementing an id is natural and becomes IDOR and BOLA. Second, the client can send any field, so a server that binds the whole body gets mass assignment. The lesson at the foot: the browser was doing security work you never noticed; remove it and the endpoint itself is the entire attack surface, so every input must be treated as attacker-chosen.">
+  <title>Why APIs are different — no browser layer to hide behind</title>
+  <style>
+    .bg     { fill:#ffffff; }
+    .title  { fill:#111827; font:700 19px system-ui,sans-serif; }
+    .sub    { fill:#6b7280; font:400 12.5px system-ui,sans-serif; }
+    .colh   { fill:#4b5563; font:700 13px system-ui,sans-serif; letter-spacing:0.4px; text-anchor:middle; }
+    .mono   { font-family:ui-monospace,Menlo,Consolas,monospace; }
+
+    .node   { fill:#f6f8fa; stroke:#9aa3ad; stroke-width:1.8; }
+    .nodeh  { fill:#0f2233; font:700 12.5px system-ui,sans-serif; text-anchor:middle; }
+    .nodes  { fill:#6b7280; font:400 10.5px system-ui,sans-serif; text-anchor:middle; }
+
+    .shield { fill:#f2f8fc; stroke:#017BC4; stroke-width:2; }
+    .shieldh{ fill:#015a8f; font:700 12px system-ui,sans-serif; text-anchor:middle; }
+    .shieldl{ fill:#374151; font:400 10.5px system-ui,sans-serif; text-anchor:middle; }
+
+    .raw    { fill:#fff6f1; stroke:#E35205; stroke-width:2; }
+    .rawh   { fill:#b23f00; font:700 12px system-ui,sans-serif; text-anchor:middle; }
+    .rawl   { fill:#374151; font:400 10.5px system-ui,sans-serif; text-anchor:middle; }
+
+    .srv    { fill:#eef1f4; stroke:#5b6670; stroke-width:1.8; }
+    .srvh   { fill:#0f2233; font:700 12px system-ui,sans-serif; text-anchor:middle; }
+
+    .arrowG { stroke:#017BC4; stroke-width:2.5; fill:none; }
+    .ahG    { fill:#017BC4; }
+    .arrowA { stroke:#E35205; stroke-width:2.5; fill:none; }
+    .ahA    { fill:#E35205; }
+    .divide { stroke:#d7dde3; stroke-width:1.5; stroke-dasharray:4 4; }
+
+    .conseq { fill:#fff6f1; stroke:#E35205; stroke-width:1.6; }
+    .conseqacc { fill:#E35205; }
+    .conseqt{ fill:#b23f00; font:700 11px system-ui,sans-serif; }
+    .conseql{ fill:#374151; font:400 10.5px system-ui,sans-serif; }
+
+    .banner { fill:#f4f9fd; stroke:#017BC4; stroke-width:2; }
+    .bant   { fill:#0f2233; font:700 13px system-ui,sans-serif; }
+    .banl   { fill:#374151; font:400 11.5px system-ui,sans-serif; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg     { fill:#0b1016; }
+      .title  { fill:#f3f4f6; }
+      .sub    { fill:#9aa3ad; }
+      .colh   { fill:#c4ccd4; }
+
+      .node   { fill:#141a20; stroke:#5b6670; }
+      .nodeh  { fill:#e5eef5; }
+      .nodes  { fill:#9aa3ad; }
+
+      .shield { fill:#101d27; stroke:#4aa3dd; }
+      .shieldh{ fill:#4aa3dd; }
+      .shieldl{ fill:#c4ccd4; }
+
+      .raw    { fill:#241812; stroke:#ff7a3d; }
+      .rawh   { fill:#ff7a3d; }
+      .rawl   { fill:#c4ccd4; }
+
+      .srv    { fill:#1a2027; stroke:#5b6670; }
+      .srvh   { fill:#e5eef5; }
+
+      .arrowG { stroke:#4aa3dd; }
+      .ahG    { fill:#4aa3dd; }
+      .arrowA { stroke:#ff7a3d; }
+      .ahA    { fill:#ff7a3d; }
+      .divide { stroke:#33404c; }
+
+      .conseq { fill:#241812; stroke:#ff7a3d; }
+      .conseqacc { fill:#ff7a3d; }
+      .conseqt{ fill:#ff7a3d; }
+      .conseql{ fill:#c4ccd4; }
+
+      .banner { fill:#0f1c26; stroke:#4aa3dd; }
+      .bant   { fill:#e5eef5; }
+      .banl   { fill:#c4ccd4; }
+    }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="720" height="430"/>
+
+  <defs>
+    <marker id="wahG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahG" d="M0,0 L10,5 L0,10 z"/></marker>
+    <marker id="wahA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahA" d="M0,0 L10,5 L0,10 z"/></marker>
+  </defs>
+
+  <!-- ============ HEADER ============ -->
+  <text class="title" x="30" y="32">Why APIs are different — no browser layer to hide behind</text>
+  <text class="sub" x="30" y="54">Week 10 · the protections you took for granted lived in the browser</text>
+
+  <line class="divide" x1="360" y1="74" x2="360" y2="352"/>
+  <text class="colh" x="190" y="86">CLASSIC WEB APP</text>
+  <text class="colh" x="534" y="86">API</text>
+
+  <!-- ============ LEFT: browser-fronted ============ -->
+  <rect class="node" x="40" y="104" width="116" height="48" rx="8"/>
+  <text class="nodeh" x="98" y="126">User</text>
+  <text class="nodes" x="98" y="142">a person</text>
+
+  <path class="arrowG" d="M98,152 L98,172" marker-end="url(#wahG)"/>
+
+  <rect class="shield" x="40" y="176" width="280" height="72" rx="8"/>
+  <text class="shieldh" x="180" y="198">Browser — a safety layer, for free</text>
+  <text class="shieldl" x="180" y="218">Same-origin · SameSite cookies</text>
+  <text class="shieldl" x="180" y="234">CSP · CSRF tokens</text>
+
+  <path class="arrowG" d="M180,248 L180,268" marker-end="url(#wahG)"/>
+
+  <rect class="srv" x="100" y="272" width="160" height="44" rx="8"/>
+  <text class="srvh" x="180" y="299">Server (partly shielded)</text>
+
+  <!-- ============ RIGHT: raw API ============ -->
+  <rect class="raw" x="400" y="104" width="280" height="48" rx="8"/>
+  <text class="rawh" x="540" y="124">Attacker-controlled client</text>
+  <text class="rawl" x="540" y="142">curl · Postman · script · modified app</text>
+
+  <path class="arrowA" d="M540,152 L540,172" marker-end="url(#wahA)"/>
+
+  <rect class="raw" x="440" y="176" width="200" height="56" rx="8"/>
+  <text class="rawh" x="540" y="198">No browser. No safety net.</text>
+  <text class="rawl" x="540" y="218" style="font-style:italic">every byte &amp; field is attacker-chosen</text>
+
+  <path class="arrowA" d="M540,232 L540,268" marker-end="url(#wahA)"/>
+
+  <rect class="srv" x="460" y="272" width="160" height="44" rx="8"/>
+  <text class="srvh" x="540" y="293">Raw JSON endpoint</text>
+  <text class="rawl" x="540" y="309">= the whole attack surface</text>
+
+  <!-- ============ TWO CONSEQUENCES ============ -->
+  <rect class="conseq" x="30" y="336" width="328" height="34" rx="7"/>
+  <rect class="conseqacc" x="30" y="336" width="5" height="34" rx="2.5"/>
+  <text class="conseqt" x="48" y="351">IDs exposed by REST design</text>
+  <text class="conseql" x="48" y="365">increment an id → IDOR / BOLA</text>
+
+  <rect class="conseq" x="362" y="336" width="328" height="34" rx="7"/>
+  <rect class="conseqacc" x="362" y="336" width="5" height="34" rx="2.5"/>
+  <text class="conseqt" x="380" y="351">client can send any field</text>
+  <text class="conseql" x="380" y="365">bind the whole body → mass assignment</text>
+
+  <!-- ============ BANNER ============ -->
+  <rect class="banner" x="30" y="382" width="660" height="38" rx="8"/>
+  <text class="bant" x="48" y="399">The browser was doing security work you never noticed.</text>
+  <text class="banl" x="48" y="415">Remove it and the endpoint is the whole attack surface — treat every input as attacker-chosen.</text>
+</svg>
