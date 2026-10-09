@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 528" role="img" aria-label="A left-to-right bridge diagram showing that the web-half bugs from Weeks 1 to 6 reappear at API scale. On the left, a panel titled Web half (W1-6) lists the three bug families already learned: Injection / SQLi from Week 4, XSS from Week 5, and Auth / IDOR from Week 6. A large block arrow labelled 'every one reappears' crosses the gap to the right. On the right, a taller panel titled APIs shows the same three bugs now concentrated at the endpoint — Injection / SQLi with its payload riding in a JSON field, XSS stored through the API and firing in whatever client renders it, and, lined up directly across from Auth / IDOR, BOLA equals IDOR at API scale, the number-one API risk, OWASP API1. Below a divider marked API-native additions, the API side piles on two more with no browser-era equivalent: Mass assignment, API3, where binding the whole request body lets a client set fields it should not, and No rate limit, API4, where the login endpoint accepts unlimited guesses. The punchline banner across the foot: there is no browser to hide behind — the API endpoint is the whole attack surface, and every header and every field is attacker-chosen.">
+  <title>The web half's bugs reappear at API scale</title>
+  <style>
+    svg { font-family: system-ui, sans-serif; }
+    .bg       { fill:#ffffff; }
+    .title    { fill:#111827; font:700 19px system-ui,sans-serif; }
+    .sub      { fill:#6b7280; font:400 12.5px system-ui,sans-serif; }
+    .panel    { fill:#f8fafc; stroke:#cbd5e1; stroke-width:1.5; }
+    .panelh   { fill:#017BC4; font:700 13.5px system-ui,sans-serif; text-anchor:middle; letter-spacing:0.3px; }
+    .sublabel { fill:#6b7280; font:700 10.5px system-ui,sans-serif; letter-spacing:0.5px; }
+    .bug      { fill:#fff6f1; stroke:#E35205; stroke-width:1.6; }
+    .bugacc   { fill:#E35205; }
+    .bugt     { fill:#b23f00; font:700 12px system-ui,sans-serif; }
+    .bugs     { fill:#374151; font:400 10px system-ui,sans-serif; }
+    .badge    { fill:#E35205; font:700 10.5px system-ui,sans-serif; text-anchor:end; }
+    .bridge   { fill:#fff1ea; stroke:#E35205; stroke-width:1.8; }
+    .bridget  { fill:#b23f00; font:700 11.5px system-ui,sans-serif; text-anchor:middle; }
+    .rule     { stroke:#cbd5e1; stroke-width:1; stroke-dasharray:4 4; fill:none; }
+    .banner   { fill:#f4f9fd; stroke:#017BC4; stroke-width:2; }
+    .bant     { fill:#0f2233; font:700 13px system-ui,sans-serif; }
+    .banl     { fill:#374151; font:400 11.5px system-ui,sans-serif; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg       { fill:#0b1016; }
+      .title    { fill:#f3f4f6; }
+      .sub      { fill:#9aa3ad; }
+      .panel    { fill:#141a20; stroke:#3b4756; }
+      .panelh   { fill:#4aa3dd; }
+      .sublabel { fill:#9aa3ad; }
+      .bug      { fill:#241812; stroke:#ff7a3d; }
+      .bugacc   { fill:#ff7a3d; }
+      .bugt     { fill:#ff7a3d; }
+      .bugs     { fill:#c4ccd4; }
+      .badge    { fill:#ff7a3d; }
+      .bridge   { fill:#241812; stroke:#ff7a3d; }
+      .bridget  { fill:#ff7a3d; }
+      .rule     { stroke:#33404c; }
+      .banner   { fill:#0f1c26; stroke:#4aa3dd; }
+      .bant     { fill:#e5eef5; }
+      .banl     { fill:#c4ccd4; }
+    }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="740" height="528"/>
+
+  <!-- ============ HEADER ============ -->
+  <text class="title" x="28" y="34">The web half's bugs reappear at API scale</text>
+  <text class="sub" x="28" y="56">Week 10 · Recap — the Web half (W1-6) concentrates at the endpoint, and APIs add their own</text>
+
+  <!-- ============ LEFT PANEL : WEB HALF ============ -->
+  <rect class="panel" x="28" y="108" width="206" height="212" rx="10"/>
+  <text class="panelh" x="131" y="132">Web half (W1-6)</text>
+
+  <rect class="bug" x="38" y="150" width="186" height="46" rx="8"/>
+  <rect class="bugacc" x="38" y="158" width="5" height="30" rx="2.5"/>
+  <text class="bugt" x="56" y="175">Injection / SQLi</text>
+  <text class="bugs" x="56" y="190">Week 4 · injection</text>
+
+  <rect class="bug" x="38" y="204" width="186" height="46" rx="8"/>
+  <rect class="bugacc" x="38" y="212" width="5" height="30" rx="2.5"/>
+  <text class="bugt" x="56" y="229">XSS</text>
+  <text class="bugs" x="56" y="244">Week 5 · client-side</text>
+
+  <rect class="bug" x="38" y="258" width="186" height="46" rx="8"/>
+  <rect class="bugacc" x="38" y="266" width="5" height="30" rx="2.5"/>
+  <text class="bugt" x="56" y="283">Auth / IDOR</text>
+  <text class="bugs" x="56" y="298">Week 6 · authn / authz</text>
+
+  <!-- ============ BRIDGE : every one reappears ============ -->
+  <polygon class="bridge" points="238,201 392,201 392,189 430,227 392,265 392,253 238,253"/>
+  <text class="bridget" x="315" y="223">every one</text>
+  <text class="bridget" x="315" y="239">reappears</text>
+
+  <!-- ============ RIGHT PANEL : APIs ============ -->
+  <rect class="panel" x="434" y="108" width="278" height="352" rx="10"/>
+  <text class="panelh" x="573" y="130">APIs</text>
+
+  <rect class="bug" x="444" y="150" width="258" height="46" rx="8"/>
+  <rect class="bugacc" x="444" y="158" width="5" height="30" rx="2.5"/>
+  <text class="bugt" x="462" y="175">Injection / SQLi</text>
+  <text class="bugs" x="462" y="190">payload rides in a JSON field</text>
+
+  <rect class="bug" x="444" y="204" width="258" height="46" rx="8"/>
+  <rect class="bugacc" x="444" y="212" width="5" height="30" rx="2.5"/>
+  <text class="bugt" x="462" y="229">XSS</text>
+  <text class="bugs" x="462" y="244">stored via API, fires in the client</text>
+
+  <rect class="bug" x="444" y="258" width="258" height="46" rx="8"/>
+  <rect class="bugacc" x="444" y="266" width="5" height="30" rx="2.5"/>
+  <text class="bugt" x="462" y="283">BOLA = IDOR at API scale</text>
+  <text class="bugs" x="462" y="298">the #1 API risk</text>
+  <text class="badge" x="690" y="283">API1</text>
+
+  <line class="rule" x1="444" y1="316" x2="702" y2="316"/>
+  <text class="sublabel" x="444" y="333">API-NATIVE ADDITIONS</text>
+
+  <rect class="bug" x="444" y="342" width="258" height="46" rx="8"/>
+  <rect class="bugacc" x="444" y="350" width="5" height="30" rx="2.5"/>
+  <text class="bugt" x="462" y="367">Mass assignment</text>
+  <text class="bugs" x="462" y="382">binds the whole JSON body</text>
+  <text class="badge" x="690" y="367">API3</text>
+
+  <rect class="bug" x="444" y="396" width="258" height="46" rx="8"/>
+  <rect class="bugacc" x="444" y="404" width="5" height="30" rx="2.5"/>
+  <text class="bugt" x="462" y="421">No rate limit</text>
+  <text class="bugs" x="462" y="436">unlimited login guesses</text>
+  <text class="badge" x="690" y="421">API4</text>
+
+  <!-- ============ PUNCHLINE BANNER ============ -->
+  <rect class="banner" x="28" y="476" width="684" height="40" rx="10"/>
+  <text class="bant" x="48" y="495">No browser to hide behind — the API endpoint is the whole attack surface.</text>
+  <text class="banl" x="48" y="511">Every header and every field is attacker-chosen; there is no page layer in between.</text>
+</svg>

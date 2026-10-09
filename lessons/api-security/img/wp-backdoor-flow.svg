@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 584" role="img" aria-label="A top-to-bottom attack chain, drawn in KMITL orange, showing how a legitimate WordPress admin feature is abused into remote code execution. Step one: the attacker already has wp-admin access, for example through a weak or stolen admin login or a hijacked admin account. Step two: using the built-in Appearance, Theme Editor feature, the attacker opens the active theme's 404.php template directly in the browser — an intended, legitimate capability. Step three: the attacker pastes a PHP payload, shown only as exec(...), which the editor saves straight to disk as part of the active theme, with no file upload and no plugin involved. Step four: the attacker then visits any page that does not exist, so the missing URL triggers a 404, WordPress renders 404.php, and the planted payload executes. Step five: this yields a netcat bind shell and a /bin/bash prompt, giving remote code execution on the server as the web-server user. The closing note, in KOSEN blue, states the lesson: a legitimate admin feature becomes RCE when there is no strict authorization and no integrity checking of the code, and that by least privilege even an administrator should not be able to inject executable code into the running application; content editing should be separated from code editing, and theme files should be versioned, signed and verified.">
+  <title>A legit admin feature abused into RCE — WordPress 404 template</title>
+  <style>
+    .bg     { fill:#ffffff; }
+    .title  { fill:#111827; font:700 19px system-ui,sans-serif; }
+    .sub    { fill:#6b7280; font:400 12.5px system-ui,sans-serif; }
+
+    .raw    { fill:#fff6f1; stroke:#E35205; stroke-width:2; }
+    .rawh   { fill:#b23f00; font:700 13px system-ui,sans-serif; text-anchor:middle; }
+    .rawl   { fill:#374151; font:400 11px system-ui,sans-serif; text-anchor:middle; }
+
+    .stepnum  { fill:#E35205; }
+    .stepnumt { fill:#ffffff; font:700 15px system-ui,sans-serif; text-anchor:middle; }
+
+    .arrowA { stroke:#E35205; stroke-width:2.5; fill:none; }
+    .ahA    { fill:#E35205; }
+
+    .banner { fill:#f4f9fd; stroke:#017BC4; stroke-width:2; }
+    .bant   { fill:#0f2233; font:700 13px system-ui,sans-serif; }
+    .banl   { fill:#374151; font:400 11.5px system-ui,sans-serif; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg     { fill:#0b1016; }
+      .title  { fill:#f3f4f6; }
+      .sub    { fill:#9aa3ad; }
+
+      .raw    { fill:#241812; stroke:#ff7a3d; }
+      .rawh   { fill:#ff7a3d; }
+      .rawl   { fill:#c4ccd4; }
+
+      .stepnum  { fill:#ff7a3d; }
+      .stepnumt { fill:#0b1016; }
+
+      .arrowA { stroke:#ff7a3d; }
+      .ahA    { fill:#ff7a3d; }
+
+      .banner { fill:#0f1c26; stroke:#4aa3dd; }
+      .bant   { fill:#e5eef5; }
+      .banl   { fill:#c4ccd4; }
+    }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="720" height="584"/>
+
+  <defs>
+    <marker id="wpahA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahA" d="M0,0 L10,5 L0,10 z"/></marker>
+  </defs>
+
+  <!-- ============ HEADER ============ -->
+  <text class="title" x="30" y="34">A legit admin feature abused into RCE — WordPress 404 template</text>
+  <text class="sub" x="30" y="56">Week 10 · a built-in Theme Editor turns one missing page into remote code execution</text>
+
+  <!-- ============ STEP 1 ============ -->
+  <rect class="raw" x="130" y="78" width="510" height="60" rx="10"/>
+  <circle class="stepnum" cx="100" cy="108" r="16"/>
+  <text class="stepnumt" x="100" y="113">1</text>
+  <text class="rawh" x="385" y="104">Attacker already has wp-admin access</text>
+  <text class="rawl" x="385" y="124">a weak or stolen admin login, or a hijacked admin account</text>
+
+  <path class="arrowA" d="M385,138 L385,162" marker-end="url(#wpahA)"/>
+
+  <!-- ============ STEP 2 ============ -->
+  <rect class="raw" x="130" y="162" width="510" height="60" rx="10"/>
+  <circle class="stepnum" cx="100" cy="192" r="16"/>
+  <text class="stepnumt" x="100" y="197">2</text>
+  <text class="rawh" x="385" y="188">Appearance → Theme Editor → open 404.php</text>
+  <text class="rawl" x="385" y="208">a built-in, legitimate feature: edit theme files in the browser</text>
+
+  <path class="arrowA" d="M385,222 L385,246" marker-end="url(#wpahA)"/>
+
+  <!-- ============ STEP 3 ============ -->
+  <rect class="raw" x="130" y="246" width="510" height="60" rx="10"/>
+  <circle class="stepnum" cx="100" cy="276" r="16"/>
+  <text class="stepnumt" x="100" y="281">3</text>
+  <text class="rawh" x="385" y="272">Paste a PHP payload: exec(...)</text>
+  <text class="rawl" x="385" y="292">saved straight to disk as part of the active theme — no upload, no plugin</text>
+
+  <path class="arrowA" d="M385,306 L385,330" marker-end="url(#wpahA)"/>
+
+  <!-- ============ STEP 4 ============ -->
+  <rect class="raw" x="130" y="330" width="510" height="60" rx="10"/>
+  <circle class="stepnum" cx="100" cy="360" r="16"/>
+  <text class="stepnumt" x="100" y="365">4</text>
+  <text class="rawh" x="385" y="356">Visit ANY page that does not exist</text>
+  <text class="rawl" x="385" y="376">the missing URL triggers 404 → WordPress runs 404.php → the payload executes</text>
+
+  <path class="arrowA" d="M385,390 L385,414" marker-end="url(#wpahA)"/>
+
+  <!-- ============ STEP 5 ============ -->
+  <rect class="raw" x="130" y="414" width="510" height="60" rx="10"/>
+  <circle class="stepnum" cx="100" cy="444" r="16"/>
+  <text class="stepnumt" x="100" y="449">5</text>
+  <text class="rawh" x="385" y="440">nc bind shell → attacker gets /bin/bash</text>
+  <text class="rawl" x="385" y="460">remote code execution on the server, running as the web-server user</text>
+
+  <!-- ============ LESSON ============ -->
+  <rect class="banner" x="30" y="494" width="660" height="72" rx="10"/>
+  <text class="bant" x="48" y="520">A legitimate admin feature becomes RCE without authorization + integrity checks.</text>
+  <text class="banl" x="48" y="540">Least privilege: even an admin should not be able to inject executable code into the running app.</text>
+  <text class="banl" x="48" y="558">Separate content editing from code editing; version, sign and verify theme files.</text>
+</svg>
