@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 520" role="img" aria-label="A taxonomy of the four ways a software dependency can turn malicious, each shown as an orange attack card. One, typosquatting: a malicious package is named like one you actually use, such as reqeusts for requests or urlib3 for urllib3. The highlighted key idea is that its setup.py runs at install time, the moment you run pip install, before any import and before any of your own code runs, so a single typo is enough to be compromised. Two, dependency confusion, CWE-1357: a public acme-internal-utils version 99.0.0 beats the private 1.4.0, so a public name shadows your internal package and gets pulled instead. Three, malicious updates: a hijacked or compromised maintainer ships a bad new version of a package you already trust, and the package name never changes. Four, transitive risk: the dependencies of your dependencies are pulled in automatically, code you never chose and never reviewed but still ship. The footnote ties it together: you read the requirements.txt you listed, but install-time setup.py runs before you can inspect it and the deps of your deps drag in code you never chose or reviewed, so the trust boundary is bigger than you think.">
+  <title>Four ways a dependency turns malicious — the attack taxonomy</title>
+  <style>
+    .bg     { fill:#ffffff; }
+    .title  { fill:#111827; font:700 19px system-ui,sans-serif; }
+    .sub    { fill:#6b7280; font:400 12.5px system-ui,sans-serif; }
+
+    .atk    { fill:#fff6f1; stroke:#E35205; stroke-width:1.8; }
+    .atkacc { fill:#E35205; }
+    .atkh   { fill:#b23f00; font:700 13px system-ui,sans-serif; }
+    .line   { fill:#374151; font:400 11px system-ui,sans-serif; }
+    .mono   { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; }
+
+    .glyphA { fill:#E35205; }
+    .bang   { fill:#ffffff; }
+
+    .hl     { fill:#E35205; }
+    .hlh    { fill:#ffffff; font:700 11px system-ui,sans-serif; letter-spacing:0.5px; }
+    .hll    { fill:#ffffff; font:400 10.5px system-ui,sans-serif; }
+
+    .banner { fill:#fff1e8; stroke:#E35205; stroke-width:2; }
+    .banacc { fill:#E35205; }
+    .bant   { fill:#b23f00; font:700 13.5px system-ui,sans-serif; }
+    .banl   { fill:#374151; font:400 12px system-ui,sans-serif; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg     { fill:#0b1016; }
+      .title  { fill:#f3f4f6; }
+      .sub    { fill:#9aa3ad; }
+
+      .atk    { fill:#241812; stroke:#ff7a3d; }
+      .atkacc { fill:#ff7a3d; }
+      .atkh   { fill:#ff7a3d; }
+      .line   { fill:#c4ccd4; }
+
+      .glyphA { fill:#ff7a3d; }
+      .bang   { fill:#241000; }
+
+      .hl     { fill:#ff7a3d; }
+      .hlh    { fill:#241000; }
+      .hll    { fill:#241000; }
+
+      .banner { fill:#241812; stroke:#ff7a3d; }
+      .banacc { fill:#ff7a3d; }
+      .bant   { fill:#ff7a3d; }
+      .banl   { fill:#c4ccd4; }
+    }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="720" height="520"/>
+
+  <!-- ============ HEADER ============ -->
+  <text class="title" x="30" y="32">Four ways a dependency turns malicious</text>
+  <text class="sub" x="30" y="54">Week 12 · OWASP 2025 A03 Supply Chain — four ways in</text>
+
+  <!-- ================= CARD 1 — TYPOSQUATTING (the key idea) ================= -->
+  <rect class="atk" x="30" y="76" width="316" height="152" rx="8"/>
+  <rect class="atkacc" x="30" y="76" width="5" height="152" rx="2.5"/>
+  <path class="glyphA" d="M50,90 l9,16 l-18,0 z"/>
+  <rect class="bang" x="49" y="96" width="2" height="5"/>
+  <rect class="bang" x="49" y="102.5" width="2" height="2"/>
+  <text class="atkh" x="68" y="102">1 · Typosquatting</text>
+  <text class="line mono" x="48" y="126">requests → reqeusts · urllib3 → urlib3</text>
+  <text class="line" x="48" y="146">a package named like one you actually use</text>
+  <rect class="hl" x="44" y="156" width="288" height="60" rx="6"/>
+  <text class="hlh" x="56" y="176">RUNS AT INSTALL TIME</text>
+  <text class="hll" x="56" y="194">pip install runs its setup.py —</text>
+  <text class="hll" x="56" y="210">before any import, before any code of yours</text>
+
+  <!-- ================= CARD 2 — DEPENDENCY CONFUSION ================= -->
+  <rect class="atk" x="374" y="76" width="316" height="152" rx="8"/>
+  <rect class="atkacc" x="374" y="76" width="5" height="152" rx="2.5"/>
+  <path class="glyphA" d="M394,90 l9,16 l-18,0 z"/>
+  <rect class="bang" x="393" y="96" width="2" height="5"/>
+  <rect class="bang" x="393" y="102.5" width="2" height="2"/>
+  <text class="atkh" x="412" y="102">2 · Dependency confusion</text>
+  <text class="line mono" x="392" y="126">acme-internal-utils</text>
+  <text class="line" x="392" y="148">public 99.0.0 beats private 1.4.0</text>
+  <text class="line" x="392" y="170">a public package shadows your</text>
+  <text class="line" x="392" y="192">internal name · CWE-1357</text>
+
+  <!-- ================= CARD 3 — MALICIOUS UPDATES ================= -->
+  <rect class="atk" x="30" y="244" width="316" height="152" rx="8"/>
+  <rect class="atkacc" x="30" y="244" width="5" height="152" rx="2.5"/>
+  <path class="glyphA" d="M50,258 l9,16 l-18,0 z"/>
+  <rect class="bang" x="49" y="264" width="2" height="5"/>
+  <rect class="bang" x="49" y="270.5" width="2" height="2"/>
+  <text class="atkh" x="68" y="270">3 · Malicious updates</text>
+  <text class="line mono" x="48" y="294">pip install -U → new release</text>
+  <text class="line" x="48" y="316">a hijacked or compromised</text>
+  <text class="line" x="48" y="338">maintainer ships a bad version</text>
+  <text class="line" x="48" y="360">of a package you already trust</text>
+
+  <!-- ================= CARD 4 — TRANSITIVE RISK ================= -->
+  <rect class="atk" x="374" y="244" width="316" height="152" rx="8"/>
+  <rect class="atkacc" x="374" y="244" width="5" height="152" rx="2.5"/>
+  <path class="glyphA" d="M394,258 l9,16 l-18,0 z"/>
+  <rect class="bang" x="393" y="264" width="2" height="5"/>
+  <rect class="bang" x="393" y="270.5" width="2" height="2"/>
+  <text class="atkh" x="412" y="270">4 · Transitive risk</text>
+  <text class="line mono" x="392" y="294">deps of your deps of your deps…</text>
+  <text class="line" x="392" y="316">pulled in automatically — code</text>
+  <text class="line" x="392" y="338">you never chose and never</text>
+  <text class="line" x="392" y="360">reviewed, but you ship it anyway</text>
+
+  <!-- ============ THE LESSON ============ -->
+  <rect class="banner" x="30" y="416" width="660" height="86" rx="8"/>
+  <rect class="banacc" x="30" y="416" width="5" height="86" rx="2.5"/>
+  <text class="bant" x="50" y="444">You read your requirements.txt — the trust boundary is bigger than you think.</text>
+  <text class="banl" x="50" y="468">Install-time setup.py runs before you can inspect it, and the deps of</text>
+  <text class="banl" x="50" y="488">your deps drag in code you never chose or reviewed.</text>
+</svg>

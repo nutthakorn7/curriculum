@@ -1,0 +1,217 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 648" role="img" aria-label="Why dependencies have become a top design risk, in three facts. Fact one, the ratio: of everything you ship, only about ten percent is code you wrote; the other ninety percent is dependencies you installed, trusted, and never read. A stacked bar shows a small blue your-code segment at ten percent beside a large grey segment at about ninety percent of other people's code, so the ninety percent dominates the width. Fact two, the blast radius: a single poisoned package, published once, fans out to thousands of downstream projects and users who pulled it in transitively and never chose it. Three real cases prove it already happened — xz-utils in 2024, a backdoor planted in the liblzma dependency upstream; event-stream in 2018, a malicious dependency that stole crypto-wallet keys from the apps that depended on it; and SolarWinds in 2020, where a trojanized vendor update reached roughly eighteen thousand organizations. Fact three, the label: OWASP moved this risk up the list, from A06 in 2021, Vulnerable and Outdated Components, to A03 in 2025, Software Supply Chain Failures — a promotion from sixth to third place. The takeaway at the foot: you can write perfect code and still be owned through a dependency you never read.">
+  <title>Most of your attack surface is other people's code</title>
+  <style>
+    .bg     { fill:#ffffff; }
+    .title  { fill:#111827; font:700 19px system-ui,sans-serif; }
+    .sub    { fill:#6b7280; font:400 12.5px system-ui,sans-serif; }
+
+    .panel  { fill:#f6f8fa; stroke:#d7dde3; stroke-width:1.5; }
+    .secn   { fill:#017BC4; }
+    .secnt  { fill:#ffffff; font:700 12px system-ui,sans-serif; }
+    .sech   { fill:#0f2233; font:700 13.5px system-ui,sans-serif; }
+    .cap    { fill:#6b7280; font:400 11.5px system-ui,sans-serif; }
+    .mono   { font-family:ui-monospace,Menlo,Consolas,monospace; }
+
+    .barA   { fill:#017BC4; }
+    .barB   { fill:#6b7280; }
+    .baraccx{ fill:#E35205; }
+    .bart   { fill:#ffffff; font:700 13px system-ui,sans-serif; }
+    .bart10 { fill:#ffffff; font:700 13px system-ui,sans-serif; }
+    .bartb  { fill:#ffffff; font:700 16px system-ui,sans-serif; }
+    .barlbl { fill:#6b7280; font:700 10px system-ui,sans-serif; letter-spacing:0.5px; }
+
+    .atk    { fill:#fff6f1; stroke:#E35205; stroke-width:1.8; }
+    .atkacc { fill:#E35205; }
+    .atkh   { fill:#b23f00; font:700 12.5px system-ui,sans-serif; }
+    .line   { fill:#374151; font:400 11px system-ui,sans-serif; }
+
+    .fan    { stroke:#E35205; stroke-width:1.4; fill:none; opacity:0.75; }
+    .vic    { fill:#ffd9c2; stroke:#E35205; stroke-width:1.3; }
+
+    .glyphA { fill:#E35205; }
+    .bang   { fill:#ffffff; }
+
+    .evh    { fill:#b23f00; font:700 9.5px system-ui,sans-serif; letter-spacing:0.6px; }
+
+    .mut    { fill:#eef1f4; stroke:#9aa3ad; stroke-width:1.5; }
+    .muth   { fill:#6b7280; font:700 11px system-ui,sans-serif; }
+    .muts   { fill:#9aa3ad; font:400 10px system-ui,sans-serif; }
+    .promo  { fill:#6b7280; font:700 9.5px system-ui,sans-serif; letter-spacing:0.5px; }
+    .badge  { fill:#fff1e8; stroke:#E35205; stroke-width:2; }
+    .badgeb { fill:#b23f00; font:800 18px system-ui,sans-serif; }
+    .badget { fill:#b23f00; font:700 13px system-ui,sans-serif; }
+    .conn   { stroke:#E35205; stroke-width:2.2; fill:none; }
+    .ahb    { fill:#E35205; }
+
+    .banner { fill:#fff1e8; stroke:#E35205; stroke-width:2; }
+    .bant   { fill:#b23f00; font:700 15px system-ui,sans-serif; }
+    .banl   { fill:#374151; font:400 12.5px system-ui,sans-serif; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg     { fill:#0b1016; }
+      .title  { fill:#f3f4f6; }
+      .sub    { fill:#9aa3ad; }
+
+      .panel  { fill:#101820; stroke:#33404c; }
+      .secn   { fill:#4aa3dd; }
+      .secnt  { fill:#0b1016; }
+      .sech   { fill:#e5eef5; }
+      .cap    { fill:#9aa3ad; }
+
+      .barA   { fill:#4aa3dd; }
+      .barB   { fill:#5b6670; }
+      .baraccx{ fill:#ff7a3d; }
+      .bart   { fill:#f3f4f6; }
+      .bart10 { fill:#0b1016; }
+      .bartb  { fill:#f3f4f6; }
+      .barlbl { fill:#9aa3ad; }
+
+      .atk    { fill:#241812; stroke:#ff7a3d; }
+      .atkacc { fill:#ff7a3d; }
+      .atkh   { fill:#ff7a3d; }
+      .line   { fill:#c4ccd4; }
+
+      .fan    { stroke:#ff7a3d; }
+      .vic    { fill:#3a2417; stroke:#ff7a3d; }
+
+      .glyphA { fill:#ff7a3d; }
+      .bang   { fill:#241000; }
+
+      .evh    { fill:#ff7a3d; }
+
+      .mut    { fill:#161c22; stroke:#5b6670; }
+      .muth   { fill:#9aa3ad; }
+      .muts   { fill:#6b7280; }
+      .promo  { fill:#9aa3ad; }
+      .badge  { fill:#241812; stroke:#ff7a3d; }
+      .badgeb { fill:#ff7a3d; }
+      .badget { fill:#ff7a3d; }
+      .conn   { stroke:#ff7a3d; }
+      .ahb    { fill:#ff7a3d; }
+
+      .banner { fill:#241812; stroke:#ff7a3d; }
+      .bant   { fill:#ff7a3d; }
+      .banl   { fill:#c4ccd4; }
+    }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="720" height="648"/>
+
+  <defs>
+    <marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="ahb" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+
+  <!-- ============ HEADER ============ -->
+  <text class="title" x="30" y="32">Most of your attack surface is other people's code</text>
+  <text class="sub" x="30" y="54">Week 12 · OWASP A03:2025 Software Supply Chain Failures</text>
+
+  <!-- ================= PANEL 1 — THE RATIO ================= -->
+  <rect class="panel" x="30" y="72" width="660" height="128" rx="10"/>
+  <rect class="secn" x="44" y="86" width="18" height="18" rx="4"/>
+  <text class="secnt" x="53" y="99" text-anchor="middle">1</text>
+  <text class="sech" x="70" y="100">THE RATIO — what you actually ship</text>
+
+  <!-- stacked bar: 10% your code | 90% dependencies -->
+  <rect class="barA" x="52" y="118" width="62" height="44" rx="3"/>
+  <rect class="barB" x="114" y="118" width="554" height="44" rx="3"/>
+  <rect class="baraccx" x="114" y="118" width="5" height="44"/>
+  <text class="bart10" x="83" y="146" text-anchor="middle">10%</text>
+  <text class="bartb" x="132" y="141">~90%</text>
+  <text class="bart" x="196" y="140" style="font:700 12px system-ui,sans-serif">other people's code</text>
+  <text class="bart" x="132" y="156" style="font-weight:400;font-size:11px">dependencies you installed, trusted, and never read</text>
+  <text class="barlbl" x="52" y="178">↑ YOU WROTE THIS</text>
+  <text class="cap" x="52" y="194">You wrote the 10%. Every bug in the other 90% ships in your product with your name on it.</text>
+
+  <!-- ================= PANEL 2 — BLAST RADIUS ================= -->
+  <rect class="panel" x="30" y="214" width="660" height="252" rx="10"/>
+  <rect class="secn" x="44" y="228" width="18" height="18" rx="4"/>
+  <text class="secnt" x="53" y="241" text-anchor="middle">2</text>
+  <text class="sech" x="70" y="242">BLAST RADIUS — one bad package, thousands of victims</text>
+
+  <!-- poisoned package -->
+  <rect class="atk" x="48" y="300" width="132" height="60" rx="7"/>
+  <rect class="atkacc" x="48" y="300" width="5" height="60" rx="2.5"/>
+  <path class="glyphA" d="M70,312 l9,16 l-18,0 z"/>
+  <rect class="bang" x="69" y="318" width="2" height="5"/>
+  <rect class="bang" x="69" y="324.5" width="2" height="2"/>
+  <text class="atkh" x="86" y="324">Poisoned</text>
+  <text class="atkh" x="86" y="339">package</text>
+  <text class="line mono" x="62" y="353" style="font-size:9.5px">one malicious publish</text>
+
+  <!-- fan-out to victims -->
+  <path class="fan" d="M180,322 L250,300"/>
+  <path class="fan" d="M180,328 L250,372"/>
+  <path class="fan" d="M180,330 L282,324"/>
+  <path class="fan" d="M180,326 L314,300"/>
+  <path class="fan" d="M180,334 L314,372"/>
+  <path class="fan" d="M180,330 L346,348"/>
+  <path class="fan" d="M180,324 L378,300"/>
+  <path class="fan" d="M180,336 L378,372"/>
+
+  <circle class="vic" cx="250" cy="300" r="6"/>
+  <circle class="vic" cx="250" cy="324" r="6"/>
+  <circle class="vic" cx="250" cy="348" r="6"/>
+  <circle class="vic" cx="250" cy="372" r="6"/>
+  <circle class="vic" cx="282" cy="300" r="6"/>
+  <circle class="vic" cx="282" cy="324" r="6"/>
+  <circle class="vic" cx="282" cy="348" r="6"/>
+  <circle class="vic" cx="282" cy="372" r="6"/>
+  <circle class="vic" cx="314" cy="300" r="6"/>
+  <circle class="vic" cx="314" cy="324" r="6"/>
+  <circle class="vic" cx="314" cy="348" r="6"/>
+  <circle class="vic" cx="314" cy="372" r="6"/>
+  <circle class="vic" cx="346" cy="300" r="6"/>
+  <circle class="vic" cx="346" cy="324" r="6"/>
+  <circle class="vic" cx="346" cy="348" r="6"/>
+  <circle class="vic" cx="346" cy="372" r="6"/>
+  <circle class="vic" cx="378" cy="300" r="6"/>
+  <circle class="vic" cx="378" cy="324" r="6"/>
+  <circle class="vic" cx="378" cy="348" r="6"/>
+  <circle class="vic" cx="378" cy="372" r="6"/>
+
+  <text class="atkh" x="214" y="406" text-anchor="middle" style="font-size:11.5px">→ thousands of downstream victims</text>
+  <text class="cap" x="214" y="423" text-anchor="middle">pulled in transitively — you never chose them</text>
+
+  <!-- real cases -->
+  <text class="evh" x="406" y="286">IT ALREADY HAPPENED</text>
+
+  <rect class="atk" x="406" y="294" width="268" height="44" rx="7"/>
+  <rect class="atkacc" x="406" y="294" width="5" height="44" rx="2.5"/>
+  <text class="atkh" x="420" y="314">xz-utils · 2024</text>
+  <text class="line" x="420" y="330">backdoor planted in liblzma upstream</text>
+
+  <rect class="atk" x="406" y="344" width="268" height="44" rx="7"/>
+  <rect class="atkacc" x="406" y="344" width="5" height="44" rx="2.5"/>
+  <text class="atkh" x="420" y="364">event-stream · 2018</text>
+  <text class="line" x="420" y="380">malicious dep stole crypto-wallet keys</text>
+
+  <rect class="atk" x="406" y="394" width="268" height="44" rx="7"/>
+  <rect class="atkacc" x="406" y="394" width="5" height="44" rx="2.5"/>
+  <text class="atkh" x="420" y="414">SolarWinds · 2020</text>
+  <text class="line" x="420" y="430">trojanized vendor update → ~18,000 orgs</text>
+
+  <!-- ================= PANEL 3 — THE LABEL ================= -->
+  <rect class="panel" x="30" y="480" width="660" height="80" rx="10"/>
+  <rect class="secn" x="44" y="494" width="18" height="18" rx="4"/>
+  <text class="secnt" x="53" y="507" text-anchor="middle">3</text>
+  <text class="sech" x="70" y="508">THE LABEL — OWASP moved it up the list</text>
+
+  <rect class="mut" x="52" y="520" width="248" height="30" rx="6"/>
+  <text class="muth" x="64" y="535">A06:2021</text>
+  <text class="muts" x="64" y="546">Vulnerable &amp; Outdated Components</text>
+
+  <text class="promo" x="333" y="531" text-anchor="middle">PROMOTED</text>
+  <path class="conn" d="M312,540 L354,540" marker-end="url(#ahb)"/>
+  <text class="promo" x="333" y="551" text-anchor="middle">#6 → #3</text>
+
+  <rect class="badge" x="366" y="514" width="308" height="42" rx="7"/>
+  <text class="badgeb" x="380" y="533" style="font-size:16px">A03:2025</text>
+  <text class="badget" x="380" y="549">Software Supply Chain Failures</text>
+
+  <!-- ============ TAKEAWAY ============ -->
+  <rect class="banner" x="30" y="574" width="660" height="58" rx="8"/>
+  <text class="bant" x="48" y="601">You can write perfect code and still be owned —</text>
+  <text class="banl" x="48" y="621">through a dependency you never read.</text>
+</svg>
