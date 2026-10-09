@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 530" role="img" aria-label="Each Week 10 API defense mapped to the attack it stops, in two columns: a KOSEN-blue defense on the left, a blue arrow pointing right to the KMITL-orange attack it kills on the right. The diagram is split into two zones. The upper zone, today's graded bugs, holds three rows, each carrying an OWASP API Security Top 10 2023 number. Row one: object-level authorization, an ownership check on every request, stops BOLA, API1, where an attacker reads another user's object by swapping the id. Row two: allow-list the request schema, binding only intended fields with DTOs, stops mass assignment, API3, where the client sets is_admin through an extra field the server did not expect. Row three: rate limiting and quotas, a per-IP throttle with cost caps, stops unrestricted resource consumption, API4, such as unlimited login attempts or expensive calls. The lower zone, defense in depth, holds two more rows that are not graded in today's lab. Row four: schema validation against OpenAPI or GraphQL types rejects malformed input early at the edge. Row five: returning only the needed fields through response DTOs stops excessive data exposure, where fields the client never needed leak out. The closing banner states that these are authorization and design controls, not escaping and not a WAF, because the JSON was always well formed: the bug was in what the server allowed, not in how the input was encoded.">
+  <title>Each API defense and the attack it stops</title>
+  <style>
+    svg { font-family: system-ui, sans-serif; }
+    .bg      { fill:#ffffff; }
+    .h1      { fill:#111827; font-size:16px; font-weight:700; }
+    .h2      { fill:#6b7280; font-size:11.5px; }
+    .colh    { fill:#4b5563; font-size:12px; font-weight:700; letter-spacing:0.4px; text-anchor:middle; }
+
+    .zone    { fill:#f8fafc; stroke:#e2e8f0; stroke-width:1.3; }
+    .zonelab { fill:#334155; font-size:11.5px; font-weight:700; letter-spacing:0.3px; }
+    .zonesub { fill:#6b7280; font-size:10.5px; text-anchor:end; }
+
+    .box     { fill:#ffffff; stroke:#017BC4; stroke-width:1.5; }
+    .boxt    { fill:#017BC4; font-size:12.5px; font-weight:700; }
+    .boxs    { fill:#6b7280; font-size:10.5px; }
+
+    .abox    { fill:#fff6f1; stroke:#E35205; stroke-width:1.6; }
+    .aboxt   { fill:#b23f00; font-size:12.5px; font-weight:700; }
+    .aboxs   { fill:#374151; font-size:10.5px; }
+    .badge   { fill:#E35205; font-size:10.5px; font-weight:700; text-anchor:end; }
+
+    .flow    { stroke:#017BC4; stroke-width:2; fill:none; }
+    .ah      { fill:#017BC4; }
+    .stops   { fill:#6b7280; font-size:8.5px; font-style:italic; text-anchor:middle; }
+
+    .banner  { fill:#f4f9fd; stroke:#017BC4; stroke-width:2; }
+    .bant    { fill:#0f2233; font-size:12.5px; font-weight:700; }
+    .banl    { fill:#374151; font-size:11px; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg      { fill:#0b1016; }
+      .h1      { fill:#f3f4f6; }
+      .h2      { fill:#9aa3ad; }
+      .colh    { fill:#c4ccd4; }
+
+      .zone    { fill:#121820; stroke:#2a3540; }
+      .zonelab { fill:#c4ccd4; }
+      .zonesub { fill:#9aa3ad; }
+
+      .box     { fill:#172029; stroke:#4aa3dd; }
+      .boxt    { fill:#4aa3dd; }
+      .boxs    { fill:#9aa3ad; }
+
+      .abox    { fill:#241812; stroke:#ff7a3d; }
+      .aboxt   { fill:#ff7a3d; }
+      .aboxs   { fill:#c4ccd4; }
+      .badge   { fill:#ff7a3d; }
+
+      .flow    { stroke:#4aa3dd; }
+      .ah      { fill:#4aa3dd; }
+      .stops   { fill:#9aa3ad; }
+
+      .banner  { fill:#0f1c26; stroke:#4aa3dd; }
+      .bant    { fill:#e5eef5; }
+      .banl    { fill:#c4ccd4; }
+    }
+  </style>
+
+  <defs>
+    <marker id="dmah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="ah" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="720" height="530"/>
+
+  <text class="h1" x="28" y="32">Each API defense and the attack it stops</text>
+  <text class="h2" x="28" y="51">Week 10 · OWASP API Security Top 10:2023 · the control is on the left, the bug it kills on the right</text>
+
+  <text class="colh" x="186" y="76">DEFENSE</text>
+  <text class="colh" x="549" y="76">ATTACK IT STOPS</text>
+
+  <!-- ============ ZONE 1 : graded bugs ============ -->
+  <rect class="zone" x="18" y="84" width="684" height="214" rx="10"/>
+  <text class="zonelab" x="30" y="104">TODAY'S GRADED BUGS</text>
+  <text class="zonesub" x="690" y="104">graded in today's lab</text>
+
+  <!-- row 1 : BOLA -->
+  <rect class="box" x="28" y="116" width="316" height="50" rx="8"/>
+  <text class="boxt" x="44" y="137">Object-level authorization</text>
+  <text class="boxs" x="44" y="154">ownership check on every request</text>
+  <path class="flow" d="M344,141 L402,141" marker-end="url(#dmah)"/>
+  <text class="stops" x="374" y="135">stops</text>
+  <rect class="abox" x="404" y="116" width="290" height="50" rx="8"/>
+  <text class="aboxt" x="420" y="137">BOLA</text>
+  <text class="badge" x="680" y="137">API1</text>
+  <text class="aboxs" x="420" y="154">read another user's object by id</text>
+
+  <!-- row 2 : mass assignment -->
+  <rect class="box" x="28" y="178" width="316" height="50" rx="8"/>
+  <text class="boxt" x="44" y="199">Allow-list the request schema</text>
+  <text class="boxs" x="44" y="216">bind only intended fields (DTOs)</text>
+  <path class="flow" d="M344,203 L402,203" marker-end="url(#dmah)"/>
+  <text class="stops" x="374" y="197">stops</text>
+  <rect class="abox" x="404" y="178" width="290" height="50" rx="8"/>
+  <text class="aboxt" x="420" y="199">Mass assignment</text>
+  <text class="badge" x="680" y="199">API3</text>
+  <text class="aboxs" x="420" y="216">client sets is_admin via extra field</text>
+
+  <!-- row 3 : unrestricted resource consumption -->
+  <rect class="box" x="28" y="240" width="316" height="50" rx="8"/>
+  <text class="boxt" x="44" y="261">Rate limiting / quotas</text>
+  <text class="boxs" x="44" y="278">per-IP throttle &#8594; 429</text>
+  <path class="flow" d="M344,265 L402,265" marker-end="url(#dmah)"/>
+  <text class="stops" x="374" y="259">stops</text>
+  <rect class="abox" x="404" y="240" width="290" height="50" rx="8"/>
+  <text class="aboxt" x="420" y="261">Unrestricted resource consumption</text>
+  <text class="badge" x="680" y="261">API4</text>
+  <text class="aboxs" x="420" y="278">unlimited login / expensive calls</text>
+
+  <!-- ============ ZONE 2 : defense in depth ============ -->
+  <rect class="zone" x="18" y="310" width="684" height="150" rx="10"/>
+  <text class="zonelab" x="30" y="330">DEFENSE IN DEPTH</text>
+  <text class="zonesub" x="690" y="330">not graded today — extra layers</text>
+
+  <!-- row 4 : schema validation -->
+  <rect class="box" x="28" y="342" width="316" height="50" rx="8"/>
+  <text class="boxt" x="44" y="363">Schema validation</text>
+  <text class="boxs" x="44" y="380">OpenAPI / GraphQL types</text>
+  <path class="flow" d="M344,367 L402,367" marker-end="url(#dmah)"/>
+  <text class="stops" x="374" y="361">stops</text>
+  <rect class="abox" x="404" y="342" width="290" height="50" rx="8"/>
+  <text class="aboxt" x="420" y="363">Malformed input</text>
+  <text class="aboxs" x="420" y="380">rejected early at the edge</text>
+
+  <!-- row 5 : response DTOs -->
+  <rect class="box" x="28" y="404" width="316" height="50" rx="8"/>
+  <text class="boxt" x="44" y="425">Return only needed fields</text>
+  <text class="boxs" x="44" y="442">response DTOs, not raw models</text>
+  <path class="flow" d="M344,429 L402,429" marker-end="url(#dmah)"/>
+  <text class="stops" x="374" y="423">stops</text>
+  <rect class="abox" x="404" y="404" width="290" height="50" rx="8"/>
+  <text class="aboxt" x="420" y="425">Excessive data exposure</text>
+  <text class="aboxs" x="420" y="442">fields the client never needed</text>
+
+  <!-- ============ BANNER ============ -->
+  <rect class="banner" x="18" y="474" width="684" height="46" rx="8"/>
+  <text class="bant" x="34" y="494">Authorization and design controls — not escaping, not a WAF.</text>
+  <text class="banl" x="34" y="512">The JSON was always well formed: the bug was in what the server allowed, not how it was encoded.</text>
+</svg>

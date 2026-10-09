@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 504" role="img" aria-label="The OWASP API Security Top 10:2023, laid out as two columns of five so the whole category map is visible at once. The left column lists API1 Broken Object Level Authorization (BOLA), API2 Broken Authentication, API3 Broken Object Property Level Authorization (BOPLA), API4 Unrestricted Resource Consumption, and API5 Broken Function Level Authorization. The right column lists API6 Unrestricted Access to Sensitive Business Flows, API7 Server-Side Request Forgery (SSRF), API8 Security Misconfiguration, API9 Improper Inventory Management, and API10 Unsafe Consumption of APIs. Three of them — API1, API3, and API4 — are highlighted in KMITL orange, each tagged today's graded bug, because they are the categories this week's lab actually exploits. The other seven are present but shown muted in grey: they are on the map but not drilled today. A footnote notes that API3:2023 BOPLA folds in the old 2019 category Excessive Data Exposure. The teaching point at the foot: all ten categories are the map, but today we drill the three authorization and design bugs, not input-validation bugs — the requests are well-formed, so escaping and WAF rules change nothing.">
+  <title>OWASP API Security Top 10:2023 — today's three highlighted</title>
+  <style>
+    svg { font-family: system-ui, sans-serif; }
+    .bg    { fill: #ffffff; }
+    .h1    { fill: #111827; font-size: 16px; font-weight: 700; }
+    .h2    { fill: #6b7280; font-size: 11.5px; }
+    .cardH { fill: #fff6f1; stroke: #E35205; stroke-width: 1.8; }
+    .cardM { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.5; }
+    .accH  { fill: #E35205; }
+    .accM  { fill: #cbd5e1; }
+    .numH  { fill: #b23f00; font-size: 13px; font-weight: 700; }
+    .numM  { fill: #94a3b8; font-size: 13px; font-weight: 700; }
+    .nameH { fill: #111827; font-size: 12px; font-weight: 600; }
+    .nameM { fill: #64748b; font-size: 12px; font-weight: 500; }
+    .tag    { fill: #E35205; }
+    .tagtxt { fill: #ffffff; font-size: 9.5px; font-weight: 700; }
+    .rule   { stroke: #cbd5e1; stroke-width: 1; }
+    .leg    { fill: #4b5563; font-size: 11px; }
+    .foot   { fill: #6b7280; font-size: 11px; }
+    .punch  { fill: #E35205; font-size: 12.5px; font-weight: 700; }
+    .punch2 { fill: #111827; font-size: 11.5px; }
+    @media (prefers-color-scheme: dark) {
+      .bg    { fill: #0b1016; }
+      .h1    { fill: #f3f4f6; }
+      .h2    { fill: #9aa3ad; }
+      .cardH { fill: #241812; stroke: #ff7a3d; }
+      .cardM { fill: #141a20; stroke: #303a46; }
+      .accH  { fill: #ff7a3d; }
+      .accM  { fill: #3a4552; }
+      .numH  { fill: #ff7a3d; }
+      .numM  { fill: #6b7684; }
+      .nameH { fill: #e5eef5; }
+      .nameM { fill: #9aa3ad; }
+      .tag    { fill: #ff7a3d; }
+      .tagtxt { fill: #2a1708; }
+      .rule   { stroke: #303a46; }
+      .leg    { fill: #c4ccd4; }
+      .foot   { fill: #9aa3ad; }
+      .punch  { fill: #ff7a3d; }
+      .punch2 { fill: #e5eef5; }
+    }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="720" height="504"/>
+
+  <text class="h1" x="24" y="30">OWASP API Security Top 10:2023 — today's three highlighted</text>
+  <text class="h2" x="24" y="49">Week 10 · the ten categories are the map; this week's lab drills three of them</text>
+
+  <!-- ============ LEFT COLUMN : API1–API5 ============ -->
+
+  <!-- API1 BOLA — highlighted -->
+  <rect class="cardH" x="24" y="72" width="330" height="58" rx="8"/>
+  <rect class="accH" x="24" y="72" width="5" height="58" rx="2"/>
+  <text class="numH" x="40" y="106">API1</text>
+  <text class="nameH" x="90" y="96">Broken Object Level</text>
+  <text class="nameH" x="90" y="114">Authorization (BOLA)</text>
+  <rect class="tag" x="234" y="108" width="108" height="16" rx="8"/>
+  <text class="tagtxt" x="288" y="120" text-anchor="middle">today's graded bug</text>
+
+  <!-- API2 Broken Authentication — muted -->
+  <rect class="cardM" x="24" y="138" width="330" height="58" rx="8"/>
+  <rect class="accM" x="24" y="138" width="5" height="58" rx="2"/>
+  <text class="numM" x="40" y="172">API2</text>
+  <text class="nameM" x="90" y="172">Broken Authentication</text>
+
+  <!-- API3 BOPLA — highlighted -->
+  <rect class="cardH" x="24" y="204" width="330" height="58" rx="8"/>
+  <rect class="accH" x="24" y="204" width="5" height="58" rx="2"/>
+  <text class="numH" x="40" y="238">API3</text>
+  <text class="nameH" x="90" y="228">Broken Object Property Level</text>
+  <text class="nameH" x="90" y="246">Authorization (BOPLA)</text>
+  <rect class="tag" x="234" y="240" width="108" height="16" rx="8"/>
+  <text class="tagtxt" x="288" y="252" text-anchor="middle">today's graded bug</text>
+
+  <!-- API4 Unrestricted Resource Consumption — highlighted -->
+  <rect class="cardH" x="24" y="270" width="330" height="58" rx="8"/>
+  <rect class="accH" x="24" y="270" width="5" height="58" rx="2"/>
+  <text class="numH" x="40" y="304">API4</text>
+  <text class="nameH" x="90" y="294">Unrestricted Resource</text>
+  <text class="nameH" x="90" y="312">Consumption</text>
+  <rect class="tag" x="234" y="306" width="108" height="16" rx="8"/>
+  <text class="tagtxt" x="288" y="318" text-anchor="middle">today's graded bug</text>
+
+  <!-- API5 Broken Function Level Authorization — muted -->
+  <rect class="cardM" x="24" y="336" width="330" height="58" rx="8"/>
+  <rect class="accM" x="24" y="336" width="5" height="58" rx="2"/>
+  <text class="numM" x="40" y="370">API5</text>
+  <text class="nameM" x="90" y="360">Broken Function Level</text>
+  <text class="nameM" x="90" y="378">Authorization</text>
+
+  <!-- ============ RIGHT COLUMN : API6–API10 ============ -->
+
+  <!-- API6 Unrestricted Access to Sensitive Business Flows — muted -->
+  <rect class="cardM" x="366" y="72" width="330" height="58" rx="8"/>
+  <rect class="accM" x="366" y="72" width="5" height="58" rx="2"/>
+  <text class="numM" x="382" y="106">API6</text>
+  <text class="nameM" x="432" y="96">Unrestricted Access to</text>
+  <text class="nameM" x="432" y="114">Sensitive Business Flows</text>
+
+  <!-- API7 SSRF — muted -->
+  <rect class="cardM" x="366" y="138" width="330" height="58" rx="8"/>
+  <rect class="accM" x="366" y="138" width="5" height="58" rx="2"/>
+  <text class="numM" x="382" y="172">API7</text>
+  <text class="nameM" x="432" y="162">Server-Side Request</text>
+  <text class="nameM" x="432" y="180">Forgery (SSRF)</text>
+
+  <!-- API8 Security Misconfiguration — muted -->
+  <rect class="cardM" x="366" y="204" width="330" height="58" rx="8"/>
+  <rect class="accM" x="366" y="204" width="5" height="58" rx="2"/>
+  <text class="numM" x="382" y="238">API8</text>
+  <text class="nameM" x="432" y="238">Security Misconfiguration</text>
+
+  <!-- API9 Improper Inventory Management — muted -->
+  <rect class="cardM" x="366" y="270" width="330" height="58" rx="8"/>
+  <rect class="accM" x="366" y="270" width="5" height="58" rx="2"/>
+  <text class="numM" x="382" y="304">API9</text>
+  <text class="nameM" x="432" y="294">Improper Inventory</text>
+  <text class="nameM" x="432" y="312">Management</text>
+
+  <!-- API10 Unsafe Consumption of APIs — muted -->
+  <rect class="cardM" x="366" y="336" width="330" height="58" rx="8"/>
+  <rect class="accM" x="366" y="336" width="5" height="58" rx="2"/>
+  <text class="numM" x="382" y="370">API10</text>
+  <text class="nameM" x="432" y="370">Unsafe Consumption of APIs</text>
+
+  <!-- ============ LEGEND + FOOTNOTE + PUNCHLINE ============ -->
+  <line class="rule" x1="24" y1="410" x2="696" y2="410"/>
+
+  <rect class="accH" x="24" y="424" width="14" height="12" rx="2"/>
+  <text class="leg" x="46" y="434">drilled this week — today's graded bug (API1 · API3 · API4)</text>
+  <rect class="accM" x="420" y="424" width="14" height="12" rx="2"/>
+  <text class="leg" x="442" y="434">on the map, not drilled today</text>
+
+  <text class="foot" x="24" y="458">API3:2023 BOPLA folds in the old 2019 category "Excessive Data Exposure."</text>
+
+  <text class="punch" x="24" y="482">The map is all ten.</text>
+  <text class="punch2" x="24" y="499">Today we drill the three authorization and design bugs — not input-validation bugs.</text>
+</svg>
