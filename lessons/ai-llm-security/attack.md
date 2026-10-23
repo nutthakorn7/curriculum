@@ -1,7 +1,7 @@
 # {{ slot_label }} — AI / LLM Security: Attack Walkthrough
 
-This lab runs fully **offline** — the "LLM" is a local rule-based mock, so no API key
-is needed. The bot hides a secret flag in its system prompt.
+This lab needs no API key and no internet model — the "LLM" is a local rule-based mock.
+(The first `docker compose up` still pulls the image and pip-installs Flask, so start it once before class.) The bot hides a secret flag in its system prompt.
 
 Start the labs:
 
