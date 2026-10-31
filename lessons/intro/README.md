@@ -6,17 +6,22 @@ threat-modeling, and this course's own {{ ref('hybrid-encryption') }}: honestly 
 Cryptographic Storage Cheat Sheet · CWE-320 (Key Management Errors) · CWE-330
 (Use of Insufficiently Random Values)
 
-## This week — what to do
+## This week — 100-minute class and assigned assessment
 
-1. **Before class** — no environment setup needed. This week is discussion- and
-   writing-based; no Docker, no code. Skim the course README and
-   `course-plan-19weeks.md` so you know what's coming.
-2. **Lecture (120 min)** — weekly quiz first (~10 min), then the lecture. Slides:
-   `{{ slides }}`.
-3. **Lab (180 min)** — complete **Worksheet 1** (`worksheet.md`, Parts 1–5, including the
-   *Audit-the-AI* task, plus EiPE + Prompt Problem).
-4. **Submit** — worksheet PDF (with your threat model + Audit-the-AI critique + prompt
-   artifacts) → see [SUBMISSION.md](../../SUBMISSION.md) · weekly quiz → see [SUBMISSION.md](../../SUBMISSION.md).
+1. **Before class** — Read the case and course overview and complete term-wide account/repository setup. This week needs no Docker target; a short environment check happens in class after the brief introduction.
+2. **In class (100 minutes)** — 10 quiz/review + 10 brief + 60 shared practice/analysis +
+   15 debrief + 5 evidence capture. Week 1 starts with orientation/review, not a quiz on
+   material not yet taught. Slides: `{{ slides }}`. The full deck includes reference/deep-dive
+   material; the instructor selects the core explanation for this block.
+3. **Common work (60 points)** — Threat-model the supplied small web application: identify assets, actors, data/key flows and trust boundaries. Choose controls for two risks, state the trust assumptions, and explain a residual risk or limitation.
+4. **Assigned format (40 points)** — complete **either** the Conventional written questions
+   **or** AIR-Sec (Audit the AI 20 + EiPE 10 + Prompt Problem 10). Both versions total 100.
+   Viva checks support feedback/authenticity within the criteria; they add no separate marks.
+5. **After class** — finish detailed calculations, explanations and the assigned format;
+   retain all original questions as assigned work or study extensions. Submit the worksheet
+   PDF and required evidence according to [SUBMISSION.md](../../SUBMISSION.md). This week
+   has no separate code-fix/GitHub submission.
+
 5. **Project** — start thinking about your term project's trust boundaries now (see
    `project/README.md`); {{ ref('aes-modes') }} formally kicks the project off (team + design doc), but the
    earlier you can name "what data crosses what boundary, encrypted with what," the better your
@@ -44,7 +49,8 @@ Everyone gets a bingo card of common crypto myths ("military-grade encryption," 
 256-bit security," "quantum-proof because the key is long enough"). As the week's AI-generated
 exhibit is read aloud and picked apart, mark a square the moment its myth surfaces — but a square
 only counts once your table can give the one-line *technical* reason it's wrong. First verified
-BINGO wins.
+BINGO wins. Everyone plays. AIR-Sec groups also analyse the Bingo claims that come up; this sits
+alongside the Audit-the-AI critique, which still targets the Exhibit's one systematic gap.
 
 **Why it's exciting:** spotting a plausible-sounding lie is oddly addictive, and "textbook-secure
 primitive, real-system failure" is the one lens that transfers to literally every other week this
@@ -55,7 +61,7 @@ term.
 There is nothing to exploit yet — no primitive has been introduced, so there is no misuse to
 demonstrate a break against. This week is where the course's judgment is built before the
 course's tools are handed out: a data-flow/trust-boundary analysis and a critical reading
-exercise, not a CTF wrapper. The hands-on core is **Audit-the-AI**: you will critique a
+exercise, not a CTF wrapper. The shared core is the threat-model diagram and control analysis. In the AIR-Sec format, you will critique a
 plausible, professionally-worded AI answer to "why does textbook-secure crypto fail in real
 systems" that has exactly one systematic gap. Finding that gap *is* this week's exploit — it
 is a reasoning exploit instead of a code exploit, and it sets the pattern (distrust confident
@@ -76,9 +82,9 @@ this course takes one sound primitive and shows a specific way real systems brea
 | 3  | MACs (hash-based auth) | Hash-only "authentication" (no shared secret) is forgeable; naive constructions fall to length-extension |
 | 4  | AES block cipher | CBC mode with no integrity check is malleable — an attacker flips ciphertext bits to control plaintext, undetected |
 | 5  | Diffie–Hellman key exchange | Textbook DH has no authentication — a MITM completes two separate key exchanges and relays, undetected |
-| 6  | AEAD / MAC + encryption composition | Wrong composition order (MAC-then-encrypt) or a verbose error path opens a padding oracle |
+| 6  | Authenticated encryption | Unauthenticated CBC plus a padding-validity response leaks plaintext; the comparison target uses GCM |
 | 10 | Hybrid (asymmetric + symmetric) encryption | Correct RSA-OAEP, correct AES-GCM, one reused nonce — plaintext and even forgeries leak anyway |
-| 11 | ECDSA digital signatures | Nonce reuse (or biased nonces) across two signatures algebraically recovers the private key |
+| 11 | ECDSA digital signatures | Signature malleability creates a second valid representation; identifying withdrawals by signature bytes enables a duplicate withdrawal |
 | 12 | TLS / certificate-based transport | The cryptography is sound; a client that skips hostname/chain validation is MITM-able anyway |
 | 13 | End-to-end encryption | "Encrypted in transit" (TLS-only) still lets the *server* read everything; only E2E design changes that trust boundary |
 | 14 | Authentication protocols | Correct hashing/salting doesn't help if the password still crosses the wire in the clear, or sessions are predictable |
@@ -121,8 +127,12 @@ trust-boundary failures around otherwise-sound primitives.
 
 ## Deliverable
 
-- Worksheet 1 (Parts 1–5, all sections including the Conventional-arm essay questions,
-  Audit-the-AI, EiPE, Prompt Problem).
+Submit the common evidence and reasoning (60) plus only the assigned Conventional (40)
+or AIR-Sec (40) format. The details below describe the common artifact; the worksheet
+identifies the alternative sections.
+
+- The shared threat-model diagram/table and the assigned assessment format.
+- The original essay and AI tasks remain available; only the assigned format is scored.
 - No flag this week — grading is rubric-based (see `worksheet.md`'s grading table).
 
 ## References
@@ -133,6 +143,6 @@ trust-boundary failures around otherwise-sound primitives.
 - https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html
 - https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html
 - fail0verflow, *Console Hacking 2010: PS3 Epic Fail* (27C3) — ECDSA nonce-reuse key
-  recovery; foreshadows {{ ref('signatures-zkp') }}.
+  recovery; background on signature misuse (the running signatures lab demonstrates malleability).
 - Debian OpenSSL predictable-RNG advisory (CVE-2008-0166) — a sound primitive fed
   low-entropy input by a packaging bug.
