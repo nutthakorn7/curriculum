@@ -98,6 +98,8 @@ Against your own OWASP crAPI instance (`git clone https://github.com/OWASP/crAPI
 | Reflection (Part 4: mapping, breach, best mitigation) | 15 |
 | **Total** | **100** |
 
+**Due:** before the start of next week's class (exact time on learn.zcr.ai/submit). **Late:** −10% per started day; 0 after 10 days.
+
 ---
 
 ## Evidence & Integrity (required)
