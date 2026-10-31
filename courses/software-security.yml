@@ -1,6 +1,6 @@
 course:
-  name: "Software Security"
-  code: "1305315"
+  name: "Software Security 2"
+  code: "02005094"
   brand: "KOSEN·KMITL"
   flag_salt_env: SWSEC_FLAG_SALT
   challenge_keys_env: AIRSEC_CHALLENGE_KEYS
@@ -32,3 +32,4 @@ schedule:
   - {slot: 17, review: "Reflection & Review (pre-Final)"}
   - {slot: 18, exam: "Final: Written Exam", phase: final}
   - {slot: 19, exam: "Final: Capstone CTF Tournament + Project Demos", phase: final}
+  - {slot: 20, review: "Examination Feedback & Course Reflection"}
