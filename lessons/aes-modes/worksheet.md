@@ -1,4 +1,4 @@
-# Worksheet 4 — AES / Block-Cipher Modes: CBC Bit-Flipping (3 hrs)
+# Worksheet 4 — AES / Block-Cipher Modes: CBC Bit-Flipping (100-minute class + preparation/extension)
 
 > **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
 > **Topic source:** `Week4_AES Questions.docx` (KOSEN68) — 10 essay questions, ported into
@@ -11,6 +11,29 @@
 > ciphertext on systems you don't own and aren't authorized to test is illegal. Keep your
 > `AES_KEY` and flag inside this lab environment.
 
+## How to use this worksheet — 100-minute class, two versions
+
+Everyone completes the **same common activity (60 points)**. Complete only the
+**Conventional written assessment (40)** or the **AIR-Sec assessment (40)** assigned
+by the instructor. AIR-Sec's 40 points are Audit the AI 20, EiPE 10 and Prompt Problem 10.
+Each version totals **100**, and neither version requires the other format for marks.
+
+| Common criterion | Points | This week's evidence |
+|---|---:|---|
+| Core activity / analysis | 20 | Capture the token, calculate the target byte range and XOR delta, and demonstrate CBC bit-flipping. |
+| Control comparison and limitations | 20 | Compare with GCM rejection and explain the integrity guarantee, nonce assumptions and limits of the demonstration. |
+| Evidence and causal reasoning | 20 | Record the before/after role, token/delta calculation and vulnerable/fixed results, and explain why editing the previous block works. |
+
+**Before class:** complete the stated reading and any environment setup; software
+installation and first image downloads are preparation, not extra contact minutes.
+**In class (100 minutes):** 10 quiz/review + 10 brief + 60 shared practice/analysis +
+15 debrief + 5 evidence capture. In Week 1 the opening block is orientation/review,
+not a quiz on material not yet taught. The detailed tasks below are a checklist, not
+additional timed class blocks: work through the core observations in the guided practice,
+draft the explanation in the debrief, then finish detailed calculations/write-up and the
+assigned 40-point format before the published deadline. Keep every original question;
+unassigned-format questions and the labelled appendix are study extensions.
+
 ## Student Information
 | Name | Student ID | Date | Group | AI tools used (which, for what) |
 |---|---|---|---|---|
@@ -18,7 +41,7 @@
 
 ---
 
-# Part 1 — Conventional Arm: Written Questions (ported from KOSEN68, Q1–Q10)
+# Part 1 — Conventional assessment (assigned version, 40 points): Written Questions (ported from KOSEN68, Q1–Q10)
 
 Answer each in your own words (4–8 sentences; more where the question asks for a design or a
 comparison). **This is a normal written/essay task — no AI-resilience layer applies to this
@@ -61,9 +84,9 @@ what unauthenticated ciphertext lets an attacker do — apply it.)
 
 ---
 
-# Part 2 — AIR-Sec Arm
+# Part 2 — Common practice and AIR-Sec assessment
 
-## 2A — Hands-on Lab (180 min)
+## 2A — Shared common practice (both versions, 60 points)
 
 **Learning goals:** exploit an unauthenticated AES-CBC token via bit-flipping, then verify
 AES-GCM (authenticated encryption) closes the gap — the *practical* twin of Part 1's Q3/Q4/Q9.
@@ -77,18 +100,18 @@ docker compose up -d        # vulnerable_app.py on :8096, fixed_app.py on :8097
 curl localhost:8096/        # confirm it's up
 ```
 
-**Task 0 — Onboarding (10 min).** *Goal:* see the vulnerable construction. *Steps:* read
+**Task 0 — Onboarding.** *Goal:* see the vulnerable construction. *Steps:* read
 `vulnerable_app.py`'s `issue_token`/`parse_role` functions and the BLOCK LAYOUT comment at the
 top; identify exactly which line encrypts the token and confirm it is **AES-CBC with no MAC/tag**
 (`_aes_cbc_encrypt`), not GCM. *Deliverable:* quote the line and state which of Q3/Q4 failure
 modes it matches.
 
-**Task 1 — Capture a legitimate token (10 min).** *Goal:* get a real token. *Steps:*
+**Task 1 — Capture a legitimate token.** *Goal:* get a real token. *Steps:*
 `curl -i "localhost:8096/login"`; record the `token` cookie. Then
 `curl --cookie "token=<...>" localhost:8096/whoami` → confirm `{"role":"guest"}`. *Deliverable:*
 the token value + the `/whoami` output.
 
-**Task 2 — Locate the bytes you must flip (30 min).** *Goal:* understand the attack, not just run
+**Task 2 — Locate the bytes you must flip.** *Goal:* understand the attack, not just run
 it. *Steps:* base64-decode your token into `IV ‖ C0 ‖ C1` (16 bytes each). On paper (or in your
 write-up), explain: CBC decrypts block 1 as `P1 = AES_decrypt(C1) XOR C0`; the plaintext block 1
 is `role=guest;xpad0`, so `guest` occupies `P1[5..9]`; therefore to change `P1[5..9]` you XOR
@@ -96,14 +119,14 @@ into **C0** at positions `5..9`, i.e. absolute token-byte indices `16+5 .. 16+9 
 out the five XOR deltas `guest[i] ^ admin[i]` for `i=0..4`. *Deliverable:* your five deltas (in
 hex) and the absolute token indices they apply to.
 
-**Task 3 — Run the flip and cash in the flag (20 min).** *Goal:* confirm the tampered token is
+**Task 3 — Run the flip and cash in the flag.** *Goal:* confirm the tampered token is
 accepted. *Steps:* read `exploit.py`'s `bitflip_cbc_token`; confirm it edits `token[21..25]`
 exactly as you computed. Run `python exploit.py` and note the flag it printed. Then reproduce it
 by hand with `curl`: take the *forged* token the script printed and
 `curl --cookie "token=<forged>" localhost:8096/admin`. *Deliverable:* the flag + your `curl`
 command and its JSON output, to convince yourself the script isn't doing anything hidden.
 
-**Task 4 — Confirm GCM rejects the same trick (20 min).** *Goal:* prove the fix works, not just
+**Task 4 — Confirm GCM rejects the same trick.** *Goal:* prove the fix works, not just
 claim it. *Steps:* `exploit.py` applies the same "flip a ciphertext byte" idea to a `:8097` (GCM)
 token; confirm it printed `403`/rejected. Read `fixed_app.py`'s `issue_token`/`parse_role` and
 identify the change from `vulnerable_app.py` (CBC → `AESGCM`, and that decrypt now *raises* on a
@@ -112,7 +135,7 @@ schemes. **Also answer:** why can't you reproduce the *exact* CBC byte offsets o
 (Hint: GCM's layout is `nonce ‖ ct ‖ tag`, not `IV ‖ C0 ‖ C1` — there's no "previous block" to
 XOR into, and any edit fails the tag.)
 
-**Task 5 — Explain why, precisely (20 min).** *Goal:* connect the exploit to the theory. Answer
+**Task 5 — Explain why, precisely.** *Goal:* connect the exploit to the theory. Answer
 in your own words: (a) Why does editing **C0** change **P1** but *not* C0's own plaintext block in
 a way that matters? (b) Why is `guest → admin` a *clean* flip but `user → admin` would **not**
 work with a plain bit-flip? (c) What does AES-GCM compute over the ciphertext that makes the same
@@ -123,15 +146,19 @@ paragraphs, one per sub-question.
 
 ## 2B — Evidence & Integrity (required)
 
-- **Identity proof:** your terminal/screenshot evidence for Tasks 1–4 must show a terminal
-  running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in the same image as the evidence**. When the evidence is a browser page,
-  a DevTools panel or a rendered response, put that terminal **beside the browser and capture
-  the whole screen** — a cropped window carries nothing that identifies you, and the lab's own
-  output is byte-identical for the whole cohort *by design*, so the stamp is the only thing
-  that makes the shot yours.
-- **Personalized flag:** ____________________
-  *Flags are unique per student (via `AES_KEY`/`FLAG_AES` env override — see README) —
-  submitting another student's flag is a violation.*
+- **Evidence attribution (the same for both versions):** put your name/student ID and
+  date on the worksheet, and capture your own commands and results. Make clear which run
+  each observation came from. A terminal timestamp or identity stamp is optional context,
+  not an extra scored personal artifact. If evidence is unclear, the instructor may request
+  clarification within the common evidence/reasoning criterion.
+- **Runtime flag (where this lab returns one):** record the value from your own run. Use a
+  personalised configuration only if the instructor supplies it; otherwise the shared demo
+  flag is acceptable with your own evidence and reasoning. No automatic roster/flag validation
+  is assumed. Do not submit a classmate's capture as your own.
+- Optional context stamp: `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'`.
+  You may include this with a terminal/browser capture if useful. A separate terminal or
+  whole-screen identity capture is not required; legible own commands/results and the
+  worksheet name/student ID are sufficient. All common evidence is within the common 60.
 - **Explain in your own words** *(graded on your reasoning, not copied text):*
   1. What did you do, and **why did the bit-flip work** (name the token byte range you edited)?
   2. **Why does AES-GCM actually stop it** — and is switching to GCM enough on its own, or does
@@ -139,7 +166,7 @@ paragraphs, one per sub-question.
 
 ---
 
-## 2C — 🤖 Audit the AI (required)
+## 2C — 🤖 Audit the AI (AIR-Sec version only, 20 points)
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
@@ -199,7 +226,7 @@ flaw** that is exactly this week's topic. Your job: find it.
 
 ---
 
-## 2D — 🧠 Comprehension & Prompt (required)
+## 2D — 🧠 Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
 **A. Explain in Plain English (EiPE).** Explain to a teammate — a working developer who knows
 what "encrypt" means but has never heard "malleability" or "CBC bit-flipping" — **why AES-CBC
@@ -224,7 +251,7 @@ bullet points above).
 
 ---
 
-## 2E — 🎤 Viva spot-check (instructor use — 3 questions)
+## 2E — 🎤 Viva spot-check (formative/authenticity check; no separate points)
 
 An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
@@ -239,16 +266,24 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 ---
 
-## Grading rubric (100)
+## Grading rubric — assigned version totals 100
 
-| Criterion | Points |
-|---|---|
-| Part 1 — Conventional written questions (Q1–Q10) | 25 |
-| Part 2A — Lab tasks 0–5 (evidence: token hex dump, computed XOR deltas, curl output) | 30 |
-| Part 2B — Evidence & Integrity (flag capture + own-words explanation) | 10 |
-| Part 2C — Audit the AI (flaw found + AEAD-corrected, verified rewrite) | 20 |
-| Part 2D — Comprehension & Prompt (EiPE + Prompt Problem) | 15 |
+| Criterion | Conventional | AIR-Sec |
+|---|---:|---:|
+| Common core activity / analysis | 20 | 20 |
+| Common control comparison and limitations | 20 | 20 |
+| Common evidence and causal reasoning | 20 | 20 |
+| Conventional written questions | 40 | — |
+| AIR-Sec Audit the AI | — | 20 |
+| AIR-Sec Explain in Plain English (EiPE) | — | 10 |
+| AIR-Sec Prompt Problem | — | 10 |
+| **Total for the assigned version** | **100** | **100** |
 
-*Viva spot-checks (Part 2E) are pass/fail gates on the Lab + Audit-the-AI scores, not separately
-scored — an instructor who isn't convinced you did the work yourself may re-score those sections
-down.*
+**Deadline and late work:** hand in before the start of the next week's class session (KOSEN rule).
+Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
+
+Submit the common work plus **one** assigned assessment format; do not add the two
+format columns or complete both formats for extra marks. The original questions remain
+available for study. A viva is a formative/authenticity check within the relevant criteria,
+with feedback or a request to clarify/reproduce evidence; it has no separate points and
+no automatic-zero rule. Grade the demonstrated work against the published criteria.

@@ -1,4 +1,4 @@
-# Worksheet 2 — Hash Functions: Cracking a Leaked Password Database (3 hrs)
+# Worksheet 2 — Hash Functions: Cracking a Leaked Password Database (100-minute class + preparation/extension)
 
 > **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
 > **Cracking game:** "Crack the Leaked DB" (recover the admin password from a leaked, unsalted
@@ -10,6 +10,29 @@
 > own and aren't authorized to test is illegal. Keep recovered passwords and your flag inside
 > this lab environment.
 
+## How to use this worksheet — 100-minute class, two versions
+
+Everyone completes the **same common activity (60 points)**. Complete only the
+**Conventional written assessment (40)** or the **AIR-Sec assessment (40)** assigned
+by the instructor. AIR-Sec's 40 points are Audit the AI 20, EiPE 10 and Prompt Problem 10.
+Each version totals **100**, and neither version requires the other format for marks.
+
+| Common criterion | Points | This week's evidence |
+|---|---:|---|
+| Core activity / analysis | 20 | Recover the admin password from the supplied MD5 store and demonstrate the login/session flow. |
+| Control comparison and limitations | 20 | Compare the bcrypt store and verification code; explain salting, work factor and why a weak password remains guessable. |
+| Evidence and causal reasoning | 20 | Record the crack, session/no-session controls, fixed-store comparison and your explanation of what those observations do and do not prove. |
+
+**Before class:** complete the stated reading and any environment setup; software
+installation and first image downloads are preparation, not extra contact minutes.
+**In class (100 minutes):** 10 quiz/review + 10 brief + 60 shared practice/analysis +
+15 debrief + 5 evidence capture. In Week 1 the opening block is orientation/review,
+not a quiz on material not yet taught. The detailed tasks below are a checklist, not
+additional timed class blocks: work through the core observations in the guided practice,
+draft the explanation in the debrief, then finish detailed calculations/write-up and the
+assigned 40-point format before the published deadline. Keep every original question;
+unassigned-format questions and the labelled appendix are study extensions.
+
 ## Part 1 — Student Information
 | Name | Student ID | Date | Group | AI tools used (which, for what) |
 |---|---|---|---|---|
@@ -17,7 +40,7 @@
 
 ---
 
-## Part 2 — Conventional Arm: Written Questions
+## Part 2 — Conventional assessment (assigned version, 40 points): Written Questions
 
 Answer each in your own words (4–8 sentences, more where the question asks for a design). This is
 a normal written/essay task — **no AI-resilience layer applies to this part; answer it
@@ -56,12 +79,12 @@ and what threat does a pepper address that a salt does **not**?
 
 ---
 
-## Part 3 — AIR-Sec Arm: Hands-on Lab (180 min)
+## Part 3 — Shared common practice (both versions, 60 points)
 
 **Learning goals:** crack a leaked unsalted-MD5 password store with an offline dictionary
 attack, capture the admin flag, then verify a bcrypt store resists the same fast technique — the
 *practical* twin of Part 2's Q3/Q6.
-**Prerequisites:** Docker; Python 3.12 (or the `requests` package) on the host to run
+**Prerequisites:** Docker; Python 3 with the `requests` package on the host to run
 `exploit.py`.
 
 **Environment setup**
@@ -71,12 +94,12 @@ docker compose up -d        # vulnerable_app.py on :8094, fixed_app.py on :8095
 curl localhost:8094/        # confirm it's up
 ```
 
-**Task 0 — Onboarding (10 min).** *Goal:* see the vulnerable store. *Steps:* open
+**Task 0 — Onboarding.** *Goal:* see the vulnerable store. *Steps:* open
 `users_vulnerable.csv` and `vulnerable_app.py`; find the exact line in `/login` that checks the
 password and confirm it is `hashlib.md5(password.encode()).hexdigest() == stored` (fast, no
 salt). *Deliverable:* quote that line and state which of Q3/Q6's failure modes it matches.
 
-**Task 1 — Crack the admin hash by hand-ish (25 min).** *Goal:* recover the admin password
+**Task 1 — Crack the admin hash by hand-ish.** *Goal:* recover the admin password
 *yourself*, not just by running the script. *Steps:* read the `admin` row's md5 from
 `users_vulnerable.csv`; then in a Python REPL, loop over `wordlist.txt` computing
 `hashlib.md5(word.encode()).hexdigest()` until one equals the admin hash. (You may also confirm
@@ -84,7 +107,7 @@ with a tool: `hashcat -m 0` or `john --format=raw-md5` against a one-line hash f
 fine.) *Deliverable:* the recovered plaintext + the ~time it took + one line on *why* it was so
 fast (fast primitive + unsalted, so a single precomputed table covers every row — CWE-916/759).
 
-**Task 2 — Log in and capture the flag (15 min).** *Goal:* turn the cracked password into the
+**Task 2 — Log in and capture the flag.** *Goal:* turn the cracked password into the
 flag. *Steps:* `exploit.py` already does this, but reproduce it manually so you understand the
 **session**: log in, *keeping the cookie jar*, then hit `/admin` with the same jar:
 ```bash
@@ -97,11 +120,11 @@ Now try `GET /admin` *without* `-b "$JAR"` and confirm you get `403`. *Deliverab
 your two curl outputs (with-jar → flag, without-jar → 403), and one sentence on why the session
 cookie is required (`exploit.py` uses a single `requests.Session()` for exactly this reason).
 
-**Task 3 — Run the full exploit (10 min).** *Goal:* confirm the scripted end-to-end run.
+**Task 3 — Run the full exploit.** *Goal:* confirm the scripted end-to-end run.
 *Steps:* `python exploit.py`; note the two `PASS` lines and exit code 0. *Deliverable:* the full
 script output pasted into your write-up.
 
-**Task 4 — Confirm bcrypt resists the fast technique (20 min).** *Goal:* prove the fix works,
+**Task 4 — Confirm bcrypt resists the fast technique.** *Goal:* prove the fix works,
 not just claim it. *Steps:* open `users_fixed.csv` — note the stored hashes start with `$2b$`
 (bcrypt), embed a per-user salt, and differ even for users who might share a password. In a REPL,
 build the md5 table over `wordlist.txt` again and confirm it matches **none** of the bcrypt
@@ -109,7 +132,7 @@ strings (they aren't md5 hex). Read `fixed_app.py`'s `/login` and identify the o
 from `vulnerable_app.py` (`bcrypt.checkpw` vs. `md5(...) ==`). *Deliverable:* the "0 matches"
 result + the one-line diff (in words) between the two `/login` password checks.
 
-**Task 5 — Explain the cost, precisely (20 min).** *Goal:* connect the exploit to the theory —
+**Task 5 — Explain the cost, precisely.** *Goal:* connect the exploit to the theory —
 and don't overclaim. *Steps:* answer in your own words: (a) Why did *one* precomputed md5 table
 crack every row of the vulnerable store at once, while it cracks *zero* rows of the bcrypt store?
 (b) The admin password `sunshine2021` **is** in the wordlist — so could a patient attacker still
@@ -121,15 +144,19 @@ attacker's search)? *Deliverable:* 3 short paragraphs, one per sub-question.
 
 ## Evidence & Integrity (required)
 
-- **Identity proof:** your terminal/screenshot evidence for Tasks 1–4 must show a terminal
-  running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in the same image as the evidence**. When the evidence is a browser page,
-  a DevTools panel or a rendered response, put that terminal **beside the browser and capture
-  the whole screen** — a cropped window carries nothing that identifies you, and the lab's own
-  output is byte-identical for the whole cohort *by design*, so the stamp is the only thing
-  that makes the shot yours.
-- **Personalized flag:** ____________________
-  *Flags are unique per student (via the `FLAG_HASH` env override — see README) — submitting
-  another student's flag is a violation.*
+- **Evidence attribution (the same for both versions):** put your name/student ID and
+  date on the worksheet, and capture your own commands and results. Make clear which run
+  each observation came from. A terminal timestamp or identity stamp is optional context,
+  not an extra scored personal artifact. If evidence is unclear, the instructor may request
+  clarification within the common evidence/reasoning criterion.
+- **Runtime flag (where this lab returns one):** record the value from your own run. Use a
+  personalised configuration only if the instructor supplies it; otherwise the shared demo
+  flag is acceptable with your own evidence and reasoning. No automatic roster/flag validation
+  is assumed. Do not submit a classmate's capture as your own.
+- Optional context stamp: `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'`.
+  You may include this with a terminal/browser capture if useful. A separate terminal or
+  whole-screen identity capture is not required; legible own commands/results and the
+  worksheet name/student ID are sufficient. All common evidence is within the common 60.
 - **Explain in your own words** *(graded on your reasoning, not copied text):*
   1. What did you do, and **why did the crack work** (why did the MD5 store fall in ms)?
   2. **Why does the bcrypt fix actually stop the fast attack** — and what could still break it
@@ -137,7 +164,7 @@ attacker's search)? *Deliverable:* 3 short paragraphs, one per sub-question.
 
 ---
 
-## 🤖 Audit the AI (required)
+## 🤖 Audit the AI (AIR-Sec version only, 20 points)
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's
 answer.
@@ -184,7 +211,7 @@ it has **at least one subtly serious flaw**. Your job: find it.
 
 ---
 
-## 🧠 Comprehension & Prompt (required)
+## 🧠 Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
 **A. Explain in Plain English (EiPE).** A web developer says: *"I don't store plaintext — I store
 `SHA-256(password)`, and SHA-256 has never been broken. So I'm fine, right?"* In 2–4 sentences,
@@ -208,7 +235,7 @@ bullet points above).
 
 ---
 
-## 🎤 Viva spot-check (instructor use — 3 questions)
+## 🎤 Viva spot-check (formative/authenticity check; no separate points)
 
 An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
@@ -224,15 +251,24 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 ---
 
-## Grading rubric (100)
+## Grading rubric — assigned version totals 100
 
-| Criterion | Points |
-|---|---|
-| Part 2 — Conventional written questions (Q1–Q8) | 25 |
-| Part 3 — Lab tasks 0–5 (evidence: recovered password, curl session proof, "0 matches" result) | 30 |
-| Evidence & Integrity (flag capture + own-words explanation) | 10 |
-| Audit the AI (flaw(s) found + corrected KDF-based version) | 20 |
-| Comprehension & Prompt (EiPE + Prompt Problem) | 15 |
+| Criterion | Conventional | AIR-Sec |
+|---|---:|---:|
+| Common core activity / analysis | 20 | 20 |
+| Common control comparison and limitations | 20 | 20 |
+| Common evidence and causal reasoning | 20 | 20 |
+| Conventional written questions | 40 | — |
+| AIR-Sec Audit the AI | — | 20 |
+| AIR-Sec Explain in Plain English (EiPE) | — | 10 |
+| AIR-Sec Prompt Problem | — | 10 |
+| **Total for the assigned version** | **100** | **100** |
 
-*Viva spot-checks are pass/fail gates on the Lab + Audit-the-AI scores, not separately scored —
-an instructor who isn't convinced you did the work yourself may re-score those sections down.*
+**Deadline and late work:** hand in before the start of the next week's class session (KOSEN rule).
+Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
+
+Submit the common work plus **one** assigned assessment format; do not add the two
+format columns or complete both formats for extra marks. The original questions remain
+available for study. A viva is a formative/authenticity check within the relevant criteria,
+with feedback or a request to clarify/reproduce evidence; it has no separate points and
+no automatic-zero rule. Grade the demonstrated work against the published criteria.

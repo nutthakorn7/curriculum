@@ -6,6 +6,18 @@
 > **Kind:** Hybrid — a runnable cert-bypass MITM demo (Part 2a) alongside conceptual content that
 > stays theoretical this week (the wider Web PKI trust model, Part 2c).
 
+## 100-minute class and assigned worksheet version
+
+**In class:** 10 min retrieval quiz + 10 min brief explanation + 60 min practice/analysis + 15 min debrief + 5 min evidence capture = 100 min.
+
+**Shared core — every student:** Run vulnerable and validating TLS configurations, capture their contrasting results, then implement and test build_client_context() in alice_student.py. Every student completes this coding and evidence task as part of the shared 60 points.
+
+**Preparation and extensions:** Prepare images and read the certificate topology before class. Complete the full PKI/Noise essays or AIR-Sec critique/EiPE/Prompt outside the core block as needed. Preserve the required W12 code link in the worksheet.
+
+**Assessment:** everyone completes the shared core (60 points) plus **one assigned version** (40 points): Conventional written analysis, or AIR-Sec Audit-the-AI 20 + EiPE 10 + Prompt Problem 10. Both versions total 100. All questions remain available; complete the assigned version's full questions, using out-of-class time for extended responses. The other version is ungraded reference practice, not an additional requirement. Viva/micro-demo questions are formative checks of the submitted explanation, with no separate points or automatic pass/fail score gate.
+
+**Evidence:** record reproducible observations or reasoning and your name/student ID. Where the local target prints a shared placeholder flag, record it as observed; a personalized flag or live CTFd account is not a prerequisite. Follow SUBMISSION.md for the announced hand-in channel.
+
 ## Part 0 — Student Information
 | Name | Student ID | Date | Group |
 |---|---|---|---|
@@ -50,12 +62,12 @@ microservices), and say what you would give up by choosing it.
 
 ---
 
-## Part 2 — AIR-Sec Arm: Hands-On Lab, Audit-the-AI, EiPE, Prompt Problem, Viva
+## Part 2 — Shared Lab Core and Assigned AIR-Sec Tasks
 
 AI is a power tool you must **distrust** — several parts below are graded on your *critique*, not
 on how well you can prompt an AI. Full run instructions: [`README.md`](README.md).
 
-### Part 2a — Lab steps + evidence artifact (required)
+### Part 2a — Shared lab steps + evidence artifact (required for both versions)
 
 **Setup.** `gen_certs.py` generates, into a shared volume, a demo CA, Bob's CA-signed cert
 (`CN=bob`), and a **self-signed impostor** cert that *also* claims `CN=bob`. `mitm.py` presents
@@ -71,11 +83,10 @@ directly — that is the premise: an active attacker controls the network path.
    ```
    MITM INTERCEPTED: the vault code is 7731
    ```
-   **This is your personalized/attributable artifact for this HYBRID week, in place of a CTF
+   **This is your attributable artifact for this HYBRID week, in place of a CTF
    flag.** The message text itself is fixed for every student (`SECRET_MESSAGE` is a lab constant,
    not per-student), so what makes your submission *yours* is not the string — it's the same
-   identity-proof mechanism as every other week: you must attach the identity stamp the Evidence & Integrity section below
-   specifies, in the same image as the captured log.
+   attributed mechanism as every other week: include your name/student ID and a reproducible capture or annotated transcript from your own run, as described in Evidence & Integrity.
    Note in one line: Alice logs that the TLS handshake **succeeded** — so the channel really is
    encrypted. Why did encryption not protect the secret?
 2. Tear down: `Ctrl-C`, then `docker compose -f docker-compose.vulnerable.yml down -v`.
@@ -107,12 +118,12 @@ directly — that is the premise: an active attacker controls the network path.
    You're done when you see `CERT VERIFICATION FAILED - ABORTING` (not a Python traceback, and not
    `TLS handshake succeeded`). Tear down: `docker compose -f docker-compose.student-task.yml down -v`.
 
-**Submit:** both captured logs from steps 1 and 3 (with identity proof visible), your one-line note
+**Submit:** both captured logs from steps 1 and 3 (with your name/student ID and reproducible attribution), your one-line note
 from step 1, the `grep -c` output from step 3, **and your completed `alice_student.py`** (paste the
 diff or the full `build_client_context()` function) with a 2–3 sentence explanation of what each
 line does and why it's necessary — you may be asked to explain it live in the viva.
 
-### Part 2b — 🤖 Audit the AI (required)
+### Part 2b — Assigned AIR-Sec Audit the AI
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
@@ -169,7 +180,7 @@ watched intercept a secret.
 > Disclose any additional AI use in the Part 0 table. This task counts toward your Defense +
 > Reflection score.
 
-### Part 2c — Explain in Plain English (EiPE): why a CA signature matters (required)
+### Part 2c — Assigned AIR-Sec EiPE: why a CA signature matters
 
 The lab's fixed mode rejected the impostor cert because it was **self-signed** — not signed by a
 trusted CA — even though it claimed the exact same name (`CN=bob`, `SAN=DNS:bob`) as the real
@@ -189,7 +200,7 @@ in ordinary words). In 4–6 sentences, cover:
   authority itself is dishonest or gets hacked (this connects back to Q5's compromised-CA risk —
   the demo does *not* cover this case, and you should say so).
 
-### Part 2d — Prompt Problem (required)
+### Part 2d — Assigned AIR-Sec Prompt Problem
 
 Write a **single prompt** asking an AI to *implement a secure HTTPS client in Python that connects
 to a service using a private/internal certificate authority, resistant to man-in-the-middle
@@ -211,7 +222,7 @@ specific sentence(s) that are correct, hand-waved, or wrong. A strong prompt nam
 ("must resist an attacker who controls the network path and can present their own certificate") so
 the AI can't wriggle out with a toy example.
 
-### Part 2e — Viva Spot-Check (instructor-run, live)
+### Part 2e — Formative Viva Spot-Check (no separate points)
 
 Be ready to answer these live, in your own words, with no notes:
 
@@ -231,14 +242,21 @@ Be ready to answer these live, in your own words, with no notes:
 
 ## Grading rubric (100)
 
-| Criterion | Points |
-|---|---|
-| Conventional arm — 6 essay questions (Part 1) | 36 |
-| Lab evidence — both modes captured, evidence lines present/absent as required (Part 2a) | 18 |
-| Audit the AI — `verify=False` flaw found + corrected, false-reassurance named (Part 2b) | 20 |
-| EiPE — why a CA signature matters, in plain English (Part 2c) | 12 |
-| Prompt Problem (Part 2d) | 8 |
-| Viva spot-check (Part 2e, instructor-run) | 6 |
+| Criterion | Conventional | AIR-Sec |
+|---|---:|---:|
+| Shared practical core: run both modes and implement/test build_client_context() | 20 | 20 |
+| Shared control and limitations: compare the secure control and explain what it does and does not show | 20 | 20 |
+| Shared reproducible evidence and reasoning: attributable observations, commands/results and explanation | 20 | 20 |
+| Assigned Conventional written questions | 40 | — |
+| Assigned AIR-Sec Audit-the-AI | — | 20 |
+| Assigned AIR-Sec Explain-in-Plain-English | — | 10 |
+| Assigned AIR-Sec Prompt Problem | — | 10 |
+| **Total for the assigned version** | **100** | **100** |
+
+**Deadline and late work:** hand in before the start of the next week's class session (KOSEN rule).
+Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
+
+Viva/micro-demo checks are formative: no separate points and no automatic score gate. The 60 shared points apply to both versions; do not add the unassigned version's 40 points.
 
 See the instructor answer key *(instructor use only, not in this file)* for model answers to all 6
 essay questions and the detailed lab/audit/viva grading notes.
@@ -247,16 +265,12 @@ essay questions and the detailed lab/audit/viva grading notes.
 
 ## Evidence & Integrity (required)
 
-- **Identity proof:** every screenshot/log capture must show a terminal running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in
-  the same image as the evidence**. When the evidence is a browser page, a DevTools panel or a
-  rendered response, put that terminal **beside the browser and capture the whole screen** — a
-  cropped window carries nothing that identifies you, and the lab's own output is
-  byte-identical for the whole cohort *by design*, so the stamp is the only thing that makes
-  the shot yours. Generic or borrowed evidence is not accepted.
+- **Attribution and reproducibility (both versions):** put your name/student ID on the submitted work and provide your own commands, observations and explanation. A screenshot or annotated transcript is acceptable; shared placeholder output is not per-student proof by itself.
+- **Optional terminal-stamp example:** `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'`. This is one way to label a capture, not a separate requirement, point allocation or live-personalization prerequisite.
 - **Personalized/attributable artifact:** the `MITM INTERCEPTED: the vault code is 7731` line from
-  Part 2a, submitted **together with** your identity-proof screenshot — the identity proof is what
+  Part 2a, submitted **together with** your attributed screenshot or annotated transcript — the attribution is what
   makes it yours, not the message text (see Part 2a for why). Submitting someone else's captured
-  log without your own identity proof is a violation.
+  log without your own attribution is a violation.
 - **Explain in your own words** *(graded on your reasoning, not copied text)*:
   1. What did the attack do, and **why did it work** against a client that skipped certificate
      validation — given that the channel really was TLS-encrypted?

@@ -1,5 +1,7 @@
 # {{ slot_label }} — PQC: Harvest Now, Decrypt Later + Hybrid KEM
 
+> **Optional extension:** complete after the required Lamport core if you choose. This companion adds **0 additional points**, does not change the required W15 worksheet or course weights, and is not a prerequisite for full marks. Its questions and practice rubric are retained for feedback only; no personalized flag is required if that service is not provisioned.
+
 **Topic:** Post-quantum cryptography — the *confidentiality* migration: harvest-now-decrypt-later
 (HNDL), crypto agility, and **hybrid key exchange** (classical + PQC KEM) · **Kind:** LAB
 **Concepts:** KEM, the quantum threat to key exchange (Shor), HNDL, ML-KEM (Kyber), hybrid mode,
@@ -21,8 +23,9 @@ crypto-agility · **Analogous CWE:** CWE-327 (Use of a Broken or Risky Cryptogra
 3. **Lab** — `docker compose up`, then play the game below: **harvest** a session transcript,
    break its classical KEM **offline**, decrypt it and capture your flag; then watch the *same*
    attack fail against the **hybrid** channel. Complete **Worksheet** (`worksheet.md`).
-4. **Submit** — worksheet PDF + flag → Classroom · exploit run/output → GitHub. (How:
-   [SUBMISSION.md](../../../SUBMISSION.md).)
+4. **Submit (optional)** — this companion adds no points. If you run it, put the flag and exploit
+   output in your Week 15 worksheet PDF on `learn.zcr.ai/submit`; nothing goes to Classroom or
+   GitHub. (How: [SUBMISSION.md](../../../SUBMISSION.md).)
 
 ## Objectives
 

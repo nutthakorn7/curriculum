@@ -7,6 +7,18 @@
 > **Kind:** Hybrid — a runnable password-sent-vs-never-sent demo (Part 2a) alongside conceptual
 > content that stays theoretical this week (TOTP/FIDO2/SSO comparison, Part 1 + Part 2c EiPE).
 
+## 100-minute class and assigned worksheet version
+
+**In class:** 10 min retrieval quiz + 10 min brief explanation + 60 min practice/analysis + 15 min debrief + 5 min evidence capture = 100 min.
+
+**Shared core — every student:** Run password-submission and challenge-response scenarios; capture successful login and the log differences; explain replay protection, verifier theft and the limits of this simplified protocol.
+
+**Preparation and extensions:** Prepare images and read the authentication overview. Complete the full factor/MFA/SSO essays or AIR-Sec critique/EiPE/Prompt outside the core block as needed.
+
+**Assessment:** everyone completes the shared core (60 points) plus **one assigned version** (40 points): Conventional written analysis, or AIR-Sec Audit-the-AI 20 + EiPE 10 + Prompt Problem 10. Both versions total 100. All questions remain available; complete the assigned version's full questions, using out-of-class time for extended responses. The other version is ungraded reference practice, not an additional requirement. Viva/micro-demo questions are formative checks of the submitted explanation, with no separate points or automatic pass/fail score gate.
+
+**Evidence:** record reproducible observations or reasoning and your name/student ID. Where the local target prints a shared placeholder flag, record it as observed; a personalized flag or live CTFd account is not a prerequisite. Follow SUBMISSION.md for the announced hand-in channel.
+
 ## Part 0 — Student Information
 | Name | Student ID | Date | Group |
 |---|---|---|---|
@@ -30,9 +42,7 @@ weakness of each.
 **Q3.** What does a challenge-response protocol achieve that plain password submission does not?
 Explain what actually travels on the wire in each case.
 
-**Q4.** What is a PAKE (e.g. SRP, OPAQUE)? Name the **two** properties a real PAKE provides *beyond*
-"the password is not sent" (hint: offline-dictionary resistance on the stored verifier; mutual
-authentication), and explain what each one protects against.
+**Q4.** What is a PAKE (e.g. SRP, OPAQUE)? Explain mutual authenticated key exchange and resistance to offline guessing from protocol transcripts. Then distinguish that threat from a stolen credential file/full server compromise: what does OPAQUE's pre-computation resistance add, and why can offline guesses remain possible after compromise? Use [RFC 9807 Sections 1 and 10.11](https://www.rfc-editor.org/rfc/rfc9807.html#section-10.11).
 
 **Q5.** How does TOTP (an authenticator app) work? Why is a TOTP code **phishable** while a
 FIDO2/WebAuthn credential is **not**? (Consider what the user types vs. what the authenticator does,
@@ -50,12 +60,12 @@ application)? What new single-point-of-failure risk does introducing an identity
 
 ---
 
-## Part 2 — AIR-Sec Arm: Hands-On Lab, Audit-the-AI, EiPE, Prompt Problem, Viva
+## Part 2 — Shared Lab Core and Assigned AIR-Sec Tasks
 
 AI is a power tool you must **distrust** — several parts below are graded on your *critique*, not on
 how well you can prompt an AI. Full run instructions: [`README.md`](README.md).
 
-### Part 2a — Lab steps + evidence artifact (required)
+### Part 2a — Shared lab steps + evidence artifact (required for both versions)
 
 **Setup.** `server.py` is a Flask auth server whose behaviour is set by the `PAKE` env var (baked
 into each compose file). `client.py` runs the matching login flow. The demo account is `alice` with
@@ -71,10 +81,9 @@ password `correct-horse-battery`.
    SERVER SAW PASSWORD: correct-horse-battery
    ```
    plus `LOGIN OK` from the client. **This `SERVER SAW PASSWORD` line is your
-   personalized/attributable artifact for this HYBRID week, in place of a CTF flag.** The password
+   attributable artifact for this HYBRID week, in place of a CTF flag.** The password
    string is a lab constant (the same for every student), so what makes your submission *yours* is
-   the identity proof you attach: you must attach the identity stamp the Evidence & Integrity section below
-   specifies, in the same image as the captured log. In one line, note **which service printed the password and why** — i.e. what does the
+   the attribution you attach: include your name/student ID and a reproducible capture or annotated transcript from your own run, as described in Evidence & Integrity. In one line, note **which service printed the password and why** — i.e. what does the
    server having your plaintext in a request handler let a malicious operator do that TLS did not
    prevent?
 2. Tear down: `docker compose -f docker-compose.vulnerable.yml down`.
@@ -93,7 +102,7 @@ password `correct-horse-battery`.
    ```
 4. Tear down: `docker compose -f docker-compose.fixed.yml down`.
 
-**Submit:** both captured logs (with identity proof visible), your one-line note from step 1, and
+**Submit:** both captured logs (with your name/student ID and reproducible attribution), your one-line note from step 1, and
 the two `grep -c` outputs from step 3.
 
 **One-line reflection to include with your logs** *(graded on reasoning, not copied text)*: in the
@@ -101,7 +110,7 @@ fixed mode the client still proves it knows `correct-horse-battery`, yet the ser
 In your own words: what does the client send *instead* of the password, and why can't an attacker
 who records that (the nonce and the proof) reuse it to log in later?
 
-### Part 2b — Audit-the-AI (required)
+### Part 2b — Assigned AIR-Sec Audit-the-AI
 
 A teammate asked an AI assistant to "write a Flask login handler with good logging for debugging."
 The AI produced the handler below. It runs, it authenticates correctly, and the logging "looks
@@ -140,7 +149,7 @@ Answer, in your own words:
    mode? (Both are the same underlying mistake — the credential reaching a place it should never
    reach. Name that place in each case.)
 
-### Part 2c — Explain in Plain English (EiPE): proving you know a secret without revealing it (required)
+### Part 2c — Assigned AIR-Sec EiPE: proving knowledge without sending the password
 
 The lab's fixed mode lets the client prove it knows the password **without sending it**. This
 section is the conceptual half of this HYBRID week: explain the idea **in plain English to someone
@@ -157,7 +166,7 @@ what you mean in ordinary words). In 4–6 sentences, cover:
 - The honest limit (see README's honest-scope box): this demo proves *only* that the password is
   never sent. Name **one** thing a real PAKE also protects against that this demo does **not**.
 
-### Part 2d — Prompt Problem (required)
+### Part 2d — Assigned AIR-Sec Prompt Problem
 
 Ask an AI assistant a single prompt along the lines of: *"How should I securely handle user login
 so the server never learns the user's password?"* Paste its full response, then critique it. At
@@ -167,17 +176,14 @@ minimum, check whether the AI's answer:
   there, missing that the server still sees the plaintext.
 - Names a real mechanism correctly (SRP, OPAQUE, WebAuthn) rather than hand-waving "use a secure
   library" — and doesn't **hallucinate** a made-up protocol or misattribute an RFC.
-- If it recommends a PAKE, does it correctly state the **two** extra properties (offline-dictionary
-  resistance on the stored verifier; mutual authentication) — or does it overclaim a simple
-  "hash-the-password-client-side" scheme as equivalent to a PAKE? (Client-side hashing alone does
-  **not** give you either extra property — the hash just *becomes* the password.)
+- If it recommends a PAKE, does it distinguish mutually authenticated key exchange and transcript resistance from server compromise? For OPAQUE, does it distinguish pre-computation resistance from the incorrect claim that a fully compromised server can never test password guesses? Does it overclaim client-side hashing as a PAKE, even though the hash can become a reusable password-equivalent secret?
 - Mentions verifier storage correctly (a slow, salted KDF such as bcrypt/argon2) and does **not**
   suggest storing anything reversible.
 
 **Submit:** your exact prompt, the AI's full response, and a bullet-by-bullet critique quoting the
 specific sentence(s) that are correct, hand-waved, or wrong.
 
-### Part 2e — Viva Spot-Check (instructor-run, live)
+### Part 2e — Formative Viva Spot-Check (no separate points)
 
 Be ready to answer these live, in your own words, with no notes:
 
@@ -187,22 +193,27 @@ Be ready to answer these live, in your own words, with no notes:
 2. In **fixed** mode the client still proves it knows the password, but the server only logs a
    `nonce` and a `proof`. Walk through how the server decides the login is valid **without** ever
    having the password. What does the server compare against?
-3. The README is explicit that this fixed demo is **not** a full PAKE. Name the two properties it is
-   missing, and give a concrete scenario where each missing property would bite you (e.g. the
-   server database leaks; or the client is tricked into talking to a fake server).
+3. The README is explicit that this fixed demo is **not** a full PAKE. Explain the missing mutually authenticated key exchange and transcript-guessing resistance; then distinguish verifier theft from OPAQUE's full-server-compromise limits. Give a concrete scenario for each threat.
 
 ---
 
 ## Grading rubric (100)
 
-| Criterion | Points |
-|---|---|
-| Conventional arm — 8 essay questions (Part 1) | 40 |
-| Lab evidence — both modes captured, evidence line present (vuln) / absent + `grep -c 0` (fixed) (Part 2a) | 20 |
-| Audit-the-AI — flaw named, both leaking lines identified, working fix (Part 2b) | 15 |
-| EiPE — proving knowledge without revealing, in plain English + honest limit (Part 2c) | 10 |
-| Prompt Problem (Part 2d) | 10 |
-| Viva spot-check (Part 2e, instructor-run) | 5 |
+| Criterion | Conventional | AIR-Sec |
+|---|---:|---:|
+| Shared practical core: complete the assigned run or coding steps | 20 | 20 |
+| Shared control and limitations: compare the secure control and explain what it does and does not show | 20 | 20 |
+| Shared reproducible evidence and reasoning: attributable observations, commands/results and explanation | 20 | 20 |
+| Assigned Conventional written questions | 40 | — |
+| Assigned AIR-Sec Audit-the-AI | — | 20 |
+| Assigned AIR-Sec Explain-in-Plain-English | — | 10 |
+| Assigned AIR-Sec Prompt Problem | — | 10 |
+| **Total for the assigned version** | **100** | **100** |
+
+**Deadline and late work:** hand in before the start of the next week's class session (KOSEN rule).
+Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
+
+Viva/micro-demo checks are formative: no separate points and no automatic score gate. The 60 shared points apply to both versions; do not add the unassigned version's 40 points.
 
 See the instructor answer key *(instructor use only, not in this file)* for model answers to all 8
 essay questions, the Audit-the-AI fix, and the detailed lab/viva grading notes.
@@ -211,17 +222,13 @@ essay questions, the Audit-the-AI fix, and the detailed lab/viva grading notes.
 
 ## Evidence & Integrity (required)
 
-- **Identity proof:** every screenshot/log capture must show a terminal running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in
-  the same image as the evidence**. When the evidence is a browser page, a DevTools panel or a
-  rendered response, put that terminal **beside the browser and capture the whole screen** — a
-  cropped window carries nothing that identifies you, and the lab's own output is
-  byte-identical for the whole cohort *by design*, so the stamp is the only thing that makes
-  the shot yours. Generic or borrowed evidence is not accepted.
+- **Attribution and reproducibility (both versions):** put your name/student ID on the submitted work and provide your own commands, observations and explanation. A screenshot or annotated transcript is acceptable; shared placeholder output is not per-student proof by itself.
+- **Optional terminal-stamp example:** `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'`. This is one way to label a capture, not a separate requirement, point allocation or live-personalization prerequisite.
 - **Personalized/attributable artifact:** the `SERVER SAW PASSWORD: correct-horse-battery` line from
-  Part 2a vulnerable mode, submitted **together with** your identity-proof screenshot — the identity
+  Part 2a vulnerable mode, submitted **together with** your attributed screenshot or annotated transcript — the identity
   proof is what makes it yours, not the password text (which is a lab constant). For fixed mode, the
   artifact is the *absence* of that line plus your two `grep -c` outputs showing `0`. Submitting
-  someone else's captured log without your own identity proof is a violation.
+  someone else's captured log without your own attribution is a violation.
 - **Explain in your own words** *(graded on your reasoning, not copied text)*:
   1. In vulnerable mode, **who** ended up with the plaintext password and **why did TLS not
      prevent it**?
