@@ -1,4 +1,4 @@
-# Worksheet 6 — Authenticated Encryption (AEAD): the CBC Padding Oracle (3 hrs)
+# Worksheet 6 — Authenticated Encryption (AEAD): the CBC Padding Oracle (100-minute class + preparation/extension)
 
 > **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
 > **Topic:** Authenticated Encryption (AEAD) — new this year (capstone of the symmetric block:
@@ -12,13 +12,36 @@
 > don't own and aren't authorized to test is illegal. Keep your key, ciphertext, and flag inside
 > this lab environment.
 
+## How to use this worksheet — 100-minute class, two versions
+
+Everyone completes the **same common activity (60 points)**. Complete only the
+**Conventional written assessment (40)** or the **AIR-Sec assessment (40)** assigned
+by the instructor. AIR-Sec's 40 points are Audit the AI 20, EiPE 10 and Prompt Problem 10.
+Each version totals **100**, and neither version requires the other format for marks.
+
+| Common criterion | Points | This week's evidence |
+|---|---:|---|
+| Core activity / analysis | 20 | Capture the ciphertext, explain one manual oracle query and run the CBC padding-oracle recovery. |
+| Control comparison and limitations | 20 | Compare with the GCM target, distinguish no usable padding signal from a failed setup, and state tag/nonce assumptions. |
+| Evidence and causal reasoning | 20 | Record block counts, a manual query, recovered plaintext and fixed results, and explain the byte-recovery mechanism and its limitations. |
+
+**Before class:** complete the stated reading and any environment setup; software
+installation and first image downloads are preparation, not extra contact minutes.
+**In class (100 minutes):** 10 quiz/review + 10 brief + 60 shared practice/analysis +
+15 debrief + 5 evidence capture. In Week 1 the opening block is orientation/review,
+not a quiz on material not yet taught. The detailed tasks below are a checklist, not
+additional timed class blocks: work through the core observations in the guided practice,
+draft the explanation in the debrief, then finish detailed calculations/write-up and the
+assigned 40-point format before the published deadline. Keep every original question;
+unassigned-format questions and the labelled appendix are study extensions.
+
 ## Part 1 — Student Information
 | Name | Student ID | Date | Group |
 |---|---|---|---|
 
 ---
 
-## Part 2 — Conventional Arm: Written Questions
+## Part 2 — Conventional assessment (assigned version, 40 points): Written Questions
 
 Answer each in your own words (4–8 sentences, more where the question asks for a design or a
 comparison). This is a normal written/essay task — **no AI-resilience layer applies to this
@@ -61,12 +84,12 @@ support, nonce-misuse risk, constant-time software performance).
 
 ---
 
-## Part 3 — AIR-Sec Arm: Hands-on Lab (180 min)
+## Part 3 — Shared common practice (both versions, 60 points)
 
 **Learning goals:** turn a single "bad padding" side channel into a full plaintext recovery
 against unauthenticated CBC, then prove AES-GCM (AEAD) gives the attacker no signal — the
 *practical* twin of Part 2's Q3/Q4.
-**Prerequisites:** Docker; Python 3.12 (or the `requests` package) on the host to run
+**Prerequisites:** Docker; Python 3 with the `requests` package on the host to run
 `exploit.py`.
 
 **Environment setup**
@@ -77,17 +100,17 @@ curl localhost:8098/        # confirm it's up
 curl localhost:8098/secret  # base64(IV||ct) of the secret that contains your flag
 ```
 
-**Task 0 — Onboarding (10 min).** *Goal:* see the oracle. *Steps:* read `vulnerable_app.py`'s
+**Task 0 — Onboarding.** *Goal:* see the oracle. *Steps:* read `vulnerable_app.py`'s
 `/decrypt` handler and the `pkcs7_valid` function; identify the exact line where a `200` and a
 `403` diverge, and confirm it is *only* the PKCS#7 padding check that distinguishes them.
 *Deliverable:* quote that line and state, in one sentence, why "the endpoint never returns the
 plaintext" does **not** make it safe.
 
-**Task 1 — Grab the ciphertext (5 min).** *Goal:* capture the target. *Steps:*
+**Task 1 — Grab the ciphertext.** *Goal:* capture the target. *Steps:*
 `curl localhost:8098/secret`; base64-decode it and note its length. *Deliverable:* the ciphertext
 length in bytes, and how many 16-byte blocks that is *after* subtracting the IV block.
 
-**Task 2 — Understand one oracle query (30 min).** *Goal:* understand the primitive, not just run
+**Task 2 — Understand one oracle query.** *Goal:* understand the primitive, not just run
 it. *Steps:* read `exploit.py`'s `recover_intermediate`. On paper, for the **last** ciphertext
 block *C\_t*: you submit `forged_prev || C_t` as a 2-block `IV||ct`. The server computes
 `P = D(C_t) XOR forged_prev` and tells you (200/403) whether `P` ends in valid PKCS#7 padding.
@@ -97,21 +120,21 @@ of `P` is `0x01`; (b) what `D(C_t)[15]` then equals, in terms of your winning gu
 re-query disambiguates it. *Deliverable:* your three short answers + the formula
 `D(C_t)[15] = winning_guess XOR 0x01`.
 
-**Task 3 — Recover the plaintext & read the flag (20 min).** *Goal:* full recovery, no key.
+**Task 3 — Recover the plaintext & read the flag.** *Goal:* full recovery, no key.
 *Steps:* `python exploit.py`. Watch it recover the plaintext block-by-block and print the flag.
 Then manually reproduce **one** oracle query with `curl` (POST a `forged_prev || C_t` blob to
 `/decrypt`) and confirm you get the `200`/`403` the script expected, to convince yourself nothing
 is hidden. *Deliverable:* the recovered plaintext, your flag, and your one manual `curl` query +
 its status code.
 
-**Task 4 — Confirm AES-GCM rejects the same attack (15 min).** *Goal:* prove the fix, don't just
+**Task 4 — Confirm AES-GCM rejects the same attack.** *Goal:* prove the fix, don't just
 claim it. *Steps:* `exploit.py` re-runs the identical routine against `:8099`. Confirm it printed
 "no usable padding signal … nothing recovered". Read `fixed_app.py`'s `/decrypt`: identify (a) the
 line that makes *every* failure return the **same** `403`, and (b) where the tag is verified
 relative to any use of the plaintext. *Deliverable:* the "nothing recovered" evidence + the two
 lines you identified, with a one-sentence why-each-matters.
 
-**Task 5 — Explain why, precisely (20 min).** *Goal:* connect exploit to theory. *Steps:* answer
+**Task 5 — Explain why, precisely.** *Goal:* connect exploit to theory. *Steps:* answer
 in your own words: (a) In CBC, why does the attacker's control of `forged_prev` give a *per-byte*
 oracle on `D(C_t)` even though they don't know the key? (b) Why does AES-GCM's **stream** structure
 mean there is no "valid vs invalid padding" question to ask at all? (c) Even if GCM *did* pad, why
@@ -122,15 +145,19 @@ would checking the **tag first** and returning a **uniform** error still kill th
 
 ## Evidence & Integrity (required)
 
-- **Identity proof:** your terminal/screenshot evidence for Tasks 1–4 must show a terminal
-  running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in the same image as the evidence**. When the evidence is a browser page,
-  a DevTools panel or a rendered response, put that terminal **beside the browser and capture
-  the whole screen** — a cropped window carries nothing that identifies you, and the lab's own
-  output is byte-identical for the whole cohort *by design*, so the stamp is the only thing
-  that makes the shot yours.
-- **Personalized flag:** ____________________
-  *Flags are unique per student (via the `FLAG_AEAD` env override — see README) — submitting
-  another student's flag is a violation.*
+- **Evidence attribution (the same for both versions):** put your name/student ID and
+  date on the worksheet, and capture your own commands and results. Make clear which run
+  each observation came from. A terminal timestamp or identity stamp is optional context,
+  not an extra scored personal artifact. If evidence is unclear, the instructor may request
+  clarification within the common evidence/reasoning criterion.
+- **Runtime flag (where this lab returns one):** record the value from your own run. Use a
+  personalised configuration only if the instructor supplies it; otherwise the shared demo
+  flag is acceptable with your own evidence and reasoning. No automatic roster/flag validation
+  is assumed. Do not submit a classmate's capture as your own.
+- Optional context stamp: `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'`.
+  You may include this with a terminal/browser capture if useful. A separate terminal or
+  whole-screen identity capture is not required; legible own commands/results and the
+  worksheet name/student ID are sufficient. All common evidence is within the common 60.
 - **Explain in your own words** *(graded on your reasoning, not copied text):*
   1. What did you do, and **why did the padding-oracle recovery work** against `:8098`?
   2. **Why does AES-GCM actually stop it** — and name one *separate* mistake (not fixed by simply
@@ -139,7 +166,7 @@ would checking the **tag first** and returning a **uniform** error still kill th
 
 ---
 
-## 🤖 Audit the AI (required)
+## 🤖 Audit the AI (AIR-Sec version only, 20 points)
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
@@ -191,7 +218,7 @@ flaw. Your job: find them.
 
 ---
 
-## 🧠 Comprehension & Prompt (required)
+## 🧠 Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
 **A. Explain in Plain English (EiPE).** Explain a **padding oracle** to a teammate who knows what
 AES is (a block cipher that turns 16 bytes + a key into 16 scrambled bytes) but has **never heard
@@ -219,7 +246,7 @@ chosen ciphertexts and observe responses") so the AI can't wriggle out with a to
 
 ---
 
-## 🎤 Viva spot-check (instructor use — 3 questions)
+## 🎤 Viva spot-check (formative/authenticity check; no separate points)
 
 An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
@@ -235,15 +262,24 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 ---
 
-## Grading rubric (100)
+## Grading rubric — assigned version totals 100
 
-| Criterion | Points |
-|---|---|
-| Part 2 — Conventional written questions (Q1–Q8) | 25 |
-| Part 3 — Lab tasks 0–5 (evidence: block count, one manual oracle `curl`, GCM "no signal") | 30 |
-| Evidence & Integrity (flag capture + own-words explanation) | 10 |
-| Audit the AI (oracle-via-error-codes flaw found + corrected AEAD design) | 20 |
-| Comprehension & Prompt (EiPE + Prompt Problem) | 15 |
+| Criterion | Conventional | AIR-Sec |
+|---|---:|---:|
+| Common core activity / analysis | 20 | 20 |
+| Common control comparison and limitations | 20 | 20 |
+| Common evidence and causal reasoning | 20 | 20 |
+| Conventional written questions | 40 | — |
+| AIR-Sec Audit the AI | — | 20 |
+| AIR-Sec Explain in Plain English (EiPE) | — | 10 |
+| AIR-Sec Prompt Problem | — | 10 |
+| **Total for the assigned version** | **100** | **100** |
 
-*Viva spot-checks are pass/fail gates on the Lab + Audit-the-AI scores, not separately scored —
-an instructor who isn't convinced you did the work yourself may re-score those sections down.*
+**Deadline and late work:** hand in before the start of the next week's class session (KOSEN rule).
+Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
+
+Submit the common work plus **one** assigned assessment format; do not add the two
+format columns or complete both formats for extra marks. The original questions remain
+available for study. A viva is a formative/authenticity check within the relevant criteria,
+with feedback or a request to clarify/reproduce evidence; it has no separate points and
+no automatic-zero rule. Grade the demonstrated work against the published criteria.

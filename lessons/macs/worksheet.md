@@ -1,4 +1,4 @@
-# Worksheet 3 — MACs: Hash-Only Cookies and Length-Extension (3 hrs)
+# Worksheet 3 — MACs: Hash-Only Cookies and Length-Extension (100-minute class + preparation/extension)
 
 > **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
 > **Topic source:** `Week3_MACs Questions.docx` (KOSEN68) — 10 essay questions, ported below:
@@ -12,13 +12,36 @@
 > systems you don't own and aren't authorized to test is illegal. Keep your `MAC_SECRET` and
 > flag inside this lab environment.
 
+## How to use this worksheet — 100-minute class, two versions
+
+Everyone completes the **same common activity (60 points)**. Complete only the
+**Conventional written assessment (40)** or the **AIR-Sec assessment (40)** assigned
+by the instructor. AIR-Sec's 40 points are Audit the AI 20, EiPE 10 and Prompt Problem 10.
+Each version totals **100**, and neither version requires the other format for marks.
+
+| Common criterion | Points | This week's evidence |
+|---|---:|---|
+| Core activity / analysis | 20 | Capture a guest cookie, calculate glue padding and demonstrate the intended SHA-256 length-extension forgery. |
+| Control comparison and limitations | 20 | Run the same technique against HMAC; distinguish a failed forgery from unrelated timing/replay limitations. |
+| Evidence and causal reasoning | 20 | Record original/forged data and tags, the padding calculation, manual replay and fixed rejection, with a causal explanation. |
+
+**Before class:** complete the stated reading and any environment setup; software
+installation and first image downloads are preparation, not extra contact minutes.
+**In class (100 minutes):** 10 quiz/review + 10 brief + 60 shared practice/analysis +
+15 debrief + 5 evidence capture. In Week 1 the opening block is orientation/review,
+not a quiz on material not yet taught. The detailed tasks below are a checklist, not
+additional timed class blocks: work through the core observations in the guided practice,
+draft the explanation in the debrief, then finish detailed calculations/write-up and the
+assigned 40-point format before the published deadline. Keep every original question;
+unassigned-format questions and the labelled appendix are study extensions.
+
 ## Part 1 — Student Information
 | Name | Student ID | Date | Group |
 |---|---|---|---|
 
 ---
 
-## Part 2 — Conventional Arm: Written Questions (ported from KOSEN68, Q1/Q4/Q5/Q6)
+## Part 2 — Conventional assessment (assigned version, 40 points): Written Questions (ported from KOSEN68, Q1/Q4/Q5/Q6)
 
 Answer each in your own words (4–8 sentences, more where the question asks for a design).
 This is a normal written/essay task — no AI-resilience layer applies to this part; answer it
@@ -51,11 +74,11 @@ verification works, a replay-prevention mechanism, and why this is safer than ha
 
 ---
 
-## Part 3 — AIR-Sec Arm: Hands-on Lab (180 min)
+## Part 3 — Shared common practice (both versions, 60 points)
 
 **Learning goals:** exploit a secret-prefix hash MAC via length-extension, then verify HMAC
 closes the gap — the *practical* twin of Part 2's Q5.
-**Prerequisites:** Docker; Python 3.12 (or the `requests` package) on the host to run
+**Prerequisites:** Docker; Python 3 with the `requests` package on the host to run
 `exploit.py`.
 
 **Environment setup**
@@ -65,16 +88,16 @@ docker compose up -d        # vulnerable_app.py on :8092, fixed_app.py on :8093
 curl localhost:8092/        # confirm it's up
 ```
 
-**Task 0 — Onboarding (10 min).** *Goal:* see the vulnerable construction. *Steps:* read
+**Task 0 — Onboarding.** *Goal:* see the vulnerable construction. *Steps:* read
 `vulnerable_app.py`'s `make_cookie`/`admin` functions; identify exactly which line computes the
 signature and confirm it is `SHA256(MAC_SECRET + data)`, not HMAC. *Deliverable:* quote the
 line and state which of Q1/Q5's failure mode it matches.
 
-**Task 1 — Capture a legitimate cookie (10 min).** *Goal:* get a real `(data, sig)` pair.
+**Task 1 — Capture a legitimate cookie.** *Goal:* get a real `(data, sig)` pair.
 *Steps:* `curl -i "localhost:8092/login?user=guest"`; record the `data` and `sig` cookies.
 *Deliverable:* the two cookie values + the decoded (from-hex) plaintext of `data`.
 
-**Task 2 — Run the length-extension forgery (30 min).** *Goal:* understand *and* reproduce the
+**Task 2 — Run the length-extension forgery.** *Goal:* understand *and* reproduce the
 attack, not just run a script. *Steps:* read `exploit.py`'s `sha256_padding` and
 `length_extend` functions; on paper (or in your write-up), compute the glue-padding length for
 `len(MAC_SECRET) + len(data) = 16 + 22 = 38` bytes by hand using the SHA-256 padding rule
@@ -82,38 +105,43 @@ attack, not just run a script. *Steps:* read `exploit.py`'s `sha256_padding` and
 Then run `python exploit.py` and confirm your hand-computed padding length matches the glue
 bytes it printed. *Deliverable:* your hand computation + the script's forged `data`/`sig`.
 
-**Task 3 — Cash in the flag (10 min).** *Goal:* confirm the forged cookie is accepted.
+**Task 3 — Cash in the flag.** *Goal:* confirm the forged cookie is accepted.
 *Steps:* `exploit.py` already does this (`GET /admin` on `:8092` with the forged cookie); note
 the flag it printed. Also manually reproduce it with `curl` (`--cookie "data=...;sig=..."`) to
 convince yourself the script isn't doing anything hidden. *Deliverable:* the flag + your `curl`
 command and its output.
 
-**Task 4 — Confirm HMAC rejects the same trick (15 min).** *Goal:* prove the fix works, not
+**Task 4 — Confirm HMAC rejects the same trick.** *Goal:* prove the fix works, not
 just claim it. *Steps:* `exploit.py` repeats the identical forgery technique against `:8093`
 (`fixed_app.py`, HMAC); confirm it printed `403`/rejected. Read `fixed_app.py`'s `make_cookie`
 and identify the one-line change from `vulnerable_app.py`. *Deliverable:* the rejection
 evidence + the diff (in words) between the two `make_cookie` functions.
 
-**Task 5 — Explain why, precisely (20 min).** *Goal:* connect the exploit to the theory.
+**Task 5 — Explain why, precisely.** *Goal:* connect the exploit to the theory.
 *Steps:* answer in your own words: (a) What internal SHA-256 state does `sig` actually expose
 to the attacker? (b) Why does resuming compression from that state let the attacker compute
-`H(secret || data || glue || extra)` without `secret`? (c) Why does HMAC's outer hash
-`H(key⊕opad || H(key⊕ipad || message))` NOT expose an equivalently resumable state? *Deliverable:*
+`H(secret || data || glue || extra)` without `secret`? (c) Although the final outer SHA-256 digest can itself be resumed, why does that extension
+not produce a valid HMAC for an extended message? Distinguish the exposed outer digest from
+the hidden inner digest and HMAC's fixed outer-input format. *Deliverable:*
 3 short paragraphs, one per sub-question.
 
 ---
 
 ## Evidence & Integrity (required)
 
-- **Identity proof:** your terminal/screenshot evidence for Tasks 1–4 must show a terminal
-  running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in the same image as the evidence**. When the evidence is a browser page,
-  a DevTools panel or a rendered response, put that terminal **beside the browser and capture
-  the whole screen** — a cropped window carries nothing that identifies you, and the lab's own
-  output is byte-identical for the whole cohort *by design*, so the stamp is the only thing
-  that makes the shot yours.
-- **Personalized flag:** ____________________
-  *Flags are unique per student (via `MAC_SECRET`/`FLAG_MACS` env override — see README) —
-  submitting another student's flag is a violation.*
+- **Evidence attribution (the same for both versions):** put your name/student ID and
+  date on the worksheet, and capture your own commands and results. Make clear which run
+  each observation came from. A terminal timestamp or identity stamp is optional context,
+  not an extra scored personal artifact. If evidence is unclear, the instructor may request
+  clarification within the common evidence/reasoning criterion.
+- **Runtime flag (where this lab returns one):** record the value from your own run. Use a
+  personalised configuration only if the instructor supplies it; otherwise the shared demo
+  flag is acceptable with your own evidence and reasoning. No automatic roster/flag validation
+  is assumed. Do not submit a classmate's capture as your own.
+- Optional context stamp: `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'`.
+  You may include this with a terminal/browser capture if useful. A separate terminal or
+  whole-screen identity capture is not required; legible own commands/results and the
+  worksheet name/student ID are sufficient. All common evidence is within the common 60.
 - **Explain in your own words** *(graded on your reasoning, not copied text):*
   1. What did you do, and **why did the forgery work**?
   2. **Why does the HMAC fix actually stop it** — and what could still break it (e.g. is the
@@ -121,7 +149,7 @@ to the attacker? (b) Why does resuming compression from that state let the attac
 
 ---
 
-## 🤖 Audit the AI (required)
+## 🤖 Audit the AI (AIR-Sec version only, 20 points)
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's
 answer.
@@ -155,9 +183,9 @@ Your job: find it.
 >
 > — end of AI answer —
 
-1. **Find what's wrong or risky in it.** Quote the exact sentence(s). (Hint: the HMAC
-   reasoning and the length-extension immunity claim are both *correct* — don't waste your
-   critique there. Look at what "replay prevention" actually *guarantees* versus what the
+1. **Find what's wrong or risky in it.** Quote the exact sentence(s). (Hint: HMAC does resist message-extension forgery. Distinguish that fact from claiming
+   that the final outer SHA-256 digest cannot itself be extended. The intended design flaws
+   concern what "replay prevention" actually *guarantees* versus what the
    server *does* with `issued_at`, and separately at the comparison operator used in
    verification.)
 2. **Produce the correct, verified version yourself.** Rewrite the two flawed parts of the
@@ -169,7 +197,7 @@ Your job: find it.
 
 ---
 
-## 🧠 Comprehension & Prompt (required)
+## 🧠 Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
 **A. Explain in Plain English (EiPE).** Explain SHA-256 length-extension to a junior developer
 who has never heard the term "Merkle-Damgard" and does not have a cryptography background. In
@@ -183,9 +211,11 @@ off."
 length-extension attacks while a bare `SHA256(key||message)` does not*. Run it, then critique
 the AI's answer:
 - Does it correctly distinguish the *inner* hash from the *outer* hash in HMAC's construction?
-- Does it explain what would need to be true for an attacker to extend the *outer* hash (i.e.
-  why they'd need to know `H(key⊕ipad || message)`'s state *and* still can't get anywhere
-  because the outer hash re-keys with `key⊕opad`)?
+- Does it distinguish extending the *outer SHA-256 hash* (possible from its final digest)
+  from forging HMAC (not achieved by that extension)? The extended outer input would be
+  `key⊕opad || inner_digest || glue || extra`, while a valid HMAC outer input contains only
+  the key-derived prefix and one fixed-size inner digest. The inner digest needed to extend
+  the message and a new valid outer tag are not exposed by the HMAC tag.
 - Does it hallucinate anything (a wrong RFC number, a wrong claim about SHA-3/Keccak also being
   vulnerable to the same attack — SHA-3's sponge construction is *not* vulnerable to classic
   length-extension, unlike SHA-256)?
@@ -195,7 +225,7 @@ bullet points above).
 
 ---
 
-## 🎤 Viva spot-check (instructor use — 3 questions)
+## 🎤 Viva spot-check (formative/authenticity check; no separate points)
 
 An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
@@ -240,15 +270,24 @@ security.
 
 ---
 
-## Grading rubric (100)
+## Grading rubric — assigned version totals 100
 
-| Criterion | Points |
-|---|---|
-| Part 2 — Conventional written questions (Q1, Q4, Q5, Q6) | 25 |
-| Part 3 — Lab tasks 0–5 (evidence: hex dumps, curl output, hand-computed padding) | 30 |
-| Evidence & Integrity (flag capture + own-words explanation) | 10 |
-| Audit the AI (flaw(s) found + corrected design) | 20 |
-| Comprehension & Prompt (EiPE + Prompt Problem) | 15 |
+| Criterion | Conventional | AIR-Sec |
+|---|---:|---:|
+| Common core activity / analysis | 20 | 20 |
+| Common control comparison and limitations | 20 | 20 |
+| Common evidence and causal reasoning | 20 | 20 |
+| Conventional written questions | 40 | — |
+| AIR-Sec Audit the AI | — | 20 |
+| AIR-Sec Explain in Plain English (EiPE) | — | 10 |
+| AIR-Sec Prompt Problem | — | 10 |
+| **Total for the assigned version** | **100** | **100** |
 
-*Viva spot-checks are pass/fail gates on the Lab + Audit-the-AI scores, not separately scored —
-an instructor who isn't convinced you did the work yourself may re-score those sections down.*
+**Deadline and late work:** hand in before the start of the next week's class session (KOSEN rule).
+Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
+
+Submit the common work plus **one** assigned assessment format; do not add the two
+format columns or complete both formats for extra marks. The original questions remain
+available for study. A viva is a formative/authenticity check within the relevant criteria,
+with feedback or a request to clarify/reproduce evidence; it has no separate points and
+no automatic-zero rule. Grade the demonstrated work against the published criteria.

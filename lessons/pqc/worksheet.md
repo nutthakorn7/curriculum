@@ -1,4 +1,4 @@
-# Worksheet 15 — Post-Quantum Cryptography: Lamport One-Time Signatures (3 hrs)
+# Worksheet 15 — Post-Quantum Cryptography: Lamport One-Time Signatures (100-minute core + preparation/extensions)
 
 > **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
 > **Topic:** Post-quantum cryptography — the quantum threat, the four PQC families, and
@@ -10,6 +10,21 @@
 > (`vulnerable_app.py` / `fixed_app.py`, ports 8100/8101). Forging signatures or authentication
 > tokens against systems you don't own and aren't authorized to test is illegal. Keep your
 > `FLAG_PQC` inside this lab environment.
+
+## 100-minute class and assigned worksheet version
+
+**In class:** 10 min retrieval quiz + 10 min brief explanation + 70 min guided practice + 10 min evidence review/exit = 100 min.
+
+**Shared core — every student:** Collect fresh Lamport signatures in class, assemble the forgery, test it, compare the one-time-enforcement control and explain the confidentiality/signature migration distinction.
+
+**Preparation and extensions:** Before class, prepare images/dependencies and read the construction only. Collect live key material in class after startup. Complete the longer analysis and the assigned version-specific work outside the core block. The HNDL companion is optional and adds no points.
+
+**70-minute practice:** collect fresh signatures 15; assemble/test the forgery 25; verify the one-time control 20; reasoning 10. Do not spend the fixed server's one signing opportunity during preparation; recreate its state for a new controlled run.
+
+
+**Assessment:** everyone completes the shared core (60 points) plus **one assigned version** (40 points): Conventional written analysis, or AIR-Sec Audit-the-AI 20 + EiPE 10 + Prompt Problem 10. Both versions total 100. All questions remain available; complete the assigned version's full questions, using out-of-class time for extended responses. The other version is ungraded reference practice, not an additional requirement. Viva/micro-demo questions are formative checks of the submitted explanation, with no separate points or automatic pass/fail score gate.
+
+**Evidence:** record reproducible observations or reasoning and your name/student ID. Where the local target prints a shared placeholder flag, record it as observed; a personalized flag or live CTFd account is not a prerequisite. Follow SUBMISSION.md for the announced hand-in channel.
 
 ## Part 1 — Student Information
 | Name | Student ID | Date | Group | AI tools used (if any) |
@@ -59,7 +74,7 @@ practices that make a system crypto-agile.
 
 ---
 
-## Part 3 — AIR-Sec Arm: Hands-on Lab (180 min)
+## Part 3 — Shared Practical Core (in the 100-minute session)
 
 **Learning goals:** exploit a **reused Lamport one-time key** to recover a full private key and
 forge a signature, then verify that **one-time enforcement** — an *operational* control, not a
@@ -75,14 +90,14 @@ curl localhost:8100/        # confirm it's up
 curl localhost:8100/pubkey  # inspect the public key + admin message (0xA5A5C3C3)
 ```
 
-**Task 0 — Onboarding (15 min).** *Goal:* see the Lamport construction and the bug. *Steps:*
+**Task 0 — Preparation: read the construction (outside the live run).** *Goal:* see the Lamport construction and the bug. *Steps:*
 read `vulnerable_app.py`'s `sign`, `verify`, and `sign_endpoint`. Identify (a) the line that
 generates the private key as *two preimages per bit*, (b) the line that reuses the one keypair
 on every call, and (c) the shared baseline line that refuses to sign the admin message directly.
 *Deliverable:* quote lines (a)–(c) and state, in one sentence, why (c) is necessary for the lab
 to have any challenge at all.
 
-**Task 1 — Understand what one signature reveals (20 min).** *Goal:* build the intuition before
+**Task 1 — Shared core: fresh collection (15 min, including the complement in Task 2).** *Goal:* build the intuition before
 running anything. *Steps:* `POST /sign {"message_hex":"00000000"}` against `:8100`; you get 32
 preimages. `GET /pubkey`; for bit position 0, verify by hand (in Python or by pasting into a
 `sha256`) that `SHA256(sig[0]) == pk[0][0]` (the *bit-value-0* entry, because message bit 0 is
@@ -91,7 +106,7 @@ for that position but **not** the `1`-preimage. *Deliverable:* the two hash comp
 0, and one sentence: "with only this signature, which half of the key for bit 0 is still
 secret?"
 
-**Task 2 — Recover the whole key with two signatures (30 min).** *Goal:* the core attack.
+**Task 2 — Shared core: recover and assemble (25 min together with Task 3).** *Goal:* the core attack.
 *Steps:* `POST /sign {"message_hex":"ffffffff"}` (the complement). Now for **every** bit you
 have both the `0`-preimage (from the `00000000` signature) and the `1`-preimage (from the
 `ffffffff` signature). Read `exploit.py`'s `recover_and_forge`: note the self-check that every
@@ -99,7 +114,7 @@ recovered preimage hashes to the published public key. *Deliverable:* for **one*
 of your choice, print both recovered preimages and show both `SHA256(...)` values matching
 `pk[i][0]` and `pk[i][1]`.
 
-**Task 3 — Forge and cash in the flag (20 min).** *Goal:* forge a signature on the admin message
+**Task 3 — Shared core: forge and test (same 25-minute block as Task 2).** *Goal:* forge a signature on the admin message
 you were **refused** permission to sign. *Steps:* run `python exploit.py`; note the flag. Then
 reproduce the forgery step manually: the admin message is `0xA5A5C3C3` — for each bit, select
 the recovered preimage matching that bit's value, and `POST /admin {sig}` with `curl` to convince
@@ -107,7 +122,7 @@ yourself the script isn't hiding anything. *Deliverable:* the flag + your `curl`
 output. Explain in one sentence why the server accepts a signature on a message it *refused to
 sign for you*.
 
-**Task 4 — Confirm one-time enforcement defeats the attack (20 min).** *Goal:* prove the fix
+**Task 4 — Shared core: verify the one-time control (20 min).** *Goal:* prove the fix
 works, not just claim it. *Steps:* run the same attack against `:8101` (`exploit.py` already
 does this). Observe that the **second** `/sign` (the complement) returns `403` "one-time key
 already used" — in fact *any* second `/sign` is refused, because the key signs exactly once. Read
@@ -116,7 +131,7 @@ already used" — in fact *any* second `/sign` is refused, because the key signs
 `sign_endpoint` functions, and one sentence on why the attacker, given only ONE signature, cannot
 forge the admin signature.
 
-**Task 5 — Explain why, precisely (25 min).** *Goal:* connect exploit to theory. *Steps:* answer
+**Task 5 — Shared core reasoning (10 min); full written analysis is an extension.** *Goal:* connect exploit to theory. *Steps:* answer
 in your own words: (a) Why does a *single* Lamport signature leak only half the private key,
 while a message and its complement leak all of it? (b) The fix adds no new cryptography — it just
 refuses the second signature. What does that tell you about the difference between a *scheme
@@ -129,15 +144,10 @@ negligible*.) *Deliverable:* 3 short paragraphs, one per sub-question.
 
 ## Evidence & Integrity (required)
 
-- **Identity proof:** your terminal/screenshot evidence for Tasks 1–4 must show a terminal
-  running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in the same image as the evidence**. When the evidence is a browser page,
-  a DevTools panel or a rendered response, put that terminal **beside the browser and capture
-  the whole screen** — a cropped window carries nothing that identifies you, and the lab's own
-  output is byte-identical for the whole cohort *by design*, so the stamp is the only thing
-  that makes the shot yours.
-- **Personalized flag:** ____________________
-  *Flags are unique per student (via `FLAG_PQC` env override — see README) — submitting another
-  student's flag is a violation.*
+- **Attribution and reproducibility (both versions):** put your name/student ID on the submitted work and provide your own commands, observations and explanation. A screenshot or annotated transcript is acceptable; shared placeholder output is not per-student proof by itself.
+- **Optional terminal-stamp example:** `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'`. This is one way to label a capture, not a separate requirement, point allocation or live-personalization prerequisite.
+- **Observed flag (shared placeholder unless per-student seeding is announced):** ____________________
+  Attach your own execution evidence; personalization is not a prerequisite for full marks.
 - **Explain in your own words** *(graded on your reasoning, not copied text):*
   1. What did you do, and **why did the forgery work** on `:8100`?
   2. **Why does one-time enforcement actually stop it** on `:8101`? The fixed app refuses *every*
@@ -147,7 +157,7 @@ negligible*.) *Deliverable:* 3 short paragraphs, one per sub-question.
 
 ---
 
-## 🤖 Audit the AI (required)
+## 🤖 Assigned AIR-Sec Audit the AI
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's code.
 
@@ -208,7 +218,7 @@ kind this week is about.
 
 ---
 
-## 🧠 Comprehension & Prompt (required)
+## 🧠 Assigned AIR-Sec Comprehension & Prompt
 
 **A. Explain in Plain English (EiPE).** Explain to a junior developer — who knows what "hashing"
 is but has never heard "one-time signature" — **why a Lamport key must never sign two different
@@ -235,7 +245,7 @@ bullet points above).
 
 ---
 
-## 🎤 Viva spot-check (instructor use — 3 questions)
+## 🎤 Formative viva spot-check (no separate points; questions retained)
 
 An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
@@ -256,13 +266,20 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 ## Grading rubric (100)
 
-| Criterion | Points |
-|---|---|
-| Part 2 — Conventional written questions (Q1–Q8) | 25 |
-| Part 3 — Lab tasks 0–5 (evidence: hash comparisons, recovered preimages, curl output) | 30 |
-| Evidence & Integrity (flag capture + own-words explanation) | 10 |
-| Audit the AI (catastrophic flaw found + hashing-first nuance + corrected design) | 20 |
-| Comprehension & Prompt (EiPE + Prompt Problem) | 15 |
+| Criterion | Conventional | AIR-Sec |
+|---|---:|---:|
+| Shared practical core: complete the assigned run or coding steps | 20 | 20 |
+| Shared control and limitations: compare the secure control and explain what it does and does not show | 20 | 20 |
+| Shared reproducible evidence and reasoning: attributable observations, commands/results and explanation | 20 | 20 |
+| Assigned Conventional written questions | 40 | — |
+| Assigned AIR-Sec Audit-the-AI | — | 20 |
+| Assigned AIR-Sec Explain-in-Plain-English | — | 10 |
+| Assigned AIR-Sec Prompt Problem | — | 10 |
+| **Total for the assigned version** | **100** | **100** |
 
-*Viva spot-checks are pass/fail gates on the Lab + Audit-the-AI scores, not separately scored —
-an instructor who isn't convinced you did the work yourself may re-score those sections down.*
+**Deadline and late work:** hand in before the start of the next week's class session (KOSEN rule).
+Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
+
+Viva/micro-demo checks are formative: no separate points and no automatic score gate. The 60 shared points apply to both versions; do not add the unassigned version's 40 points.
+
+Viva checks provide formative feedback and clarification within the published criteria; they carry no extra points or automatic score gate.

@@ -1,15 +1,30 @@
-# Worksheet 11 — Digital Signatures & Zero-Knowledge Proofs (3 hrs)
+# Worksheet 11 — Digital Signatures & Zero-Knowledge Proofs (100-minute core + preparation/extensions)
 
 > **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
 > **Topic source:** `Week10_Signatures Questions.docx` (KOSEN68) — 5 essay questions, all ported
 > below as this week's written task (Part 1).
 > **Signature game:** "Double-Spend the Bank" (ECDSA `(r, n−s)` malleability against a bank that
-> deduplicates transactions by signature hash — a MtGox-style double-spend).
+> deduplicates transactions by signature hash — an illustrative bank-accounting double-processing bug).
 
 > **Ethics note:** Attack only the two local containers this lab spins up
 > (`vulnerable_app.py` / `fixed_app.py`, ports 8102/8103). Forging or replaying transactions
 > against real payment systems, exchanges, or blockchains you don't own is illegal. Keep your
 > `FLAG_SIG` inside this lab environment.
+
+## 100-minute class and assigned worksheet version
+
+**In class:** 10 min retrieval quiz + 10 min brief explanation + 70 min guided practice + 10 min evidence review/exit = 100 min.
+
+**Shared core — every student:** Obtain a fresh signature in class; compute its twin and transaction identifiers; submit the original/twin to the vulnerable bank; verify a legitimate fixed-bank withdrawal succeeds and its high-S twin fails; explain the control's limits.
+
+**Preparation and extensions:** Before class, prepare images/dependencies and read the topology only. Do not collect live signatures before class or reuse signatures across a restart. Complete the long signature/ZKP analysis and the assigned version-specific work outside the core block.
+
+**70-minute practice:** fresh signature 10; twin calculation 15; two vulnerable withdrawals 15; fixed positive/negative controls 15; reasoning 15. Start the manual vulnerable withdrawals against fresh state before any automated exploit. Each bank has its own key: obtain a separate signature from the fixed bank. A restart invalidates previously captured signatures.
+
+
+**Assessment:** everyone completes the shared core (60 points) plus **one assigned version** (40 points): Conventional written analysis, or AIR-Sec Audit-the-AI 20 + EiPE 10 + Prompt Problem 10. Both versions total 100. All questions remain available; complete the assigned version's full questions, using out-of-class time for extended responses. The other version is ungraded reference practice, not an additional requirement. Viva/micro-demo questions are formative checks of the submitted explanation, with no separate points or automatic pass/fail score gate.
+
+**Evidence:** record reproducible observations or reasoning and your name/student ID. Where the local target prints a shared placeholder flag, record it as observed; a personalized flag or live CTFd account is not a prerequisite. Follow SUBMISSION.md for the announced hand-in channel.
 
 ## Part 0 — Student Information
 | Name | Student ID | Date | Group | AI tools used (declare) |
@@ -28,12 +43,7 @@ part; answer it yourself.**
 (c) typical use cases for each. Then answer directly: **why are digital signatures suitable for
 public systems (PKI) while MACs are not?**
 
-**Q2. Signatures as Zero-Knowledge Proofs.** Starting from the **Schnorr identification
-protocol**, explain: (a) how Peggy proves to Victor that she *knows* a secret (her private key)
-without revealing it; (b) why replacing the verifier's random *challenge* with a *hash* of the
-commitment (and message) — the **Fiat–Shamir transform** — turns the interactive proof into a
-**signature**; and (c) why a digital signature can therefore be viewed as a **non-interactive
-zero-knowledge proof of knowledge** of the private key.
+**Q2. Schnorr Proofs and the Fiat–Shamir Connection.** Starting from the **Schnorr identification protocol**, explain: (a) how Peggy demonstrates knowledge of a secret without revealing it; (b) how replacing the verifier's random challenge with a hash binding the commitment, public statement and message yields a Schnorr-type non-interactive construction under stated assumptions; and (c) distinguish this specific proof-of-knowledge connection from a blanket claim that every digital signature, including ECDSA, is a zero-knowledge proof. See [RFC 8235](https://www.rfc-editor.org/rfc/rfc8235.html).
 
 **Q3. RSA vs. ECDSA vs. EdDSA (Ed25519).** Compare the three on: (a) the hardness assumption each
 relies on, (b) how easy each is to implement *correctly*, and (c) known pitfalls (e.g. RSA
@@ -48,18 +58,17 @@ signer signed this exact message"? Why is this class of attack **not fully cover
 EUF-CMA** security model?
 
 **Q5. Signature Malleability.** (a) Define signature malleability in simple terms. (b) Explain how
-it contributed to the **MtGox** collapse (transactions being "modified" so they appeared not to
-have been processed, enabling double-withdrawal claims). (c) Explain why **SUF-CMA** (strong
+a changed transaction identifier could confuse exchange withdrawal tracking; distinguish **MtGox**'s historical claim from Decker and Wattenhofer's measured evidence rather than assuming that malleability caused the collapse ([paper](https://arxiv.org/abs/1403.6676)). (c) Explain why **SUF-CMA** (strong
 existential unforgeability) is a *stronger* guarantee than **EUF-CMA**, and which one malleability
 violates. (d) How should a protocol designer build a system *assuming* signatures are malleable
 (name at least two concrete defenses)?
 
 ---
 
-## Part 2 — AIR-Sec Arm: Hands-on Lab + Defense (180 min)
+## Part 2 — Shared Practical Core + Defense (in the 100-minute session)
 
 **Learning goals:** exploit ECDSA malleability to double-spend against a bank that dedups by
-signature hash, then verify low-S / BIP-62 closes the gap — the *practical* twin of Part 1's Q5.
+signature hash, then verify low-S rejects the particular high-S twin and explain the remaining transaction-identity limitation — the *practical* twin of Part 1's Q5.
 **Prerequisites:** Docker; `ecdsa` + `requests` (either on the host, or run `exploit.py` in a
 throwaway container on the compose network, as the README shows).
 
@@ -70,13 +79,13 @@ docker compose up -d        # vulnerable_app.py on :8102, fixed_app.py on :8103
 curl localhost:8102/        # confirm it's up
 ```
 
-**Task 0 — Onboarding (15 min).** *Goal:* see the vulnerable design decision. *Steps:* read
+**Task 0 — Preparation: read the design (outside the live run).** *Goal:* see the vulnerable design decision. *Steps:* read
 `vulnerable_app.py`'s `txid_of` and `withdraw` functions; identify the exact line that decides a
 transaction's identity and confirm it hashes the *signature* (`sha256(str(r)+str(s))`), not the
 `(message, pubkey)`. *Deliverable:* quote the line and state, in one sentence, why that choice is
 what makes malleability exploitable here.
 
-**Task 1 — Obtain a valid signature (15 min).** *Goal:* get a real `(r, s)`. *Steps:*
+**Task 1 — Shared core: obtain a fresh signature in class (10 min).** *Goal:* get a real `(r, s)`. *Steps:*
 `curl localhost:8102/sign`; record `sig_r`, `sig_s`, and the fixed `message`. Also
 `curl localhost:8102/pubkey`. *Deliverable:* the `(r, s)` pair and the pubkey hex.
 
@@ -84,27 +93,25 @@ what makes malleability exploitable here.
 ecdsa-malleability
 ```
 
-**Task 2 — Do the malleation by hand (30 min).** *Goal:* understand the math, not just run a
+**Task 2 — Shared core: do the malleation by hand (15 min).** *Goal:* understand the math, not just run a
 script. *Steps:* with `n = 0xFFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFE BAAEDCE6 AF48A03B BFD25E8C
 D0364141` (the SECP256k1 group order), compute `s' = n − s` for your captured `s` (Python:
 `n = ecdsa.SECP256k1.order`). Compute both `txid = sha256(str(r)+str(s))` and
 `txid' = sha256(str(r)+str(s'))` and confirm they differ. State which of `s`, `s'` is **low-S**
 (`≤ n//2`) — exactly one is. *Deliverable:* your `s'`, the two txids, and which one is low-S.
 
-**Task 3 — Double-spend & capture the flag (20 min).** *Goal:* process one authorization twice.
+**Task 3 — Shared core: demonstrate double processing (15 min).** *Goal:* process one authorization twice.
 *Steps:* do the double-spend **by hand with `curl` first**, so its JSON response is your own
 from-scratch proof — the bank's `_total_withdrawn` is global, in-memory state that never resets
 between requests, so this must be the *first* withdrawal attempt against a freshly started
-container (don't run `exploit.py` yet): `curl localhost:8102/sign` for a fresh `(r, s)`, then
-submit both signatures in order:
+container (do not run `exploit.py` yet). Use the fresh `(r, s)` captured in Task 1 and the matching twin calculated in Task 2, without restarting the bank or obtaining a different pair between those tasks. If the bank restarted, repeat Tasks 1–2. Submit both signatures in order:
 ```bash
 curl -s -X POST localhost:8102/withdraw -H 'Content-Type: application/json' \
   -d '{"message":"withdraw 100 to attacker","sig_r":"<r>","sig_s":"<s>"}'
 curl -s -X POST localhost:8102/withdraw -H 'Content-Type: application/json' \
   -d '{"message":"withdraw 100 to attacker","sig_r":"<r>","sig_s":"<n-s>"}'
 ```
-*Then* run `python exploit.py` (or the container form in the README) as an automated
-confirmation of the same attack. Its own totals will now start above 100 since the bank's state
+**Extension after the manual controls in Task 4:** run `python exploit.py` (or the container form in the README) as an automated confirmation of the same attack. Its own totals will now start above 100 since the bank's state
 persists across requests — that's expected, not a bug; if you run `exploit.py` first instead,
 the by-hand reproduction can no longer land on `total_withdrawn:200` (a repeat of the *same*
 signature gets `409 replay`, and even a *fresh* one lands on 300/400 because the counter never
@@ -112,35 +119,26 @@ reset), so keep this order.
 *Deliverable:* the flag + your two `curl` commands and the second one's JSON response (must show
 `double_spend_detected` and `total_withdrawn:200`).
 
-**Task 4 — Confirm the fix rejects the same trick (20 min).** *Goal:* prove the fix works, not
-just claim it. *Steps:* `exploit.py` repeats the identical `(r, s)` then `(r, n−s)` sequence
-against `:8103`. Confirm the **low-S first submission is accepted** (a legitimate single
-withdrawal) and the **high-S twin is rejected (403)** with no flag. Read `fixed_app.py`'s
-`is_low_s` and the guard in `withdraw`; identify the added check versus `vulnerable_app.py`.
+**Task 4 — Shared core: fixed positive/negative controls (15 min).** *Goal:* prove the fix works, not
+just claim it. *Steps:* use a fresh fixed-bank run and obtain its own low-S signature from `curl localhost:8103/sign` (the two banks have different keys). Submit that low-S signature once to `:8103/withdraw` and confirm a successful legitimate withdrawal; submit its high-S twin `(r, n-s)` and confirm `403` with no flag. Capture both responses. Do not submit the vulnerable bank's signature to the fixed bank. Read `fixed_app.py`'s `is_low_s` and the guard in `withdraw`; identify the added check. The optional automated replay follows these manual controls, not the other way round.
 *Deliverable:* the rejection evidence (`403` + body) + the one-line difference between the two
 `withdraw` functions, in words.
 
-**Task 5 — Explain why, precisely (25 min).** *Goal:* connect the exploit to the theory.
+**Task 5 — Shared core reasoning (15 min); full written analysis is an extension.** *Goal:* connect the exploit to the theory.
 *Steps:* answer in your own words: (a) Why are `(r, s)` and `(r, n−s)` *both* valid signatures for
 the same message and key — what step of ECDSA verification is unchanged when you negate `s` mod
 `n`? (b) Why does deduplicating by **signature hash** let the twin through, while deduplicating by
-**`(message, pubkey)`** would not? (c) Why does the low-S rule (`s ≤ n//2`) leave *exactly one*
-canonical signature per `(message, key)`, so the twin has nowhere to hide? *Deliverable:* 3 short
+**`(message, pubkey)`** would not? (c) Why does the low-S rule (`s ≤ n//2`) accept exactly one member of this **particular twin pair**? Why does that not imply a unique signature for the message/key when fresh ECDSA nonces can create other valid low-S signatures, and why is an application transaction ID still needed? *Deliverable:* 3 short
 paragraphs, one per sub-question.
 
 ---
 
 ## Evidence & Integrity (required)
 
-- **Identity proof:** your terminal/screenshot evidence for Tasks 1–4 must show a terminal
-  running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in the same image as the evidence**. When the evidence is a browser page,
-  a DevTools panel or a rendered response, put that terminal **beside the browser and capture
-  the whole screen** — a cropped window carries nothing that identifies you, and the lab's own
-  output is byte-identical for the whole cohort *by design*, so the stamp is the only thing
-  that makes the shot yours.
-- **Personalized flag:** ____________________
-  *Flags are unique per student (via the `FLAG_SIG` env override — see README) — submitting
-  another student's flag is a violation.*
+- **Attribution and reproducibility (both versions):** put your name/student ID on the submitted work and provide your own commands, observations and explanation. A screenshot or annotated transcript is acceptable; shared placeholder output is not per-student proof by itself.
+- **Optional terminal-stamp example:** `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'`. This is one way to label a capture, not a separate requirement, point allocation or live-personalization prerequisite.
+- **Observed flag (shared placeholder unless per-student seeding is announced):** ____________________
+  Attach your own execution evidence; personalization is not a prerequisite for full marks.
 - **Explain in your own words** *(graded on your reasoning, not copied text):*
   1. What did you do, and **why did the double-spend work** (why did the bank see one
      authorization as two transactions)?
@@ -152,7 +150,7 @@ paragraphs, one per sub-question.
 
 ---
 
-## 🤖 Audit the AI (required)
+## 🤖 Assigned AIR-Sec Audit the AI
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
@@ -210,7 +208,7 @@ week's lab exploits.
 
 ---
 
-## 🧠 Comprehension & Prompt (required)
+## 🧠 Assigned AIR-Sec Comprehension & Prompt
 
 **A. Explain in Plain English (EiPE) — Zero-Knowledge Proof.** Explain to a junior developer who
 has never heard the term "zero-knowledge proof": **how can you prove you know a password (or a
@@ -241,7 +239,7 @@ bullet points above).
 
 ---
 
-## 🎤 Viva spot-check (instructor use — 3 questions)
+## 🎤 Formative viva spot-check (no separate points; questions retained)
 
 An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
@@ -251,21 +249,27 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 2. "The vulnerable bank *does* reject an exact replay of the same `(r, s)` with `409`. So why does
    the `(r, n − s)` twin get through when it's 'the same transaction'? Point to the one line that
    decides transaction identity and explain what it hashes."
-3. "Explain how a plain digital signature is a zero-knowledge proof of knowledge of the private
-   key — what is the 'secret' being proven, and where did the interactive *challenge* from the
+3. "Explain the Schnorr identification / Fiat–Shamir connection and distinguish it from a blanket zero-knowledge guarantee for every signature scheme — what is the 'secret' being proven, and where did the interactive *challenge* from the
    Schnorr protocol go when it became a signature?"
 
 ---
 
 ## Grading rubric (100)
 
-| Criterion | Points |
-|---|---|
-| Part 1 — Conventional written questions (Q1–Q5) | 25 |
-| Part 2 — Lab tasks 0–5 (evidence: captured `(r,s)`/twin, txids, curl output, 403 on fixed) | 30 |
-| Evidence & Integrity (flag capture + own-words explanation) | 10 |
-| Audit the AI (flaw(s) found + corrected `process()` design) | 20 |
-| Comprehension & Prompt (EiPE on ZKP + Prompt Problem) | 15 |
+| Criterion | Conventional | AIR-Sec |
+|---|---:|---:|
+| Shared practical core: complete the assigned run or coding steps | 20 | 20 |
+| Shared control and limitations: compare the secure control and explain what it does and does not show | 20 | 20 |
+| Shared reproducible evidence and reasoning: attributable observations, commands/results and explanation | 20 | 20 |
+| Assigned Conventional written questions | 40 | — |
+| Assigned AIR-Sec Audit-the-AI | — | 20 |
+| Assigned AIR-Sec Explain-in-Plain-English | — | 10 |
+| Assigned AIR-Sec Prompt Problem | — | 10 |
+| **Total for the assigned version** | **100** | **100** |
 
-*Viva spot-checks are pass/fail gates on the Lab + Audit-the-AI scores, not separately scored — an
-instructor who isn't convinced you did the work yourself may re-score those sections down.*
+**Deadline and late work:** hand in before the start of the next week's class session (KOSEN rule).
+Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
+
+Viva/micro-demo checks are formative: no separate points and no automatic score gate. The 60 shared points apply to both versions; do not add the unassigned version's 40 points.
+
+Viva checks provide formative feedback and clarification within the published criteria; they carry no extra points or automatic score gate.

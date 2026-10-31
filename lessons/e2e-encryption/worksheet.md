@@ -12,6 +12,18 @@
 > store. Reading, intercepting, or logging other people's messages on systems you don't own is
 > illegal. Keep everything inside this lab environment.
 
+## 100-minute class and assigned worksheet version
+
+**In class:** 10 min retrieval quiz + 10 min brief explanation + 60 min practice/analysis + 15 min debrief + 5 min evidence capture = 100 min.
+
+**Shared core — every student:** Run the provider-visible and client-encrypted scenarios; compare plaintext/ciphertext server logs and recipient output; explain that the demo does not authenticate the server-relayed recipient public key.
+
+**Preparation and extensions:** Prepare images and read the trust-boundary diagram. Complete the full protocol/ratchet essays or AIR-Sec critique/EiPE/Prompt outside the core block as needed.
+
+**Assessment:** everyone completes the shared core (60 points) plus **one assigned version** (40 points): Conventional written analysis, or AIR-Sec Audit-the-AI 20 + EiPE 10 + Prompt Problem 10. Both versions total 100. All questions remain available; complete the assigned version's full questions, using out-of-class time for extended responses. The other version is ungraded reference practice, not an additional requirement. Viva/micro-demo questions are formative checks of the submitted explanation, with no separate points or automatic pass/fail score gate.
+
+**Evidence:** record reproducible observations or reasoning and your name/student ID. Where the local target prints a shared placeholder flag, record it as observed; a personalized flag or live CTFd account is not a prerequisite. Follow SUBMISSION.md for the announced hand-in channel.
+
 ## Part 0 — Student Information
 | Name | Student ID | Date | Group |
 |---|---|---|---|
@@ -56,12 +68,12 @@ is, why it is genuinely hard, and the **security-vs-usability trade-off** it for
 
 ---
 
-## Part 2 — AIR-Sec Arm: Hands-On Lab, Audit-the-AI, EiPE, Prompt Problem, Viva
+## Part 2 — Shared Lab Core and Assigned AIR-Sec Tasks
 
 AI is a power tool you must **distrust** — several parts below are graded on your *critique*, not
 on how well you can prompt an AI. Full run instructions: [`README.md`](README.md).
 
-### Part 2a — Lab steps + evidence artifact (required)
+### Part 2a — Shared lab steps + evidence artifact (required for both versions)
 
 **Setup.** `server.py` is the provider and is **byte-for-byte the same in both modes** — it always
 logs `SERVER SAW: <payload>`. What changes is what `alice.py` chooses to send. There is no host
@@ -77,11 +89,10 @@ port; you read the container logs.
    SERVER SAW: meet at pier 39 at midnight
    ```
    plus `BOB RECEIVED: meet at pier 39 at midnight`. **The `SERVER SAW: ...` plaintext line is your
-   personalized/attributable artifact for this HYBRID week, in place of a CTF flag.** The message
+   attributable artifact for this HYBRID week, in place of a CTF flag.** The message
    text is fixed for every student (`SECRET_MESSAGE` is a lab constant, not per-student), so what
-   makes your submission *yours* is not the string — it's the same identity-proof mechanism as
-   every other week: you must attach the identity stamp the Evidence & Integrity section below
-   specifies, in the same image as the captured log. Note in one line: *who*
+   makes your submission *yours* is not the string — it's the same attributed mechanism as
+   every other week: include your name/student ID and a reproducible capture or annotated transcript from your own run, as described in Evidence & Integrity. Note in one line: *who*
    could read the secret in this mode, and *why the fact that the connection could be HTTPS doesn't
    change that answer*.
 2. Tear down: `Ctrl-C`, then `docker compose -f docker-compose.vulnerable.yml down`.
@@ -101,7 +112,7 @@ port; you read the container logs.
    it print `1`, if you like the contrast).
 4. Tear down: `Ctrl-C`, then `docker compose -f docker-compose.fixed.yml down`.
 
-**Submit:** both captured logs (with identity proof visible), your one-line note from step 1, the
+**Submit:** both captured logs (with your name/student ID and reproducible attribution), your one-line note from step 1, the
 fixed-mode base64 `SERVER SAW:` line, the `BOB DECRYPTED` line, and the `grep -c` output from
 step 3.
 
@@ -203,7 +214,7 @@ specific sentence(s) that are correct, hand-waved, or wrong.
 
 ---
 
-## 🎤 Viva Spot-Check (Part 2e — instructor-run, live)
+## 🎤 Formative Viva Spot-Check (Part 2e — no separate points)
 
 Be ready to answer these live, in your own words, with no notes:
 
@@ -223,13 +234,21 @@ Be ready to answer these live, in your own words, with no notes:
 
 ## Grading rubric (100)
 
-| Criterion | Points |
-|---|---|
-| Conventional arm — 5 essay questions (Part 1) | 40 |
-| Lab evidence — both modes captured, `SERVER SAW` plaintext vs. base64, `BOB DECRYPTED`, `grep -c 0` (Part 2a) | 20 |
-| Audit-the-AI — TLS≠E2EE flaw found, server-can-read named, corrected design (Part 2b) | 15 |
-| EiPE (WhatsApp) + Prompt Problem (Parts 2c–2d) | 15 |
-| Viva spot-check (Part 2e, instructor-run) | 10 |
+| Criterion | Conventional | AIR-Sec |
+|---|---:|---:|
+| Shared practical core: complete the assigned run or coding steps | 20 | 20 |
+| Shared control and limitations: compare the secure control and explain what it does and does not show | 20 | 20 |
+| Shared reproducible evidence and reasoning: attributable observations, commands/results and explanation | 20 | 20 |
+| Assigned Conventional written questions | 40 | — |
+| Assigned AIR-Sec Audit-the-AI | — | 20 |
+| Assigned AIR-Sec Explain-in-Plain-English | — | 10 |
+| Assigned AIR-Sec Prompt Problem | — | 10 |
+| **Total for the assigned version** | **100** | **100** |
+
+**Deadline and late work:** hand in before the start of the next week's class session (KOSEN rule).
+Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
+
+Viva/micro-demo checks are formative: no separate points and no automatic score gate. The 60 shared points apply to both versions; do not add the unassigned version's 40 points.
 
 See the instructor answer key *(instructor use only, not in this file)* for model answers to all 5
 essay questions, the exact planted flaw in the Audit-the-AI snippet, and the detailed lab/viva
@@ -239,16 +258,12 @@ grading notes.
 
 ## Evidence & Integrity (required)
 
-- **Identity proof:** every screenshot/log capture must show a terminal running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in
-  the same image as the evidence**. When the evidence is a browser page, a DevTools panel or a
-  rendered response, put that terminal **beside the browser and capture the whole screen** — a
-  cropped window carries nothing that identifies you, and the lab's own output is
-  byte-identical for the whole cohort *by design*, so the stamp is the only thing that makes
-  the shot yours. Generic or borrowed evidence is not accepted.
+- **Attribution and reproducibility (both versions):** put your name/student ID on the submitted work and provide your own commands, observations and explanation. A screenshot or annotated transcript is acceptable; shared placeholder output is not per-student proof by itself.
+- **Optional terminal-stamp example:** `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'`. This is one way to label a capture, not a separate requirement, point allocation or live-personalization prerequisite.
 - **Personalized/attributable artifact:** the `SERVER SAW: meet at pier 39 at midnight` line from
-  Part 2a vulnerable mode, submitted **together with** your identity-proof screenshot — the
-  identity proof is what makes it yours, not the message text. Submitting someone else's captured
-  log without your own identity proof is a violation.
+  Part 2a vulnerable mode, submitted **together with** your attributed screenshot or annotated transcript — the
+  attribution is what makes it yours, not the message text. Submitting someone else's captured
+  log without your own attribution is a violation.
 - **Explain in your own words** *(graded on your reasoning, not copied text)*:
   1. In vulnerable mode, **who** could read the secret and **why** — and why "but it's over HTTPS"
      would not have saved you.

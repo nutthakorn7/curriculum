@@ -4,6 +4,46 @@
 > **Aligned to:** NIST FIPS 140-3 · OWASP Cryptographic Storage Cheat Sheet · CWE-320, CWE-330
 > **Kind:** Conceptual — no Docker target, no flag this week. Grading is rubric-based (see below).
 
+## How to use this worksheet — 100-minute class, two versions
+
+Everyone completes the **same common activity (60 points)**. Complete only the
+**Conventional written assessment (40)** or the **AIR-Sec assessment (40)** assigned
+by the instructor. AIR-Sec's 40 points are Audit the AI 20, EiPE 10 and Prompt Problem 10.
+Each version totals **100**, and neither version requires the other format for marks.
+
+| Common criterion | Points | This week's evidence |
+|---|---:|---|
+| Core activity / analysis | 20 | Threat-model the supplied small web application: identify assets, actors, data/key flows and trust boundaries. |
+| Control comparison and limitations | 20 | Choose controls for two risks, state the trust assumptions, and explain a residual risk or limitation. |
+| Evidence and causal reasoning | 20 | Submit a labelled diagram, a risk/control table and an explanation linking each conclusion to the stated case. |
+
+**Before class:** complete the stated reading and any environment setup; software
+installation and first image downloads are preparation, not extra contact minutes.
+**In class (100 minutes):** 10 quiz/review + 10 brief + 60 shared practice/analysis +
+15 debrief + 5 evidence capture. In Week 1 the opening block is orientation/review,
+not a quiz on material not yet taught. The detailed tasks below are a checklist, not
+additional timed class blocks: work through the core observations in the guided practice,
+draft the explanation in the debrief, then finish detailed calculations/write-up and the
+assigned 40-point format before the published deadline. Keep every original question;
+unassigned-format questions and the labelled appendix are study extensions.
+
+## Shared common activity — threat model (both versions, 60 points)
+
+**Case for analysis (a teaching scenario, not a claim about a real service):** a small
+web application lets signed-in users store private notes. A browser talks to an application
+server over TLS. The server can read notes to display them, encrypts the note database with
+an application-managed key, and sends encrypted database backups to an operations team.
+The team must also keep a recovery path for the key. Do not assume that encrypting the
+database hides notes from the application server.
+
+1. Draw the browser, application, note database, key store and backup/recovery roles. Label
+   where plaintext and keys are visible and where control/trust changes.
+2. Identify the assets, an attacker and **two** concrete failure paths. For each path, name
+   one control, the assumption it relies on, and one remaining risk or availability cost.
+3. Submit your diagram and a table `risk -> control -> assumption -> residual limitation`,
+   then explain why the controls address your selected paths. This is the common evidence;
+   no Docker target, flag or invented runtime output is required.
+
 ## Part 1 — Student Information
 
 | Name | Student ID | Date | Group |
@@ -12,7 +52,7 @@
 
 *Disclose any AI assistance used anywhere in this worksheet here (tool + what you asked it).*
 
-## Part 2 — Conventional Arm: Short-Answer Questions
+## Part 2 — Conventional assessment (assigned version, 40 points): Short-Answer Questions
 
 Answer each in your own words (4–8 sentences unless noted). These are conceptual questions —
 you are graded on the accuracy and completeness of your reasoning, not on matching a specific
@@ -55,7 +95,7 @@ doesn't defend against. (There's no single correct answer here — you'll find o
 intuition was later in the course. You're graded on making a specific, falsifiable guess, not
 on being right.)
 
-## Part 3 — AIR-Sec Arm: Audit the AI (required)
+## Part 3 — AIR-Sec Arm: Audit the AI (AIR-Sec version only, 20 points)
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not on agreeing
 or disagreeing wholesale with the AI. This week's Audit-the-AI target is not code (no primitive
@@ -107,7 +147,7 @@ and every individual factual claim in it is true. Read it carefully before you r
 
 **Submit:** your answers to 1–4, inline in this worksheet.
 
-## Part 4 — Comprehension & Prompt (required)
+## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
 **A. Explain in Plain English (EiPE).** A non-technical manager asks you: *"We use AES-256 and
 RSA-4096 everywhere — the biggest, strongest algorithms available. Doesn't that mean we're
@@ -137,7 +177,7 @@ Run it, then critique the result:
 the checklist above (mark each item correct / incorrect / hand-waved, quoting the specific line
 you're pointing at).
 
-## Part 5 — Viva Spot-Check (instructor-run, live)
+## Part 5 — Viva Spot-Check (formative/authenticity check; no separate points)
 
 Be ready to answer these live, in your own words, with no notes:
 
@@ -149,28 +189,36 @@ Be ready to answer these live, in your own words, with no notes:
 3. This week's Exhibit answer was not wrong about anything it said. Why is "everything it said
    is true" not the same as "the answer is complete and safe to act on"?
 
-## Grading rubric (100)
+## Grading rubric — assigned version totals 100
 
-| Criterion | Points |
-|---|---|
-| Conventional arm — 6 short-answer questions (Part 2) | 30 |
-| Audit-the-AI — what's right + the gap + examples + rewritten summary (Part 3) | 35 |
-| EiPE (Part 4A) | 10 |
-| Prompt Problem (Part 4B) | 15 |
-| Viva spot-check (Part 5, instructor-run) | 10 |
+| Criterion | Conventional | AIR-Sec |
+|---|---:|---:|
+| Common core activity / analysis | 20 | 20 |
+| Common control comparison and limitations | 20 | 20 |
+| Common evidence and causal reasoning | 20 | 20 |
+| Conventional written questions | 40 | — |
+| AIR-Sec Audit the AI | — | 20 |
+| AIR-Sec Explain in Plain English (EiPE) | — | 10 |
+| AIR-Sec Prompt Problem | — | 10 |
+| **Total for the assigned version** | **100** | **100** |
 
-See the instructor answer key (instructor use only, not in this file) for detailed Audit-the-AI
-rubric bands (full/partial/no credit) and expected-answer notes for the viva.
+**Deadline and late work:** hand in before the start of the next week's class session (KOSEN rule).
+Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
 
----
+Submit the common work plus **one** assigned assessment format; do not add the two
+format columns or complete both formats for extra marks. The original questions remain
+available for study. A viva is a formative/authenticity check within the relevant criteria,
+with feedback or a request to clarify/reproduce evidence; it has no separate points and
+no automatic-zero rule. Grade the demonstrated work against the published criteria.
+
 
 ## Evidence & Integrity (required)
 
 - **Identity proof:** put your name/student ID and the date on every file you submit (Part 1).
-- **No personalized flag this week** — this is a Conceptual week, graded entirely on your
-  written reasoning and viva performance. See the README for why a CTF-style wrapper isn't
+- **No personalized flag this week** — this is a Conceptual week, graded on the shared
+  threat-model analysis and the assigned assessment format. Viva is formative feedback. See the README for why a CTF-style wrapper isn't
   used for {{ slot_label }}.
 - **Explain in your own words** *(graded on your reasoning, not copied text)*: for the
-  Audit-the-AI task specifically, restate in 1–2 sentences why the Exhibit's gap matters in
+  AIR-Sec Audit-the-AI task, when assigned, specifically, restate in 1–2 sentences why the Exhibit's gap matters in
   practice — i.e. what a team that internalized only the Exhibit's advice would still be
   exposed to.
