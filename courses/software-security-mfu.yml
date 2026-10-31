@@ -1,7 +1,7 @@
 course:
   name: "Software Security (MFU)"
   code: "1305315"
-  brand: "KOSEN·KMITL"
+  brand: "MFU"
   flag_salt_env: SWSEC_FLAG_SALT
   challenge_keys_env: AIRSEC_CHALLENGE_KEYS
 target_repo: "nutthakorn7/software-security"
