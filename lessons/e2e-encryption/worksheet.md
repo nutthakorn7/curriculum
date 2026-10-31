@@ -245,7 +245,8 @@ Be ready to answer these live, in your own words, with no notes:
 | Assigned AIR-Sec Prompt Problem | — | 10 |
 | **Total for the assigned version** | **100** | **100** |
 
-**Deadline and late work:** hand in before the start of the next week's class session (KOSEN rule).
+**Deadline and late work:** hand in by 23:59 Thai time (ICT) on the Sunday before the next week's
+class (KOSEN rule); the exact date is on `learn.zcr.ai/submit`.
 Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
 
 Viva/micro-demo checks are formative: no separate points and no automatic score gate. The 60 shared points apply to both versions; do not add the unassigned version's 40 points.
