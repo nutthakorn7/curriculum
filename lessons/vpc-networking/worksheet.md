@@ -63,3 +63,7 @@ where to place a narrow, specific rule relative to a broad, catch-all one?
 ## Submit
 Flag + Part 2a request/response pair + Part 2b/2c answers → Classroom. Conventional-arm students
 submit Part 1 only.
+
+- **Due:** before the start of the next week's class (the due date on the Classroom assignment).
+- **Late:** −10% of the score you earned for every 24 hours after the due time, down to 0 after
+  10 days. Late work is marked only after a short viva. Full rules in SUBMISSION.md.
