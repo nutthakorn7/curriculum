@@ -14,6 +14,16 @@
     .a  { stroke: #16191d; stroke-width: 2; fill: none; marker-end: url(#ar) }
     .ao { stroke: #E35205; stroke-width: 2.5; fill: none; marker-end: url(#aro) }
     .d  { stroke: #6b7280; stroke-width: 2; fill: none; stroke-dasharray: 6 5 }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb, .h { fill: #4aa3dd } .to { fill: #ff7a3d }
+      .a  { stroke: #c9ced3 } .ao { stroke: #ff7a3d } .d { stroke: #9aa3ad }
+      [fill="#16191d"] { fill: #c9ced3 }
+      [fill="#017BC4"] { fill: #4aa3dd } [stroke="#017BC4"] { stroke: #4aa3dd }
+      [fill="#E35205"] { fill: #ff7a3d } [stroke="#E35205"] { stroke: #ff7a3d }
+    }
   </style>
   <defs>
     <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
