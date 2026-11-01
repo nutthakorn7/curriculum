@@ -5,7 +5,7 @@
 ## ✅ This week — what to do
 1. **Before class** — Docker Desktop working ({{ ref('threat-modeling') }} *Lab 0*); pull the scanner images and build the toolbox (worksheet *Prerequisites*, over 1 GB on the first run); skim last week's recap.
 2. **Slides, then class** — read `{{ slides }}` and answer the worksheet's **Part 2** before class; class opens with the weekly quiz (~10 min) and a short explanation + demo (~15 min).
-3. **Lab (in class)** — play this week's game, then complete **Worksheet 2** (`worksheet.md`, Parts 1–4, incl. *Audit the AI* + *EiPE/Prompt*). Kickoff: `bash scan.sh`. Part 3 marks each task *in class* or *homework*.
+3. **Lab (in class)** — play this week's game, then complete **Worksheet 2** (`worksheet.md`, Parts 1–4, incl. *Audit the AI* + *EiPE/Prompt*). Kickoff: `bash scan.sh`. Part 3 marks the *core* tasks (in class) and the *optional bonus* tasks (homework).
 4. **Submit before the next class** (homework tasks included) — worksheet PDF → `learn.zcr.ai/submit` · code → GitHub · weekly quiz → `learn.zcr.ai/quiz`. (How: [SUBMISSION.md](../../SUBMISSION.md).)
 5. **Project** — apply this week's lesson to your [NoteVault project](../../project/README.md) where it fits.
 
@@ -42,7 +42,7 @@ docker run --rm -v "$PWD/vulnerable-repo:/repo" zricethezav/gitleaks:latest dete
 > worksheet Task 2 asks you to identify.
 1. Run both tools; export findings.
 2. Categorize each finding by CWE and severity.
-3. Mark 3 true positives and 1 likely false positive; justify.
+3. Mark each finding TP or FP with a one-line reason (an FP only if you can argue it).
 
 ## Mini-lab — "Fuzzing Race" (intro)
 First team to make the target crash wins. `harness.c` (in this folder) has one planted

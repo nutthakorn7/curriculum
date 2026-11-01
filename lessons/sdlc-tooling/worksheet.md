@@ -21,21 +21,20 @@ Answer in your own words (2–4 sentences each).
 
 ![A left to right SDLC pipeline showing SAST at write code, secret scanning at commit, SCA and fuzzing at build, and DAST at deploy, with what each tool cannot see written underneath it.](img/sdlc-gates.svg)
 
-## Part 3 — Hands-on Lab (115 min in class + 65 min homework)
+## Part 3 — Hands-on Lab (core tasks 115 min in class; optional bonus tasks as homework)
 
-> **In class or homework.** Tasks marked *in class* are done during the lab, where the instructor
-> checks your evidence and reasoning. Tasks marked *homework* are finished after class and submitted
-> with the rest of this worksheet, before the next class. Every task keeps its time and its marks.
-> Answer Part 2 before class, from this week's slides; Part 4, *Audit the AI* and *Comprehension &
-> Prompt* are homework.
+> **Core vs optional.** The **core tasks are 0–4, 7 and 8** — everyone does these in class, where the
+> instructor checks your evidence and reasoning. **Tasks 5 and 6 are optional**: do them as homework for
+> extra credit — together they add a **bonus of up to +5** (total, not per task). Answer Part 2 before
+> class, from this week's slides; Part 4, *Audit the AI* and *Comprehension & Prompt* are homework.
 >
-> **In class (115 min):** Tasks 0, 1, 2, 3, 4, 7 and 8 · **Homework (65 min):** Tasks 5 and 6
+> **Core, in class:** Tasks 0, 1, 2, 3, 4, 7 and 8 · **Optional bonus (homework):** Tasks 5 and 6
 **Learning goals:** run a SAST tool and a secret scanner, triage findings by CWE/severity, and remediate real flaws.
 **Prerequisites (before class; over 1 GB of downloads on the first run):** Docker running, then from the repo root:
 ```bash
 docker pull semgrep/semgrep
 docker pull zricethezav/gitleaks:latest
-docker pull aquasec/trivy
+docker pull aquasec/trivy                         # only for optional Task 5
 docker build -t softsec-toolbox labs/toolbox      # clang + libFuzzer for Task 4
 ```
 On Windows, run the lab from WSL (Ubuntu). In Git Bash, if `bash scan.sh` stops with `set: -: invalid option`, your checkout has Windows (CRLF) line endings: sync your fork, `git pull`, then run `rm scan.sh && git checkout -- scan.sh` in this folder.
@@ -56,14 +55,14 @@ Target under scan: `vulnerable-repo/app.py` (plus `requirements.txt`). It contai
 
 **Task 2 — Secret scan with Gitleaks (15 min, in class)** · *Goal:* find leaked credentials. *Steps:* read the Gitleaks output; identify `AWS_SECRET_ACCESS_KEY` and `DB_PASSWORD` (CWE-798). *Deliverable:* screenshot + the rule that fired for each.
 
-**Task 3 — Bug Triage Race (30 min, in class)** · *Goal:* triage accurately. *Steps:* build a table with columns *Tool | File:Line | CWE | Severity | TP/FP | Fix idea*; mark at least 3 true positives and 1 likely false positive and justify each. (Score = TP − misclassified.) *Deliverable:* the completed triage table.
+**Task 3 — Bug Triage Race (30 min, in class)** · *Goal:* triage accurately. *Steps:* build a table with columns *Tool | File:Line | CWE | Severity | TP/FP | Fix idea*; give every finding a TP or FP call with a one-line reason (several rule hits on the same line are one finding, one row). Call something a false positive only if you can argue it; you don't have to find one. (Score = TP − misclassified.) *Deliverable:* the completed triage table.
 
 **Task 4 — Fuzzing intro (10 min, in class)** · *Goal:* see coverage-guided fuzzing find a bug SAST won't. *Steps:* open the toolbox you built in *Prerequisites* (Apple clang has no libFuzzer runtime) with this folder mounted: `docker run -it --rm -v "$PWD":/work -w /work softsec-toolbox`. Inside it, build `clang -g -fsanitize=address,fuzzer harness.c -o fuzz`, then **seed the corpus** and run it:
-`mkdir -p corpus && printf 'FUZ' > corpus/seed && ./fuzz corpus`. It crashes on the first input with an AddressSanitizer heap-buffer-overflow at `harness.c:23` (the `data[3]` read with no `size > 3` check). Take the identity stamp in a terminal on your laptop, beside the container: inside it `whoami` prints `root` and the time is UTC. Seeding matters: an unseeded `./fuzz` also crashes within a second, but often on the deliberate trap at line 24 instead (on Apple Silicon just `Trace/breakpoint trap`, no ASan report), so use the seed for your evidence — that difference is itself worth a sentence in your write-up. (The deep fuzzing+exploit lab is {{ ref('memory-safety-exploitation') }}.) *Deliverable:* the ASan crash output (or a screenshot) + a 2-sentence note on why fuzzing finds this bug when a linter/SAST pass over the same 4-line check would not.
+`mkdir -p corpus && printf 'FUZ' > corpus/seed && ./fuzz corpus`. It crashes on the first input with an AddressSanitizer heap-buffer-overflow at `harness.c:23` (the `data[3]` read with no `size > 3` check). Take the identity stamp in a terminal on your laptop, beside the container: inside it `whoami` prints `root` and the time is UTC. Seeding matters: an unseeded `./fuzz` also crashes within a second, but often on the deliberate trap at line 24 instead (on Apple Silicon just `Trace/breakpoint trap`, no ASan report), so use the seed for your evidence (optional: one sentence on why the two runs differ). (The deep fuzzing+exploit lab is {{ ref('memory-safety-exploitation') }}.) *Deliverable:* the ASan crash output (or a screenshot) + a 2-sentence note on why fuzzing finds this bug when a linter/SAST pass over the same 4-line check would not.
 
-**Task 5 — Scan the project target (40 min, homework)** · *Goal:* apply the tools to your term project. *Steps:* run Semgrep + Gitleaks against **NoteVault** (`../../project/starter-app`); also run an SCA scan: `docker run --rm -v trivy-cache:/root/.cache/ -v "$PWD/../../project/starter-app:/src" aquasec/trivy fs /src` (the `trivy-cache` volume keeps Trivy's vulnerability database, so only the first run downloads it). *Deliverable:* a findings list (tool, file:line/CVE, CWE) — reuse it in your project vuln report.
+**Task 5 — Scan the project target (40 min, optional bonus)** · *Goal:* apply the tools to your term project. *Steps:* run Semgrep + Gitleaks against **NoteVault** (`../../project/starter-app`); also run an SCA scan: `docker run --rm -v trivy-cache:/root/.cache/ -v "$PWD/../../project/starter-app:/src" aquasec/trivy fs /src` (the `trivy-cache` volume keeps Trivy's vulnerability database, so only the first run downloads it). *Deliverable:* a findings list (tool, file:line/CVE, CWE) — reuse it in your project vuln report.
 
-**Task 6 — Build a security CI gate (25 min, homework)** · *Goal:* automate the scan (previews {{ ref('devsecops-pipeline') }}). *Steps:* adapt `{{ ref('devsecops-pipeline', link=True) }}security-ci.yml` into a workflow that runs Semgrep + Trivy + Gitleaks and **fails on HIGH/CRITICAL**; run it locally (`act`) or commit to your fork and read the Actions log. *Deliverable:* the workflow file + a screenshot of a failing run.
+**Task 6 — Build a security CI gate (25 min, optional bonus)** · *Goal:* automate the scan (previews {{ ref('devsecops-pipeline') }}). *Steps:* adapt `{{ ref('devsecops-pipeline', link=True) }}security-ci.yml` into a workflow that runs Semgrep + Trivy + Gitleaks and **fails on HIGH/CRITICAL**; run it locally (`act`) or commit to your fork and read the Actions log. *Deliverable:* the workflow file + a screenshot of a failing run.
 
 **Task 7 — SAST blind spots (20 min, in class)** · *Goal:* see what scanners miss. *Steps:* find one real bug in `vulnerable-repo/app.py` (or NoteVault) that Semgrep did **not** flag, and explain why a pattern-based tool missed it. *Deliverable:* the bug + a 2-sentence explanation.
 
