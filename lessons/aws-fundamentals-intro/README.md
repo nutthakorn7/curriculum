@@ -34,7 +34,8 @@ coding bug in any artifact.
 ## 🔎 Signature exercise — "Audit the AI"
 No lab/flag this lesson (CONCEPTUAL) — the personalized, attributable artifact is **which planted
 error your assigned AI explanation contains** (see `worksheet.md` Part 2a). Every student gets a
-different variant (`variant = (last digit of your student ID) mod 4`, from a bank of 4); correctly identifying
+different variant (from a bank of 4, picked by the last digit of your student ID with the table in
+`worksheet.md`); correctly identifying
 *your own* variant's specific error is what's attributable — describing someone else's variant's
 error does not satisfy the task.
 
@@ -44,7 +45,8 @@ internalized *who is responsible for what* (not just the vocabulary) will catch.
 
 ## Deliverable
 Which variant you were assigned, the exact planted error, why it's wrong, and the corrected
-sentence — plus the four Part 1 essay-style questions if you're in the Conventional block instead.
+sentence — plus the four Part 1 short-answer questions if you're in the Conventional block instead. You may
+answer in Thai or English.
 Full tasks: `worksheet.md`.
 
 ## References
