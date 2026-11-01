@@ -10,6 +10,9 @@
 - Then do **only your form (40 points)**. The last digit of your student ID decides:
   **odd = Conventional (Part 2)**, **even = AIR-Sec (Parts 3–4)**. Write your form in the Group field.
 - You may answer in Thai or English. Short, clear answers are fine.
+- **Use the answer sheet.** In Classroom → Week 01, open the file for your form
+  (`Wk01_Answer_Sheet_Conventional_odd_ID` or `Wk01_Answer_Sheet_AIR-Sec_even_ID`), type your
+  answers in the grey boxes, add your picture and screenshot, then File → Download → PDF.
 - No Docker and no flag this week. Hand in one PDF, `Wk01_<StudentID>.pdf`, at `learn.zcr.ai/submit`.
 - Already started the earlier version of this worksheet? That work also gets full credit.
 - This is a **warm-up week**: both 40-point forms are short. The older, harder questions are
