@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 250" role="img"
+     aria-label="Plaintext meet at 10 is encrypted with a key into scrambled ciphertext, then decrypted with the key back into the same plaintext. The algorithm is public; only the key is secret.">
+  <title>Plaintext, ciphertext and the key</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .t  { font: 600 20px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 15px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 500 16px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .h  { font: 700 22px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 2; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.5; fill: none; marker-end: url(#aro) }
+    .d  { stroke: #6b7280; stroke-width: 2; fill: none; stroke-dasharray: 6 5 }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+  </defs>
+  <rect class="b" x="20" y="60" width="220" height="100" rx="10"/><text class="t" x="130" y="100">Plaintext</text><text class="tm" x="130" y="132">"meet at 10"</text>
+  <path class="a" d="M245,110 H385"/><g transform="translate(315,92)"><path d="M-10,-6 V-16 a10,10 0 0 1 20,0 V-6" stroke="#017BC4" stroke-width="4" fill="none"/><rect x="-16" y="-8" width="32" height="26" rx="4" fill="#017BC4"/></g><text class="ts" x="315" y="140">encrypt</text><g transform="translate(296,170) scale(0.8)"><circle cx="0" cy="0" r="11" fill="none" stroke="#017BC4" stroke-width="4"/><path d="M11,0 H40 M30,0 V9 M38,0 V7" stroke="#017BC4" stroke-width="4" fill="none" stroke-linecap="round"/></g>
+  <rect class="bo" x="390" y="60" width="220" height="100" rx="10"/><text class="t" x="500" y="100">Ciphertext</text><text class="tm" x="500" y="132">"9f3a…c1"</text>
+  <path class="a" d="M615,110 H755"/><g transform="translate(685,92)"><path d="M-10,-6 V-16 a10,10 0 0 1 20,0 V-22" stroke="#017BC4" stroke-width="4" fill="none"/><rect x="-16" y="-8" width="32" height="26" rx="4" fill="#017BC4"/></g><text class="ts" x="685" y="140">decrypt</text><g transform="translate(666,170) scale(0.8)"><circle cx="0" cy="0" r="11" fill="none" stroke="#017BC4" stroke-width="4"/><path d="M11,0 H40 M30,0 V9 M38,0 V7" stroke="#017BC4" stroke-width="4" fill="none" stroke-linecap="round"/></g>
+  <rect class="b" x="760" y="60" width="220" height="100" rx="10"/><text class="t" x="870" y="100">Plaintext</text><text class="tm" x="870" y="132">"meet at 10"</text>
+  <text class="ts" x="500" y="230">The algorithm is public. Only the key (🔑) is secret.</text>
+</svg>

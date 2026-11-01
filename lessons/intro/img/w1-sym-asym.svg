@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 260" role="img"
+     aria-label="Left, symmetric: Alice and Bob hold the same shared key and send ciphertext between them. Right, asymmetric: Alice locks the message with Bob's public key, which anyone can use, and only Bob's private key can open it.">
+  <title>Symmetric versus asymmetric encryption</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .t  { font: 600 20px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 15px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 500 16px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .h  { font: 700 22px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 2; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.5; fill: none; marker-end: url(#aro) }
+    .d  { stroke: #6b7280; stroke-width: 2; fill: none; stroke-dasharray: 6 5 }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+  </defs>
+  <text class="h" x="250" y="34">Symmetric — one shared key</text>
+  <rect class="b" x="40" y="70" width="130" height="70" rx="10"/><text class="t" x="105" y="112">Alice</text>
+  <rect class="b" x="330" y="70" width="130" height="70" rx="10"/><text class="t" x="395" y="112">Bob</text>
+  <path class="a" d="M175,105 H325"/><text class="ts" x="250" y="95">ciphertext</text>
+  <g transform="translate(85,175) scale(1.0)"><circle cx="0" cy="0" r="11" fill="none" stroke="#017BC4" stroke-width="4"/><path d="M11,0 H40 M30,0 V9 M38,0 V7" stroke="#017BC4" stroke-width="4" fill="none" stroke-linecap="round"/></g><g transform="translate(375,175) scale(1.0)"><circle cx="0" cy="0" r="11" fill="none" stroke="#017BC4" stroke-width="4"/><path d="M11,0 H40 M30,0 V9 M38,0 V7" stroke="#017BC4" stroke-width="4" fill="none" stroke-linecap="round"/></g><text class="tb" x="250" y="215">the same key on both sides</text>
+  <line x1="500" y1="20" x2="500" y2="240" class="d"/>
+  <text class="h" x="750" y="34">Asymmetric — a key pair</text>
+  <rect class="b" x="540" y="70" width="130" height="70" rx="10"/><text class="t" x="605" y="112">Alice</text>
+  <rect class="b" x="830" y="70" width="130" height="70" rx="10"/><text class="t" x="895" y="112">Bob</text>
+  <path class="a" d="M675,105 H825"/><text class="ts" x="750" y="95">locked message</text>
+  <g transform="translate(605,180)"><path d="M-10,-6 V-16 a10,10 0 0 1 20,0 V-6" stroke="#017BC4" stroke-width="4" fill="none"/><rect x="-16" y="-8" width="32" height="26" rx="4" fill="#017BC4"/></g><text class="tb" x="605" y="225">Bob's PUBLIC key</text><text class="ts" x="605" y="245">anyone can lock</text>
+  <g transform="translate(875,175) scale(1.0)"><circle cx="0" cy="0" r="11" fill="none" stroke="#E35205" stroke-width="4"/><path d="M11,0 H40 M30,0 V9 M38,0 V7" stroke="#E35205" stroke-width="4" fill="none" stroke-linecap="round"/></g><text class="to" x="895" y="225">Bob's PRIVATE key</text><text class="ts" x="895" y="245">only Bob can open</text>
+</svg>

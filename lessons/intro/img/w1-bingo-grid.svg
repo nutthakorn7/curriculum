@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400" role="img"
+     aria-label="An example Snake Oil Bingo grid: five by five squares with the myth numbers 1 to 24 in any order and FREE in the centre; two squares are ticked as verified. Five verified squares in a row, column or diagonal wins.">
+  <title>Example Snake Oil Bingo grid</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .t  { font: 600 20px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 15px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 500 16px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .h  { font: 700 22px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 2; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.5; fill: none; marker-end: url(#aro) }
+    .d  { stroke: #6b7280; stroke-width: 2; fill: none; stroke-dasharray: 6 5 }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+  </defs>
+  <rect class="b" x="260" y="20" width="92" height="66" rx="6"/>
+  <text class="t" x="306" y="61">11</text>
+  <rect class="b" x="356" y="20" width="92" height="66" rx="6"/>
+  <text class="t" x="402" y="61">4</text>
+  <rect class="bo" x="452" y="20" width="92" height="66" rx="6"/>
+  <text class="t" x="498" y="61">1 ✓</text>
+  <rect class="b" x="548" y="20" width="92" height="66" rx="6"/>
+  <text class="t" x="594" y="61">14</text>
+  <rect class="b" x="644" y="20" width="92" height="66" rx="6"/>
+  <text class="t" x="690" y="61">20</text>
+  <rect class="b" x="260" y="90" width="92" height="66" rx="6"/>
+  <text class="t" x="306" y="131">9</text>
+  <rect class="b" x="356" y="90" width="92" height="66" rx="6"/>
+  <text class="t" x="402" y="131">18</text>
+  <rect class="b" x="452" y="90" width="92" height="66" rx="6"/>
+  <text class="t" x="498" y="131">3</text>
+  <rect class="b" x="548" y="90" width="92" height="66" rx="6"/>
+  <text class="t" x="594" y="131">24</text>
+  <rect class="b" x="644" y="90" width="92" height="66" rx="6"/>
+  <text class="t" x="690" y="131">19</text>
+  <rect class="b" x="260" y="160" width="92" height="66" rx="6"/>
+  <text class="t" x="306" y="201">22</text>
+  <rect class="bo" x="356" y="160" width="92" height="66" rx="6"/>
+  <text class="t" x="402" y="201">13 ✓</text>
+  <rect class="bg" x="452" y="160" width="92" height="66" rx="6"/>
+  <text class="t" x="498" y="201">FREE</text>
+  <rect class="b" x="548" y="160" width="92" height="66" rx="6"/>
+  <text class="t" x="594" y="201">2</text>
+  <rect class="b" x="644" y="160" width="92" height="66" rx="6"/>
+  <text class="t" x="690" y="201">23</text>
+  <rect class="b" x="260" y="230" width="92" height="66" rx="6"/>
+  <text class="t" x="306" y="271">21</text>
+  <rect class="b" x="356" y="230" width="92" height="66" rx="6"/>
+  <text class="t" x="402" y="271">6</text>
+  <rect class="b" x="452" y="230" width="92" height="66" rx="6"/>
+  <text class="t" x="498" y="271">12</text>
+  <rect class="b" x="548" y="230" width="92" height="66" rx="6"/>
+  <text class="t" x="594" y="271">10</text>
+  <rect class="b" x="644" y="230" width="92" height="66" rx="6"/>
+  <text class="t" x="690" y="271">8</text>
+  <rect class="b" x="260" y="300" width="92" height="66" rx="6"/>
+  <text class="t" x="306" y="341">15</text>
+  <rect class="b" x="356" y="300" width="92" height="66" rx="6"/>
+  <text class="t" x="402" y="341">7</text>
+  <rect class="b" x="452" y="300" width="92" height="66" rx="6"/>
+  <text class="t" x="498" y="341">5</text>
+  <rect class="b" x="548" y="300" width="92" height="66" rx="6"/>
+  <text class="t" x="594" y="341">17</text>
+  <rect class="b" x="644" y="300" width="92" height="66" rx="6"/>
+  <text class="t" x="690" y="341">16</text>
+  <text class="ts" x="130" y="120">Draw a 5 × 5 grid</text><text class="ts" x="130" y="145">write 1–24</text><text class="ts" x="130" y="170">in any order</text>
+  <text class="to" x="870" y="135">✓ = verified</text><text class="ts" x="870" y="160">(reason given)</text>
+  <text class="tb" x="500" y="385">5 verified in a row, column or diagonal = BINGO</text>
+</svg>
