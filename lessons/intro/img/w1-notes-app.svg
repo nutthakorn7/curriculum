@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 370" role="img"
+     aria-label="The notes app: the user's browser talks over HTTPS to the app server, which reads and writes the encrypted note database, uses the key store, and sends encrypted backups to an ops team that also has a key-recovery path. The worksheet asks who can see the plaintext and the key, and where the trust boundaries are.">
+  <title>The notes app to threat-model</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .t  { font: 600 20px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 15px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 500 16px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .h  { font: 700 22px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 2; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.5; fill: none; marker-end: url(#aro) }
+    .d  { stroke: #6b7280; stroke-width: 2; fill: none; stroke-dasharray: 6 5 }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+  </defs>
+  <rect class="b" x="20" y="120" width="170" height="80" rx="10"/><text class="t" x="105" y="156">Browser</text><text class="ts" x="105" y="182">the user</text>
+  <rect class="b" x="330" y="120" width="190" height="80" rx="10"/><text class="t" x="425" y="156">App server</text><text class="ts" x="425" y="182">shows the notes</text>
+  <rect class="b" x="660" y="30" width="190" height="80" rx="10"/><text class="t" x="755" y="66">Note database</text><text class="ts" x="755" y="92">encrypted</text>
+  <rect class="b" x="660" y="140" width="190" height="80" rx="10"/><text class="t" x="755" y="176">Key store</text><text class="ts" x="755" y="202">holds the key</text>
+  <rect class="bo" x="660" y="250" width="190" height="80" rx="10"/><text class="t" x="755" y="286">Backup / ops team</text><text class="ts" x="755" y="312">+ key recovery</text>
+  <path class="a" d="M195,160 H325"/><text class="ts" x="260" y="150">HTTPS</text>
+  <path class="a" d="M525,145 L655,80"/><path class="a" d="M525,165 L655,178"/><path class="a" d="M525,185 L655,280"/><text class="ts" x="520" y="262" style="text-anchor:end">encrypted backups</text>
+  <path class="d" d="M870,290 C940,270 940,200 870,185"/><text class="ts" x="962" y="245">recovery</text>
+  <text class="to" x="420" y="355">Your job (A1): who can see the plaintext? who can see the key? mark two trust boundaries</text>
+</svg>
