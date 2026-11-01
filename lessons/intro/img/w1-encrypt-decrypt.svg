@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 250" role="img"
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 250" width="1000" height="250" role="img"
      aria-label="Plaintext meet at 10 is encrypted with a key into scrambled ciphertext, then decrypted with the key back into the same plaintext. The algorithm is public; only the key is secret.">
   <title>Plaintext, ciphertext and the key</title>
   <style>
