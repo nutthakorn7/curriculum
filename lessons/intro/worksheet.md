@@ -4,49 +4,79 @@
 > **Aligned to:** NIST FIPS 140-3 · OWASP Cryptographic Storage Cheat Sheet · CWE-320, CWE-330
 > **Kind:** Conceptual — no Docker target, no flag this week. Grading is rubric-based (see below).
 
-## How to use this worksheet — 100-minute class, two versions
+## How to use this worksheet
 
-Everyone completes the **same common activity (60 points)**. Complete only the
-**Conventional written assessment (40)** or the **AIR-Sec assessment (40)** assigned
-by the instructor. AIR-Sec's 40 points are Audit the AI 20, EiPE 10 and Prompt Problem 10.
-Each version totals **100**, and neither version requires the other format for marks.
+- Everyone does **Part A (60 points)**. It is the same for both forms.
+- Then do **only your form (40 points)**. The last digit of your student ID decides:
+  **odd = Conventional (Part 2)**, **even = AIR-Sec (Parts 3–4)**. Write your form in the Group field.
+- You may answer in Thai or English. Short, clear answers are fine.
+- No Docker and no flag this week. Hand in one PDF, `Wk01_<StudentID>.pdf`, at `learn.zcr.ai/submit`.
+- Already started the earlier version of this worksheet? That work also gets full credit.
 
-| Common criterion | Points | This week's evidence |
+| Part A | Points | What you hand in |
 |---|---:|---|
-| Core activity / analysis | 20 | Threat-model the supplied small web application: identify assets, actors, data/key flows and trust boundaries. |
-| Control comparison and limitations | 20 | Choose controls for two risks, state the trust assumptions, and explain a residual risk or limitation. |
-| Evidence and causal reasoning | 20 | Submit a labelled diagram, a risk/control table and an explanation linking each conclusion to the stated case. |
+| A1 — Who sees what | 20 | The filled-in component table and a simple picture with two trust boundaries marked |
+| A2 — Risks and controls | 20 | Two rows of the risk table |
+| A3 — Hands-on: crack a weak key | 20 | A screenshot from the simulation and three short answers |
 
-**Before class:** complete the stated reading and any environment setup; software
-installation and first image downloads are preparation, not extra contact minutes.
-**In class (100 minutes):** 10 quiz/review + 10 brief + 60 shared practice/analysis +
-15 debrief + 5 evidence capture. In Week 1 the opening block is orientation/review,
-not a quiz on material not yet taught. The detailed tasks below are a checklist, not
-additional timed class blocks: work through the core observations in the guided practice,
-draft the explanation in the debrief, then finish detailed calculations/write-up and the
-assigned 40-point format before the published deadline. Keep every original question;
-questions in the unassigned format are study extensions.
+## Part A — Common work (both forms, 60 points)
 
-## Shared common activity — threat model (both versions, 60 points)
+**The case** (a teaching scenario, not a real service): a small web app lets signed-in users
+store private notes.
 
-**Case for analysis (a teaching scenario, not a claim about a real service):** a small
-web application lets signed-in users store private notes. A browser talks to an application
-server over TLS. The server can read notes to display them, encrypts the note database with
-an application-managed key, and sends encrypted database backups to an operations team.
-The team must also keep a recovery path for the key. Do not assume that encrypting the
-database hides notes from the application server.
+- The browser talks to the app server over HTTPS (TLS).
+- The app server reads the notes so it can show them.
+- The note database is encrypted with a key that the app manages.
+- Encrypted backups go to an operations (ops) team, which also keeps a way to recover the key.
 
-1. Draw the browser, application, note database, key store and backup/recovery roles. Label
-   where plaintext and keys are visible and where control/trust changes.
-2. Identify the assets, an attacker and **two** concrete failure paths. For each path, name
-   one control, the assumption it relies on, and one remaining risk or availability cost.
-3. Submit your diagram and a table `risk -> control -> assumption -> residual limitation`,
-   then explain why the controls address your selected paths. This is the common evidence;
-   no Docker target, flag or invented runtime output is required.
+### A1 — Who sees what? (20 points)
+
+Fill in the table with **Yes** or **No**, plus a short reason where it helps.
+
+| Component | Can it see the plaintext notes? | Can it see or use the key? |
+|---|---|---|
+| User's browser | | |
+| App server | | |
+| Note database (on disk) | | |
+| Key store | | |
+| Backup / ops team | | |
+
+Then draw a simple box-and-arrow picture of these five parts and mark **two trust boundaries**
+(places where data or a key passes to someone with different control). A photo of a hand drawing
+is fine.
+
+*Hint:* encrypting the database does **not** hide the notes from the app server. Why not?
+
+### A2 — Risks and controls (20 points)
+
+Row 1 is done for you. Write **two more rows**.
+
+| Risk (what goes wrong) | Control (what we do) | Assumption (what must stay true) | Still left (what it does not fix) |
+|---|---|---|---|
+| Backups and the key both go to the ops team, so one leak exposes every note | Keep the key in a separate key store; ops get the backups but not the key | Access to the key store is limited and logged | If the key is lost, the backups cannot be restored |
+| *your row* | | | |
+| *your row* | | | |
+
+*Hint for one row:* an attacker breaks into the app server. What can they read?
+
+### A3 — Hands-on: crack a key that was never really random (20 points)
+
+1. Open **<https://learn.zcr.ai/sim/seed-crack>** on a phone or laptop.
+2. Pick a target (TLS host key, session token or password-reset link) and press
+   **Run the brute force**.
+3. Take a **screenshot** that shows **KEY RECOVERED** and how long it took.
+
+Answer each in 1–2 sentences:
+
+- **a.** How many candidates did your browser try, and how long did it take?
+- **b.** The design assumed 2^128 possible keys. Why did the attacker only need to try so few?
+- **c.** What went wrong here: the algorithm, the key length, or the randomness? Explain.
+
+*Real case:* the Debian OpenSSL bug (2008) left only about 32,768 possible keys.
 
 ## Part 1 — Student Information
 
-| Name | Student ID | Date | Group |
+| Name | Student ID | Date | Group (your form: Conventional or AIR-Sec) |
 |---|---|---|---|
 | | | | |
 
@@ -193,9 +223,9 @@ Be ready to answer these live, in your own words, with no notes:
 
 | Criterion | Conventional | AIR-Sec |
 |---|---:|---:|
-| Common core activity / analysis | 20 | 20 |
-| Common control comparison and limitations | 20 | 20 |
-| Common evidence and causal reasoning | 20 | 20 |
+| Part A1 — Who sees what (core analysis) | 20 | 20 |
+| Part A2 — Risks and controls (controls and limitations) | 20 | 20 |
+| Part A3 — Hands-on evidence and reasoning | 20 | 20 |
 | Conventional written questions | 40 | — |
 | AIR-Sec Audit the AI | — | 20 |
 | AIR-Sec Explain in Plain English (EiPE) | — | 10 |
