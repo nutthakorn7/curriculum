@@ -1,5 +1,5 @@
 course:
-  name: "Security & Cryptography"
+  name: "Cryptography and Network Security"
   brand: "KOSEN·KMITL"
   flag_salt_env: SC_FLAG_SALT
   challenge_keys_env: AIRSEC_CHALLENGE_KEYS

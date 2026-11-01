@@ -1,6 +1,6 @@
 # Worksheet 15b — Harvest Now, Decrypt Later + Hybrid KEM
 
-> **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }} (PQC), confidentiality companion**
+> **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }} (PQC), confidentiality companion**
 > **Topic:** The quantum threat to *key exchange*: harvest-now-decrypt-later, and hybrid
 > (classical + ML-KEM) key encapsulation as the deployable mitigation. (Written fresh for this
 > course.)

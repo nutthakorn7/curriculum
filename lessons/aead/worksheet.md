@@ -1,6 +1,6 @@
 # Worksheet 6 — Authenticated Encryption (AEAD): the CBC Padding Oracle (100-minute class + preparation/extension)
 
-> **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
+> **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
 > **Topic:** Authenticated Encryption (AEAD) — new this year (capstone of the symmetric block:
 > {{ ref('macs') }} MAC + {{ ref('aes-modes') }} AES "combined correctly").
 > **Decryption game:** "Read the Secret Without the Key" — a CBC padding-oracle attack against
