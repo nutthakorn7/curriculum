@@ -114,8 +114,13 @@ identically shaped, are in the actual run output.) Negative control confirmed se
 (`alert: true`), proving its counter mechanics work — it is specifically the `(ip, username)`
 key choice that misses the password-spray pattern, not a broken counter.
 
-Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
-`instructor/seed_flags.py` already exists and already mints this lesson's `monitor` flag (keys now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES list).
+**Your personal flag.** Each student gets a personal `.env` file from the instructor, sent
+privately (in this course, as a Google Classroom private comment). Save it as `.env` in this lab
+folder before `docker compose up`: Compose reads `FLAG_MONITOR` from it, so the flag you capture is
+yours alone. Without it, `FLAG_MONITOR` falls back to a shared placeholder that is the same for
+everyone and earns no marks. Don't share or commit your `.env` (it is git-ignored). Instructors
+generate the files with `python3 instructor/seed_flags.py env <STUDENT_ID>` (instructor-only, not
+in this repo), which mints this lesson's `monitor` flag from the course manifest.
 Unlike the other lessons, `vulnerable_app.py`'s `FLAG_MONITOR = os.environ.get("FLAG_MONITOR")`
 has **no default value** — if it's unset, the response simply never includes a `flag` key at all
 (by design: the vulnerable app's own code path must never leak one, see below). Set it explicitly

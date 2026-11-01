@@ -82,11 +82,13 @@ Exit code `0`. Negative controls confirmed separately: calling `/remediate` a se
 either target is idempotent (fixed app stays at `{80, 443}`; vulnerable app stays at `{22}`) — the
 bug isn't a one-time fluke, it's the function's steady-state behavior.
 
-Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
-`instructor/seed_flags.py` already exists and already mints this lesson's `remediate` flag (keys
-now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES
-list). Without it, `FLAG_REMEDIATE` falls back to a shared placeholder that is the same for everyone
-and can be overridden: `FLAG_REMEDIATE=FLAG{...} docker compose up`.
+**Your personal flag.** Each student gets a personal `.env` file from the instructor, sent
+privately (in this course, as a Google Classroom private comment). Save it as `.env` in this lab
+folder before `docker compose up`: Compose reads `FLAG_REMEDIATE` from it, so the flag you capture is
+yours alone. Without it, `FLAG_REMEDIATE` falls back to a shared placeholder that is the same for
+everyone and earns no marks. Don't share or commit your `.env` (it is git-ignored). Instructors
+generate the files with `python3 instructor/seed_flags.py env <STUDENT_ID>` (instructor-only, not
+in this repo), which mints this lesson's `remediate` flag from the course manifest.
 
 **Evidence artifact.** The attributable evidence is the captured `flag` value returned by the
 *vulnerable* app's `GET /security-group` after `/remediate` has run. The fixed app never returns

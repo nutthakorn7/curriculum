@@ -95,10 +95,13 @@ does not break legitimate access); a request on an unrelated port (`22`) with no
 falls through to the implicit default **deny** on both apps, matching AWS's own NACL behavior
 of an implicit deny-all when nothing matches.
 
-Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
-`instructor/seed_flags.py` already exists and already mints this lesson's `nacl` flag (keys now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES list).
-Without it, `FLAG_NACL` falls back to a shared placeholder that is the same for everyone and can be
-overridden: `FLAG_NACL=FLAG{...} docker compose up`.
+**Your personal flag.** Each student gets a personal `.env` file from the instructor, sent
+privately (in this course, as a Google Classroom private comment). Save it as `.env` in this lab
+folder before `docker compose up`: Compose reads `FLAG_NACL` from it, so the flag you capture is
+yours alone. Without it, `FLAG_NACL` falls back to a shared placeholder that is the same for
+everyone and earns no marks. Don't share or commit your `.env` (it is git-ignored). Instructors
+generate the files with `python3 instructor/seed_flags.py env <STUDENT_ID>` (instructor-only, not
+in this repo), which mints this lesson's `nacl` flag from the course manifest.
 
 **Evidence artifact.** The attributable evidence is the captured `flag` value returned by the
 *vulnerable* app's `/check-access` response for an external IP on port 5432. The fixed app
