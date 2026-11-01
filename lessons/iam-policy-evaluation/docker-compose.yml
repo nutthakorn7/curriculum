@@ -5,7 +5,8 @@ services:
     environment:
       - FLAG_IAM=${FLAG_IAM:-FLAG{wildcard_principal_grants_the_world}}
     ports:
-      - "8107:5000"
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8107:5000"
 
   fixed:
     build: .
@@ -13,4 +14,5 @@ services:
     environment:
       - FLAG_IAM=${FLAG_IAM:-FLAG{wildcard_principal_grants_the_world}}
     ports:
-      - "8108:5000"
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8108:5000"

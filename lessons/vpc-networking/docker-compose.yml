@@ -5,7 +5,8 @@ services:
     environment:
       - FLAG_NACL=${FLAG_NACL:-FLAG{low_numbered_allow_shadows_the_deny}}
     ports:
-      - "8113:5000"
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8113:5000"
 
   fixed:
     build: .
@@ -13,4 +14,5 @@ services:
     environment:
       - FLAG_NACL=${FLAG_NACL:-FLAG{low_numbered_allow_shadows_the_deny}}
     ports:
-      - "8114:5000"
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8114:5000"

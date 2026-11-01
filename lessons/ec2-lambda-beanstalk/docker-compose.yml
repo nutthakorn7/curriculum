@@ -5,7 +5,8 @@ services:
     environment:
       - FLAG_EC2=${FLAG_EC2:-FLAG{ssrf_steals_the_instance_role}}
     ports:
-      - "8104:5000"
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8104:5000"
 
   fixed:
     build: .
@@ -13,4 +14,5 @@ services:
     environment:
       - FLAG_EC2=${FLAG_EC2:-FLAG{ssrf_steals_the_instance_role}}
     ports:
-      - "8117:5000"
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8117:5000"
