@@ -97,10 +97,13 @@ in use by this repo's `lesson05-s3-static-site-lambda-sns` lab (built concurrent
 uses `:8104` (vulnerable) and `:8117` (fixed) instead — both confirmed free across every other
 lesson's `docker-compose.yml` in this repo at the time of writing.
 
-Per-student flag: run `python3 instructor/seed_flags.py env <STUDENT_ID>` — this course's own
-`instructor/seed_flags.py` already exists and already mints this lesson's `ec2` flag (keys now come from the course manifest via the centralized tooling, not a hand-maintained CHALLENGES list).
-Without it, `FLAG_EC2` falls back to a shared placeholder that is the same for everyone and can be overridden:
-`FLAG_EC2=FLAG{...} docker compose up`.
+**Your personal flag.** Each student gets a personal `.env` file from the instructor, sent
+privately (in this course, as a Google Classroom private comment). Save it as `.env` in this lab
+folder before `docker compose up`: Compose reads `FLAG_EC2` from it, so the flag you capture is
+yours alone. Without it, `FLAG_EC2` falls back to a shared placeholder that is the same for
+everyone and earns no marks. Don't share or commit your `.env` (it is git-ignored). Instructors
+generate the files with `python3 instructor/seed_flags.py env <STUDENT_ID>` (instructor-only, not
+in this repo), which mints this lesson's `ec2` flag from the course manifest.
 
 **Evidence artifact.** The attributable evidence is the captured `flag` value inside the fetched
 metadata body returned by the *vulnerable* app's `/fetch-preview` response. The fixed app never
