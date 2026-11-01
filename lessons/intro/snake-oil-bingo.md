@@ -1,6 +1,6 @@
 # 🐍 Snake Oil Bingo — Week 1
 
-> **Course:** Security & Cryptography (KOSEN69) · **Week 1** — Security Mindset &
+> **Course:** Cryptography and Network Security (KOSEN69) · **Week 1** — Security Mindset &
 > Threat-Modelling a Cryptographic System
 > **Play:** in table groups, during the lecture
 > **Cards:** A–F — everyone gets a copy; each table plays one letter between them

@@ -1,6 +1,6 @@
 # Worksheet 4 — AES / Block-Cipher Modes: CBC Bit-Flipping (100-minute class + preparation/extension)
 
-> **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
+> **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
 > **Topic source:** `Week4_AES Questions.docx` (KOSEN68) — 10 essay questions, ported into
 > **Part 1** (Conventional arm) below.
 > **Token game:** "Flip Your Way to Admin" (CBC bit-flipping against an unauthenticated

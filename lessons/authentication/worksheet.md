@@ -1,6 +1,6 @@
 # Worksheet 14 — User Authentication: The Server Sees Your Password (Unless It Can't)
 
-> **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
+> **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
 > **Aligned to:** NIST SP 800-63B · OWASP Authentication / Credential Stuffing Cheat Sheets ·
 > CWE-522 (Insufficiently Protected Credentials), CWE-319 (Cleartext Transmission — to the
 > endpoint), CWE-532 (Sensitive Info in Log File)

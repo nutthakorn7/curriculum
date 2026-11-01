@@ -1,6 +1,6 @@
 # Worksheet 3 — MACs: Hash-Only Cookies and Length-Extension (100-minute class + preparation/extension)
 
-> **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
+> **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
 > **Topic source:** `Week3_MACs Questions.docx` (KOSEN68) — 10 essay questions, ported below:
 > Q1/Q4/Q5/Q6 as this week's written task (Part 2), Q2/Q3/Q7/Q8/Q9/Q10 as an appendix /
 > future exam-bank material (Part 5).

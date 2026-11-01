@@ -1,6 +1,6 @@
 # Worksheet 5 — Key Exchanges: MITM Against Unauthenticated Diffie-Hellman
 
-> **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
+> **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
 > **Aligned to:** RFC 3526 (MODP groups) · CWE-322 (Key Exchange without Entity Authentication),
 > CWE-300 (Channel Accessible by Non-Endpoint)
 > **Kind:** Hybrid — a runnable MITM demo (Part 2) alongside conceptual content that stays

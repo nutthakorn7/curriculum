@@ -1,6 +1,6 @@
 # Worksheet 12 — Secure Transport (TLS): Certificate-Validation-Bypass MITM
 
-> **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
+> **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
 > **Aligned to:** RFC 8446 (TLS 1.3), RFC 5280 (X.509 PKI), RFC 6125 (hostname verification) ·
 > CWE-295 (Improper Certificate Validation), CWE-300 (Channel Accessible by Non-Endpoint)
 > **Kind:** Hybrid — a runnable cert-bypass MITM demo (Part 2a) alongside conceptual content that

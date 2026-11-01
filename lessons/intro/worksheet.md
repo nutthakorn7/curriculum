@@ -1,6 +1,6 @@
 # Worksheet 1 — Security Mindset & Threat-Modeling a Cryptographic System
 
-> **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
+> **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
 > **Aligned to:** NIST FIPS 140-3 · OWASP Cryptographic Storage Cheat Sheet · CWE-320, CWE-330
 > **Kind:** Conceptual — no Docker target, no flag this week. Grading is rubric-based (see below).
 

@@ -1,6 +1,6 @@
 # Worksheet 15 — Post-Quantum Cryptography: Lamport One-Time Signatures (100-minute core + preparation/extensions)
 
-> **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
+> **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
 > **Topic:** Post-quantum cryptography — the quantum threat, the four PQC families, and
 > hash-based one-time signatures. (Written fresh for this course; no prior question bank.)
 > **Signature game:** "Forge the Admin Signature" (Lamport one-time-key **reuse** → full
