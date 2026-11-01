@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 370" role="img"
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 370" width="1000" height="370" role="img"
      aria-label="The notes app: the user's browser talks over HTTPS to the app server, which reads and writes the encrypted note database, uses the key store, and sends encrypted backups to an ops team that also has a key-recovery path. The worksheet asks who can see the plaintext and the key, and where the trust boundaries are.">
   <title>The notes app to threat-model</title>
   <style>
