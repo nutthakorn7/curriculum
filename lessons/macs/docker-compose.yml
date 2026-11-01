@@ -3,7 +3,8 @@ services:
     image: python:3.12-slim
     working_dir: /lab
     ports:
-      - "8092:8092"
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8092:8092"
     volumes:
       - ./:/lab
     # Per-student flag: python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env
@@ -19,7 +20,8 @@ services:
     image: python:3.12-slim
     working_dir: /lab
     ports:
-      - "8093:8093"
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8093:8093"
     volumes:
       - ./:/lab
     environment:

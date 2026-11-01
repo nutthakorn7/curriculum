@@ -3,7 +3,8 @@ services:
     build: .
     command: python vulnerable_app.py
     ports:
-      - "8111:5000"
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8111:5000"
 
   fixed:
     build: .
@@ -11,4 +12,5 @@ services:
     environment:
       - FLAG_MONITOR=${FLAG_MONITOR:-FLAG{aggregation_key_must_match_the_threat_model}}
     ports:
-      - "8112:5000"
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8112:5000"
