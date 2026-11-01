@@ -13,7 +13,9 @@ Cryptographic Storage Cheat Sheet · CWE-320 (Key Management Errors) · CWE-330
    15 debrief + 5 evidence capture. Week 1 starts with orientation/review, not a quiz on
    material not yet taught. Slides: `{{ slides }}`. The full deck includes reference/deep-dive
    material; the instructor selects the core explanation for this block.
-3. **Common work (60 points)** — Threat-model the supplied small web application: identify assets, actors, data/key flows and trust boundaries. Choose controls for two risks, state the trust assumptions, and explain a residual risk or limitation.
+3. **Common work (60 points)** — Part A of the worksheet: fill in who can see the notes and the
+   key (A1), write two risk/control rows (A2), and crack a weakly seeded key in the browser
+   simulation at `learn.zcr.ai/sim/seed-crack` (A3).
 4. **Assigned format (40 points)** — complete **either** the Conventional written questions
    **or** AIR-Sec (Audit the AI 20 + EiPE 10 + Prompt Problem 10). Both versions total 100.
    Viva checks support feedback/authenticity within the criteria; they add no separate marks.
