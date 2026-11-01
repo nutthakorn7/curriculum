@@ -42,7 +42,7 @@ docker run --rm -v "$PWD/vulnerable-repo:/repo" zricethezav/gitleaks:latest dete
 > worksheet Task 2 asks you to identify.
 1. Run both tools; export findings.
 2. Categorize each finding by CWE and severity.
-3. Mark each finding true or false positive and justify it. A false positive is not guaranteed: if you find none, say so and why.
+3. Mark 3 true positives and 1 likely false positive; justify.
 
 ## Mini-lab — "Fuzzing Race" (intro)
 First team to make the target crash wins. `harness.c` (in this folder) has one planted
