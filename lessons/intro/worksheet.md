@@ -25,7 +25,7 @@ not a quiz on material not yet taught. The detailed tasks below are a checklist,
 additional timed class blocks: work through the core observations in the guided practice,
 draft the explanation in the debrief, then finish detailed calculations/write-up and the
 assigned 40-point format before the published deadline. Keep every original question;
-unassigned-format questions and the labelled appendix are study extensions.
+questions in the unassigned format are study extensions.
 
 ## Shared common activity — threat model (both versions, 60 points)
 
@@ -52,7 +52,7 @@ database hides notes from the application server.
 
 *Disclose any AI assistance used anywhere in this worksheet here (tool + what you asked it).*
 
-## Part 2 — Conventional assessment (assigned version, 40 points): Short-Answer Questions
+## Part 2 — Conventional form (40 points; only if Conventional is your assigned form): Short-Answer Questions
 
 Answer each in your own words (4–8 sentences unless noted). These are conceptual questions —
 you are graded on the accuracy and completeness of your reasoning, not on matching a specific
@@ -138,14 +138,14 @@ and every individual factual claim in it is true. Read it carefully before you r
    crypto fail in real systems" (not "why do key lengths become insecure")? Be specific — name
    the missing categories, not just "it's incomplete."
 3. For **each** missing category you name, give one concrete real or realistic example showing
-   a system that used current, correctly-sized, unbroken primitives and still failed. (You may
-   reuse your Q2 answer if it fits one of the categories, but you need at least two more
-   distinct examples covering different categories.)
+   a system that used current, correctly-sized, unbroken primitives and still failed. (If you also tried
+   the Conventional Q2, you may reuse that answer if it fits one of the categories, but you need
+   at least two more distinct examples covering different categories.)
 4. Rewrite the answer's **final paragraph only** (the "In summary" paragraph) so that it
    accurately reflects the full scope of why textbook-secure crypto fails in practice. Keep it
    to 3–5 sentences — the goal is a correct, complete summary, not a longer one.
 
-**Submit:** your answers to 1–4, inline in this worksheet.
+**Submit:** your answers to 1–4 in your worksheet PDF.
 
 ## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
@@ -203,8 +203,9 @@ Be ready to answer these live, in your own words, with no notes:
 | **Total for the assigned version** | **100** | **100** |
 
 **Deadline and late work:** hand in by 23:59 Thai time (ICT) on the Sunday before the next week's
-class (KOSEN rule); the exact date is on `learn.zcr.ai/submit`.
+class (KOSEN rule); the exact date is in your codes email and in the week's Classroom post.
 Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
+Uploading or replacing a file after the deadline makes the whole hand-in late.
 
 Submit the common work plus **one** assigned assessment format; do not add the two
 format columns or complete both formats for extra marks. The original questions remain

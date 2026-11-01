@@ -37,7 +37,7 @@ unassigned-format questions and the labelled appendix are study extensions.
 
 ---
 
-## Part 1 — Conventional assessment (assigned version, 40 points): Essay Questions
+## Part 1 — Conventional form (40 points; only if Conventional is your assigned form): Essay Questions
 
 Answer each in your own words (roughly 120–200 words per answer — enough to show you understand
 the mechanism, not so much that you're padding).
@@ -204,8 +204,9 @@ Be ready to answer these live, in your own words, with no notes:
 | **Total for the assigned version** | **100** | **100** |
 
 **Deadline and late work:** hand in by 23:59 Thai time (ICT) on the Sunday before the next week's
-class (KOSEN rule); the exact date is on `learn.zcr.ai/submit`.
+class (KOSEN rule); the exact date is in your codes email and in the week's Classroom post.
 Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
+Uploading or replacing a file after the deadline makes the whole hand-in late.
 
 Submit the common work plus **one** assigned assessment format; do not add the two
 format columns or complete both formats for extra marks. The original questions remain

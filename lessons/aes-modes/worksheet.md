@@ -41,7 +41,7 @@ unassigned-format questions and the labelled appendix are study extensions.
 
 ---
 
-# Part 1 — Conventional assessment (assigned version, 40 points): Written Questions (ported from KOSEN68, Q1–Q10)
+# Part 1 — Conventional form (40 points; only if Conventional is your assigned form): Written Questions (ported from KOSEN68, Q1–Q10)
 
 Answer each in your own words (4–8 sentences; more where the question asks for a design or a
 comparison). **This is a normal written/essay task — no AI-resilience layer applies to this
@@ -280,8 +280,9 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 | **Total for the assigned version** | **100** | **100** |
 
 **Deadline and late work:** hand in by 23:59 Thai time (ICT) on the Sunday before the next week's
-class (KOSEN rule); the exact date is on `learn.zcr.ai/submit`.
+class (KOSEN rule); the exact date is in your codes email and in the week's Classroom post.
 Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
+Uploading or replacing a file after the deadline makes the whole hand-in late.
 
 Submit the common work plus **one** assigned assessment format; do not add the two
 format columns or complete both formats for extra marks. The original questions remain

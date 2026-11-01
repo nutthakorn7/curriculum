@@ -211,8 +211,9 @@ Be ready to answer these live, in your own words, with no notes:
 | **Total for the assigned version** | **100** | **100** |
 
 **Deadline and late work:** hand in by 23:59 Thai time (ICT) on the Sunday before the next week's
-class (KOSEN rule); the exact date is on `learn.zcr.ai/submit`.
+class (KOSEN rule); the exact date is in your codes email and in the week's Classroom post.
 Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
+Uploading or replacing a file after the deadline makes the whole hand-in late.
 
 Viva/micro-demo checks are formative: no separate points and no automatic score gate. The 60 shared points apply to both versions; do not add the unassigned version's 40 points.
 
