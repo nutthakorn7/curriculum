@@ -31,7 +31,8 @@ category — this lesson is about correct KMS use, not a coding bug).
 ## 🔎 Signature exercise — "Audit the Envelope"
 No lab/flag this lesson (CONCEPTUAL) — the personalized, attributable artifact is **which planted
 error your assigned AI explanation contains** (see `worksheet.md` Part 2a). Every student gets a
-different variant (`variant = (last digit of your student ID) mod 4`, from a bank of 4); correctly identifying
+different variant (from a bank of 4, picked by the last digit of your student ID with the table in
+`worksheet.md`); correctly identifying
 *your own* variant's specific error is what's attributable — describing someone else's variant's
 error does not satisfy the task.
 

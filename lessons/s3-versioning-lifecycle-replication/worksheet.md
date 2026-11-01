@@ -28,7 +28,15 @@ writing itself):
 ## Part 2 — AIR-Sec arm
 
 ### 2a. Audit the Backup Plan (personalized)
-**Compute your variant number first: `variant = (last digit of your student ID) mod 4`.**
+**Find your variant first** from the last digit of your student ID:
+
+| Last digit of your student ID | Your variant |
+|---|---|
+| 0, 4 or 8 | 0 |
+| 1, 5 or 9 | 1 |
+| 2 or 6 | 2 |
+| 3 or 7 | 3 |
+
 Read *only* the passage for your variant below — each contains exactly one planted factual error
 about how S3 versioning, lifecycle rules, or cross-region replication actually work.
 
@@ -53,7 +61,8 @@ about how S3 versioning, lifecycle rules, or cross-region replication actually w
 > so keeping ten versions of a large file costs only slightly more than storing the object once."
 
 Report:
-- Your variant number and the exact sentence(s) containing the error.
+- Your variant number, the last digit of your student ID, and the exact sentence(s) containing
+  the error.
 - Why it's wrong (what actually happens instead).
 - The corrected sentence.
 
