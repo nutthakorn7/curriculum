@@ -37,7 +37,8 @@ bug) / general data-protection misconfiguration category.
 ## Signature exercise — "Audit the Backup Plan"
 No lab/flag this lesson (CONCEPTUAL) — the personalized, attributable artifact is **which planted
 error your assigned AI explanation contains** (see `worksheet.md` Part 2a). Every student gets a
-different variant (`variant = (last digit of your student ID) mod 4`, from a bank of 4).
+different variant (from a bank of 4, picked by the last digit of your student ID with the table in
+`worksheet.md`).
 Correctly identifying *your own* variant's specific error is what's attributable — describing
 someone else's variant's error does not satisfy the task.
 
