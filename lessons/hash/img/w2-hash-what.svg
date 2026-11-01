@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" width="1000" height="300" role="img"
+     aria-label="A hash function takes any input and produces a short fixed-size digest. Two inputs that look almost the same produce completely different digests, and you cannot go from a digest back to the input.">
+  <title>What a hash function does</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .t  { font: 600 18px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 14px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 15px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 15px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .h  { font: 700 20px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 2; fill: none; marker-end: url(#ar) }
+    .x  { stroke: #E35205; stroke-width: 2.5; fill: none }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb, .h { fill: #4aa3dd } .to { fill: #ff7a3d }
+      .a  { stroke: #c9ced3 } .x { stroke: #ff7a3d }
+      [fill="#16191d"] { fill: #c9ced3 }
+      [fill="#017BC4"] { fill: #4aa3dd } [stroke="#017BC4"] { stroke: #4aa3dd }
+      [fill="#E35205"] { fill: #ff7a3d } [stroke="#E35205"] { stroke: #ff7a3d }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+  </defs>
+
+  <!-- top row: hello -> digest -->
+  <rect class="b" x="30" y="40" width="200" height="60" rx="10"/>
+  <text class="t" x="130" y="68">input</text><text class="tm" x="130" y="90">"hello"</text>
+  <path class="a" d="M235,70 H360"/>
+  <rect class="bg" x="360" y="35" width="150" height="70" rx="10"/>
+  <text class="tb" x="435" y="68">hash</text><text class="ts" x="435" y="90">one-way</text>
+  <path class="a" d="M515,70 H640"/>
+  <rect class="bo" x="640" y="40" width="330" height="60" rx="10"/>
+  <text class="to" x="805" y="64">digest (fixed size)</text><text class="tm" x="805" y="88">2cf24dba…9824</text>
+
+  <!-- bottom row: hellp -> very different digest -->
+  <rect class="b" x="30" y="150" width="200" height="60" rx="10"/>
+  <text class="t" x="130" y="178">input</text><text class="tm" x="130" y="200">"hellp"</text>
+  <path class="a" d="M235,180 H360"/>
+  <rect class="bg" x="360" y="145" width="150" height="70" rx="10"/>
+  <text class="tb" x="435" y="178">hash</text><text class="ts" x="435" y="200">one-way</text>
+  <path class="a" d="M515,180 H640"/>
+  <rect class="bo" x="640" y="150" width="330" height="60" rx="10"/>
+  <text class="to" x="805" y="174">completely different</text><text class="tm" x="805" y="198">fdd7585e…4ce7</text>
+
+  <!-- no way back -->
+  <path class="x" d="M700,118 C640,135 640,135 700,152"/>
+  <line class="x" x1="690" y1="126" x2="712" y2="144"/>
+  <text class="to" x="775" y="135">no way back</text>
+
+  <text class="ts" x="500" y="278">One tiny change in the input → a totally different digest. You cannot go from the digest back to the input.</text>
+</svg>
