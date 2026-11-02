@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 340" width="1000" height="340" role="img"
+     aria-label="An attacker who steals a password file does not reverse the hash. They take a wordlist of common passwords, hash each guess the same way the system did, and compare it to the stolen hashes until one matches.">
+  <title>Guess and hash: how a stolen password file is cracked</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .t  { font: 600 17px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 13px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: start }
+    .tmc{ font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 15px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 15px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 2; fill: none; marker-end: url(#ar) }
+    .match { fill: #e8f5e9; stroke: #2e7d32; stroke-width: 2.5 }
+    .tmatch { font: 700 15px system-ui, sans-serif; fill: #2e7d32; text-anchor: middle }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad }
+      .t, .tm, .tmc { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d }
+      .a  { stroke: #c9ced3 }
+      .match { fill: #16301b; stroke: #5bbd68 } .tmatch { fill: #5bbd68 }
+      [fill="#16191d"] { fill: #c9ced3 }
+      [fill="#017BC4"] { fill: #4aa3dd } [stroke="#017BC4"] { stroke: #4aa3dd }
+      [fill="#E35205"] { fill: #ff7a3d } [stroke="#E35205"] { stroke: #ff7a3d }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+  </defs>
+
+  <!-- wordlist of guesses -->
+  <rect class="b" x="30" y="60" width="210" height="215" rx="10"/>
+  <text class="tb" x="135" y="86">wordlist of guesses</text>
+  <text class="tm" x="55" y="118">123456</text>
+  <text class="tm" x="55" y="146">password</text>
+  <text class="tm" x="55" y="174">qwerty</text>
+  <text class="tm" x="55" y="202">letmein</text>
+  <text class="tmc" x="135" y="230">…</text>
+  <text class="tm" x="55" y="258">sunshine2021</text>
+
+  <!-- hash each guess -->
+  <path class="a" d="M245,165 H330"/>
+  <rect class="bg" x="330" y="130" width="160" height="70" rx="10"/>
+  <text class="tb" x="410" y="160">hash each guess</text>
+  <text class="ts" x="410" y="182">(same hash the system used)</text>
+
+  <!-- compare -->
+  <path class="a" d="M495,165 H580"/>
+  <rect class="bo" x="580" y="60" width="390" height="215" rx="10"/>
+  <text class="to" x="775" y="86">stolen password file</text>
+  <text class="tm" x="605" y="118">admin</text><text class="tm" x="720" y="118" font-size="12">f364b087…0bf7</text>
+  <text class="tm" x="605" y="146">alice</text><text class="tm" x="720" y="146" font-size="12">5f4dcc3b…cf99</text>
+  <text class="tm" x="605" y="174">bob</text><text class="tm" x="720" y="174" font-size="12">d8578edf…5ca4</text>
+  <rect class="match" x="595" y="245" width="360" height="22" rx="5"/>
+  <text class="tmatch" x="775" y="261">match → that user's password is "sunshine2021"</text>
+  <text class="ts" x="775" y="235">compare each hashed guess to the stolen hashes</text>
+
+  <text class="ts" x="500" y="315">The hash is never reversed. The attacker just repeats "hash a guess, compare" — billions of times per second with a fast hash.</text>
+</svg>

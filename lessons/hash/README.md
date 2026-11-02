@@ -7,26 +7,32 @@ salting, slow KDFs (bcrypt/argon2/scrypt), dictionary & rainbow-table attacks
 CWE-327 (Use of a Broken or Risky Cryptographic Algorithm), CWE-759/CWE-760 (Use of a One-Way
 Hash Without a Salt / With a Predictable Salt)
 
-## ✅ This week — what to do
-1. **Before class** — Docker Desktop working (same Docker-first setup as `software-security`);
-   skim the course intro on what a cryptographic hash is (one-way, fixed-size digest).
-2. **Lecture (120 min)** — hash security properties (preimage / second-preimage / collision
-   resistance); why MD5 and SHA-1 are broken and where that matters; why a *fast* hash is the
-   wrong tool for passwords; salts, peppers, and slow KDFs. Slides: `{{ slides }}`.
-3. **Lab (180 min)** — play the cracking game below, capture your flag, then complete
-   **Worksheet 2** (`worksheet.md`, Part 2 Conventional essays + Part 3 AIR-Sec lab, Audit-the-AI,
-   EiPE/Prompt). Kickoff: `docker compose up`.
-4. **Submit** — worksheet PDF + flag → see [SUBMISSION.md](../../SUBMISSION.md) · exploit code → GitHub.
+## This week — 100-minute class and assigned assessment
+
+1. **Before class** — install **Docker** and run `docker compose up -d` once at home (the first run
+   downloads an image and installs packages). The lab scripts run *inside* the containers, so you
+   do **not** need Python on your own laptop. Read the Week 1 recap.
+2. **In class (100 minutes)** — 10-minute Week 1 quiz + short brief + guided lab (crack the leaked
+   file, capture the flag, show the fix) + debrief + evidence capture. Slides: `{{ slides }}`.
+3. **Common work (60 points)** — crack the leaked MD5 store with `crack.py`, log in as `admin` and
+   capture the flag with `login.py`, then run `exploit.py` to show the same attack finds nothing
+   against the bcrypt store. Explain why.
+4. **Assigned format (40 points)** — complete **either** the Conventional written questions
+   **or** AIR-Sec (Audit the AI 20 + EiPE 10 + Prompt Problem 10). Both versions total 100.
+   Viva checks support feedback/authenticity within the criteria; they add no separate marks.
+5. **After class** — finish detailed calculations, explanations and the assigned format;
+   retain all original questions as assigned work or study extensions. Submit the worksheet
+   PDF and required evidence according to [SUBMISSION.md](../../SUBMISSION.md). This week
+   has no separate code-fix/GitHub submission.
 
 ## Objectives
-- State the three hash security properties (preimage, second-preimage, collision resistance) and
-  name an attack each one prevents.
+- Say what a hash function gives you (fixed-size, one-way, deterministic) and why we store the
+  hash of a password, not the password.
 - Explain why an **unsalted, fast** hash (MD5/SHA-256) is a poor way to store passwords, and
   crack one in practice with an offline dictionary attack.
-- Explain what a **per-user salt** defeats (precomputed rainbow tables, shared-hash correlation)
-  and why it need not be secret.
-- Explain what a slow KDF's **work factor / cost** controls, and verify empirically that the
-  fast dictionary technique that broke the MD5 store finds nothing against a bcrypt store.
+- Explain what a **per-user salt** defeats and why it need not be secret.
+- Explain what a slow password hash's **cost** controls, and verify by running that the fast
+  attack that broke the MD5 store finds nothing against a bcrypt store.
 
 ## 🔓 Cracking game — "Crack the Leaked DB"
 A user database leaked. Two versions of the same store, same usernames and passwords, different
@@ -64,31 +70,35 @@ guess. bcrypt buys you **work factor**, not invincibility; pair it with a strong
 This is exactly the cost/work-factor argument in worksheet Q3.
 
 ## Run it
+
+Run the scripts **inside** the container, so no Python is needed on your laptop:
+
 ```bash
 cd {{ labpath }}
-docker compose up -d          # vulnerable_app.py on :8094, fixed_app.py on :8095
-python exploit.py             # PASS on :8094 (flag), PASS on :8095 (fast technique finds nothing); exit 0
+docker compose up -d                              # :8094 vulnerable, :8095 fixed
+docker compose logs vulnerable | grep "Running on"  # wait until the server is up
+docker compose exec vulnerable python crack.py       # recover every password from the MD5 file
+docker compose exec vulnerable python login.py sunshine2021   # log in as admin -> flag
+docker compose exec vulnerable python exploit.py     # PASS :8094 (flag) + PASS :8095 (0 matches)
 ```
-`exploit.py` needs only `requests` on the host (its bcrypt-store check uses `hashlib` + a string
-compare — no bcrypt needed to *run the exploit*; bcrypt is only needed inside the fixed
-container).
 
-Per-student flag: `python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env` before
-`docker compose up` (once this course's `instructor/seed_flags.py` exists — see
-`course-plan-19weeks.md` open decision #4; until then `FLAG_HASH` falls back to a shared placeholder that is the same for everyone).
+(You can also run `python exploit.py` on the host if you have Python 3 with `requests`; running
+inside the container avoids any host-Python setup.)
 
-**Verified:** `docker compose up -d` followed by `python exploit.py` was run against live
-containers on this machine — the admin MD5 was cracked from the 101-word wordlist in ~0.1 ms to
-`sunshine2021`, the cracked login was accepted and `GET /admin` returned the flag (PASS on
-`:8094`), and the md5-precompute technique matched `0/8` bcrypt rows (PASS on `:8095`); the
-script exited `0`. The `FLAG_HASH` env-var override was confirmed to change the captured flag
-(re-ran with `FLAG_HASH=FLAG{hash_test_9z}` and that exact value came back). Negative controls
-confirmed: `/admin` with no session → `403`; a wrong password → `403` on both apps. A manual
-`curl` login+/admin against the **fixed** app on `:8095` with the real cracked password returned
-the flag, confirming the fixed app's endpoints work (bcrypt only *raises the cost* of guessing,
-it doesn't reject the correct password).
+Flag configuration: the shared demo flag is fine — record the value from your own run with your
+own evidence and explanation; no personal flag is required this week.
+
+**Verified (2026-11-02):** `docker compose up -d`, then `crack.py`, `login.py sunshine2021` and
+`exploit.py` were all run inside live containers on this machine. `crack.py` recovered all 8
+passwords (admin → `sunshine2021`) in ~0.09 ms; `login.py` showed `/login` → 200, `/admin` with
+the session → the flag, and `/admin` with no cookie → 403; `exploit.py` printed both `PASS` lines
+and exited 0 (md5 technique matched 0/8 bcrypt rows). A wrong password → 403 on both apps.
 
 ## Deliverable
+
+Submit the common evidence and reasoning (60) plus only the assigned Conventional (40)
+or AIR-Sec (40) format. The details below describe the common artifact; the worksheet
+identifies the alternative sections.
 The captured flag + the recovered admin password + a short note stating (a) exactly why the MD5
 store fell in milliseconds (fast + unsalted), and (b) which single property of the bcrypt store
 defeats the md5-precompute technique — and why bcrypt still isn't a substitute for a
