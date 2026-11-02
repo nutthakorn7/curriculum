@@ -3,37 +3,46 @@
 This lesson is **Block 1** per `course-plan.md`'s block table. Section A = Block 1 **AIR-Sec**;
 Section B = Block 1 **Conventional**. Complete only the part assigned to your section this block.
 
-## Part 1 — Conventional arm (essay)
+**Language:** you may answer in Thai or English. Keep AWS names (S3, Lambda, SNS) and action
+names (`s3:GetObject`, `s3:PutObject`) in English. Short, clear answers are enough: 2–4 sentences
+per question.
+
+## Part 1 — Conventional arm (short answers)
 
 Answer in your own words (no AI-resilience layer, no flag — graded on the writing itself):
 
-1. When you enable S3 static website hosting, the bucket policy must grant `Principal: "*"`
-   the `s3:GetObject` action. Explain why this is the **correct, intended** configuration for a
-   public website, not a security mistake in itself.
-2. Now explain the difference between that correct configuration and one that **also** grants
-   `Principal: "*"` the `s3:PutObject` action. What can an attacker do with the second
-   configuration that they cannot do with the first?
-3. What does "least privilege" mean for a static-website bucket's resource policy, given that
-   the bucket's whole purpose is to be publicly readable? (Hint: least privilege doesn't mean
-   "no public access" here — it means being precise about *which* actions are public.)
-4. Describe one real-world consequence of a publicly-writable cloud storage bucket hosting a
-   website (you may reference a real defacement/incident you're aware of, or reason from first
-   principles about what an attacker would do with write access to a company's homepage).
-5. In the AWS Academy Lambda + SNS event-driven email exercise, a Lambda function publishes a
-   message to an SNS topic, and a subscribed email address receives a notification. Explain why
-   the Lambda function does **not** need the subscriber's email client or inbox to be online,
-   reachable, or even subscribed yet at the exact moment it publishes. How is this different
-   from a normal request-response API call, where the caller waits for the callee to respond?
+1. **Public read is normal.** To host a website on S3, the bucket policy lets everyone
+   (`Principal: "*"`) do `s3:GetObject`. Why is this correct for a public website, and not a
+   security mistake?
+2. **Read and write.** Another bucket policy gives everyone (`Principal: "*"`) both
+   `s3:GetObject` **and** `s3:PutObject`. What can an attacker do with this policy that they
+   cannot do with the first one?
+3. **Least privilege for a public bucket.** A website bucket must be readable by everyone. So what
+   does "least privilege" mean for its bucket policy? (Hint: it does not mean "no public access".
+   It means choosing exactly *which actions* are public.)
+4. **What could go wrong?** Give one real result of a company website whose S3 bucket anyone can
+   write to. You may name a real incident you know of, or describe what an attacker would do with
+   write access to the company's homepage.
+5. **Lambda and SNS.** In the AWS Academy exercise, a Lambda function publishes a message to an SNS
+   topic, and an email address subscribed to that topic gets the message. Why does the Lambda
+   function not need the email inbox to be online, reachable, or even subscribed yet at the moment
+   it publishes? How is this different from a normal API call, where the caller waits for the
+   answer?
 
 ## Part 2 — AIR-Sec arm
 
-### 2a. The lab
-Run the "Deface the Site" exercise (`README.md`). Record:
-- The exact request (method, URL, headers, body) that got you the flag on the vulnerable app.
-- The captured flag.
-- The exact request you tried against the fixed app, and the response you got instead.
-- Confirm (and note in your answer) that anonymous `GET /bucket/website/index.html` still
-  succeeds on **both** apps — the fix did not break public read access.
+### 2a. The lab (flag capture)
+Follow **Step-by-step** in `README.md` and copy its commands; each step shows what you should
+see. Write down:
+- The request that returned your flag from the vulnerable app (`:8105`): copy the whole `curl`
+  command. Notice that it sends no `Authorization` header and no credentials of any kind.
+- Your flag.
+- What the vulnerable app's `index.html` shows when you read it again after your request (the
+  site has really changed).
+- The same request sent to the fixed app (`:8106`), and the response you got (the HTTP code and
+  the `error`).
+- Whether reading `index.html` with no credentials (`GET /bucket/website/index.html`) worked on
+  **both** apps. It should: the fix did not break public read access.
 
 ### 2b. Audit-the-AI
 Below is an AI-generated S3 bucket policy the AI claims is "the standard policy for static
@@ -59,13 +68,15 @@ browser ever need to *write* to the bucket for the website to work? What does it
 single statement's `Principal` is `"*"` for **both** actions listed?
 
 ### 2c. EiPE (Explain-in-Plain-English)
-In 3–4 sentences a non-technical stakeholder could understand: why does removing `PutObject`
-from the public bucket-policy statement (while keeping `GetObject`) fix the vulnerability
-without breaking the website for visitors?
+In 3–4 short sentences that someone without IT knowledge (a parent, say) could follow: why does
+removing `PutObject` from the public bucket-policy statement (and keeping `GetObject`) stop the
+attack, while everyone can still see the website?
 
 ## Submit
-Flag + Part 2a request/response pair + Part 2b/2c answers → Classroom. Conventional-arm students
-submit Part 1 only.
+Write your answers on the **Local03 Answer Sheet** that Classroom copies for you, then click
+**Turn in** on Local 03 (no PDF needed). AIR-Sec-arm students fill in Part 2: the flag and the
+2a requests and responses, plus the 2b and 2c answers. Conventional-arm students fill in Part 1
+only.
 
 - **Due:** before the start of the next week's class (the due date on the Classroom assignment).
 - **Late:** −10% of the score you earned for every 24 hours after the due time, down to 0 after

