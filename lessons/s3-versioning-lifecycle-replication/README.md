@@ -13,9 +13,9 @@ Resource, applied loosely — this lesson is about correct configuration assumpt
 bug) / general data-protection misconfiguration category.
 
 ## This lesson — what to do
-1. **Before class** — complete the real AWS Academy challenge lab in your Learner Lab sandbox
-   (the "static website" lab that exercises S3 versioning, lifecycle rules, and cross-region
-   replication).
+1. **Before class** — finish the AWS Academy Cloud Foundations work your Classroom posts list for
+   this Local: Module 7 (Storage, where S3 is taught) and Module 9 (Cloud Architecture, including
+   reliability), with their Knowledge Checks. This add-on itself needs no AWS console.
 2. **This add-on (45–60 min, no Docker)** — an Audit-the-AI exercise on versioning/lifecycle/CRR
    concepts, personalized per student.
 3. **Submit** — worksheet → see [SUBMISSION.md](../../SUBMISSION.md).
@@ -51,8 +51,9 @@ plan.
 
 ## Deliverable
 Which variant you were assigned, the exact planted error, why it's wrong, and the corrected
-sentence — plus the Part 1 essay-style questions if you're in the Conventional block instead.
-Full tasks: `worksheet.md`.
+sentence — plus the four Part 1 short-answer questions if you're in the Conventional block instead.
+You may answer in Thai or English. Write your answers on the **Local04 Answer Sheet** copy in
+Classroom and click Turn in (no PDF needed). Full tasks: `worksheet.md`.
 
 ## References
 - AWS S3 documentation — *What does Amazon S3 replicate?* (scope of live replication: only
