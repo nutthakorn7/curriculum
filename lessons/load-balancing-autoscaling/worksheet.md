@@ -3,53 +3,58 @@
 This lesson is **Block 1** per `course-plan.md`'s block table. Section A = Block 1 **AIR-Sec**;
 Section B = Block 1 **Conventional**. Complete only the part assigned to your section this block.
 
-## Part 1 — Conventional arm (essay)
+**Language:** you may answer in Thai or English. Keep AWS names (load balancer, target group, Auto
+Scaling Group) and the endpoint names (`/generate-load`, `X-Api-Key`) in English. Short, clear
+answers are enough: 2–4 sentences per question.
+
+## Part 1 — Conventional arm (short answers)
 
 Answer in your own words (no AI-resilience layer, no flag — graded on the writing itself):
 
-1. In your own words, describe how a **load balancer**, a **target group**, and an
-   **Auto Scaling Group** relate to each other. If a load balancer routes traffic directly to
-   instances with no target group in between, what capability do you lose?
-2. What is the purpose of an Auto Scaling Group's **minimum** capacity setting? What is the
-   purpose of its **maximum** capacity setting? Give one concrete failure scenario each setting
-   protects against.
-3. A team removes the maximum-capacity cap on their Auto Scaling Group "to make sure we never
-   run out of capacity during a traffic spike." What new risk does this introduce, and how is
-   that risk different from the original problem (running out of capacity) they were trying to
-   solve?
-4. Describe, in your own words, what a "Denial of Wallet" (economic denial-of-service) attack
-   is, and how it differs from a traditional denial-of-service attack that aims to make a
-   service unavailable.
-5. This lesson's lab endpoint scales up in response to *any* incoming request, with no check on
-   who is calling or how often. Name two different, complementary controls that could each
-   independently reduce this endpoint's exposure, and explain why relying on only one of them is
-   weaker than using both together.
+1. **Three parts that work together.** What does each of these do: a **load balancer**, a
+   **target group** and an **Auto Scaling Group**? How do they work together? If the load
+   balancer sent traffic straight to a fixed list of servers, with no target group in between,
+   what would you lose?
+2. **Minimum and maximum.** An Auto Scaling Group has a **minimum** and a **maximum** number of
+   instances. What is each one for? Give one example of a problem that each setting prevents.
+3. **No maximum.** A team removes the maximum "so we never run out of capacity during a traffic
+   spike." What new risk does this create? How is it different from the problem they wanted to
+   fix (running out of capacity)?
+4. **Denial of Wallet.** What is a "Denial of Wallet" attack? How is it different from a normal
+   denial-of-service attack, which tries to make a service stop working?
+5. **Two controls.** This lesson's endpoint adds servers for *any* request, without checking
+   who is calling or how often. Name two different controls that would each reduce this risk.
+   Why is using only one of them weaker than using both?
 
 ## Part 2 — AIR-Sec arm
 
 ### 2a. The lab
-Run the "Generate Load" exercise (`README.md`). Record:
-- The exact request pattern (endpoint, method, headers-or-lack-thereof) you used against the
-  vulnerable app, and roughly how many calls it took to reach `current_instances = 6`.
-- The captured flag.
-- The exact request you tried against the fixed app, and the response you got instead (including
-  what happened when you tried with a *valid* API key repeatedly).
+Do the lab with the **Step-by-step** section of `README.md`. Write down:
+- The loop command you sent to the vulnerable app (`:8109`, step 4), and the call number at
+  which `current_instances` reached 6.
+- Your flag.
+- The same request sent to the fixed app with no key (`:8110`, step 6): the HTTP code and the
+  error you got.
+- The fixed app with the valid API key (step 7): how many calls were accepted before the first
+  `429`, and the message the `429` gave.
 
 ### 2b. Explain-in-Plain-English (EiPE)
-A teammate says: "We don't need rate limiting on `/generate-load` — I already added an API key
-requirement, so it's authenticated now, and only people we trust have the key." In 3-4 sentences
-a non-technical stakeholder could understand, explain why authentication alone does not fully
-close this vulnerability, and why "just add more instances to handle whatever load shows up"
-is not, by itself, a security fix either.
+A teammate says: "We don't need rate limiting on `/generate-load` — I already added an API key,
+so only people we trust can call it." In 3–4 short sentences that someone without IT knowledge (a
+parent, say) could follow: why does the API key alone not fully fix the problem? And why is "just
+add more instances to handle whatever load comes" not a security fix either?
 
 ### 2c. Short-answer
-Suppose an attacker obtains one valid API key (e.g., it was accidentally committed to a public
-repository). Using this lesson's fixed app as the reference design, what is the worst-case
-number of scaling-relevant calls that leaked key can make before being cut off, and why does
-that number matter for limiting the "blast radius" of a single leaked credential?
+An attacker gets one valid API key (for example, someone pushed it to a public GitHub repo by
+mistake). With this lesson's fixed app, what is the largest number of `/generate-load` calls that
+leaked key can make before it is cut off? Why does that number limit the damage ("blast
+radius") one leaked key can do?
 
 ## Submit
-Part 1 (Conventional) or Part 2a/2b/2c (AIR-Sec) + flag (AIR-Sec only) → Classroom.
+Write your answers on the **Local05 Answer Sheet** that Classroom copies for you, then click
+**Turn in** on Local 05 (no PDF needed). AIR-Sec-arm students fill in Part 2: the 2a lab
+evidence and the flag, plus the 2b and 2c answers. Conventional-arm students fill in Part 1
+only.
 
 - **Due:** before the start of the next week's class (the due date on the Classroom assignment).
 - **Late:** −10% of the score you earned for every 24 hours after the due time, down to 0 after
