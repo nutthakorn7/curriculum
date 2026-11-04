@@ -4,20 +4,25 @@ This lesson is **Block 2** per `course-plan.md`'s block table. Section A = Block
 Section B = Block 2 **AIR-Sec** (reversed from Block 1). Complete only the part assigned to your
 section this block.
 
-## Part 1 — Conventional arm (essay)
+**Language:** you may answer in Thai or English. Keep AWS names (S3, KMS, SSE-KMS, data key,
+`GenerateDataKey`) in English. Short, clear answers are enough: 2–4 sentences per question.
+
+## Part 1 — Conventional arm (short answers)
 
 Answer in your own words (no AI-resilience layer, no personalized artifact — graded on the
 writing itself):
 
-1. Walk through, step by step, what happens between "you click Upload on an object in an
-   SSE-KMS bucket" and "the object is stored encrypted." What does S3 ask KMS for, and what does
+1. **From Upload to encrypted.** Your S3 bucket uses SSE-KMS. Step by step, what happens between
+   "you click Upload" and "the object is stored encrypted"? What does S3 ask KMS for, and what does
    KMS send back?
-2. What, specifically, does S3 store in the object's metadata after encryption — and what does
-   it deliberately discard?
-3. If your organization disables (or schedules deletion of) the KMS key used to encrypt an S3
-   bucket's objects, what happens to objects already stored there? Why?
-4. Why does envelope encryption use a separate "data key" per object/operation instead of just
-   asking KMS to encrypt every object directly with the customer master key (CMK) itself?
+2. **Kept and thrown away.** After the object is encrypted, what does S3 store in the object's
+   metadata? What does it throw away on purpose?
+3. **Turning the key off.** Your organization disables the KMS key used for a bucket's objects, or
+   schedules it for deletion. What happens to the objects that are already stored there? Why? Is
+   disabling different from deleting?
+4. **Why a data key?** Why does envelope encryption use a separate "data key" for each
+   object (or operation), instead of asking KMS to encrypt every object directly with the
+   customer master key (CMK)?
 
 ## Part 2 — AIR-Sec arm
 
@@ -55,26 +60,27 @@ error about how SSE-KMS envelope encryption actually works.
 > used to encrypt every object in the bucket**, similar to how the bucket's KMS master key
 > works — one data key per bucket, reused across all uploads for efficiency."
 
-Report:
-- Your variant number, the last digit of your student ID, and the exact sentence containing the
-  error.
-- Why it's wrong (what actually happens instead).
-- The corrected sentence.
+Write down:
+- Your variant number and the last digit of your student ID.
+- The wrong sentence, copied exactly.
+- Why it is wrong: what really happens with SSE-KMS (1–2 sentences).
+- The sentence rewritten so that it is correct.
 
 ### 2b. EiPE (Explain-in-Plain-English)
-In 3–4 sentences a non-technical stakeholder could understand: why does disabling a KMS key
-make old data unreadable (until the key is re-enabled), even though the encrypted objects are
-still sitting in the bucket — whereas disabling, say, one database user account doesn't make the
-database's existing data unreadable? (And how does *deleting* the key differ from disabling it?)
+In 3–4 short sentences that someone without IT knowledge (a parent, say) could follow: why does
+disabling a KMS key make old data unreadable (until the key is turned back on), even though the
+encrypted objects are still in the bucket? Why does disabling one database user account *not* make
+the database's data unreadable? And how is *deleting* the key different from disabling it?
 
 ### 2c. Viva prompt (spot-check, in class)
-Be ready to answer without notes: "If S3 kept the plaintext data key around after encrypting,
-what would that defeat the *entire point* of envelope encryption?"
+Be ready to answer without notes: "If S3 kept the plaintext data key after encrypting, why would
+that defeat the *whole point* of envelope encryption?"
 
 ## Submit
-Your variant + error + correction + Part 2b → Classroom. Viva (2c) is a live spot-check
-during lab time or office hours, not a written submission. Conventional-arm students submit
-Part 1 only.
+Write your answers on the **Local08 Answer Sheet** that Classroom copies for you, then click
+**Turn in** on Local 08 (no PDF needed). AIR-Sec-arm students fill in Part 2: the variant, the
+error and its correction from 2a, plus the 2b answer. The viva (2c) is a live spot-check during
+lab time or office hours, not a written answer. Conventional-arm students fill in Part 1 only.
 
 - **Due:** before the start of the next week's class (the due date on the Classroom assignment).
 - **Late:** −10% of the score you earned for every 24 hours after the due time, down to 0 after
