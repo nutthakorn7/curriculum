@@ -4,38 +4,43 @@ This lesson is **Block 2** per `course-plan.md`'s block table. Section A = Block
 Section B = Block 2 **AIR-Sec** (reversed from Block 1). Complete only the part assigned to your
 section this block.
 
-## Part 1 — Conventional arm (essay)
+**Language:** you may answer in Thai or English. Keep AWS names (VPC, security group, network ACL,
+NAT gateway, CIDR) in English. Short, clear answers are enough: 2–4 sentences per question.
+
+## Part 1 — Conventional arm (short answers)
 
 Answer in your own words (no AI-resilience layer, no flag — graded on the writing itself):
 
-1. What is the difference between a **security group** and a **network ACL** in a VPC? Address
-   both: (a) stateful vs. stateless, and (b) what "stateful" and "stateless" actually mean for a
-   response packet, using a concrete example (e.g., an inbound rule that allows traffic to a
-   web server on port 443).
-2. Security groups only support **allow** rules; network ACLs support both **allow** and
-   **deny**. What does this difference in expressive power mean for how you'd use each one? Why
-   might you want an explicit deny at the subnet level even when your security groups are
-   already "allow-only, default-deny everything else"?
-3. Explain, in your own words, why AWS evaluates network ACL rules **in ascending rule-number
-   order and stops at the first match** — what would go wrong (or what would simply be
-   different) if instead it evaluated *all* rules and picked the most specific one, or picked
-   "deny wins if any rule denies"?
-4. What is the purpose of a **NAT gateway**, and why does it live in a **public** subnet even
-   though the instances that use it are in a **private** subnet? Explain what "outbound only"
-   means here in plain terms — what request would succeed and what request would fail.
-5. Describe one real-world consequence of a public-facing database or internal service that was
-   reachable from the internet because of a misconfigured network boundary (you may reference a
-   real incident you're aware of, or reason from first principles).
+1. **Security group or network ACL?** What is the difference between a **security group** and a
+   **network ACL** in a VPC? Answer both parts: (a) which one is stateful and which is stateless,
+   and (b) what that means for the reply to a request. Use this example: an inbound rule allows
+   traffic to a web server on port 443. Does the reply going back out need its own rule?
+2. **Allow only, or allow and deny?** Security groups can only **allow**; network ACLs can
+   **allow** and **deny**. How does this change the way you use each one? Why might you still
+   want an explicit deny at the subnet level, when your security groups already block everything
+   you did not allow?
+3. **First match wins.** AWS checks network ACL rules from the **lowest rule number up, and stops
+   at the first match**. In your own words, why does it work this way? What would go wrong, or
+   just be different, if it checked *all* rules and picked the most specific one, or used "deny
+   wins if any rule denies"?
+4. **NAT gateway.** What is a **NAT gateway** for? Why does it sit in a **public** subnet when the
+   instances that use it are in a **private** subnet? Explain "outbound only" in plain words:
+   give one request that works and one request that fails.
+5. **What could go wrong?** Give one real result of a database or internal service that could be
+   reached from the internet because a network boundary was set up wrong. You may name a real
+   incident you know of, or explain what could happen.
 
 ## Part 2 — AIR-Sec arm
 
 ### 2a. The lab
-Run the "The Deny Rule That Never Runs" exercise (`README.md`). Record:
-- The exact request (`source_ip`, `port`) that got you the flag on the vulnerable app.
-- The captured flag.
-- The exact same request against the fixed app, and the response you got instead.
-- The output of `GET /rules` on both apps — specifically, which rule number matched first in
-  each case.
+Do the lab with the **Step-by-step** section of `README.md` ("The Deny Rule That Never Runs").
+Write down:
+- The whole `curl` command that got you the flag from the vulnerable app (`:8113`), with the
+  `source_ip` and `port` it sent.
+- Your flag.
+- The same request sent to the fixed app (`:8114`), and the response you got instead.
+- The `GET /rules` output of both apps (step 3), and which rule number matched first in each
+  case.
 
 ### 2b. Audit-the-AI
 Below is an AI-generated summary of a Network ACL rule set for a database subnet. The AI
@@ -55,14 +60,15 @@ request from `10.0.2.0/24`, rule by rule, in order. Does rule #30 ever get a cha
 either of them?
 
 ### 2c. EiPE (Explain-in-Plain-English)
-In 3–4 sentences a non-technical stakeholder could understand: why doesn't it help to have a
-correct "deny everyone else" rule in your network ACL if a broader rule with a lower number
-already decided the outcome? What's the one-sentence rule of thumb you'd give a teammate about
-where to place a narrow, specific rule relative to a broad, catch-all one?
+In 3–4 short sentences that someone without IT knowledge (a parent, say) could follow: why does a
+correct "deny everyone else" rule in your network ACL not help, if a broader rule with a lower
+number already decided the outcome? Then give a teammate one sentence of advice: where should a
+narrow, specific rule go, compared with a broad, catch-all one?
 
 ## Submit
-Flag + Part 2a request/response pair + Part 2b/2c answers → Classroom. Conventional-arm students
-submit Part 1 only.
+Write your answers on the **Local07 Answer Sheet** that Classroom copies for you, then click
+**Turn in** on Local 07 (no PDF needed). AIR-Sec-arm students fill in Part 2: the 2a lab evidence
+and the flag, plus the 2b and 2c answers. Conventional-arm students fill in Part 1 only.
 
 - **Due:** before the start of the next week's class (the due date on the Classroom assignment).
 - **Late:** −10% of the score you earned for every 24 hours after the due time, down to 0 after

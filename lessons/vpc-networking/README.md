@@ -11,13 +11,14 @@ Authorization) / CWE-284 (Improper Access Control) — the access decision is te
 either rule's content is individually wrong.
 
 ## ✅ This lesson — what to do
-1. **Before class** — complete the real AWS Academy VPC networking lab in your Learner Lab
-   sandbox (creating public/private subnets, a NAT gateway, security groups, and a custom
-   network ACL) — that's still where you learn the actual AWS console UI and see NAT gateway
-   routing live.
+1. **Before class** — complete the real AWS Academy VPC networking labs in your Learner Lab
+   sandbox (Cloud Foundations Module 5, *Build Your VPC and Launch a Web Server*, and Cloud
+   Security Foundations Module 4, *Securing VPC Resources by Using Security Groups*: public/private
+   subnets, a NAT gateway, security groups and network ACLs) — that's still where you learn the
+   actual AWS console UI and see NAT gateway routing live.
 2. **This add-on lab (45–60 min)** — a local, from-scratch simulation of one specific,
    easy-to-miss Network ACL bug: rule *number* order, not just rule *content*, decides the
-   outcome. Kickoff: `docker compose up -d`.
+   outcome. Follow **Step-by-step** below (kickoff: `docker compose up -d --build`).
 3. **Submit** — worksheet + flag → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Objectives
@@ -66,6 +67,67 @@ case is decided before the general case ever gets a chance to match.
    traffic that isn't from the internal CIDR. (A request from inside `10.0.1.0/24` is still
    correctly allowed — the fix does not lock out legitimate traffic.)
 
+## Step-by-step (copy these commands)
+Run these in a terminal inside this lab folder: Terminal on macOS or Linux, or **Git Bash** on
+Windows (it comes with Git). Each step says what you should see. The apps only answer questions;
+nothing you send changes them, so you can repeat any step.
+
+0. **Your personal flag:** save the `.env` file from your Classroom private comment in this folder
+   first (see "Your personal flag" below). Without it you capture the shared placeholder flag,
+   which earns no marks.
+1. **Start both apps.** The first run downloads and builds the image, so it can take a few
+   minutes.
+   ```bash
+   docker compose up -d --build
+   ```
+   When it finishes, wait about 10 seconds for the apps to start.
+2. **Check that both apps are running.** If you see only `HTTP 000`, the apps are still starting:
+   wait a few seconds and run the command again.
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' http://localhost:8113/ping
+   curl -s -w 'HTTP %{http_code}\n' http://localhost:8114/ping
+   ```
+   You should see `{"mode":"vulnerable","status":"ok"}` and then `{"mode":"fixed","status":"ok"}`,
+   each followed by `HTTP 200`.
+3. **Read the rule list of each app.** Rules are checked from the lowest `rule_number` up, and
+   the first rule that matches decides.
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' http://localhost:8113/rules
+   curl -s -w 'HTTP %{http_code}\n' http://localhost:8114/rules
+   ```
+   Both lists have rule `90` (allow) and rule `100` (deny 0.0.0.0/0) for port 5432. On the
+   vulnerable app (`:8113`) rule 90 allows `"cidr":"0.0.0.0/0"` (everyone); on the fixed app
+   (`:8114`) it allows only `"cidr":"10.0.1.0/24"` (the internal app tier). Copy both lists into
+   the worksheet.
+4. **The attack:** ask the vulnerable app whether an outside address, `203.0.113.55`, may reach
+   the database port 5432.
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' -X POST http://localhost:8113/check-access -H 'Content-Type: application/json' -d '{"source_ip": "203.0.113.55", "port": 5432}'
+   ```
+   You should see `"action":"allow"`, `"matched_rule_number":90`, `"flag":"FLAG{...}"` and
+   `HTTP 200`. Rule 90 matched first, so the deny rule 100 never ran. That flag is yours: copy it
+   into the worksheet, together with the whole `curl` command you sent.
+5. **The same request on the fixed app:**
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' -X POST http://localhost:8114/check-access -H 'Content-Type: application/json' -d '{"source_ip": "203.0.113.55", "port": 5432}'
+   ```
+   You should see `"action":"deny"` and `"matched_rule_number":100`, with no flag. (`HTTP 200`
+   only means the app answered your question.)
+6. **The fix still lets the app tier in:** ask the fixed app about an internal address,
+   `10.0.1.25`.
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' -X POST http://localhost:8114/check-access -H 'Content-Type: application/json' -d '{"source_ip": "10.0.1.25", "port": 5432}'
+   ```
+   You should see `"action":"allow"` and `"matched_rule_number":90`. Legitimate traffic still
+   gets through.
+7. **Stop the apps when you finish.**
+   ```bash
+   docker compose down
+   ```
+
+If a step doesn't match, check that Docker Desktop is running and that you are in this lab folder,
+then ask in class.
+
 ## Run it
 ```bash
 cd {{ labpath }}
@@ -73,11 +135,15 @@ docker compose up -d --build   # vulnerable_app.py on :8113, fixed_app.py on :81
 python3 -m pip install requests           # once, on the host
 python3 exploit.py
 ```
-Expect two `PASS` lines and exit `0`: an external IP allowed + flag on `:8113`, the identical
-external IP denied (no flag) on `:8114`.
+`exploit.py` runs the main checks in one go (an optional self-check, not a replacement for the
+steps above; the Step-by-step needs no Python). Expect two `PASS` lines and exit `0`: an external
+IP allowed + flag on `:8113`, the identical external IP denied (no flag) on `:8114`.
 
-**Verified:** `docker compose up -d --build` was run on this machine; `exploit.py` ran from the
-host against the published ports. Real captured output:
+**Verified (2026-11-04):** `docker compose up -d --build` was run on this machine (macOS) and
+every command in Step-by-step was run as written, in bash and in zsh (the macOS default shell).
+Windows Git Bash was not tested. Step 0 was tested with a stand-in `.env`, and the captured flag
+changed to its value; without a `.env` the shared placeholder came back. `exploit.py` then ran
+from the host against the published ports. Real captured output, flag value masked:
 ```
 === VULNERABLE (allow-all at #90 shadows deny-all at #100) (http://localhost:8113) ===
 [*] rule set (ascending order) -> [{'action': 'allow', 'cidr': '0.0.0.0/0', 'port': 5432, 'rule_number': 90}, {'action': 'deny', 'cidr': '0.0.0.0/0', 'port': 5432, 'rule_number': 100}]
@@ -111,7 +177,9 @@ never returns it for that same request. Submitting another student's flag is a v
 The captured flag + the exact request (`source_ip`, `port`) that produced it + a one-paragraph
 explanation of why a visibly-present "deny all" rule at a higher rule number can still be
 completely unreachable — it's not that the deny rule is wrong, it's that a broader rule ahead
-of it already decided the outcome.
+of it already decided the outcome. You may answer in Thai or English. Write your answers on the
+**Local07 Answer Sheet** copy in Classroom and click Turn in (no PDF needed). Full tasks:
+`worksheet.md`.
 
 ## References
 - AWS VPC documentation — *Control subnet traffic with network access control lists*: "We
