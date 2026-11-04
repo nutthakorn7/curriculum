@@ -3,9 +3,9 @@
 **Concepts:** SAST · DAST · SCA · IAST · secret scanning · **fuzzing** · shift-left / DevSecOps
 
 ## ✅ This week — what to do
-1. **Before class** — Docker Desktop working ({{ ref('threat-modeling') }} *Lab 0*); skim last week's recap.
+1. **Before class** — Docker Desktop working ({{ ref('threat-modeling') }} *Lab 0*); pull the scanner images and build the toolbox (worksheet *Prerequisites*, over 1 GB on the first run); skim last week's recap.
 2. **Slides, then class** — read `{{ slides }}` and answer the worksheet's **Part 2** before class; class opens with the weekly quiz (~10 min) and a short explanation + demo (~15 min).
-3. **Lab (in class)** — play this week's game, then complete **Worksheet 2** (`worksheet.md`, Parts 1–4, incl. *Audit the AI* + *EiPE/Prompt*). Kickoff: `bash scan.sh`. Part 3 marks each task *in class* or *homework*.
+3. **Lab (in class)** — play this week's game, then complete **Worksheet 2** (`worksheet.md`, Parts 1–4, incl. *Audit the AI* + *EiPE/Prompt*). Kickoff: `bash scan.sh`. Part 3 marks the *core* tasks (in class) and the *optional bonus* tasks (homework).
 4. **Submit before the next class** (homework tasks included) — worksheet PDF → `learn.zcr.ai/submit` · code → GitHub · weekly quiz → `learn.zcr.ai/quiz`. (How: [SUBMISSION.md](../../SUBMISSION.md).)
 5. **Project** — apply this week's lesson to your [NoteVault project](../../project/README.md) where it fits.
 
@@ -23,8 +23,8 @@ Target: an intentionally insecure repo (provided).
 Run these from `{{ labpath }}`, or just `bash scan.sh`, which runs
 both against the same target.
 ```bash
-# SAST
-docker run --rm -v "$PWD/vulnerable-repo:/src" semgrep/semgrep semgrep --config p/default /src
+# SAST: the same two rulesets scan.sh uses (p/default alone does not flag the md5 hash)
+docker run --rm -v "$PWD/vulnerable-repo:/src" semgrep/semgrep semgrep --config p/default --config p/owasp-top-ten /src
 # Secret scanning — --no-git is required, and the path must be vulnerable-repo/
 docker run --rm -v "$PWD/vulnerable-repo:/repo" zricethezav/gitleaks:latest detect --no-git -s /repo -v
 ```
@@ -33,22 +33,33 @@ docker run --rm -v "$PWD/vulnerable-repo:/repo" zricethezav/gitleaks:latest dete
 > so it aborts with *"not a git repository"*, reports **`no leaks found`**, and
 > you get zero rows for the triage table. Pointing it at the repo root instead
 > is no better: the root `.gitleaks.toml` allowlists this lab's directory on
-> purpose, so the two planted secrets are suppressed there by design.
+> purpose, so the two planted secrets never show up there. The root scan still
+> prints `leaks found`, but its hits are rule `curl-auth-header` in
+> `docs/lesson-plans/`, not anything in `app.py`. Check the rule and the file,
+> not just the count.
 > Run as written above you get **2 findings** — `AWS_SECRET_ACCESS_KEY` and
 > `DB_PASSWORD` in `app.py`, both rule `generic-api-key` — which are the two
 > worksheet Task 2 asks you to identify.
 1. Run both tools; export findings.
 2. Categorize each finding by CWE and severity.
-3. Mark 3 true positives and 1 likely false positive; justify.
+3. Mark each finding TP or FP with a one-line reason (an FP only if you can argue it).
 
 ## Mini-lab — "Fuzzing Race" (intro)
 First team to make the target crash wins. `harness.c` (in this folder) has one planted
 memory-safety bug for libFuzzer to find. A deeper fuzzing+exploit lab follows in [{{ ref('memory-safety-exploitation') }}]({{ ref('memory-safety-exploitation', link=True) }}).
 ```bash
-# run inside labs/toolbox (Apple clang has no libFuzzer runtime)
-clang -g -fsanitize=address,fuzzer harness.c -o fuzz && ./fuzz
-# expect an AddressSanitizer heap-buffer-overflow within seconds + a crash-* reproducer file
+# once, from the repo root: build the toolbox (Apple clang has no libFuzzer runtime)
+docker build -t softsec-toolbox labs/toolbox
+# from {{ labpath }}: a shell in the toolbox, with this folder mounted at /work
+docker run -it --rm -v "$PWD":/work -w /work softsec-toolbox
+# inside the container: build, seed the corpus, fuzz
+clang -g -fsanitize=address,fuzzer harness.c -o fuzz && mkdir -p corpus && printf 'FUZ' > corpus/seed && ./fuzz corpus
+# expect, on the first input: ERROR: AddressSanitizer: heap-buffer-overflow ... harness.c:23:21 + a crash-* reproducer file
 ```
+> Take the identity stamp in a terminal on your laptop, next to the container
+> window: inside the container `whoami` prints `root` and `date` prints UTC.
+> `fuzz`, `corpus/` and `crash-*` are git-ignored. On Windows, run the Docker
+> commands from WSL.
 
 ## Deliverable
 A findings triage table (tool, CWE, severity, TP/FP, fix idea) + one fuzzing crash with a one-line root-cause note.
