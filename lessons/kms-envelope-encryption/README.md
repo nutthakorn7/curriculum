@@ -11,8 +11,9 @@ when a key is disabled/deleted · **Analogous CWE:** CWE-320 (Key Management Err
 category — this lesson is about correct KMS use, not a coding bug).
 
 ## ✅ This lesson — what to do
-1. **Before class** — complete the real AWS Academy Lab 5.1 in your Learner Lab sandbox (SSE-KMS
-   setup, uploading/viewing an encrypted object, the CloudTrail `GenerateDataKey` event).
+1. **Before class** — complete the real AWS Academy Lab 5.1 (*Encrypting Data at Rest by Using
+   AWS KMS*) in your Learner Lab sandbox (SSE-KMS setup, uploading/viewing an encrypted object, the
+   CloudTrail `GenerateDataKey` event).
 2. **This add-on (45–60 min, no Docker)** — an Audit-the-AI exercise on the envelope-encryption
    concept, personalized per student.
 3. **Submit** — worksheet → see [SUBMISSION.md](../../SUBMISSION.md).
@@ -42,8 +43,10 @@ just the vocabulary) will catch.
 
 ## Deliverable
 Which variant you were assigned, the exact planted error, why it's wrong, and the corrected
-sentence — plus the two Part 1 essay-style questions if you're in the Conventional block instead.
-Full tasks: `worksheet.md`.
+sentence, plus the Part 2b answer (the 2c viva is oral) — or the four Part 1 short-answer questions
+if you're in the Conventional block instead. You may answer in Thai or English. Write your answers
+on the **Local08 Answer Sheet** copy in Classroom and click Turn in (no PDF needed). Full tasks:
+`worksheet.md`.
 
 ## References
 - AWS KMS documentation — *How envelope encryption works*, *Amazon S3 encryption with AWS KMS
