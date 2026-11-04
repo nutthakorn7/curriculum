@@ -1,7 +1,8 @@
 # Worksheet — {{ slot_label }}: IAM Policy Evaluation
 
-This lesson is **Block 1** per `course-plan.md`'s block table. Section A = Block 1 **AIR-Sec**;
-Section B = Block 1 **Conventional**. Complete only the part assigned to your section this block.
+This lesson is **Block 2** per `course-plan.md`'s block table. Section A = Block 2 **Conventional**;
+Section B = Block 2 **AIR-Sec** (reversed from Block 1). Complete only the part assigned to your
+section this block.
 
 ## Part 1 — Conventional arm (essay)
 

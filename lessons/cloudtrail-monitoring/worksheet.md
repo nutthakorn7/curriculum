@@ -1,9 +1,8 @@
 # Worksheet — {{ slot_label }}: CloudTrail + CloudWatch + EventBridge Monitoring
 
-This topic is **Block 2** per `course-plan.md`'s block table (the IAM topic earlier in this
-same lesson is Block 1; this monitoring topic is Block 2 — the two topics of Lesson 7
-deliberately split across blocks). Section A = Block 2 Conventional; Section B = Block 2
-AIR-Sec (reversed from Block 1). Complete only the part assigned to you this block.
+This topic is **Block 2** per `course-plan.md`'s block table (blocks follow the half of term, so
+the IAM topic of this same lesson is Block 2 as well). Section A = Block 2 Conventional; Section B =
+Block 2 AIR-Sec (reversed from Block 1). Complete only the part assigned to you this block.
 
 ## Part 1 — Conventional arm (essay)
 
