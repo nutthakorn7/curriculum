@@ -29,6 +29,7 @@ LESSON_DIRS = {
 SOURCE_REPLACEMENTS = {
     "aws-fundamentals-intro": [
         ("# Lessons 1–3 — AWS Fundamentals", "# Lesson 1 — AWS Fundamentals"),
+        ("cd labs/lesson01-03-aws-fundamentals-intro", "cd labs/lesson01-aws-fundamentals-intro"),
         ("same precedent as `lesson11`'s KMS envelope-encryption", "same precedent as Lesson 8's KMS envelope-encryption"),
         ("# Worksheet — Lessons 1–3: AWS Fundamentals", "# Worksheet — Lesson 1: AWS Fundamentals"),
     ],
@@ -67,10 +68,12 @@ SOURCE_REPLACEMENTS = {
     ],
     "kms-envelope-encryption": [
         ("# Lesson 11 — S3 Server-Side Encryption", "# Lesson 8 — S3 Server-Side Encryption"),
+        ("cd labs/lesson11-kms-envelope-encryption", "cd labs/lesson08-kms-envelope-encryption"),
         ("# Worksheet — Lesson 11: S3 Server-Side Encryption", "# Worksheet — Lesson 8: S3 Server-Side Encryption"),
     ],
     "s3-versioning-lifecycle-replication": [
         ("# Lesson 13 — S3 Data Protection", "# Lesson 9 — S3 Data Protection"),
+        ("cd labs/lesson13-s3-versioning-lifecycle-replication", "cd labs/lesson09-s3-versioning-lifecycle-replication"),
         ("same precedent as Lesson 11).", "same precedent as Lesson 8)."),
         ("# Worksheet — Lesson 13: S3 Versioning", "# Worksheet — Lesson 9: S3 Versioning"),
     ],
