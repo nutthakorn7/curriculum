@@ -24,21 +24,20 @@ Answer in 2–4 sentences each.
 
 ![One untrusted request value in the Week 4 lab fans out to three interpreters — the SQL engine (CWE-89), the OS shell (CWE-78) and the filesystem (CWE-434) — with the specific control that stops it at each sink: a parameterised query, an argument vector without a shell, and an extension allow-list.](img/injection-sinks.svg)
 
-## Part 3 — Hands-on Lab (125 min in class + 25 min homework)
+## Part 3 — Hands-on Lab (core tasks 105 min in class; one optional bonus task as homework)
 
-> **In class or homework.** Tasks marked *in class* are done during the lab, where the instructor
-> checks your evidence and reasoning. Tasks marked *homework* are finished after class and submitted
-> with the rest of this worksheet, before the next class. Every task keeps its time and its marks.
-> Answer Part 2 before class, from this week's slides; Part 4, *Audit the AI* and *Comprehension &
-> Prompt* are homework.
+> **Core vs optional.** The **core tasks are 0, 1, 2, 3 and 5** — everyone does these in class, where the
+> instructor checks your evidence and reasoning. **Task 4 is optional**: do it as homework for a
+> **bonus of up to +5**. Answer Part 2 before class, from this week's slides; Part 4, *Audit the AI*
+> and *Comprehension & Prompt* are homework.
 >
-> **In class (125 min):** Tasks 0, 1, 2, 3 and 5 · **Homework (25 min):** Task 4
->
-> Task 5's re-test of the upload payload goes with Task 4.
+> **Core, in class:** Tasks 0, 1, 2, 3 and 5 · **Optional bonus (homework):** Task 4
 
-**Learning goals:** extract data via SQLi, achieve OS command injection, exploit an unrestricted upload, then prove each fix in `solution_app.py` blocks the payload.
+**Learning goals:** extract data via SQLi, achieve OS command injection, then prove each fix in `solution_app.py` blocks the payload (optional bonus: an unrestricted upload).
 
 **Prerequisites:** Docker + Docker Compose, `curl`, a browser. Working dir: `{{ labpath }}/`.
+
+**Before class, on home Wi-Fi:** run `docker compose build` once in this folder. The image adds `ping`, which Task 3 needs, and classroom Wi-Fi is too slow for the download.
 
 ### Environment setup
 
@@ -73,8 +72,8 @@ sqli-parse
 
 **Task 2 — Credential dump via UNION SQLi (30 min, in class) 🐉 Hit #2.**
 - *Goal:* exfiltrate every username **and password** from the `users` table.
-- *Steps:* request `/search?q=' UNION SELECT username,password FROM users--`. Confirm `alice:alicepw` and `bob:bobpw` appear.
-- *Deliverable:* payload + screenshot of dumped credentials + note on why column count must match.
+- *Steps:* request `/search?q=' UNION SELECT username,password FROM users--`. Confirm `alice:alicepw` and `bob:bobpw` appear — plus a third `admin` row whose password field holds this lab's SQL-injection flag `FLAG{...}`.
+- *Deliverable:* payload + screenshot of the dumped credentials (including the `admin` flag row) + note on why column count must match.
 
 **Task 3 — OS command injection (30 min, in class) 🐉 Hit #3.**
 - *Goal:* run an arbitrary command through `/ping`, then read this lab's command-injection flag with it.
@@ -84,23 +83,23 @@ sqli-parse
   ```
 - *Deliverable:* the three payloads + screenshot of the `id`/`whoami` output **and** the `FLAG{...}` from `/flag.txt` + explanation of the `shell=True` flaw (CWE-78).
 
-**Task 4 — Unrestricted upload (25 min, homework) 🐉 Hit #4.**
+**Task 4 — Unrestricted upload (25 min, optional bonus) 🐉 Hit #4.**
 - *Goal:* show the upload accepts a dangerous file type with no checks (CWE-434).
 - *Steps:* `GET /upload` (form), then upload a file named `shell.py`. Confirm `saved to /tmp/uploads/shell.py`. Via the browser form this just works; via `curl` the file field is named **`f`**: `curl -F "f=@shell.py" "http://localhost:8080/upload"`. Discuss: if `UPLOAD_DIR` were web-served or executed, this is the RCE chain (here the dir is **not** served, so document the missing control rather than claiming auto-RCE).
-- *Deliverable:* upload command/screenshot + 2–3 sentences on why extension allow-listing matters.
+- *Deliverable:* upload command/screenshot + 2–3 sentences on why extension allow-listing matters. For the bonus, also re-fire the upload against `solution_app.py` (Task 5's setup) and show `file type not allowed` (fix lines L86–93).
 
-**Task 5 — Defend / fix it (35 min, in class) 🛡️ Warm-up cleared.**
-- *Goal:* prove `solution_app.py` blocks Tasks 1–4.
+**Task 5 — Defend / fix it (15 min, in class, guided) 🛡️ Warm-up cleared.**
+- *Goal:* prove `solution_app.py` blocks Tasks 1–3 (and Task 4 if you did the bonus).
 - *Steps:* stop the vulnerable container (`Ctrl-C`), then run the fixed app on the same compose env:
   ```bash
   docker compose run --rm --service-ports injection-lab bash -c "pip install --no-cache-dir flask && python solution_app.py"
   ```
-  Re-fire each payload from Tasks 1–4. Expected: `Login failed`, no credential dump, `invalid host` (400) on `127.0.0.1;id`, and `file type not allowed` for `shell.py`.
-- *Deliverable:* screenshots of all four failures + name the fix line for each (parameterized query L52–55 login / L62–66 search, `shell=False`+regex L74–77, `secure_filename`+allow-list L86–93).
+  Re-fire each payload from Tasks 1–3. Expected: `Login failed`, no credential dump, and `invalid host` (400) on `127.0.0.1;id`.
+- *Deliverable:* screenshots of the three failures + name the fix line for each (parameterized query L52–55 login / L62–66 search, `shell=False`+regex L74–77).
 
 ## Part 4 — Reflection
 
-1. **CWE/OWASP mapping:** map each of your four exploits to its CWE (89/78/434) and to OWASP 2025 **A05 Injection**.
+1. **CWE/OWASP mapping:** map each of your core exploits to its CWE (89/78 — and 434 if you did the Task 4 bonus) and to OWASP 2025 **A05 Injection**.
 2. **Real breach:** the **2017 Equifax breach** exposed ~147M people after attackers exploited a known input-handling flaw (Apache Struts CVE-2017-5638). In 3–4 sentences, connect that failure to the lessons in this lab (untrusted input reaching a powerful interpreter; the cost of an unpatched/unvalidated input path).
 3. **Best mitigation:** of parameterized queries, allow-list validation, least privilege, and avoiding `shell=True`, which single control would have prevented the most damage in this lab, and why?
 
@@ -109,10 +108,12 @@ sqli-parse
 | Criterion | Points |
 |-----------|-------:|
 | Part 2 — Lecture questions (conceptual accuracy) | 20 |
-| Part 3 — Exploitation + evidence (payloads + screenshots, Tasks 1–4) | 40 |
+| Part 3 — Exploitation + evidence (payloads + screenshots, Tasks 0–3) | 40 |
 | Part 3 — Defense (Task 5: fixes proven, lines cited) | 25 |
 | Part 4 — Reflection (CWE/OWASP mapping, breach, mitigation) | 15 |
 | **Total** | **100** |
+
+Task 4 is optional: up to **+5** bonus on top of the Exploitation row, which stays capped at 40.
 
 **Due:** 23:59 (Thai time) the night before next week's class (exact time on learn.zcr.ai/submit). **Late:** −10% per started day; 0 after 10 days.
 
