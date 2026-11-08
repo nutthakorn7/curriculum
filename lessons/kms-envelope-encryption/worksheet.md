@@ -42,22 +42,22 @@ error about how SSE-KMS envelope encryption actually works.
 > **Variant 0.** "When you upload a file to an S3 bucket configured with SSE-KMS, S3 sends a
 > request to AWS KMS for a new data key. KMS generates a plaintext data key and returns both the
 > plaintext copy and an encrypted copy of it. S3 uses the plaintext data key to encrypt your
-> object, then stores the **plaintext data key alongside the encrypted object** in the bucket
+> object, then stores the plaintext data key alongside the encrypted object in the bucket
 > for faster future decryption, discarding only the encrypted copy."
 
 > **Variant 1.** "...KMS generates a plaintext data key and returns both copies to S3. S3
 > encrypts your object using the plaintext data key, discards the plaintext copy immediately,
 > and stores the encrypted copy of the data key in the object's metadata. Because the encrypted
-> data key is stored right there in S3, **decrypting the object never requires contacting KMS
-> again** — S3 can decrypt it locally using its own master key."
+> data key is stored right there in S3, decrypting the object never requires contacting KMS
+> again — S3 can decrypt it locally using its own master key."
 
-> **Variant 2.** "...If you disable the KMS key that was used to encrypt an object, **the object
-> remains readable indefinitely**, because S3 always caches a working copy of the plaintext data
+> **Variant 2.** "...If you disable the KMS key that was used to encrypt an object, the object
+> remains readable indefinitely, because S3 always caches a working copy of the plaintext data
 > key for objects it has previously decrypted at least once — so disabling the key only blocks
 > *new* uploads, not existing reads."
 
-> **Variant 3.** "...The data key AWS KMS generates for envelope encryption is a **long-term key
-> used to encrypt every object in the bucket**, similar to how the bucket's KMS master key
+> **Variant 3.** "...The data key AWS KMS generates for envelope encryption is a long-term key
+> used to encrypt every object in the bucket, similar to how the bucket's KMS master key
 > works — one data key per bucket, reused across all uploads for efficiency."
 
 Write down:

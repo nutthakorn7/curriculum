@@ -42,21 +42,21 @@ error about the AWS Shared Responsibility Model or basic IAM hygiene.
 > responsible for their application code, their data, and configuring IAM correctly."
 
 > **Variant 1.** "AWS Identity and Access Management (IAM) is default-deny: a request is only
-> allowed if some policy explicitly allows it, and an explicit deny always wins. However, **a
+> allowed if some policy explicitly allows it, and an explicit deny always wins. However, a
 > brand-new IAM user, before any policy is ever attached to them, starts out with full access to
-> every AWS service in the account** — administrators are expected to attach a policy afterward
+> every AWS service in the account — administrators are expected to attach a policy afterward
 > to narrow that access down to what the user actually needs."
 
 > **Variant 2.** "AWS strongly recommends against using access keys or day-to-day sign-ins with
 > the account's root user. Instead, create an ordinary administrative IAM identity for daily
-> work and reserve the root user for the small set of tasks that specifically require it. **Once
+> work and reserve the root user for the small set of tasks that specifically require it. Once
 > you've created that administrative IAM identity, the root user account itself can be deleted
-> outright**, since AWS accounts don't actually need a root user to keep functioning."
+> outright, since AWS accounts don't actually need a root user to keep functioning."
 
 > **Variant 3.** "Multi-factor authentication (MFA) adds a second authentication factor — a
 > device-generated code or hardware key — on top of a user's sign-in. For the account root user
-> in particular, **enabling MFA means a strong, unique root password is no longer necessary,
-> since MFA alone is sufficient to secure the sign-in.**"
+> in particular, enabling MFA means a strong, unique root password is no longer necessary,
+> since MFA alone is sufficient to secure the sign-in."
 
 Write down:
 - Your variant number and the last digit of your student ID.
