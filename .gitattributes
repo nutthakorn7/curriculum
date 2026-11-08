@@ -1,0 +1,10 @@
+# Files that run inside Linux (bash, make, docker build) keep LF line endings on
+# every OS. Git for Windows checks text out with CRLF by default
+# (core.autocrlf=true), and a CRLF scan.sh then fails on its first command:
+#   scan.sh: line 3: set: -: invalid option
+# Only these patterns are listed on purpose: every other file keeps Git's
+# default handling, so nothing else in the tree changes bytes.
+*.sh          text eol=lf
+Makefile      text eol=lf
+Dockerfile    text eol=lf
+Dockerfile.*  text eol=lf
