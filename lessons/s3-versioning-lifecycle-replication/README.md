@@ -20,6 +20,40 @@ bug) / general data-protection misconfiguration category.
    concepts, personalized per student.
 3. **Submit** — worksheet → see [SUBMISSION.md](../../SUBMISSION.md).
 
+## Get this lab onto your computer
+You need your own copy of the course files. You download them once, then update them each
+time. Open a terminal (Terminal on macOS or Linux, **Git Bash** on Windows) and do
+A, B and C in order. You installed Git in the Week 01 setup; if `git` is "not found", do that
+setup first.
+
+A. **Download the course files (first time only).** Skip this if you already did it in Week 01.
+   ```bash
+   cd ~
+   git clone https://github.com/nutthakorn7/cloud-infrastructure-security.git
+   ```
+   You should see `Cloning into 'cloud-infrastructure-security'...` and no error. If it says
+   `already exists`, you have the files already: go on to B.
+
+B. **Get the newest version (every time).** The course files change during the term, so do this
+   even if you downloaded them last week. It never touches your `.env` file.
+   ```bash
+   cd ~/cloud-infrastructure-security
+   git pull
+   ```
+   You should see `Already up to date.` or a list of changed files. If you see
+   `No such file or directory`, your copy is in another folder: do A to make a new one here. If you
+   see `Your local changes to the following files would be overwritten`, run `git checkout -- .`
+   and then `git pull` again. That throws away any edits you made to the course files; your
+   answers are on the Answer Sheet, so they are safe.
+
+C. **Go into this lab's folder and check it.**
+   ```bash
+   cd {{ labpath }}
+   ls
+   ```
+   You should see `README.md` and `worksheet.md`. There is no Docker and nothing to run in this
+   lab: read `worksheet.md` here, or on GitHub with the link in the Classroom post.
+
 ## Objectives
 - Explain why enabling **versioning** on a bucket protects against accidental delete and
   accidental overwrite, and what actually happens to an object's prior contents when a new

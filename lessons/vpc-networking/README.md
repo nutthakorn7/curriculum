@@ -68,6 +68,39 @@ case is decided before the general case ever gets a chance to match.
    correctly allowed — the fix does not lock out legitimate traffic.)
 
 ## Step-by-step (copy these commands)
+**First, get this lab onto your computer.** You need your own copy of the course files. You download them once, then update them each
+time. Open a terminal (Terminal on macOS or Linux, **Git Bash** on Windows) and do
+A, B and C in order. You installed Git in the Week 01 setup; if `git` is "not found", do that
+setup first.
+
+A. **Download the course files (first time only).** Skip this if you already did it in Week 01.
+   ```bash
+   cd ~
+   git clone https://github.com/nutthakorn7/cloud-infrastructure-security.git
+   ```
+   You should see `Cloning into 'cloud-infrastructure-security'...` and no error. If it says
+   `already exists`, you have the files already: go on to B.
+
+B. **Get the newest version (every time).** The course files change during the term, so do this
+   even if you downloaded them last week. It never touches your `.env` file.
+   ```bash
+   cd ~/cloud-infrastructure-security
+   git pull
+   ```
+   You should see `Already up to date.` or a list of changed files. If you see
+   `No such file or directory`, your copy is in another folder: do A to make a new one here. If you
+   see `Your local changes to the following files would be overwritten`, run `git checkout -- .`
+   and then `git pull` again. That throws away any edits you made to the course files; your
+   answers are on the Answer Sheet, so they are safe.
+
+C. **Go into this lab's folder and check it.**
+   ```bash
+   cd {{ labpath }}
+   ls
+   ```
+   You should see `README.md`, `worksheet.md` and `docker-compose.yml` among the files. Every
+   command below runs from this folder. If you open a new terminal later, do B and C again first.
+
 Run these in a terminal inside this lab folder: Terminal on macOS or Linux, or **Git Bash** on
 Windows (it comes with Git). Each step says what you should see. The apps only answer questions;
 nothing you send changes them, so you can repeat any step.
@@ -139,7 +172,7 @@ python3 exploit.py
 steps above; the Step-by-step needs no Python). Expect two `PASS` lines and exit `0`: an external
 IP allowed + flag on `:8113`, the identical external IP denied (no flag) on `:8114`.
 
-**Verified (2026-11-04):** `docker compose up -d --build` was run on this machine (macOS) and
+**Verified (2026-11-04):** The "get this lab" commands (A, B and C) were run as written on 2026-11-08, in bash and in zsh, on a fresh clone. `docker compose up -d --build` was run on this machine (macOS) and
 every command in Step-by-step was run as written, in bash and in zsh (the macOS default shell).
 Windows Git Bash was not tested. Step 0 was tested with a stand-in `.env`, and the captured flag
 changed to its value; without a `.env` the shared placeholder came back. `exploit.py` then ran
