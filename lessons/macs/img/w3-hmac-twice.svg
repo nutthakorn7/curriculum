@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 260" width="1000" height="260" role="img"
+     aria-label="HMAC hashes twice. First the key and message go through an inner hash. Then the key and that inner result go through an outer hash, which gives the tag. The attacker only sees the final tag, and cannot carry on from it to sign a longer message.">
+  <title>HMAC hashes twice, with the key mixed in each time</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .z  { fill: none; stroke: #6b7280; stroke-width: 1.5; stroke-dasharray: 6 4 }
+    .t  { font: 600 16px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 13px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 13px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 15px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 15px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad } .z { stroke: #9aa3ad }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d }
+      .a  { stroke: #c9ced3 }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+  </defs>
+
+  <!-- hidden zone -->
+  <rect class="z" x="20" y="45" width="715" height="130" rx="12"/>
+  <text class="ts" x="377" y="36">Happens inside the server — you never see this part</text>
+
+  <!-- step 1: inner -->
+  <rect class="bg" x="35" y="80" width="150" height="60" rx="8"/>
+  <text class="tm" x="110" y="105">key</text>
+  <text class="tm" x="110" y="127">+ message</text>
+  <path class="a" d="M188,110 H222"/>
+  <rect class="b" x="226" y="80" width="120" height="60" rx="8"/>
+  <text class="tb" x="286" y="107">Inner</text>
+  <text class="tb" x="286" y="127">hash</text>
+  <path class="a" d="M349,110 H383"/>
+
+  <!-- step 2: outer -->
+  <rect class="bg" x="387" y="80" width="170" height="60" rx="8"/>
+  <text class="tm" x="472" y="105">key</text>
+  <text class="tm" x="472" y="127">+ inner result</text>
+  <path class="a" d="M560,110 H594"/>
+  <rect class="b" x="598" y="80" width="120" height="60" rx="8"/>
+  <text class="tb" x="658" y="107">Outer</text>
+  <text class="tb" x="658" y="127">hash</text>
+  <path class="a" d="M721,110 H773"/>
+
+  <!-- tag -->
+  <rect class="bo" x="777" y="75" width="195" height="70" rx="8"/>
+  <text class="to" x="874" y="104">Tag</text>
+  <text class="ts" x="874" y="127">the only thing you see</text>
+
+  <text class="t" x="500" y="222">You cannot carry on from the tag to sign a longer message.</text>
+</svg>
