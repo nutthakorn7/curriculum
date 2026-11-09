@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 380" width="1000" height="380" role="img"
+     aria-label="To find one hidden byte, the helper script tries every value from 0 to 255 in one position of a forged block and asks the server each time. Almost all answers are 403 bad padding. The one value that gets 200 ok tells the script what that hidden byte is. It repeats this for each of the 16 bytes of a block and for each of the 3 blocks, a few thousand questions in total, a few seconds.">
+  <title>One byte at a time: ask until the server says 200</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .t  { font: 600 16px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 13px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tl { font: 600 14px system-ui, sans-serif; fill: #374151; text-anchor: start }
+    .tm { font: 600 13px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 15px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 15px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad }
+      .t, .tm { fill: #e6e8ea } .ts, .tl { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d }
+      .a  { stroke: #c9ced3 }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+  </defs>
+
+  <text class="tl" x="20" y="30">Finding ONE hidden byte: change one position and ask the server, up to 256 times</text>
+  <rect class="bg" x="20" y="48" width="170" height="70" rx="8"/><text class="tm" x="105" y="76">guess 0</text><text class="to" x="105" y="102">403</text>
+  <rect class="bg" x="200" y="48" width="170" height="70" rx="8"/><text class="tm" x="285" y="76">guess 1</text><text class="to" x="285" y="102">403</text>
+  <rect class="bg" x="380" y="48" width="170" height="70" rx="8"/><text class="tm" x="465" y="76">guess 2</text><text class="to" x="465" y="102">403</text>
+  <text class="t" x="590" y="92">…</text>
+  <rect class="b" x="630" y="48" width="190" height="70" rx="8"/><text class="tm" x="725" y="76">guess 137</text><text class="tb" x="725" y="102">200 ✓</text>
+  <text class="t" x="860" y="92">…</text>
+  <rect class="bg" x="890" y="48" width="90" height="70" rx="8"/><text class="tm" x="935" y="76">255</text><text class="ts" x="935" y="102">(not needed)</text>
+
+  <path class="a" d="M725,125 V160"/>
+  <rect class="b" x="395" y="165" width="660" height="56" rx="8" transform="translate(-135,0)"/>
+  <text class="tb" x="590" y="190">The answer 200 tells the script what the hidden byte is</text>
+  <text class="ts" x="590" y="210">so that byte is found, without the key</text>
+
+  <path class="a" d="M590,226 V256"/>
+  <rect class="bg" x="130" y="260" width="720" height="56" rx="8"/>
+  <text class="t" x="490" y="285">Repeat for the 16 bytes of a block, then for each of the 3 blocks</text>
+  <text class="ts" x="490" y="305">a few thousand questions in total, a few seconds, and the whole secret is read</text>
+  <text class="ts" x="500" y="350">The server never shows the secret. It only says yes or no, and that is enough.</text>
+</svg>

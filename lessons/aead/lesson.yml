@@ -3,6 +3,6 @@ title: "Authenticated Encryption (AEAD): the CBC Padding Oracle"
 kind: LAB
 duration_min: 180
 tags: [aead, aes-gcm, padding-oracle, encrypt-then-mac]
-cwe: [CWE-347, CWE-757, CWE-208]
+cwe: [CWE-204, CWE-649, CWE-353]
 prereqs: [aes-modes, macs]
 flag_keys: ["aead"]
