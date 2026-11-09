@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 360" width="1000" height="360" role="img"
+     aria-label="The attacker changes one letter of the ciphertext and sends it to the CBC server. The server decrypts it, with no tag to check, and checks only the padding. If the padding is valid it answers 200 ok, if not it answers 403 bad padding. These two different answers are a yes or no question the attacker can ask again and again, even though the secret is never shown.">
+  <title>The CBC server answers a yes/no question</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .t  { font: 600 16px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 13px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tl { font: 600 14px system-ui, sans-serif; fill: #374151; text-anchor: start }
+    .tm { font: 600 13px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 15px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 15px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad }
+      .t, .tm { fill: #e6e8ea } .ts, .tl { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d }
+      .a  { stroke: #c9ced3 }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+  </defs>
+
+  <rect class="bg" x="20" y="40" width="270" height="70" rx="8"/>
+  <text class="t" x="155" y="68">Attacker</text><text class="ts" x="155" y="90">changes one letter of the ciphertext</text>
+  <path class="a" d="M295,75 H345"/>
+  <rect class="b" x="350" y="40" width="300" height="70" rx="8"/>
+  <text class="tb" x="500" y="68">CBC server (no tag)</text><text class="ts" x="500" y="90">decrypts it, then checks the padding</text>
+  <path class="a" d="M655,75 H705"/>
+  <rect class="bg" x="710" y="40" width="270" height="70" rx="8"/>
+  <text class="t" x="845" y="68">Is the padding valid?</text><text class="ts" x="845" y="90">the only thing it checks</text>
+
+  <path class="a" d="M780,115 L620,175"/>
+  <path class="a" d="M910,115 L890,175"/>
+  <rect class="b" x="260" y="180" width="440" height="70" rx="8"/>
+  <text class="tb" x="480" y="208">Yes → 200  {"status":"ok"}</text><text class="ts" x="480" y="232">"the padding of what I decrypted is fine"</text>
+  <rect class="bo" x="720" y="180" width="260" height="70" rx="8"/>
+  <text class="to" x="850" y="208">No → 403  bad padding</text><text class="ts" x="850" y="232">"the padding is broken"</text>
+
+  <rect class="bg" x="20" y="285" width="960" height="56" rx="8"/>
+  <text class="t" x="500" y="310">Two different answers = a yes/no question the attacker can ask again and again.</text>
+  <text class="ts" x="500" y="330">The secret is never shown, but the answers leak information about it.</text>
+</svg>

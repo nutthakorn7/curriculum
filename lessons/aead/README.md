@@ -1,108 +1,131 @@
-# {{ slot_label }} — Authenticated Encryption (AEAD): the CBC Padding Oracle
+# {{ slot_label }} — AEAD: the CBC Padding Oracle vs AES-GCM
 
-**Topic:** *(new topic — not in KOSEN68; built fresh)* · **Kind:** LAB
-**Concepts:** authenticated encryption (AEAD), unauthenticated-CBC malleability, PKCS#7 padding
-oracle, AES-GCM, encrypt-then-MAC · **Analogous CWE:** CWE-347 (Improper Verification of
-Cryptographic Signature), CWE-757 (Selection of Less-Secure Algorithm), CWE-204
-(Observable Response Discrepancy — the side channel)
+**Kind:** LAB
+**Concepts:** authenticated encryption (AEAD), PKCS#7 padding, padding oracle, AES-GCM,
+associated data · **Analogous CWE:** CWE-204 (Observable Response Discrepancy), CWE-649
+(Reliance on Obfuscation/Encryption Without Integrity), CWE-353 (Missing Support for Integrity
+Check)
 
-This is the **capstone of the symmetric block**: {{ ref('macs') }} gave you a MAC (integrity), {{ ref('aes-modes') }} gave
-you AES-CBC (confidentiality) and showed CBC ciphertext is *malleable*. Bolt those two together
-*wrong* and you get a **padding oracle** — an attacker decrypts your ciphertext byte-by-byte
-without ever seeing the key. Bolt them together *right* — encrypt-then-MAC, or use a single AEAD
-primitive like AES-GCM — and the attack evaporates. That "combine them correctly" primitive is
-**AEAD**.
+## This week — 100-minute class and assigned assessment
 
-## ✅ This week — what to do
-1. **Before class** — Docker Desktop working (same Docker-first setup as `software-security`);
-   re-skim {{ ref('aes-modes') }} (AES-CBC, bit-flipping malleability) and {{ ref('macs') }} (MACs) — this week is those two
-   combined.
-2. **Lecture (120 min)** — what AEAD guarantees (confidentiality + integrity + authenticity in one
-   primitive); Encrypt-then-MAC vs MAC-then-Encrypt vs Encrypt-and-MAC; why unauthenticated CBC
-   leaks to a padding oracle; why AES-GCM has no padding step and checks the tag first. Slides:
-   `{{ slides }}`.
-3. **Lab (180 min)** — play the decryption game below, capture your flag, then complete
-   **Worksheet 6** (`worksheet.md`, Part 1 Conventional + Part 2 AIR-Sec incl. *Audit the AI* +
-   *EiPE* + *Prompt Problem*). Kickoff: `docker compose up`.
-4. **Submit** — worksheet PDF + flag → see [SUBMISSION.md](../../SUBMISSION.md) · exploit notes → GitHub.
+1. **Before class** — install **Docker** and run `docker compose up -d` once at home (the image is
+   downloaded the first time, and the containers install packages every time they start, so you
+   need internet each time). The lab scripts run *inside* the container, so you do **not** need
+   Python on your own laptop. Read the Week 4 recap (CBC has no check, GCM has a tag).
+2. **In class (100 minutes)** — 10-minute quiz + short brief + guided lab (ask the CBC server
+   about a changed message, let the script read the secret from the `200` / `403` answers, see GCM
+   give the same answer every time) + debrief + evidence capture. Slides: `{{ slides }}`.
+3. **Common work (60 points)** — ask the CBC server three questions with the supplied helper
+   `ask.py` (original, a letter changed at the start, a letter changed near the end), run
+   `exploit.py` to read the secret without the key, then ask the GCM server the same three
+   questions and explain why it gives nothing away.
+4. **Assigned format (40 points)** — complete **either** the Conventional written questions
+   **or** AIR-Sec (Audit the AI 20 + EiPE 10 + Prompt Problem 10). Both versions total 100.
+   Viva checks support feedback/authenticity within the criteria; they add no separate marks.
+5. **After class** — finish the explanations and the assigned format. Submit the worksheet
+   PDF and required evidence according to [SUBMISSION.md](../../SUBMISSION.md). This week
+   has no separate code-fix/GitHub submission.
 
 ## Objectives
-- State what **AEAD** stands for and the three guarantees it delivers in one primitive.
-- Explain a **padding oracle**: how a single distinguishable "bad padding" response turns
-  unauthenticated CBC into a byte-by-byte decryption of arbitrary ciphertext — *without the key*.
-- Run the standard CBC padding-oracle attack to recover a secret plaintext (containing your flag)
-  from ciphertext alone, using only a 200-vs-403 side channel.
-- Explain why **AES-GCM** (an AEAD cipher) has no padding oracle — stream mode means no padding to
-  probe, and the authentication tag is verified *before* any plaintext is released — and verify
-  that empirically against a fixed target that returns a uniform error for every failure.
-- Distinguish the *provably safe* generic composition (encrypt-then-MAC) from the unsafe ones.
+- Say what **AEAD** means: encryption **and** a check that nothing was changed, in one step.
+- See that an **unauthenticated** AES-CBC server that never shows the plaintext still leaks it
+  through two different answers (`200` vs `403`): a **padding oracle**.
+- Run the supplied script that reads the whole secret from those answers **without the key**.
+- Explain in plain words why **AES-GCM** gives nothing away: it checks the **tag first** and gives
+  the **same answer** for every failure.
+- Know that GCM is not magic: an ignored tag error or a repeated nonce breaks it, and other
+  different error messages (for example "user not found" vs "wrong password") leak in the same way.
 
 ## 🔓 Decryption game — "Read the Secret Without the Key"
 Two Flask targets, same endpoints, different cipher:
 
-| Service | Port | Cipher | Vulnerable to a padding oracle? |
+| Service | Port | Cipher | Answers differ by where we change? |
 |---|---|---|---|
-| `vulnerable_app.py` | `:8098` | AES-256-**CBC**, unauthenticated, `/decrypt` leaks padding validity | **Yes** |
-| `fixed_app.py` | `:8099` | AES-256-**GCM** (AEAD), `/decrypt` returns a **uniform** error | **No** |
+| `vulnerable_app.py` | `:8098` | AES-256-**CBC**, no tag; `/decrypt` says `200` or `403 bad padding` | **Yes** |
+| `fixed_app.py` | `:8099` | AES-256-**GCM** (AEAD); `/decrypt` says `403 decryption failed` for every failure | **No** |
 
-**Why it's exciting:** a padding oracle turns a plain 403 error into a skeleton key, recovering a
-whole secret one byte at a time from nothing but yes/no answers.
+Both serve the same encrypted secret at `GET /secret` (base64) and accept
+`POST /decrypt {"ciphertext": "<base64>"}`. Neither ever returns the plaintext.
 
-Both serve the *same* secret message (which **contains the flag**) at `GET /secret` as
-base64. Both expose `POST /decrypt {"ciphertext": "<base64>"}`. The difference is the *decrypt
-response*:
+- **Vulnerable (`:8098`, CBC):** `200 {"status":"ok"}` if the decrypted bytes end with **valid
+  PKCS#7 padding**, `403 {"error":"bad padding"}` if not. That yes/no is the **oracle**.
+- **Fixed (`:8099`, GCM):** `200` only if the 128-bit tag verifies; `403` for **every** failure
+  (bad base64, wrong length, wrong tag), checked **before** anything is decrypted.
 
-- **Vulnerable (`:8098`, CBC):** `200` if the decrypted plaintext has **valid PKCS#7 padding**,
-  `403 "bad padding"` if not. Those two distinguishable answers are the **oracle** — the endpoint
-  *never returns the plaintext*, yet the attacker recovers it purely from the 200/403 signal.
-- **Fixed (`:8099`, GCM):** `200` only if the 128-bit tag verifies; **`403` (uniform)** for *any*
-  failure — bad base64, wrong length, bad nonce, tag mismatch — all indistinguishable. No signal.
+1. **Look:** fetch the encrypted secret from `:8098` (`curl`).
+2. **Ask three questions** with `ask.py`: the original (`200`), one letter changed at the **start**
+   (still `200`: the first letter sits in the IV, so only one letter of the first block changes, as in Week 4, and the padding at the end is untouched),
+   one letter changed near the **end** (`403`: the padding is broken). Where the change lands decides
+   the answer. That is the leak.
+3. **Let the script do it:** `exploit.py` asks the oracle a few thousand questions, in a few seconds,
+   and prints the secret `msg:FLAG{...}`. It never uses the key.
+4. **Confirm the fix:** the same three questions to `:8099` (GCM) give `200`, `403`, `403`; the
+   script finds no usable signal and recovers nothing. This is evidence against **this** attack,
+   not proof that everything else about the program is safe.
 
-1. **Grab the ciphertext:** `GET /secret` on `:8098` → `base64(IV || ct)`.
-2. **Recover it:** using only the `/decrypt` oracle, run the CBC padding-oracle attack to recover
-   the full plaintext **byte-by-byte, without the AES key** (`exploit.py` implements it from
-   scratch — no crypto library needed on the attacker side, only `requests`).
-3. **Read the flag:** the recovered plaintext is `msg:FLAG{...}` → that's your flag.
-4. **Confirm the fix:** run the *identical* attack against `:8099` (AES-GCM). It gets **zero**
-   usable signal (every query is `403`), recovers nothing → the AEAD app is safe.
-
-**The key is never known to the attacker.** The whole point is that unauthenticated CBC + a
-padding side channel gives *decryption without the key*; AEAD removes both the side channel and
-the malleability.
+(Curious how the script works? The worksheet's optional Extension at the end of Part 2 has the one
+formula, `D(C_t)[15] = guess XOR 0x01`. No student task needs it.)
 
 ## Run it
+
+Run everything **inside** the container, so no Python is needed on your laptop:
+
 ```bash
 cd {{ labpath }}
-docker compose up -d          # vulnerable_app.py on :8098, fixed_app.py on :8099
-python exploit.py             # PASS on :8098 (recovers plaintext + flag), PASS on :8099
-                              #   (attack gets no signal); exit 0
+docker compose up -d                       # :8098 vulnerable, :8099 fixed
+docker compose logs | grep "Running on"    # Mac; Windows: docker compose logs | findstr /C:"Running on"
+                                           # wait for Running on http://127.0.0.1:8098 and :8099
+docker compose exec vulnerable python ask.py vuln original    # 200 ok
+docker compose exec vulnerable python ask.py vuln start       # 200 ok
+docker compose exec vulnerable python ask.py vuln end         # 403 bad padding
+docker compose exec vulnerable python ask.py fixed original   # 200
+docker compose exec vulnerable python ask.py fixed start      # 403
+docker compose exec vulnerable python ask.py fixed end        # 403
+docker compose exec -e FIXED_HOST=fixed vulnerable python exploit.py              # PASS :8098 (secret) + PASS :8099
 docker compose down
 ```
-Per-student flag: `python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env` before
-`docker compose up` (once this course's `instructor/seed_flags.py` exists — see
-`course-plan-19weeks.md` open decision; until then `FLAG_AEAD` falls back to a shared placeholder that is the same for everyone). The exploit derives the block count from `/secret`, so
-flags of any length work.
 
-**Verified:** `docker compose up -d --build` (from a scratch copy — OneDrive placeholders can
-break in-place `docker build`) followed by `python exploit.py` was run against live containers on
-this machine. Both PASS checks printed and the script exited `0`: the padding oracle recovered
-the full plaintext `msg:FLAG{...}` from `:8098` **without the key**, and the
-identical attack recovered **nothing** from the AES-GCM app on `:8099` (uniform `403`). The
-`FLAG_AEAD` env-override was confirmed with a different-length flag (`FLAG{aead_student_42_xyz}` →
-a 2-block ciphertext instead of 3) — the exploit derived the new block count from `/secret` and
-recovered it correctly, PKCS#7 padding stripped. Negative controls confirmed: garbage/empty
-ciphertext → `403` on both apps; a tampered GCM tag → `403` on `:8099`; the original secret →
-`200` on both.
+Keep `-e FIXED_HOST=fixed` for `exploit.py`: inside the container the second copy of the site is at
+`fixed`, not `localhost`. Without it `exploit.py` waits about a minute and prints
+`FAIL: fixed app never came up`. (`ask.py` finds the GCM server by itself, so it does not need it.) (You can also run the
+scripts on the host if you have Python 3 with `requests`; then `-e FIXED_HOST=fixed` is not needed.)
+
+`ask.py` is a small helper for this lab: it fetches `/secret`, changes **one letter** (or none),
+sends the result to `/decrypt`, and prints the server's answer. It uses only the standard library
+and never sees a key.
+
+Flag configuration: the shared demo flag is fine. Every student's run shows the same ciphertext
+because the lab uses a fixed key and nonce **for this demo only**: it encrypts exactly one message.
+Real systems must never repeat a nonce under a key. Record the value from your own run with your own
+evidence and explanation; no personal flag is required this week.
+
+**Verified (2026-11-09):** every command in `worksheet.md` was run in order against freshly started
+containers on this machine. The CBC secret is 88 base64 characters (IV + 3 blocks) and the GCM one
+84. CBC: the original and the start change answer `200 ok`, the end change answers `403 bad
+padding`. GCM: the original answers `200`, the start and end changes both answer `403 decryption
+failed`. `exploit.py` took about 3.4 seconds, printed the three blocks and
+`Recovered plaintext: b'msg:FLAG{padding_oracle_leaks_all}'`, then both `PASS` lines; `docker
+compose down` removes both containers. Not run on Windows.
 
 ## Deliverable
-The recovered flag + a short note on **which byte you force to `0x01`, `0x02 0x02`, … in the
-forged previous block**, why that reveals one byte of the intermediate value `D(C_t)` per query,
-and why AES-GCM has no equivalent probe. Full tasks: `worksheet.md`.
+
+Submit the common evidence and reasoning (60) plus only the assigned Conventional (40)
+or AIR-Sec (40) format. The details below describe the common artifact; the worksheet
+identifies the alternative sections.
+The server answers for the three CBC questions and the three GCM questions, the recovered secret
+and the two `PASS` lines from `exploit.py`, the two code lines that differ (`pkcs7_valid(plaintext)`
+vs `_aesgcm.decrypt(...)`), and a short note saying why a yes/no answer leaked the secret on CBC and
+why GCM did not. Full tasks: `worksheet.md`.
 
 ## References
-- Boneh & Shoup, *A Graduate Course in Applied Cryptography*, ch. 9 (Authenticated Encryption) —
-  free online.
-- Vaudenay (2002), *Security Flaws Induced by CBC Padding* — the original padding-oracle paper.
+- RFC 5116 — *An Interface and Algorithms for Authenticated Encryption* (§2: what AEAD gives and
+  what associated data is).
+- RFC 5652 §6.3 — the PKCS#7 padding rule (pad with the number of bytes added).
+- RFC 8446 §1.2 — TLS 1.3 keeps only AEAD algorithms for record protection.
+- Vaudenay (2002), *Security Flaws Induced by CBC Padding* (Eurocrypt) — the first padding-oracle
+  attack on CBC.
 - NIST SP 800-38D — *Galois/Counter Mode (GCM) and GMAC*.
-- RFC 5116 — *An Interface and Algorithms for Authenticated Encryption* (defines the AEAD API).
+- CWE-204 (Observable Response Discrepancy): https://cwe.mitre.org/data/definitions/204.html
+- Boneh & Shoup, *A Graduate Course in Applied Cryptography* (free online; a graduate text, so
+  optional for the curious): https://crypto.stanford.edu/~dabo/cryptobook/
 - https://en.wikipedia.org/wiki/Padding_oracle_attack
