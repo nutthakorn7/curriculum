@@ -93,7 +93,7 @@ Against your own OWASP crAPI instance (`git clone https://github.com/OWASP/crAPI
 | Criterion | Weight |
 |-----------|--------|
 | Lecture questions (Part 2) | 20 |
-| Exploitation + evidence (Tasks 1–4: commands, output, screenshots) | 40 |
+| Exploitation + evidence (Tasks 1–3: commands, output, screenshots) | 40 |
 | Defense (Task 5: fixes mapped to `solution_api.py`) | 25 |
 | Reflection (Part 4: mapping, breach, best mitigation) | 15 |
 | **Total** | **100** |
