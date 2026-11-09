@@ -26,7 +26,7 @@ Use this lab's own pipeline template as the starting point: [`security-ci.yml`](
 - **Score:** Blue gets points for each catch, Red for each bypass.
 
 ## Deliverable
-A passing PR that adds the pipeline, plus a screenshot of a build failing on an injected vulnerable dependency.
+A passing PR that adds the pipeline, plus a screenshot of a build failing on one planted defect (a vulnerable dependency, a root-user Dockerfile, or a hard-coded token — see worksheet Task 4).
 
 ## References
 - https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html
