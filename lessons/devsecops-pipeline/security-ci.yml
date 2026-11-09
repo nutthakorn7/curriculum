@@ -73,6 +73,9 @@ jobs:
       - uses: actions/checkout@v4
 
       # --- Filesystem / dependency (SCA) scan -> SARIF (report, no fail) ---
+      # No severity filter here on purpose: this is the "full picture" step
+      # (README-pipeline.md §3) — the Security tab is meant to show every
+      # severity, not just what the gate below enforces.
       - name: Trivy fs (SCA) -> SARIF
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:
@@ -80,7 +83,6 @@ jobs:
           scanners: vuln,secret
           format: sarif
           output: trivy-fs.sarif
-          severity: HIGH,CRITICAL
           exit-code: "0"          # report only; the gate step enforces failure
 
       - name: Upload Trivy fs SARIF
@@ -91,13 +93,15 @@ jobs:
           category: trivy-fs
 
       # --- IaC / Dockerfile misconfiguration scan -> SARIF ---
+      # Same reasoning as the fs report step above: no severity filter on the
+      # report, so a MEDIUM like DS-0001 still shows up in the Security tab
+      # even though the gate below won't fail the build over it.
       - name: Trivy config (IaC) -> SARIF
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:
           scan-type: config
           format: sarif
           output: trivy-config.sarif
-          severity: HIGH,CRITICAL
           exit-code: "0"
 
       - name: Upload Trivy config SARIF
