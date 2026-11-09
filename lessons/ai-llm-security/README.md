@@ -21,7 +21,7 @@ Played on Lakera Agent Breaker (https://play.lakera.ai/agent-breaker — the old
 1. **Direct prompt injection:** override the system prompt to reveal a hidden secret (the local bots in Tasks 1–2, then Agent Breaker's levels).
 2. **Indirect injection:** plant a malicious instruction in a document the bot ingests (RAG) and trigger it.
 3. **Improper output handling:** show model output flowing unsanitized into a downstream action (XSS/command).
-4. **Agentic-AI / MCP risks (current, post-Oct 2025):** demo **tool poisoning** and **excessive agency** in an agent with tools (e.g. an MCP server) — a malicious instruction makes the agent call a tool it shouldn't.
+4. **Agentic-AI / MCP risks (current, post-Oct 2025, written-only):** this lab has no agent to attack — describe how **tool poisoning** and **excessive agency** would work in an agent with tools (e.g. an MCP server), where a malicious instruction makes the agent call a tool it shouldn't.
 5. **Fix (round 2):** input/output guardrails, strict output schemas/validation, **least-privilege tool access**, human-in-the-loop for sensitive tools, and rate/consumption limits; re-test.
 
 ## Deliverable
