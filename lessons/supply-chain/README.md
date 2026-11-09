@@ -22,16 +22,14 @@
 ## 📦 Signature game — "Dependency Confusion Heist"
 **Round 1 — Attack:** no live registry ships with this lab — walk the resolver's own "highest version wins" rule via `dependency-confusion.md` and the embedded resolver simulation (Worksheet 12 Task 2) and watch the wrong package win the version comparison.
 ```bash
-# SCA options
-npm audit
-docker run --rm -v "$PWD:/src" aquasec/trivy fs /src
-docker run --rm -v "$PWD:/src" owasp/dependency-check --scan /src --format HTML
+# SCA: this is a Python lab (no package.json, so no npm audit) — trivy fs on
+# requirements.txt, then pip-audit; run both with:
+bash sca_scan.sh
 ```
 **Round 2 — Defend:** pin versions / add a lockfile + registry scoping, then lock down integrity:
 ```bash
-docker build -t myapp:lab .
-docker run --rm -v "$PWD:/src" aquasec/trivy image --format cyclonedx -o /src/sbom.json myapp:lab  # SBOM
-cosign sign myapp:lab && cosign verify myapp:lab                                                     # sign + verify
+docker build -t week12-supplychain:lab .
+bash sign.sh week12-supplychain:lab   # pushes to a throwaway local registry, SBOM, cosign sign + verify
 ```
 - Produce an SBOM and identify the component inventory.
 - Show a tampered/unsigned image **fails** verification.

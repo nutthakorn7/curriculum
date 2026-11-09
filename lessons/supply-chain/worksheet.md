@@ -34,7 +34,7 @@
 
 **Learning goals:** Run SCA on intentionally-outdated dependencies, generate an SBOM, sign/verify an image, and defend against dependency confusion.
 
-**Prerequisites:** Docker; the lab folder (`requirements.txt`, `Dockerfile`, `app.py`, `sca_scan.sh`, `sign.sh`). For signing: browser for the OIDC flow + registry push access.
+**Prerequisites:** Docker; the lab folder (`requirements.txt`, `Dockerfile`, `app.py`, `sca_scan.sh`, `sign.sh`). `cosign` is **not** installed on your host — every `cosign` command in this worksheet runs inside a container, same as `sign.sh` does. For the sign step itself: a browser for the OIDC flow (your GitHub or Google login) — in class this is a guided demo one person drives, not something everyone repeats (see `sign.sh`'s header).
 
 **Environment setup**
 ```bash
@@ -88,24 +88,37 @@ idea.
 **Steps:**
 1. After `bash sign.sh week12-supplychain:lab`, open `sbom.cdx.json` and find Flask's entry.
 2. Read the `cosign verify` PASS for the signed image.
-3. Negative test on an unsigned image (it **must** fail):
-   `cosign verify --certificate-identity-regexp '.*' --certificate-oidc-issuer-regexp '.*' python:3.9-slim`
+3. Negative test on an unsigned image (it **must** fail) — `cosign` isn't on your host, so this runs in the
+   same container `sign.sh` uses:
+   ```bash
+   docker run --rm --network host gcr.io/projectsigstore/cosign:latest verify \
+       --certificate-identity-regexp '.*' --certificate-oidc-issuer-regexp '.*' python:3.9-slim
+   ```
    → `Error: no signatures found`. (Both `--certificate-identity*` flags are required in keyless mode; without
    them cosign stops at `Error: --certificate-identity or --certificate-identity-regexp is required` — a usage
-   error, which is *not* the same thing as proving the image is unsigned.)
+   error, which is *not* the same thing as proving the image is unsigned.) This step needs no OIDC login —
+   you can run it yourself even if someone else drove the sign step in Task 3.1.
 **Deliverable:** the SBOM Flask component entry + the verify PASS + the negative-test failure.
 
 ### Task 4 — Defend / fix it (35 min, in class)
 **Goal:** Stop dependency confusion and lock integrity — defenses from `dependency-confusion.md` + `sign.sh`.
 **Steps:**
-1. **Pin + hashes:** run `pip install --require-hashes -r requirements.txt` against this lab's own
-   `requirements.txt` (it has no hashes yet) and record pip's refusal — `ERROR: Hashes are required in
-   --require-hashes mode...` plus the `--hash=sha256:…` line pip prints for you. That refusal is the same
-   mechanism that would block a real confusion substitution: once hashes are required, a package that
-   doesn't match — from *either* index — cannot install silently.
+1. **Pin + hashes:** run this inside the provided Python container (your host's `pip`, if it has one, may be
+   a different version or an "externally managed environment" that refuses `pip install` outright — this
+   stays reproducible for everyone):
+   ```bash
+   docker run --rm -v "$PWD":/w -w /w python:3.9-slim pip install --require-hashes -r requirements.txt
+   ```
+   against this lab's own `requirements.txt` (it has no hashes yet) and record pip's refusal — `ERROR: Hashes
+   are required in --require-hashes mode...` plus the `--hash=sha256:…` line pip prints for you. That refusal
+   is the same mechanism that would block a real confusion substitution: once hashes are required, a package
+   that doesn't match — from *either* index — cannot install silently.
 2. **Single trusted index:** use one `--index-url` instead of `--extra-index-url`; explain why the resolver stops shopping around (tie this back to Task 2's single-index verdict).
 3. **Namespace scoping:** describe reserving/namespacing the internal package name.
-4. **Provenance gate:** state how the `cosign verify` from `sign.sh` becomes a gate before a simulated deploy.
+4. **Provenance gate:** state how the `cosign verify` from `sign.sh` becomes a gate before a simulated deploy —
+   and note that `sign.sh`'s `--certificate-identity-regexp '.*' --certificate-oidc-issuer-regexp '.*'` are
+   **demo wildcards** (any keyless signer passes); a real gate pins both flags to the one CI identity/issuer
+   you trust, so an attacker who signs their own malicious image is still rejected.
 **Deliverable:** the `--require-hashes` refusal output (step 1) + the simulation's before/after verdict for merged vs. single index (from Task 2) + the one defense you found most effective and why.
 
 ## Part 4 — Reflection
