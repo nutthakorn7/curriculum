@@ -17,11 +17,16 @@ FROM python:3.11-slim@sha256:cdbd05fb6f457ca275ff51ce00d93d865ca0b6a25f5ffb08262
 WORKDIR /app
 
 # FIX: copy only the manifest first (better caching, no stray files yet).
-COPY requirements.txt .
+# requirements-hardened.txt, NOT requirements.txt (that one is `Flask>=3.1.3`
+# — an open range with no hashes, so it is NOT what harden.md row 6 fixes).
+COPY requirements-hardened.txt .
 
 # FIX: pinned, reproducible install into a venv we can copy out cleanly.
+# --require-hashes makes pip refuse anything whose hash doesn't match this
+# file — a tampered or substituted package on the index fails the build
+# instead of silently landing in the image.
 RUN python -m venv /venv \
-    && /venv/bin/pip install --no-cache-dir -r requirements.txt
+    && /venv/bin/pip install --no-cache-dir --require-hashes -r requirements-hardened.txt
 
 # FIX: copy ONLY the app code, not the whole context. Pair with a .dockerignore
 # that excludes .git, .env, secrets, etc. (addresses CWE-538).
