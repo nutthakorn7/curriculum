@@ -82,7 +82,7 @@ docker run --rm -p 127.0.0.1:3000:3000 bkimminich/juice-shop  # -> http://localh
   </body>
   ```
   Open the file and confirm the comment appears on `/comments`.
-- *Deliverable:* the HTML + screenshot of the forged comment + why `SameSite=Strict` blocks it.
+- *Deliverable:* the HTML + screenshot of the forged comment + why it succeeds — `vulnerable_app.py` sets no cookie attributes at all, and `/comments` never checks a cookie or a CSRF token before accepting the POST. (Task 5 re-runs this exact PoC against the hardened cookie and asks whether that alone is enough.)
 
 ```sim
 xss-context
@@ -94,7 +94,7 @@ xss-context
   ```bash
   docker compose run --rm --service-ports xss-lab bash -c "pip install --no-cache-dir flask && python fixed_app.py"
   ```
-  Re-fire each payload. Expected: `/hello` renders the script **as text** (escape, L21), stored comments render literally (Jinja autoescape, L30–33), a strict CSP header is now present as defense-in-depth (`Content-Security-Policy: script-src 'self'`, L12 — check DevTools → Network → Response Headers; escaping already neutralizes these payloads, so no CSP *violation* fires in the console), and the cookie now has `HttpOnly; SameSite=Strict; Secure` (L42). Then re-run Task 4's `csrf.html` PoC against `fixed_app.py`: it **still posts the forged comment** — `/comments` (L25–28) never checks the `session` cookie or a CSRF token before accepting a POST, so hardening the cookie only stops the browser from *attaching* it cross-site; it doesn't stop the request itself from being processed.
+  **Reload `http://localhost:8080/` first** (only `/` sets the cookie, L37–43 — `/hello` and `/comments` don't touch it, so your browser is still holding the old Task-0 cookie with no flags until you do). Then re-fire each payload. Expected: `/hello` renders the script **as text** (escape, L21), stored comments render literally (Jinja autoescape, L30–33), a strict CSP header is now present as defense-in-depth (`Content-Security-Policy: script-src 'self'`, L12 — check DevTools → Network → Response Headers; escaping already neutralizes these payloads, so no CSP *violation* fires in the console), and the cookie now has `HttpOnly; SameSite=Strict; Secure` (L42) — check DevTools → Application → Cookies, same place as Task 0. Then re-run Task 4's `csrf.html` PoC against `fixed_app.py`: it **still posts the forged comment** — `/comments` (L25–28) never checks the `session` cookie or a CSRF token before accepting a POST, so hardening the cookie only stops the browser from *attaching* it cross-site; it doesn't stop the request itself from being processed.
 - *Deliverable:* screenshots of escaped output + the CSP response header + the hardened cookie flags + the still-successful Task 4 forgery against `fixed_app.py`, with 2–3 sentences on why cookie hardening alone doesn't close CSRF here (no server-side check tied to the cookie, and no CSRF token).
 
 ## Part 4 — Reflection

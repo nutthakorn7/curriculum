@@ -16,11 +16,11 @@
 - Understand the same-origin policy, cookies (SameSite), and CSP.
 - Build a CSRF PoC and defend against it.
 
-## ⛳ Signature game — "XSS Golf" (Juice Shop)
-1. Land a **stored** XSS and a **DOM** XSS payload.
-2. Steal/abuse a session via the XSS (sandbox only).
+## ⛳ Signature game — "XSS Golf" (this lab's own app)
+1. Land a **reflected** and a **stored** XSS payload. (DOM XSS needs a separate target — Juice Shop — and is optional; our app doesn't expose one.)
+2. Steal/abuse a session via the XSS (sandbox only; HttpOnly is missing, so JS can read the cookie).
 3. Build a CSRF page that performs a state-changing request.
-4. **Fix:** add contextual output encoding, a strict Content-Security-Policy, `SameSite=Lax/Strict` cookies, and CSRF tokens; verify the attacks fail.
+4. **Fix:** add contextual output encoding, a strict Content-Security-Policy, and hardened cookies (`HttpOnly`/`SameSite`/`Secure`) — verify the **XSS** now fails. The CSRF forgery still succeeds: `/comments` never checks a cookie or a token, so cookie hardening alone doesn't close CSRF (that needs a server-side check).
 
 ## Run the local target
 ```bash
