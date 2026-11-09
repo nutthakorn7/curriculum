@@ -20,7 +20,7 @@ Answer in 2–4 sentences each.
 
 1. Distinguish **authentication** from **authorization**. In `vulnerable_app.py`, `get_order` calls `current_user()` but ignores its result (L63) — which of the two is missing?
 2. What is **IDOR** (CWE-639)? Why is `/api/orders/<oid>` exploitable, and what single check in `solution_app.py` (L64) closes it?
-3. Explain the **`alg:none`** JWT attack. Why does listing `"none"` in `algorithms=[...]` (L55) let an attacker submit an *unsigned* token?
+3. Explain the **`alg:none`** JWT attack. Line 55 passes **both** `algorithms=["none"]` *and* `options={"verify_signature": False}` — which of the two actually disables signature checking, and why does PyJWT need both together for an `alg=none` token? (Try `jwt.decode(tok, algorithms=["none"])` *without* the `options=` — PyJWT still raises `InvalidSignatureError`.)
 4. Why is the hardcoded HMAC secret `"secret"` (CWE-321) dangerous even if `alg:none` were disabled? How does a strong random secret + pinned algorithm defend the token?
 5. What do the JWT claims **`exp`** and **`aud`** add, and why does the secure version reject tokens that lack them?
 
@@ -38,7 +38,15 @@ Answer in 2–4 sentences each.
 
 **Learning goals:** exploit IDOR, forge JWTs two ways (`alg:none` and weak secret), then prove `solution_app.py` enforces ownership and rejects forged tokens. Steps mirror `attack.md`.
 
-**Prerequisites:** Docker + Docker Compose, `curl`, `python3` with `pyjwt`, optionally Burp Suite. Working dir: `{{ labpath }}/`.
+**Prerequisites:** Docker + Docker Compose, `curl`, Python 3 **on your host** with `pyjwt` installed (Tasks 2–4 forge tokens locally via `python3 -`, not inside the container), optionally Burp Suite. Working dir: `{{ labpath }}/`.
+
+**Before class — install `pyjwt` on your host and verify it:**
+```bash
+python3 -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install pyjwt
+python3 -c "import jwt; print('pyjwt OK')"           # must print "pyjwt OK", not an ImportError
+```
+(`docker compose up`'s `pyjwt` is a *separate* install, inside the container, only for running `vulnerable_app.py`/`solution_app.py` — it does not reach Tasks 2–4's host-side `python3 -` snippets.)
 
 ### Environment setup
 
