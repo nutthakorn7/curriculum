@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 380" width="1000" height="380" role="img"
+     aria-label="In CBC, a block is read back in two steps: the server unlocks the block with its secret key, then mixes the result with the block that came before it. Top row: the normal case gives role guest. Bottom row: if someone changes the block before, the mixing step changes the same spot in the result, so role guest becomes role admin, without the key. The changed block itself turns into garbage, but nobody reads it.">
+  <title>CBC mixes each block with the block before it</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .z  { fill: none; stroke: #6b7280; stroke-width: 1.5; stroke-dasharray: 6 4 }
+    .t  { font: 600 16px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 13px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tl { font: 600 14px system-ui, sans-serif; fill: #374151; text-anchor: start }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 15px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 15px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad } .z { stroke: #9aa3ad }
+      .t, .tm { fill: #e6e8ea } .ts, .tl { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d }
+      .a  { stroke: #c9ced3 }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+  </defs>
+
+  <text class="tl" x="20" y="30">Reading block 2 of a CBC token</text>
+
+  <!-- normal -->
+  <text class="tl" x="20" y="70">Normal</text>
+  <rect class="bg" x="20" y="85" width="150" height="55" rx="8"/><text class="ts" x="95" y="108">block 2</text><text class="tm" x="95" y="128">locked</text>
+  <path class="a" d="M175,112 H245"/>
+  <rect class="b" x="250" y="85" width="170" height="55" rx="8"/><text class="tb" x="335" y="108">unlock</text><text class="ts" x="335" y="128">with the secret key</text>
+  <path class="a" d="M425,112 H495"/>
+  <rect class="b" x="500" y="85" width="170" height="55" rx="8"/><text class="tb" x="585" y="108">mix with</text><text class="ts" x="585" y="128">the block before</text>
+  <path class="a" d="M675,112 H745"/>
+  <rect class="b" x="750" y="85" width="230" height="55" rx="8"/><text class="tm" x="865" y="118">role=guest</text>
+
+  <!-- edited -->
+  <text class="to" x="62" y="195" style="text-anchor:start">Someone changes the block before</text>
+  <rect class="bo" x="20" y="210" width="150" height="55" rx="8"/><text class="ts" x="95" y="233">block 2</text><text class="tm" x="95" y="253">locked</text>
+  <path class="a" d="M175,237 H245"/>
+  <rect class="b" x="250" y="210" width="170" height="55" rx="8"/><text class="tb" x="335" y="233">unlock</text><text class="ts" x="335" y="253">with the secret key</text>
+  <path class="a" d="M425,237 H495"/>
+  <rect class="bo" x="500" y="210" width="170" height="55" rx="8"/><text class="to" x="585" y="233">mix with</text><text class="ts" x="585" y="253">the CHANGED block</text>
+  <path class="a" d="M675,237 H745"/>
+  <rect class="bo" x="750" y="210" width="230" height="55" rx="8"/><text class="tm" x="865" y="243">role=admin</text>
+
+  <rect class="z" x="20" y="285" width="960" height="80" rx="10"/>
+  <text class="t" x="500" y="315">The same spot changes — and the attacker never needed the key.</text>
+  <text class="ts" x="500" y="340">The changed block itself turns into garbage, but in this lab nobody reads it.</text>
+</svg>
