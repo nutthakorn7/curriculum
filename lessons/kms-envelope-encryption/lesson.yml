@@ -1,7 +1,7 @@
 slug: kms-envelope-encryption
 title: "S3 Server-Side Encryption with KMS (Envelope Encryption)"
 kind: CONCEPTUAL
-duration_min: 180
+duration_min: 60
 tags: [kms, envelope-encryption, data-keys, blast-radius]
 cwe: ["CWE-320"]
 prereqs: [s3-static-site-lambda-sns]

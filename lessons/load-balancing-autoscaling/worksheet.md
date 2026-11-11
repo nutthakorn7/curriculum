@@ -17,9 +17,10 @@ Answer in your own words (no AI-resilience layer, no flag — graded on the writ
    what would you lose?
 2. **Minimum and maximum.** An Auto Scaling Group has a **minimum** and a **maximum** number of
    instances. What is each one for? Give one example of a problem that each setting prevents.
-3. **No maximum.** A team removes the maximum "so we never run out of capacity during a traffic
-   spike." What new risk does this create? How is it different from the problem they wanted to
-   fix (running out of capacity)?
+3. **An excessively high maximum.** A team raises its Auto Scaling Group maximum far above the
+   expected demand, saying "so we never run out of capacity during a traffic spike." What cost
+   risk does this create if unwanted traffic triggers scaling? How is it different from running
+   out of capacity? A maximum size is still configured; this is not an unlimited-scaling setting.
 4. **Denial of Wallet.** What is a "Denial of Wallet" attack? How is it different from a normal
    denial-of-service attack, which tries to make a service stop working?
 5. **Two controls.** This lesson's endpoint adds servers for *any* request, without checking

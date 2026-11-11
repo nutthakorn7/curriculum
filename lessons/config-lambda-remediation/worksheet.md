@@ -14,9 +14,10 @@ Answer in your own words (no AI-resilience layer, no flag — graded on the writ
 
 1. **What a Config rule does.** In your own words, what does an **AWS Config rule** do? What is the
    difference between a resource being **COMPLIANT** and **NON_COMPLIANT**?
-2. **Where Lambda fits.** How does a **Lambda-based auto-remediation** fit into this picture? What
-   starts it, and what does it usually do next? You don't need AWS API names, just the flow:
-   detect → decide → act.
+2. **Where Lambda fits.** Explain a configured remediation workflow that uses Lambda to change a
+   noncompliant resource: detect → decide → act → verify. What explicitly configured event route
+   or automation invokes the action? Distinguish the Config rule's compliance evaluation from the
+   remediation action; a NON_COMPLIANT result alone does not mean a resource has been fixed.
 3. **Allowlist or denylist?** This lab's remediation function should use an **allowlist**: keep
    only inbound rules on approved ports (80, 443) and remove everything else. What is the
    difference between **allowlist** thinking ("deny by default, allow specific things") and
