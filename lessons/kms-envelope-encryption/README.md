@@ -11,13 +11,15 @@ when a key is disabled/deleted · **Analogous CWE:** CWE-320 (Key Management Err
 category — this lesson is about correct KMS use, not a coding bug).
 
 ## ✅ This lesson — what to do
-1. **Week 15** — study Cloud Security Foundations Module 5 and complete the real AWS Academy
-   Lab 5.1 (*Encrypting Data at Rest by Using AWS KMS*) in the scheduled 75-minute class lab.
+1. **Week 15 (100-minute class)** — study AWS Academy Cloud Security Foundations Module 5 and
+   complete Lab 5.1 (*Encrypting Data at Rest by Using AWS KMS*) in the scheduled 75-minute lab.
    Record the S3 SSE-KMS, CloudTrail KMS-event and EBS/key-access observations requested by the
-   current LMS instructions. Preview Local 08; do not submit its worksheet this week.
-2. **Week 16 add-on (45–60 min, no Docker)** — use the Week 15 lab notes for an Audit-the-AI
-   exercise on envelope encryption, personalized per student.
-3. **Submit in Week 16** — only your assigned worksheet Part → see [SUBMISSION.md](../../SUBMISSION.md).
+   current LMS instructions. Preview Local 08; do not answer or submit its worksheet this week.
+2. **Week 16 (100-minute class)** — use the Week 15 observations in the local conceptual workshop.
+   Complete only your assigned Part of the worksheet; the 45–60-minute analysis portion needs no
+   Docker, local target, or AWS console.
+3. **Submit by Mon 22 Feb 2027, 23:59** — fill in your Classroom **Local08 Answer Sheet** copy and
+   click Turn in. See [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Get this lab onto your computer
 You need your own copy of the course files. You download them once, then update them each
@@ -57,11 +59,12 @@ C. **Go into this lab's folder and check it.**
   encrypt the object directly, and what KMS actually returns (a plaintext copy **and** an
   encrypted copy of that data key).
 - State precisely what S3 keeps and what it discards after encrypting an object with SSE-KMS.
-- Explain the **blast radius** of disabling vs. deleting a KMS key: disabling it makes every
-  object ever encrypted under that key unreadable **while it stays disabled** — but this is
-  *reversible* (re-enabling the key restores access); *deleting* it (after the mandatory
-  7–30-day waiting period) is irreversible and makes those objects **permanently** unreadable,
-  because the *encrypted* data key stored in each object's metadata can then never be decrypted.
+- Under the worksheet's stated per-object SSE-KMS assumptions, explain the **blast radius** of
+  disabling vs. deleting a customer managed KMS key. Reads that need a fresh KMS decryption fail
+  while the key is disabled or pending deletion; re-enabling restores that path. Completed deletion
+  after the mandatory 7–30-day waiting period is irreversible, so objects that still depend on that
+  key cannot be decrypted. S3 Bucket Keys and data keys already in use can change the timing of an
+  observed failure; do not generalize the worksheet model to every AWS service or configuration.
 
 ## 🔎 Signature exercise — "Audit the Envelope"
 No lab/flag this lesson (CONCEPTUAL) — the personalized, attributable artifact is **which planted
@@ -83,7 +86,8 @@ on the **Local08 Answer Sheet** copy in Classroom and click Turn in (no PDF need
 `worksheet.md`.
 
 ## References
-- AWS KMS documentation — *How envelope encryption works*, *Amazon S3 encryption with AWS KMS
-  (SSE-KMS)* (publicly available, general concept — no AWS Academy file used or copied).
-- AWS docs — *Deleting AWS KMS keys* (blast-radius / irreversibility warnings AWS itself
-  publishes).
+- [Amazon S3 SSE-KMS workflow](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html)
+  and [S3 Bucket Keys](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-key.html).
+- [How unusable KMS keys affect data keys](https://docs.aws.amazon.com/kms/latest/developerguide/unusable-kms-keys.html),
+  [deleting KMS keys](https://docs.aws.amazon.com/kms/latest/developerguide/deleting-keys.html),
+  and [cancelling deletion](https://docs.aws.amazon.com/kms/latest/developerguide/deleting-keys-cancelling-key-deletion.html).
