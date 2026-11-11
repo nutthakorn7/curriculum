@@ -3,14 +3,16 @@
 Models exactly the one concept this lesson is about: AWS evaluates NACL rules
 in ascending rule-number order and STOPS at the first matching rule -- it does
 not keep scanning for a "more specific" or "more correct" rule further down.
-That means a broad ALLOW placed at a low rule number can make a narrower DENY
+That means a broad ALLOW placed at a low rule number can make a later DENY
 at a higher rule number completely unreachable, even though the deny rule is
 still sitting there, visibly present, in the rule list.
 
-This is an original simplification for teaching, not AWS code. CIDR matching
-here is deliberately simplified (exact string match or "0.0.0.0/0" matches
-everything) -- the lesson is about evaluation ORDER, not CIDR arithmetic.
+This is an original simplification for teaching, not AWS code. It evaluates
+one inbound IPv4 source and one exact destination port; it does not model
+protocols, return traffic, routing, or security groups.
 """
+
+from ipaddress import IPv4Address, IPv4Network, AddressValueError
 
 # Each rule: {"rule_number": int, "action": "allow"|"deny", "cidr": str, "port": int}
 # Lower rule_number is evaluated first. AWS's real range is 1-32766; we reuse
@@ -28,18 +30,11 @@ NACL_RULES_VULNERABLE = [
 ]
 
 NACL_RULES_FIXED = [
-    # The fix is two changes at once, and both matter:
-    #   1. The allow is narrowed from 0.0.0.0/0 down to the specific internal
-    #      app-tier CIDR -- it no longer claims to be "the whole internet."
-    #   2. That narrowed allow is placed at the LOWER rule number (90), ahead
-    #      of the catch-all deny (100). This is the AWS ordering rule in
-    #      practice: a specific rule must be evaluated before a broader rule
-    #      that would otherwise shadow it, because evaluation stops at the
-    #      first match. A deny-all 0.0.0.0/0 placed ahead of ANY allow -- even
-    #      a well-scoped one -- would shadow that allow the same way rule #90
-    #      shadowed rule #100 in the vulnerable app; the bug is about rule
-    #      NUMBER order relative to specificity, not simply "deny should be
-    #      first."
+    # Only the allow CIDR changes between the two apps; both rule numbers
+    # stay the same. Narrowing #90 lets the unchanged #100 catch external
+    # traffic. A catch-all deny before this narrow allow would instead
+    # shadow legitimate app-tier traffic. The general lesson is to order
+    # specific rules before a broad catch-all.
     {"rule_number": 90, "action": "allow", "cidr": "10.0.1.0/24", "port": 5432},
     # Catch-all deny for everyone else on the DB port, including the public
     # internet -- now actually reachable, because nothing broader sits ahead
@@ -48,21 +43,22 @@ NACL_RULES_FIXED = [
 ]
 
 
-def _cidr_matches(cidr, ip):
-    """Deliberately simplified CIDR matching for teaching purposes.
+def valid_packet(source_ip, port):
+    """Accept only an IPv4 source and an integer destination port."""
+    if not isinstance(source_ip, str) or not isinstance(port, int) or isinstance(port, bool):
+        return False
+    if not 0 <= port <= 65535:
+        return False
+    try:
+        IPv4Address(source_ip)
+    except AddressValueError:
+        return False
+    return True
 
-    "0.0.0.0/0" matches any IP (the standard "anywhere" CIDR). A CIDR written
-    as "10.0.1.0/24" matches any IP that starts with "10.0.1." (simple prefix
-    check -- not full subnet-mask arithmetic, which is out of scope here).
-    An exact IP with no prefix matches only that literal address.
-    """
-    if cidr == "0.0.0.0/0":
-        return True
-    if "/" in cidr:
-        network = cidr.split("/")[0]
-        prefix = ".".join(network.split(".")[:3])
-        return ip.startswith(prefix)
-    return ip == cidr
+
+def _cidr_matches(cidr, ip):
+    """Check the actual IPv4 CIDR, not a textual prefix."""
+    return IPv4Address(ip) in IPv4Network(cidr, strict=False)
 
 
 def evaluate(rules, source_ip, port):
