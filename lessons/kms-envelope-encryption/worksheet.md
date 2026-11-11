@@ -17,9 +17,10 @@ writing itself):
    KMS send back?
 2. **Kept and thrown away.** After the object is encrypted, what does S3 store in the object's
    metadata? What does it throw away on purpose?
-3. **Turning the key off.** Your organization disables the KMS key used for a bucket's objects, or
-   schedules it for deletion. What happens to the objects that are already stored there? Why? Is
-   disabling different from deleting?
+3. **Turning the key off.** Under the stated scenario assumptions, compare disabling the KMS key,
+   scheduling it for deletion, and completed deletion. What happens to the encrypted objects and
+   to reads that require KMS decryption? Which states are reversible? If pending deletion is
+   cancelled, what must happen before the key can be used again?
 4. **Why a data key?** Why does envelope encryption use a separate "data key" for each
    object (or operation), instead of asking KMS to encrypt every object directly with the
    customer master key (CMK)?

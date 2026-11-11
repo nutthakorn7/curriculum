@@ -23,9 +23,10 @@ Answer in your own words (no AI-resilience layer, no flag — graded on the writ
    at the first match**. In your own words, why does it work this way? What would go wrong, or
    just be different, if it checked *all* rules and picked the most specific one, or used "deny
    wins if any rule denies"?
-4. **NAT gateway.** What is a **NAT gateway** for? Why does it sit in a **public** subnet when the
-   instances that use it are in a **private** subnet? Explain "outbound only" in plain words:
-   give one request that works and one request that fails.
+4. **NAT gateway.** Consider a public NAT gateway used for internet access. What is it for, and
+   why does it sit in a public subnet while the instances using it are in a private subnet? With
+   the necessary routes and traffic rules in place, give one connection the private instance can
+   initiate and one unsolicited internet connection that cannot reach it through this NAT gateway.
 5. **What could go wrong?** Give one real result of a database or internal service that could be
    reached from the internet because a network boundary was set up wrong. You may name a real
    incident you know of, or explain what could happen.
