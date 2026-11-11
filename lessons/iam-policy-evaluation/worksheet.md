@@ -8,6 +8,11 @@ section this block.
 `Principal`) and actions such as `s3:GetObject` / `s3:PutObject` in English. Short, clear answers
 are enough: 2–4 sentences per question.
 
+**Weekly scope:** In Week 11, practise a policy/role trace in class and preview your assigned
+part. Do not submit Local 06 or answer questions that rely on Lab 3.1 yet. In Week 12, complete
+AWS Academy Lab 3.1, then finish your assigned part (including the local Docker exercise for
+Part 2) and submit it by the Classroom deadline.
+
 ## Part 1 — Conventional arm (short answers)
 
 Answer in your own words (no AI-resilience layer, no flag — graded on the writing itself):
@@ -16,10 +21,14 @@ Answer in your own words (no AI-resilience layer, no flag — graded on the writ
    **resource-based** policy in AWS IAM? Give one example of each.
 2. **Access without an identity grant.** In the AWS Academy lab (Lab 3.1, *Using Resource-Based
    Policies to Secure an S3 Bucket*), `devuser`'s identity policy has no `s3:GetObject` and no
-   `s3:PutObject`. So why can `devuser`, by using `BucketsAccessRole`, still read from bucket1 and
-   write to bucket2?
-3. **`"Principal": "*"`.** A resource-based policy has `"Principal": "*"`. Who does this really
-   give access to? Is it the same as "any AWS user in our account"? Say why or why not.
+   `s3:PutObject`. After `devuser` assumes `BucketsAccessRole`, which principal makes the S3
+   requests? Explain how that principal and the bucket resource policies allow reading from
+   bucket1 and writing to bucket2. Do not attribute the role's requests to `devuser`'s identity
+   policy.
+3. **`"Principal": "*"`.** An Allow resource policy has `"Principal": "*"` with no Condition.
+   Who can match its Principal, assuming no other control blocks the request? Is it the same as
+   "any AWS user in our account"? Explain why a Condition or S3 Block Public Access could
+   change the actual result.
 4. **What could go wrong?** Give one real result of a public cloud storage bucket whose resource
    policy is too broad. You may name a real incident you know of, or explain what could happen.
 5. **Least privilege for a bucket.** What does "least privilege" mean for a resource-based policy,
@@ -70,9 +79,10 @@ Hint: check whether `Principal: "*"` combined with a `Condition` on a *tag* actu
 who can match — does an anonymous, unauthenticated caller have any `PrincipalTag` at all?
 
 ### 2c. EiPE (Explain-in-Plain-English)
-In 3–4 short sentences that someone without IT knowledge (a parent, say) could follow: why did
-changing `Principal` from `"*"` to `BucketsAccessRole` fix the vulnerability, without taking away
-any access that was supposed to be there?
+In 3–4 short sentences that someone without IT knowledge (a parent, say) could follow: how do
+the two fixed-policy changes (naming `BucketsAccessRole` instead of `"*"`, and allowing `get`
+but not `put` on bucket3) stop unwanted writes? What intended access still works? Do not claim
+the before/after `PUT` alone proves which one of those changes caused the denial.
 
 ## Submit
 Write your answers on the **Local06 Answer Sheet** that Classroom copies for you, then click

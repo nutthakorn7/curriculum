@@ -9,25 +9,38 @@ privilege, wildcard `Principal` misconfiguration · **Analogous CWE:** CWE-284 (
 Control), CWE-668 (Exposure of Resource to Wrong Sphere).
 
 ## ✅ This lesson — what to do
-1. **Before class** — Docker Desktop working; complete the real AWS Academy Lab 3.1 (*Using
-   Resource-Based Policies to Secure an S3 Bucket*) in your Learner Lab sandbox first (that's
-   still where you learn the actual AWS console UI).
-2. **This add-on lab (60–90 min)** — a local, from-scratch simulation of the same IAM concept:
+1. **Week 11** — study Security Foundations Modules 1–2. In class, practise tracing users,
+   roles, trust and policy decisions using the Module 3 introduction supplied by the instructor.
+   Preview Local 06, but do not answer its Lab 3.1 questions yet.
+2. **Week 12** — complete the real AWS Academy Lab 3.1 (*Using Resource-Based Policies to Secure
+   an S3 Bucket*) in your Learner Lab sandbox first. Have Docker Desktop working on your own
+   computer for the local add-on.
+3. **Local add-on (60–90 min, begun in Week 12 and finished before the Local 06 deadline)** — a local, from-scratch simulation of the same IAM concept:
    a tiny "S3-and-IAM-like" API with a policy engine you can inspect and attack without an AWS
    account. Follow **Step-by-step** below (kickoff: `docker compose up -d --build`).
-3. **Submit** — worksheet evidence and explanation → see [SUBMISSION.md](../../SUBMISSION.md).
+4. **Submit** — worksheet evidence and explanation → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Objectives
 - Explain why a caller with **no identity-based grant at all** can still access a resource,
   purely because of that resource's **own** resource-based policy.
-- Identify a **wildcard `Principal`** in a resource policy as a privilege-escalation bug — it
-  doesn't just grant "any role in this account," it grants **any caller, including one that
-  never assumed a role.**
-- Fix the bug by **scoping the resource policy's `Principal`** to the one legitimate role, and
-  explain why that's an application of least privilege, not just "adding a check."
+- Explain why this simulation's **unconditioned wildcard `Principal`** grants bucket3 access
+  to every caller, including one that never assumed a role. On real AWS, Conditions, explicit
+  Deny and S3 Block Public Access can narrow or block a wildcard statement.
+- Explain the fixed policy's two least-privilege changes: **scope `Principal`** to the intended
+  role and **remove `put`** from bucket3's actions. Compare the allowed legitimate requests too.
+
+## Real AWS guardrails for the worksheet
+
+An Allow statement needs its `Principal`, `Action`, `Resource` and any `Condition` to match.
+`Principal: "*"` names everyone, but a condition can narrow who actually receives that Allow.
+For example, `StringEquals` on `aws:PrincipalTag/team` does not match an anonymous request with
+no principal tag; it may match multiple authenticated principals that carry the named tag.
+An applicable explicit Deny overrides an Allow. S3 Block Public Access may reject or ignore
+public bucket-policy access even when a policy appears to allow it. Our local policy engine
+does not model Conditions, explicit Deny or Block Public Access.
 
 ## 🪣 Signature exercise — "Assume the Wrong Role"
-Two Flask targets, same endpoints, one resource-policy difference on `bucket3`:
+Two Flask targets, same endpoints, with two policy fields changed on `bucket3`:
 
 | Service | Port | `bucket3` resource policy | Anonymous (no role assumed) can `PUT bucket3`? |
 |---|---|---|---|
@@ -44,10 +57,12 @@ own policy hands write access to *anyone who asks*, no authentication required a
    `Authorization` header at all** — no assumed role, no identity policy, nothing.
 3. On `:8107` (vulnerable) this succeeds and returns the flag — the resource policy's
    `Principal: "*"` doesn't check *who* is calling.
-4. **Confirm the fix:** the identical anonymous `PUT` against `:8108` (fixed) is rejected
-   (`403`) — and so is the *same* `PUT` even from a legitimately-assumed `BucketsAccessRole`
-   token, because the fixed bucket3 policy is get-only. That's the empirical proof that scoping
-   `Principal` (not just "adding auth") is what closes the hole.
+4. **Confirm the fixed policy:** the identical anonymous `PUT` against `:8108` is rejected
+   (`403`) — and so is the *same* `PUT` from a `BucketsAccessRole` token, because fixed bucket3
+   is get-only. The fixed app changes both `Principal` and `actions`; this comparison alone
+   cannot isolate which change caused the `PUT` denial. Check that intended access still works:
+   the role can still `PUT bucket2`, while `GET bucket3` passes authorization (and returns
+   `404 NoSuchKey` when there is no object).
 
 ## Step-by-step (copy these commands)
 **First, get this lab onto your computer.** You need your own copy of the course files. You download them once, then update them each
@@ -147,6 +162,14 @@ works only on the app that gave it to you, and only until that app restarts.
    ```
    You should see `{"bucket":"bucket3","error":"AccessDenied","principal":"BucketsAccessRole"}`
    and `HTTP 403`.
+   Check that the role still has its intended permissions on the fixed app:
+   ```bash
+   curl -s -w 'HTTP %{http_code}\n' -X PUT http://localhost:8108/bucket/bucket2/object/hello.txt -H "Authorization: Bearer $TOKEN2" -H 'Content-Type: application/json' -d '{"content": "hello"}'
+   curl -s -w 'HTTP %{http_code}\n' http://localhost:8108/bucket/bucket3/object/note.txt -H "Authorization: Bearer $TOKEN2"
+   ```
+   The first request returns `200` and `"status":"uploaded"`. The second returns `404`
+   and `"error":"NoSuchKey"` because the role is authorized to read bucket3 but there is
+   no object there; an access denial would return `403` instead.
 9. **Stop the apps when you finish.**
    ```bash
    docker compose down
