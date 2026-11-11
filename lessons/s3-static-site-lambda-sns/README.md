@@ -14,13 +14,17 @@ public-write, principle of least privilege on a resource-based policy, event-dri
    the instructor's Lambda/SNS notification scenario. Introduce the S3 website read/write case;
    Local 03 is completed in Week 6, after storage theory. The Lambda/SNS reference is a concept
    aid, not an additional graded AWS lab.
-2. **Week 6** — prepare Cloud Foundations Module 7 storage theory, complete the assigned AWS EBS
-   lab, and check that Docker Desktop works. Use the instructor's S3 website reference and this
-   README to learn the public-read/public-write policy case before answering Local 03.
-3. **This add-on lab (45–60 min in Week 6)** — a local, from-scratch simulation of the S3
-   static-website bucket-policy concept: a tiny "S3 website endpoint"-like API you can inspect and attack
-   without an AWS account. Follow **Step-by-step** below (kickoff: `docker compose up -d --build`).
-4. **Submit Local 03 after Week 6** — worksheet evidence and explanation → see [SUBMISSION.md](../../SUBMISSION.md).
+2. **Week 6, both sections** — prepare Cloud Foundations Module 7 storage theory and complete
+   the assigned AWS EBS lab. Use the instructor's S3 website reference to learn the
+   public-read/public-write policy case before answering Local 03.
+3. **C5R1 / Section B — Conventional** — answer worksheet Part 1 after Week 6 instruction.
+   You do not need Docker or request/response screenshots.
+4. **C5R2 / Section A — AIR-Sec** — check Docker Desktop and update this public repo on your own
+   computer. Follow **Step-by-step** below for the local S3 simulation (45–60 min in Week 6),
+   starting with `docker compose up -d --build` in this lab folder. No instructor-hosted target
+   or personal `.env` is needed. Answer worksheet Part 2 with your own request/response evidence.
+5. **Submit only your assigned Part after Week 6** on the Local03 Answer Sheet in Classroom;
+   see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Background — the two bugs this lab is and isn't about
 When you enable S3 static website hosting, the bucket must serve pages to anonymous browsers,
@@ -60,7 +64,7 @@ is supposed to be public; public write is the mistake.
    empirical proof that the fix removes only the *extra*, unintended grantee (public write); it
    does not touch the legitimate, intended grantee (public read).
 
-## Step-by-step (copy these commands)
+## Step-by-step for C5R2 / Part 2 (copy these commands)
 **First, get this lab onto your computer.** You need your own copy of the course files. You download them once, then update them each
 time. Open a terminal (Terminal on macOS or Linux, **Git Bash** on Windows) and do
 A, B and C in order. You installed Git in the Week 01 setup; if `git` is "not found", do that
