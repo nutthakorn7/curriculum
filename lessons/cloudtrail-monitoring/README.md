@@ -10,13 +10,15 @@ CWE-778 (Insufficient Logging) adjacent / detective-control logic error — the 
 and runs, but its aggregation key silently excludes the real attack shape.
 
 ## This lesson — what to do
-1. **Before class** — complete the real AWS Academy Lab (CloudTrail/CloudWatch/EventBridge
-   failed-login alerting) in your Learner Lab sandbox first — that's still where you learn the
-   actual AWS console UI, metric filter syntax, and EventBridge rule configuration.
-2. **This add-on lab (45–60 min)** — a local, from-scratch simulation of the same monitoring
-   concept: a tiny Flask service that stands in for "CloudTrail recorded this login event, did
-   our alerting pipeline fire?" without needing an AWS account. Follow **Step-by-step** below
-   (kickoff: `docker compose up -d --build`).
+1. **Week 17 class (100 min)** — open Cloud Security Foundations Module 6 before class, then
+   complete Lab 6.1 (CloudTrail/CloudWatch/EventBridge monitoring) in the scheduled 75-minute
+   Learner Lab block. The lab teaches the AWS console UI, metric filter syntax, and EventBridge
+   rule configuration; keep its event and alert notes.
+2. **After that class (45–60 min outside class)** — read the Week 17 course bridge's Local 09
+   slides, then run a local, from-scratch simulation of the counting choice. A tiny Flask service
+   stands in for "a login event was recorded; did our detector alert?" without needing an AWS
+   account. This is a different scenario from the AWS lab's security-group event. Follow
+   **Step-by-step** below (kickoff: `docker compose up -d --build`).
 3. **Submit** — worksheet evidence and explanation → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Signature exercise — "The Spray That Never Alerts"
