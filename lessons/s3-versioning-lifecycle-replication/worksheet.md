@@ -7,6 +7,17 @@ Section B = Block 1 **Conventional**. Complete only the part assigned to your se
 storage class, cross-region replication) in English. Short, clear answers are enough: 2–4
 sentences per question.
 
+## Weekly scope
+
+- **Week 07:** Complete the assigned Cloud Foundations Module 8 database lab. In the local
+  workshop, learn versioning and lifecycle from the Week 07 S3 supplement slides. Conventional
+  students can answer Part 1 Questions 1, 2 and 4. AIR-Sec students can identify their variant
+  and work on a versioning or lifecycle claim if that is their assigned variant.
+- **Week 08:** Study Cloud Foundations Module 9. Learn replication and recovery from the Week 08
+  S3 supplement slide before answering those questions. Conventional students complete Part 1
+  Question 3; AIR-Sec students finish Part 2a and 2b and prepare for the Part 2c viva. Submit
+  only your assigned Part in the Week 08 Classroom Assignment by its posted deadline.
+
 ## Part 1 — Conventional arm (short answers)
 
 Answer in your own words (no AI-resilience layer, no personalized artifact — graded on the

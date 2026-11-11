@@ -1,9 +1,9 @@
 # {{ slot_label }} — S3 Data Protection: Versioning, Lifecycle, and Cross-Region Replication
 
-**Topic (source):** S3 data protection strategies — versioning, lifecycle rules, and cross-region
-replication (CRR) — same general concept as AWS Academy's static-website challenge lab, described
-here in original words, **not copied**. No AWS Academy file, scenario, character name, or exact
-lab wording is referenced anywhere in this lesson. **Kind:** CONCEPTUAL (no exploitable target —
+**Topic:** S3 data protection strategies — versioning, lifecycle rules, and cross-region
+replication (CRR), described here in original words. No AWS Academy file, scenario, character
+name, or exact lab wording is referenced anywhere in this lesson. **Kind:** CONCEPTUAL (no
+exploitable target —
 architecture/analysis lesson, same precedent as {{ ref('kms-envelope-encryption') }}).
 **Concepts:** object versioning (accidental delete/overwrite protection), lifecycle rules
 (storage-tier transitions and expiration of old versions), cross-region replication as a
@@ -13,12 +13,18 @@ Resource, applied loosely — this lesson is about correct configuration assumpt
 bug) / general data-protection misconfiguration category.
 
 ## This lesson — what to do
-1. **Before class** — finish the AWS Academy Cloud Foundations work your Classroom posts list for
-   this Local: Module 7 (Storage, where S3 is taught) and Module 9 (Cloud Architecture, including
-   reliability), with their Knowledge Checks. This add-on itself needs no AWS console.
-2. **This add-on (45–60 min, no Docker)** — an Audit-the-AI exercise on versioning/lifecycle/CRR
-   concepts, personalized per student.
-3. **Submit** — worksheet → see [SUBMISSION.md](../../SUBMISSION.md).
+1. **Week 07** — study Cloud Foundations Module 8 and complete its assigned RDS lab in AWS
+   Academy. In the local workshop, use the Week 07 S3 supplement slides to work on versioning
+   and lifecycle. Start only the questions for these topics in your assigned Part.
+2. **Week 08** — study Cloud Foundations Module 9 and use the Week 08 S3 supplement slide for
+   replication and recovery. Complete the remaining questions in your assigned Part during the
+   45–60 minute local workshop. This add-on needs no extra AWS console lab or Docker.
+3. **Submit** — complete the Local04 Answer Sheet in the Week 08 Classroom Assignment by its
+   posted deadline; see [SUBMISSION.md](../../SUBMISSION.md).
+
+For Week 07, Conventional students can work on Part 1 Questions 1, 2 and 4. AIR-Sec students
+can find their variant and work on its versioning or lifecycle claim if applicable. Leave the
+replication and recovery questions or claim until the Week 08 workshop teaches them.
 
 ## Get this lab onto your computer
 You need your own copy of the course files. You download them once, then update them each
