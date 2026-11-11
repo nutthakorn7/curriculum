@@ -11,12 +11,13 @@ when a key is disabled/deleted · **Analogous CWE:** CWE-320 (Key Management Err
 category — this lesson is about correct KMS use, not a coding bug).
 
 ## ✅ This lesson — what to do
-1. **Before class** — complete the real AWS Academy Lab 5.1 (*Encrypting Data at Rest by Using
-   AWS KMS*) in your Learner Lab sandbox (SSE-KMS setup, uploading/viewing an encrypted object, the
-   CloudTrail `GenerateDataKey` event).
-2. **This add-on (45–60 min, no Docker)** — an Audit-the-AI exercise on the envelope-encryption
-   concept, personalized per student.
-3. **Submit** — worksheet → see [SUBMISSION.md](../../SUBMISSION.md).
+1. **Week 15** — study Cloud Security Foundations Module 5 and complete the real AWS Academy
+   Lab 5.1 (*Encrypting Data at Rest by Using AWS KMS*) in the scheduled 75-minute class lab.
+   Record the S3 SSE-KMS, CloudTrail KMS-event and EBS/key-access observations requested by the
+   current LMS instructions. Preview Local 08; do not submit its worksheet this week.
+2. **Week 16 add-on (45–60 min, no Docker)** — use the Week 15 lab notes for an Audit-the-AI
+   exercise on envelope encryption, personalized per student.
+3. **Submit in Week 16** — only your assigned worksheet Part → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Get this lab onto your computer
 You need your own copy of the course files. You download them once, then update them each
