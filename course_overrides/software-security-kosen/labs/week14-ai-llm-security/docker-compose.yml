@@ -1,0 +1,34 @@
+x-runtime: &runtime
+  image: kosen-swsec-week14:local
+  build:
+    context: .
+    dockerfile: Dockerfile
+
+services:
+  vulnerable-chatbot:
+    <<: *runtime
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    ports:
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8082:8082"
+    # PRACTICE build: with no .env the app serves public demo flags (FLAG{..._demo}).
+    # Graded flags come only from your hosted CTFd instance, never from this local run.
+    environment:
+      - FLAG_PROMPTINJ
+    command: python vulnerable_chatbot.py
+
+  guarded-chatbot:
+    <<: *runtime
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    ports:
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8083:8083"
+    # PRACTICE build: with no .env the app serves public demo flags (FLAG{..._demo}).
+    # Graded flags come only from your hosted CTFd instance, never from this local run.
+    environment:
+      - FLAG_PROMPTINJ
+    command: python guarded_chatbot.py
