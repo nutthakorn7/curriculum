@@ -7,6 +7,11 @@ section this block.
 **Language:** you may answer in Thai or English. Keep AWS names (S3, KMS, SSE-KMS, data key,
 `GenerateDataKey`) in English. Short, clear answers are enough: 2–4 sentences per question.
 
+**Weekly scope:** Week 15 is for AWS Academy Module 5 and Lab 5.1. Keep your lab notes and
+preview Local 08, but do not answer or submit it yet. The Week 16 workshop teaches the
+envelope-encryption and key-state reasoning below. Complete only your assigned Part then,
+and submit in the Week 16 Classroom Assignment by its due date.
+
 **Scenario assumption:** use per-object SSE-KMS without S3 Bucket Keys. S3 does not retain a
 plaintext data key between object requests. This keeps the key-state questions focused on the
 envelope-encryption flow taught in this lesson.
