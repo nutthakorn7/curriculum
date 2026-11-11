@@ -7,6 +7,12 @@ section this block.
 **Language:** you may answer in Thai or English. Keep AWS names (VPC, security group, network ACL,
 NAT gateway, CIDR) in English. Short, clear answers are enough: 2–4 sentences per question.
 
+**Weekly scope:** Week 13 is reserved for AWS Academy Module 4 and Lab 4.1. Bring forward
+your Week 03 VPC diagram and Week 13 notes, but do not submit Local 07 yet. In the Week 14
+workshop, complete only your assigned part; Part 2 runs the local Docker simulation on your
+own computer. Submit in the Week 14 Classroom Assignment by its due date. The earlier VPC
+diagram is a study aid, not a separate Local 07 deliverable.
+
 ## Part 1 — Conventional arm (short answers)
 
 Answer in your own words (no AI-resilience layer, no flag — graded on the writing itself):

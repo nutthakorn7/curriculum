@@ -3,7 +3,7 @@ import os
 from flask import Flask, jsonify, request
 
 from nacl_engine import NACL_RULES_VULNERABLE as NACL_RULES
-from nacl_engine import evaluate
+from nacl_engine import evaluate, valid_packet
 
 app = Flask(__name__)
 
@@ -12,11 +12,15 @@ FLAG_NACL = os.environ.get("FLAG_NACL", "FLAG{low_numbered_allow_shadows_the_den
 
 @app.route("/check-access", methods=["POST"])
 def check_access():
-    body = request.get_json(silent=True) or {}
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        return jsonify({"error": "JSON object required"}), 400
     source_ip = body.get("source_ip")
     port = body.get("port")
     if source_ip is None or port is None:
         return jsonify({"error": "source_ip and port are required"}), 400
+    if not valid_packet(source_ip, port):
+        return jsonify({"error": "source_ip must be IPv4 and port must be an integer from 0 to 65535"}), 400
 
     action, matched_rule_number = evaluate(NACL_RULES, source_ip, port)
     resp = {

@@ -7,16 +7,15 @@ from-scratch lab on one specific NACL misconfiguration).
 **Concepts:** stateful vs. stateless traffic filtering, NAT gateway purpose for private
 subnets, Network ACL rule evaluation order · **Analogous CWE:** CWE-863 (Incorrect
 Authorization) / CWE-284 (Improper Access Control) — the access decision is technically
-"authorized" by a rule that exists, but the wrong rule wins because of ordering, not because
-either rule's content is individually wrong.
+"authorized" by the overly broad allow rule, which matches before the later deny. Its CIDR
+and its position together produce the unsafe decision.
 
 ## ✅ This lesson — what to do
-1. **Before class** — complete the real AWS Academy VPC networking labs in your Learner Lab
-   sandbox (Cloud Foundations Module 5, *Build Your VPC and Launch a Web Server*, and Cloud
-   Security Foundations Module 4, *Securing VPC Resources by Using Security Groups*: public/private
-   subnets, a NAT gateway, security groups and network ACLs) — that's still where you learn the
-   actual AWS console UI and see NAT gateway routing live.
-2. **This add-on lab (45–60 min)** — a local, from-scratch simulation of one specific,
+1. **Week 13** — recall the Cloud Foundations Module 5 VPC lab from Week 03. Study Cloud
+   Security Foundations Module 4 and complete its Lab 4.1, *Securing VPC Resources by Using
+   Security Groups*, in the scheduled 90-minute class lab. Keep your VPC/security-group notes.
+   Preview Local 07; the NACL investigation begins in Week 14.
+2. **Week 14 local add-on (45–60 min)** — a local, from-scratch simulation of one specific,
    easy-to-miss Network ACL bug: rule *number* order, not just rule *content*, decides the
    outcome. Follow **Step-by-step** below (kickoff: `docker compose up -d --build`).
 3. **Submit** — worksheet evidence and explanation → see [SUBMISSION.md](../../SUBMISSION.md).
@@ -52,10 +51,11 @@ assume the database is locked down. It never actually runs. Rule #90's broad `al
 and placed too early) matches first, and NACL evaluation **stops at the first match**. The
 deny-all rule at #100 is dead code.
 
-The fix is not "swap allow and deny" — it's **two changes together**: scope the allow down to
-the actual internal CIDR that needs it (`10.0.1.0/24`, not `0.0.0.0/0`), *and* make sure that
-narrower rule sits at a **lower** rule number than the broad catch-all deny, so the specific
-case is decided before the general case ever gets a chance to match.
+The fixed app makes **one change**: rule #90's allow CIDR becomes `10.0.1.0/24` instead of
+`0.0.0.0/0`. Rule numbers remain #90 and #100. This narrowing lets the unchanged deny at
+#100 decide external requests while #90 still permits the internal app tier. The general
+ordering rule is to put a specific allow before a broad catch-all deny; merely moving the
+deny ahead of the allow would block legitimate app-tier traffic too.
 
 1. **Baseline:** `GET /rules` on either app to see the ordered rule list.
 2. **The real question:** `POST /check-access` with an external source IP
@@ -171,6 +171,11 @@ python3 exploit.py
 `exploit.py` runs the main checks in one go (an optional self-check, not a replacement for the
 steps above; the Step-by-step needs no Python). Expect two `PASS` lines and exit `0`: an external
 IP allowed + flag on `:8113`, the identical external IP denied (no flag) on `:8114`.
+
+The local API accepts an IPv4 `source_ip` string and an integer destination `port` from
+0 to 65535. Malformed requests return HTTP 400. The engine uses real IPv4 CIDR matching,
+but models only one inbound source and exact destination port; it does not send packets,
+evaluate outbound return traffic, or implement routes or security groups.
 
 **Verified (2026-11-04):** The "get this lab" commands (A, B and C) were run as written on 2026-11-08, in bash and in zsh, on a fresh clone. `docker compose up -d --build` was run on this machine (macOS) and
 every command in Step-by-step was run as written, in bash and in zsh (the macOS default shell).
