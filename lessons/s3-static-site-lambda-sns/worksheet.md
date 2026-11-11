@@ -2,6 +2,8 @@
 
 This lesson is **Block 1** per `course-plan.md`'s block table. Section A = Block 1 **AIR-Sec**;
 Section B = Block 1 **Conventional**. Complete only the part assigned to your section this block.
+The Lambda/SNS scenario is discussed in Week 5; the S3 policy investigation and Local 03
+submission follow in Week 6.
 
 **Language:** you may answer in Thai or English. Keep AWS names (S3, Lambda, SNS) and action
 names (`s3:GetObject`, `s3:PutObject`) in English. Short, clear answers are enough: 2–4 sentences
@@ -23,11 +25,12 @@ Answer in your own words (no AI-resilience layer, no flag — graded on the writ
 4. **What could go wrong?** Give one real result of a company website whose S3 bucket anyone can
    write to. You may name a real incident you know of, or describe what an attacker would do with
    write access to the company's homepage.
-5. **Lambda and SNS.** In the AWS Academy exercise, a Lambda function publishes a message to an SNS
-   topic, and an email address subscribed to that topic gets the message. Why does the Lambda
-   function not need the email inbox to be online, reachable, or even subscribed yet at the moment
-   it publishes? How is this different from a normal API call, where the caller waits for the
-   answer?
+5. **Lambda and SNS.** In the notification scenario discussed in class, a Lambda function
+   publishes a message to an SNS Standard topic with an email subscription. Explain the roles of
+   Lambda, the topic, and the subscription. Why must the email subscription be confirmed before
+   receiving notifications? Does a successful Publish response prove that the email has reached
+   the recipient? Explain why a subscriber added later should not expect past messages to be
+   replayed.
 
 ## Part 2 — AIR-Sec arm
 
@@ -78,6 +81,6 @@ Write your answers on the **Local03 Answer Sheet** that Classroom copies for you
 2a requests and responses, plus the 2b and 2c answers. Conventional-arm students fill in Part 1
 only.
 
-- **Due:** before the start of the next week's class (the due date on the Classroom assignment).
+- **Due:** after the Week 6 investigation, at the due date on the Classroom assignment.
 - **Late:** −10% of the score you earned for every 24 hours after the due time, down to 0 after
   10 days. Late work is marked only after a short viva. Full rules in SUBMISSION.md.
