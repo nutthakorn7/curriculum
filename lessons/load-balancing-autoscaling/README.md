@@ -13,15 +13,16 @@ to inflate the victim's cloud bill (and/or starve capacity) rather than to crash
 outright.
 
 ## This lesson — what to do
-1. **Before class** — Docker Desktop working; complete the real AWS Academy load-balancing /
-   auto-scaling lab in your Learner Lab sandbox first (that's still where you learn the actual
-   ALB/target-group/ASG console UI).
-2. **This add-on lab (45–60 min)** — a local, from-scratch simulation of the same auto-scaling
-   concept: a tiny Flask service that stands in for "a fleet behind a load balancer," with an
-   internal counter that plays the role of an Auto Scaling Group's `current_instances`. Follow
-   **Step-by-step** below (kickoff: `docker compose up -d --build`).
-3. **Submit** — worksheet → see [SUBMISSION.md](../../SUBMISSION.md). The Conventional room does
-   Part 1; the AIR-Sec room does Part 2 and submits the request/response evidence.
+1. **Before Week 09 class** — make sure Docker Desktop works, study Cloud Foundations Module 10,
+   and complete its Knowledge Check after learning. Open the assigned AWS load-balancing and
+   auto-scaling lab so you are ready to run it during class.
+2. **Week 09 class** — complete the AWS lab in your Learner Lab sandbox first; that is where you
+   learn the actual ALB, target-group and ASG console workflow. Then start this local simulation
+   with the **Step-by-step** below (`docker compose up -d --build`). Its Flask counter stands in
+   for an Auto Scaling Group's `current_instances`; it does not create real AWS capacity.
+3. **Week 10 and submission** — finish your assigned Part and submit the Local05 Answer Sheet in
+   Classroom by its posted deadline. The Conventional room does Part 1; the AIR-Sec room does
+   Part 2 and submits the request/response evidence. See [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Objectives
 - Explain, in your own words, how a **load balancer**, its **target group(s)**, and an
