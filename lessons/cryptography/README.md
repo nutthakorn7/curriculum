@@ -19,7 +19,7 @@ Viva/reproduction checks verify the work within its existing rubric, with no sep
 {% endif %}4. **Submit before the next class** (homework included) — worksheet PDF → `learn.zcr.ai/submit` · code → GitHub · weekly quiz → `learn.zcr.ai/quiz`. (How: [SUBMISSION.md](../../SUBMISSION.md).)
 5. **Project** — apply this week's lesson to your [NoteVault project](../../project/README.md) where it fits.
 
-*Time breakdown: [AGENDA.md](../../AGENDA.md). Grading: see the worksheet rubric.*
+*Time breakdown: the class contract above and [Week 3 worksheet](worksheet.md). Grading: see the worksheet rubric.*
 
 ## Objectives
 - Find crypto misuse in application code — with a scanner first, then by reading the code — and know why tools miss some of it.
