@@ -5,7 +5,8 @@ services:
     environment:
       - FLAG_REMEDIATE=${FLAG_REMEDIATE:-FLAG{inverted_allowlist_leaves_ssh_open}}
     ports:
-      - "8115:5000"
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8115:5000"
 
   fixed:
     build: .
@@ -13,4 +14,5 @@ services:
     environment:
       - FLAG_REMEDIATE=${FLAG_REMEDIATE:-FLAG{inverted_allowlist_leaves_ssh_open}}
     ports:
-      - "8116:5000"
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8116:5000"

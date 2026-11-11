@@ -5,7 +5,8 @@ services:
     environment:
       - FLAG_SCALING=${FLAG_SCALING:-FLAG{denial_of_wallet_no_throttle}}
     ports:
-      - "8109:5000"
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8109:5000"
 
   fixed:
     build: .
@@ -15,4 +16,5 @@ services:
       - API_KEY=${API_KEY:-s3cret-scaling-key}
       - RATE_LIMIT_MAX_CALLS=${RATE_LIMIT_MAX_CALLS:-5}
     ports:
-      - "8110:5000"
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8110:5000"
