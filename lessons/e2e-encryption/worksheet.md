@@ -1,6 +1,6 @@
 # Worksheet 13 — End-to-End Encryption: TLS Is Not Enough
 
-> **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
+> **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
 > **Aligned to:** CWE-311 (Missing Encryption of Sensitive Data), CWE-319 (Cleartext Transmission
 > of Sensitive Information — here, cleartext handling of sensitive data on the relay, even with
 > encrypted transport)

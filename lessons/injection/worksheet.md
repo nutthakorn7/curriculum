@@ -5,7 +5,15 @@
 > **Signature game:** 🐉 **SQLi Warm-up** — each successful injection lands a "hit"; you clear it when you dump every credential and land an RCE.
 
 > ⚠️ **Ethics note:** All payloads here are for the provided sandbox (`vulnerable_app.py`) and your own DVWA/Juice Shop containers **only**. Never test systems you do not own or have written permission to test. Unauthorized injection is a crime under most computer-misuse laws.
+{% if course_code == '02005094' %}
+## Class and assessment contract
 
+**Contact time: 150 minutes** = quiz/review 10 + explanation/demo 15 + supervised practical 100 + debrief/reasoning 20 + evidence/exit 5. Pre-pull images and prepare tools before class. The full concepts, longer questions and extension tasks stay available for preparation/follow-up; the instructor uses the bounded core below in class.
+
+**Both assigned versions include the same common practical 60 points.** Complete that core plus **one** assigned 40-point section: **Conventional** = Part 2 written questions 20 + Part 4 reflection 20; **AIR-Sec** = Audit-the-AI 20 + Explain-in-Plain-English 10 + Prompt Problem 10. Each version totals 100. The unassigned section is reference practice, not another required 40 points. Only the named 100-minute core is assessed in the shared 60; other practical tasks are optional extension/reference unless explicitly used in the assigned written questions, and are not a prerequisite for full marks. Each of the twelve individual teaching worksheets contributes `score / 100 × 2.5` course points.
+
+Viva/reproduction checks verify the work within its existing rubric, with no separate score or automatic-zero rule. Complete the common practical evidence in either version, disclose any AI assistance, and use the normal name/Student ID and task-specific evidence requirements. Do not substitute a shared practice flag for proof from an actually assigned hosted instance.
+{% else %}{% endif %}
 ## Part 1 — Student Information
 
 | Name | Student ID | Date | Group |
@@ -22,35 +30,40 @@ Answer in 2–4 sentences each.
 4. The `/upload` route saves any filename to disk (**CWE-434**). What two properties must a directory and a filename have for an upload to become remote code execution, and which does `solution_app.py` remove?
 5. What is a **UNION-based** SQLi, and why must the injected `SELECT` return the same number of columns as the original query? Relate to `/search?q=' UNION SELECT username,password FROM users--`.
 
-![One untrusted request value in the Week 4 lab fans out to three interpreters — the SQL engine (CWE-89), the OS shell (CWE-78) and the filesystem (CWE-434) — with the specific control that stops it at each sink: a parameterised query, an argument vector without a shell, and an extension allow-list.](img/injection-sinks.svg)
+![Untrusted request data in the Week 4 lab reaches three security sinks: the SQL engine (CWE-89), the OS shell (CWE-78) and file storage (CWE-434). The corresponding controls are bound query parameters, an argument list without a shell, and safe non-executable storage with filename and type checks.](img/injection-sinks.svg)
 
-## Part 3 — Hands-on Lab (125 min in class + 25 min homework)
-
-> **In class or homework.** Tasks marked *in class* are done during the lab, where the instructor
-> checks your evidence and reasoning. Tasks marked *homework* are finished after class and submitted
-> with the rest of this worksheet, before the next class. Every task keeps its time and its marks.
-> Answer Part 2 before class, from this week's slides; Part 4, *Audit the AI* and *Comprehension &
-> Prompt* are homework.
+{% if course_code == '02005094' %}## Part 3 — Shared practical core (100 min in class)
+{% else %}## Part 3 — Hands-on Lab (core tasks 105 min in class; one optional bonus task as homework)
+{% endif %}
+{% if course_code == '02005094' %}**100-minute core:** Baseline login (5), bounded login bypass (15), UNION observation (20), command-injection observation (20), student parameterization/input patch with controls (40).
+{% else %}> **Core vs optional.** The **core tasks are 0, 1, 2, 3 and 5** — everyone does these in class, where the
+> instructor checks your evidence and reasoning. **Task 4 is optional**: do it as homework for a
+> **bonus of up to +5**. Answer Part 2 before class, from this week's slides; Part 4, *Audit the AI*
+> and *Comprehension & Prompt* are homework.
 >
-> **In class (125 min):** Tasks 0, 1, 2, 3 and 5 · **Homework (25 min):** Task 4
->
-> Task 5's re-test of the upload payload goes with Task 4.
+> **Core, in class:** Tasks 0, 1, 2, 3 and 5 · **Optional bonus (homework):** Task 4
+{% endif %}
+{% if course_code == '02005094' %}All original task/question text remains below. The minute labels are activity budgets; the extended task set is preparation/follow-up, not extra work to fit inside the 100-minute core. Complete Part 2/Part 4 only for the assigned Conventional 40, or Audit/EiPE/Prompt only for the assigned AIR-Sec 40.
 
-**Learning goals:** extract data via SQLi, achieve OS command injection, exploit an unrestricted upload, then prove each fix in `solution_app.py` blocks the payload.
 
+**Learning goals:** extract data via SQLi, achieve OS command injection, write and test your own bounded defense in `student_patch.py`, then compare the full `solution_app.py` reference (optional extension: unrestricted upload).
+{% else %}**Learning goals:** extract data via SQLi, achieve OS command injection, then prove each fix in `solution_app.py` blocks the payload (optional bonus: an unrestricted upload).
+{% endif %}
 **Prerequisites:** Docker + Docker Compose, `curl`, a browser. Working dir: `{{ labpath }}/`.
+
+**Before class, on home Wi-Fi:** run `docker compose build` once in this folder. The image installs `ping` and Flask, which Tasks 3 and 5 need. Build while online; classroom commands use the local image without downloading packages.
 
 ### Environment setup
 
 ```bash
 cd {{ labpath }}
-docker compose up            # builds python:3.12-slim, installs flask, runs vulnerable_app.py
+docker compose up --no-build --pull never  # runs the prebuilt vulnerable app; no download
 # vulnerable app -> http://localhost:8080   (service name: injection-lab, port 8080)
 ```
 Optional secondary targets:
 ```bash
-docker run --rm -it -p 80:80 vulnerables/web-dvwa        # DVWA  -> http://localhost
-docker run --rm -p 3000:3000 bkimminich/juice-shop       # Juice Shop -> http://localhost:3000
+docker run --rm -it -p 127.0.0.1:80:80 vulnerables/web-dvwa   # DVWA  -> http://localhost
+docker run --rm -p 127.0.0.1:3000:3000 bkimminich/juice-shop  # Juice Shop -> http://localhost:3000
 ```
 
 **What to submit per task:** the exact **payload/command**, a **screenshot** of the response proving success, and a **2–3 sentence mitigation** in your own words.
@@ -65,61 +78,112 @@ docker run --rm -p 3000:3000 bkimminich/juice-shop       # Juice Shop -> http://
 sqli-parse
 ```
 
-**Task 1 — Auth bypass via SQLi (25 min, in class) 🐉 Hit #1.**
-- *Goal:* log in as `alice` with **no valid password**.
+{% if course_code == '02005094' %}**Task 1 — Auth bypass via SQLi (15 min, in class) 🐉 Hit #1.**
+{% else %}**Task 1 — Auth bypass via SQLi (25 min, in class) 🐉 Hit #1.**
+{% endif %}- *Goal:* log in as `alice` with **no valid password**.
 - *Steps:* hit `/login?user=alice'--&pw=x`, then `/login?user=x' OR '1'='1'--&pw=x` (the trailing `--` is required: without it, SQL binds `AND` tighter than `OR`, so `... OR '1'='1' AND password='x'` matches no row). Observe the comment in the query at lines 61–63 of `vulnerable_app.py`.
 - *Note — browser vs `curl`:* pasted into a **browser**, the space in `x' OR '1'='1'--` is encoded for you; with **`curl`** an unencoded space silently returns a **blank page (no error)**. Use `curl -G "http://localhost:8080/login" --data-urlencode "user=x' OR '1'='1'--" --data-urlencode "pw=x"` — same `-G --data-urlencode` form for Task 2's `q=`.
 - *Deliverable:* both URLs + screenshot of `Welcome alice` + explain why `--` and `OR '1'='1` work.
 
-**Task 2 — Credential dump via UNION SQLi (30 min, in class) 🐉 Hit #2.**
-- *Goal:* exfiltrate every username **and password** from the `users` table.
-- *Steps:* request `/search?q=' UNION SELECT username,password FROM users--`. Confirm `alice:alicepw` and `bob:bobpw` appear.
-- *Deliverable:* payload + screenshot of dumped credentials + note on why column count must match.
+{% if course_code == '02005094' %}**Task 2 — Credential dump via UNION SQLi (20 min, in class) 🐉 Hit #2.**
+{% else %}**Task 2 — Credential dump via UNION SQLi (30 min, in class) 🐉 Hit #2.**
+{% endif %}- *Goal:* exfiltrate every username **and password** from the `users` table.
+- *Steps:* request `/search?q=' UNION SELECT username,password FROM users--`. Confirm `alice:alicepw` and `bob:bobpw` appear — plus a third `admin` row whose password field holds this lab's SQL-injection flag `FLAG{...}`.
+- *Deliverable:* payload + screenshot of the dumped credentials (including the `admin` flag row) + note on why column count must match.
 
-**Task 3 — OS command injection (30 min, in class) 🐉 Hit #3.**
-- *Goal:* run an arbitrary command through `/ping`, then read this lab's command-injection flag with it.
+{% if course_code == '02005094' %}**Task 3 — OS command injection (20 min, in class) 🐉 Hit #3.**
+{% else %}**Task 3 — OS command injection (30 min, in class) 🐉 Hit #3.**
+{% endif %}- *Goal:* run an arbitrary command through `/ping`, then read this lab's command-injection flag with it.
 - *Steps:* request `/ping?host=127.0.0.1;id` then `/ping?host=127.0.0.1;whoami` (URL-encode if needed). Capture the injected command's output. Then use the same injection to read the flag file the server keeps at `/flag.txt` (the space needs `--data-urlencode`, see the note on Task 1):
   ```bash
   curl -G "http://localhost:8080/ping" --data-urlencode "host=127.0.0.1;cat /flag.txt"
   ```
 - *Deliverable:* the three payloads + screenshot of the `id`/`whoami` output **and** the `FLAG{...}` from `/flag.txt` + explanation of the `shell=True` flaw (CWE-78).
 
-**Task 4 — Unrestricted upload (25 min, homework) 🐉 Hit #4.**
-- *Goal:* show the upload accepts a dangerous file type with no checks (CWE-434).
+{% if course_code == '02005094' %}**Task 4 — Unrestricted upload (25 min, optional extension) 🐉 Hit #4.**
+{% else %}**Task 4 — Unrestricted upload (25 min, optional bonus) 🐉 Hit #4.**
+{% endif %}- *Goal:* show the upload accepts a dangerous file type with no checks (CWE-434).
 - *Steps:* `GET /upload` (form), then upload a file named `shell.py`. Confirm `saved to /tmp/uploads/shell.py`. Via the browser form this just works; via `curl` the file field is named **`f`**: `curl -F "f=@shell.py" "http://localhost:8080/upload"`. Discuss: if `UPLOAD_DIR` were web-served or executed, this is the RCE chain (here the dir is **not** served, so document the missing control rather than claiming auto-RCE).
-- *Deliverable:* upload command/screenshot + 2–3 sentences on why extension allow-listing matters.
+- *Deliverable:* upload command/screenshot + 2–3 sentences on why extension allow-listing matters. For the bonus, also re-fire the upload against `solution_app.py` (Task 5's setup) and show `file type not allowed` (fix lines L86–93).
 
-**Task 5 — Defend / fix it (35 min, in class) 🛡️ Warm-up cleared.**
-- *Goal:* prove `solution_app.py` blocks Tasks 1–4.
-- *Steps:* stop the vulnerable container (`Ctrl-C`), then run the fixed app on the same compose env:
+{% if course_code == '02005094' %}**Task 5 — Defend / fix it (40 min, in class, guided) 🛡️ Warm-up cleared.**
+- *Goal:* write the two bounded defenses in `student_patch.py` and prove normal behavior still works while the SQLi and command-injection payloads fail.
+- *Steps:* complete the student patch and run its controls below, then compare the supplied `solution_app.py` for the `/search` fix and optional upload extension.
+- *Deliverable:* your patch commit, passing normal/attack controls, explanation of each defense and its limits, plus reference comparison evidence for the original SQLi and command-injection payloads.
+
+### Student patch — required common practical evidence
+
+Before comparing the reference, complete the two TODO functions in `student_patch.py`: bind the login values as SQLite parameters, and accept a single IPv4 address as an argument list. The provided `student_app.py` executes that list with `shell=False`; do not change the harness to use a shell. This bounded target intentionally accepts IPv4 only, not arbitrary DNS names.
+
+Run the in-process checks in the prebuilt lab image from this directory:
+
+```bash
+docker compose run --rm --no-deps --pull never injection-lab python student_checks.py
+```
+
+The untouched TODOs are expected to fail. Your completed code must preserve Alice/Bob's legitimate logins, refuse wrong passwords and SQL payloads, accept `127.0.0.1` for the ping command, and reject separators/options before a process starts. The checker mocks ping and opens no listener. To inspect the patched target in a browser, stop the other target and run:
+
+```bash
+docker compose run --rm --no-deps --pull never --service-ports injection-lab python student_app.py
+```
+
+Submit your `student_patch.py` commit link, test output, one legitimate case and each rejected attack with your explanation. A successful check of the reference alone does not demonstrate your own patch.
+
+### Compare the supplied reference
+
+Stop the vulnerable container (`Ctrl-C`), then run the fixed reference on the same prebuilt image:
+
+```bash
+docker compose run --rm --no-deps --pull never --service-ports injection-lab python solution_app.py
+```
+
+Re-fire the Task 1–3 payloads. Expected: `Login failed`, no credential dump, and `invalid host` (400) on `127.0.0.1;id`. Name the parameterized login/search queries and the argument list with validation. The `/search` fix and optional upload extension are outside the two-function student harness; compare them here, but submit your authored patch as the primary Task 5 evidence.
+{% else %}**Task 5 — Defend / fix it (15 min, in class, guided) 🛡️ Warm-up cleared.**
+- *Goal:* prove `solution_app.py` blocks Tasks 1–3 (and Task 4 if you did the bonus).
+- *Steps:* stop the vulnerable container (`Ctrl-C`), then run the fixed app on the same prebuilt image:
   ```bash
-  docker compose run --rm --service-ports injection-lab bash -c "pip install --no-cache-dir flask && python solution_app.py"
+  docker compose run --rm --no-deps --pull never --service-ports injection-lab python solution_app.py
   ```
-  Re-fire each payload from Tasks 1–4. Expected: `Login failed`, no credential dump, `invalid host` (400) on `127.0.0.1;id`, and `file type not allowed` for `shell.py`.
-- *Deliverable:* screenshots of all four failures + name the fix line for each (parameterized query L52–55 login / L62–66 search, `shell=False`+regex L74–77, `secure_filename`+allow-list L86–93).
-
+  Re-fire each payload from Tasks 1–3. Expected: `Login failed`, no credential dump, and `invalid host` (400) on `127.0.0.1;id`.
+- *Deliverable:* screenshots of the three failures + name the parameterized login/search queries and `shell=False` argument list with validation.
+{% endif %}
 ## Part 4 — Reflection
 
-1. **CWE/OWASP mapping:** map each of your four exploits to its CWE (89/78/434) and to OWASP 2025 **A05 Injection**.
+1. **CWE/OWASP mapping:** map each of your core exploits to its CWE (89/78 — and 434 if you did the Task 4 bonus) and to OWASP 2025 **A05 Injection**.
 2. **Real breach:** the **2017 Equifax breach** exposed ~147M people after attackers exploited a known input-handling flaw (Apache Struts CVE-2017-5638). In 3–4 sentences, connect that failure to the lessons in this lab (untrusted input reaching a powerful interpreter; the cost of an unpatched/unvalidated input path).
 3. **Best mitigation:** of parameterized queries, allow-list validation, least privilege, and avoiding `shell=True`, which single control would have prevented the most damage in this lab, and why?
 
 ## Grading rubric (100)
 
-| Criterion | Points |
+{% if course_code == '02005094' %}| Criterion | Conventional | AIR-Sec |
+|---|---:|---:|
+| Common practical: main task and observations | 20 | 20 |
+| Common practical: student defense/control or design, tests and limitations | 20 | 20 |
+| Common practical: reproducible evidence and reasoning | 20 | 20 |
+| Assigned Conventional Part 2 written questions | 20 | — |
+| Assigned Conventional Part 4 reflection | 20 | — |
+| Assigned Audit-the-AI | — | 20 |
+| Assigned Explain-in-Plain-English | — | 10 |
+| Assigned Prompt Problem | — | 10 |
+| **Total** | **100** | **100** |
+{% else %}| Criterion | Points |
 |-----------|-------:|
 | Part 2 — Lecture questions (conceptual accuracy) | 20 |
-| Part 3 — Exploitation + evidence (payloads + screenshots, Tasks 1–4) | 40 |
+| Part 3 — Exploitation + evidence (payloads + screenshots, Tasks 0–3) | 40 |
 | Part 3 — Defense (Task 5: fixes proven, lines cited) | 25 |
 | Part 4 — Reflection (CWE/OWASP mapping, breach, mitigation) | 15 |
 | **Total** | **100** |
-
+{% endif %}
+{% if course_code == '02005094' %}The optional project/upload extension adds no extra graded points to the common 60 or assigned 40.
+{% else %}Task 4 is optional: up to **+5** bonus on top of the Exploitation row, which stays capped at 40.
+{% endif %}
 **Due:** 23:59 (Thai time) the night before next week's class (exact time on learn.zcr.ai/submit). **Late:** −10% per started day; 0 after 10 days.
 
 ---
 
-## Evidence & Integrity (required)
-
+{% if course_code == '02005094' %}## Evidence & Integrity — common to both versions
+{% else %}## Evidence & Integrity (required)
+{% endif %}
 - **Identity proof:** every screenshot/diagram must show a terminal running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in the
   same image as the evidence**. When the evidence is a browser page, a DevTools panel or a
   rendered response, put that terminal **beside the browser and capture the whole screen** — a
@@ -128,26 +192,33 @@ sqli-parse
   the shot yours. Generic or borrowed evidence is not accepted.
 - **Personalized flag (if this lab issues one):** ____________________
   *Flags are unique per student — submitting another student's flag is a violation. How to submit: **learn.zcr.ai/submit** (full guide: [SUBMISSION.md](../../SUBMISSION.md)).*
-- **Explain in your own words** *(graded on your reasoning, not copied text):*
-  1. What did you do, and **why did the vulnerability work**?
+{% if course_code == '02005094' %}- **Common practical reasoning** *(graded within the common 60, not as another EiPE score):*
+{% else %}- **Explain in your own words** *(graded on your reasoning, not copied text):*
+{% endif %}  1. What did you do, and **why did the vulnerability work**?
   2. **Why does your fix actually stop it** — and what could still break it?
 
 ---
 
-## 🤖 Audit the AI (required)
-
+{% if course_code == '02005094' %}## 🤖 Audit the AI — assigned AIR-Sec section (20)
+{% else %}## 🤖 Audit the AI (required)
+{% endif %}
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
-1. Ask an AI assistant to exploit **or** fix this week's vulnerability. Paste its full answer.
+{% if course_code == '02005094' %}1. Audit a complete AI answer about this week's design, exploit or fix. Use the instructor-provided exhibit if one is assigned, or obtain an answer and paste it in full. A correct answer is allowed: verify its claims and state the remaining assumptions rather than inventing an error.
+2. **Check what is correct, wrong, risky or conditional** — insecure code, an incomplete fix, a hallucinated API/function/CVE, an edge case or unsupported reasoning. Quote the exact line(s) and support the evaluation with evidence.
+3. Supply a verified correction where needed; if the answer is correct, supply the verification and limits. Explain your conclusion in 2–3 sentences. Do not manufacture a defect to satisfy the task.
+{% else %}1. Ask an AI assistant to exploit **or** fix this week's vulnerability. Paste its full answer.
 2. **Find what's wrong or risky** in it — insecure code, a subtly incomplete fix, a hallucinated API/function/CVE, a missed edge case, or wrong reasoning. Quote the exact line(s).
 3. Produce the **correct, verified** version yourself and explain in 2–3 sentences why the AI's output was insufficient.
-
-> Disclose your AI use in the Part 1 table. This task counts toward your **Defense + Reflection** score.
-
+{% endif %}
+{% if course_code == '02005094' %}> Disclose your AI use in the Part 1 table. This is the assigned AIR-Sec Audit component (20 points); it is not added to the common 60 or to the Conventional 40.
+{% else %}> Disclose your AI use in the Part 1 table. This task counts toward your **Defense + Reflection** score.
+{% endif %}
 ---
 
-## 🧠 Comprehension & Prompt (required)
-
+{% if course_code == '02005094' %}## 🧠 Comprehension & Prompt — assigned AIR-Sec section (10 + 10)
+{% else %}## 🧠 Comprehension & Prompt (required)
+{% endif %}
 **A. Explain in Plain English (EiPE).** In 2–3 sentences, in your own words, describe what this week's vulnerable code/endpoint actually *does* and *why it is exploitable* — explain the mechanism, don't dump jargon.
 
 **B. Prompt Problem.** Write a **single prompt** that makes an AI produce a *correct, secure* fix for one finding. Run it: does the exploit now fail? If not, refine the prompt and try again. Submit the **final prompt + the verified result**.

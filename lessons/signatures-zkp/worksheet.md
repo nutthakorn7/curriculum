@@ -1,6 +1,6 @@
 # Worksheet 11 — Digital Signatures & Zero-Knowledge Proofs (100-minute core + preparation/extensions)
 
-> **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
+> **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
 > **Topic source:** `Week10_Signatures Questions.docx` (KOSEN68) — 5 essay questions, all ported
 > below as this week's written task (Part 1).
 > **Signature game:** "Double-Spend the Bank" (ECDSA `(r, n−s)` malleability against a bank that

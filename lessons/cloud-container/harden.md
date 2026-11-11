@@ -4,8 +4,12 @@
 
 **OWASP 2025:** A02 Security Misconfiguration · **CWE:** CWE-732, CWE-16, CWE-250, CWE-526 (plus CWE-798, which OWASP files under A07)
 
-Run `./scan.sh` against the *insecure* artifacts, fix each row, then re-run to
-watch the findings disappear.
+`Dockerfile.insecure` and `Dockerfile.hardened` are both already written — this
+lab is read-and-compare, not edit-and-rerun. Run `./scan.sh` once: its table
+lists each file's finding count on its own row (`Dockerfile.insecure` has
+findings, `Dockerfile.hardened` is `0`) — that row-to-row comparison **is**
+"the findings disappearing." Re-running `./scan.sh` again scans the same
+unchanged folder and gives the identical table; it is not a before/after step.
 
 ## Container image (`Dockerfile.insecure` → `Dockerfile.hardened`)
 
@@ -16,7 +20,7 @@ watch the findings disappear.
 | 3 | `COPY . .` (whole context) | CWE-538 | Copy only needed files; add a `.dockerignore` (exclude `.git`, `.env`, keys) |
 | 4 | `chmod -R 777 /app` | CWE-732 | Default perms; app owned by non-root, not world-writable |
 | 5 | Runs as root (no `USER`) | CWE-250 | `USER 65532:65532` (non-root); distroless `nonroot` |
-| 6 | Unpinned `pip install` | CWE-1104 | Pinned `requirements.txt` (+ hashes) in a build stage |
+| 6 | Unpinned `pip install` | CWE-1104 | Hash-pinned `requirements-hardened.txt` + `pip install --require-hashes`, in the build stage |
 
 ### Extra runtime hardening (not in the Dockerfile, enforce at deploy)
 - `docker run --read-only --cap-drop ALL --security-opt no-new-privileges`

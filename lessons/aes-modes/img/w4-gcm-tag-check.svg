@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 340" width="1000" height="340" role="img"
+     aria-label="A GCM token has three parts: a nonce, the encrypted data, and a tag. The server re-calculates the tag from what arrived, using its secret key, and compares it with the tag that came in. If nothing was changed the tags match and the server accepts. If anything was changed the tags do not match and the server answers invalid or tampered token.">
+  <title>GCM checks a tag before it trusts anything</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .t  { font: 600 16px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 13px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tl { font: 600 14px system-ui, sans-serif; fill: #374151; text-anchor: start }
+    .tm { font: 600 13px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 15px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 15px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad }
+      .t, .tm { fill: #e6e8ea } .ts, .tl { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d }
+      .a  { stroke: #c9ced3 }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+  </defs>
+
+  <text class="tl" x="20" y="30">A GCM token</text>
+  <rect class="bg" x="20" y="45" width="130" height="50" rx="8"/><text class="ts" x="85" y="67">nonce</text><text class="tm" x="85" y="85">(a number)</text>
+  <rect class="bg" x="155" y="45" width="300" height="50" rx="8"/><text class="ts" x="305" y="67">encrypted data</text><text class="tm" x="305" y="85">role=guest …</text>
+  <rect class="bo" x="460" y="45" width="130" height="50" rx="8"/><text class="to" x="525" y="67">tag</text><text class="ts" x="525" y="85">(a seal)</text>
+
+  <path class="a" d="M600,70 H665"/>
+  <rect class="b" x="670" y="40" width="310" height="60" rx="8"/>
+  <text class="tb" x="825" y="64">The server re-makes the tag</text>
+  <text class="ts" x="825" y="84">from what arrived, with its secret key</text>
+
+  <path class="a" d="M825,105 V135"/>
+  <rect class="bg" x="670" y="140" width="310" height="44" rx="8"/><text class="t" x="825" y="168">Same as the tag that came in?</text>
+
+  <path class="a" d="M740,190 L560,235"/>
+  <path class="a" d="M910,190 L860,235 L860,235"/>
+
+  <rect class="b" x="20" y="235" width="540" height="70" rx="8"/>
+  <text class="tb" x="290" y="262">✓ Match — nothing was changed</text>
+  <text class="ts" x="290" y="286">the server trusts the token and reads the role</text>
+  <rect class="bo" x="580" y="235" width="400" height="70" rx="8"/>
+  <text class="to" x="780" y="262">✗ No match — something was changed</text>
+  <text class="ts" x="780" y="286">"invalid or tampered token" (403), nothing is read</text>
+
+  <text class="ts" x="500" y="328">Without the key nobody can make a tag that matches an edited token.</text>
+</svg>

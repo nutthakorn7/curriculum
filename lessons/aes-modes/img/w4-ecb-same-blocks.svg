@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 330" width="1000" height="330" role="img"
+     aria-label="The same two plaintext blocks, HELLO HELLO, are encrypted two ways. In ECB mode each block is locked separately, so the two equal blocks give two equal ciphertext blocks and the pattern leaks. In CBC mode each block is mixed with the block before it first, so the two equal blocks give two different ciphertext blocks.">
+  <title>ECB shows repeated blocks; CBC hides them</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .t  { font: 600 16px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 13px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tl { font: 600 14px system-ui, sans-serif; fill: #374151; text-anchor: start }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 15px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 15px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad }
+      .t, .tm { fill: #e6e8ea } .ts, .tl { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d }
+      .a  { stroke: #c9ced3 }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+  </defs>
+
+  <text class="t" x="150" y="32">Message (2 equal blocks)</text>
+  <text class="t" x="650" y="32">What an eavesdropper sees</text>
+
+  <!-- ECB row -->
+  <text class="tl" x="20" y="70">ECB</text>
+  <rect class="bg" x="20" y="80" width="120" height="50" rx="8"/><text class="tm" x="80" y="111">HELLO</text>
+  <rect class="bg" x="150" y="80" width="120" height="50" rx="8"/><text class="tm" x="210" y="111">HELLO</text>
+  <path class="a" d="M280,105 H400"/>
+  <text class="ts" x="340" y="95">lock each block</text>
+  <text class="ts" x="340" y="125">on its own</text>
+  <rect class="bo" x="410" y="80" width="150" height="50" rx="8"/><text class="tm" x="485" y="111">7F3A 91C0</text>
+  <rect class="bo" x="570" y="80" width="150" height="50" rx="8"/><text class="tm" x="645" y="111">7F3A 91C0</text>
+  <text class="to" x="860" y="100">Same block →</text>
+  <text class="to" x="860" y="122">same ciphertext</text>
+  <text class="ts" x="860" y="144">the pattern leaks</text>
+
+  <!-- CBC row -->
+  <text class="tl" x="20" y="205">CBC</text>
+  <rect class="bg" x="20" y="215" width="120" height="50" rx="8"/><text class="tm" x="80" y="246">HELLO</text>
+  <rect class="bg" x="150" y="215" width="120" height="50" rx="8"/><text class="tm" x="210" y="246">HELLO</text>
+  <path class="a" d="M280,240 H400"/>
+  <text class="ts" x="340" y="230">mix with the</text>
+  <text class="ts" x="340" y="260">block before</text>
+  <rect class="b" x="410" y="215" width="150" height="50" rx="8"/><text class="tm" x="485" y="246">5D1B A4E8</text>
+  <rect class="b" x="570" y="215" width="150" height="50" rx="8"/><text class="tm" x="645" y="246">B2E4 05D7</text>
+  <text class="tb" x="860" y="235">Same block →</text>
+  <text class="tb" x="860" y="257">different ciphertext</text>
+  <text class="ts" x="860" y="279">no repeated pattern</text>
+
+  <text class="ts" x="500" y="315">(the hex values are only examples)</text>
+</svg>

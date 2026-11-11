@@ -1,6 +1,6 @@
 # Worksheet 10 — Asymmetric & Hybrid Encryption
 
-> **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
+> **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
 > **Aligned to:** NIST SP 800-56A (key establishment), SP 800-38D (GCM) · OWASP Cryptographic Storage Cheat Sheet
 > **Kind:** Conceptual — no Docker target, no flag this week. Grading is rubric-based (see below).
 

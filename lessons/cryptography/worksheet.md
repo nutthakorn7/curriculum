@@ -2,92 +2,180 @@
 
 > **Course:** Software Security (KOSEN69) · **{{ slot_label }}**
 > **Aligned to:** OWASP 2025 (A04 Cryptographic Failures [CWE-327, CWE-916, CWE-330, CWE-321], A07 Authentication Failures [CWE-798]) · CWE-327, CWE-916, CWE-330, CWE-321, CWE-798
-> **Signature game:** "Capture the Hash" (recover plaintext from weak hashes)
+> **Signature game:** "Misuse Hunt" (find four crypto mistakes in 26 lines of code — with scanners, then with your own eyes)
 
-> **Ethics note:** Crack only the hashes provided in `hashes.txt` on your own machine. Password-cracking against accounts or systems you don't own is illegal. Wordlists and recovered values stay inside the lab VM.
+> **This week's angle.** *How* hashes, ciphers, MACs and TLS work and break is taught in
+> **Cryptography and Network Security (02005104)**, where cracking weak hashes, cipher modes, AEAD and
+> TLS each get a full lab. This course does not repeat those attacks. Here you work on the
+> application side: **find** crypto misuse in code, see what tools miss, and **fix** it with the right
+> library call.
 
+> **Ethics note:** Scan and test only this lab's files and your own fork of the project.
+{% if course_code == '02005094' %}
+## Class and assessment contract
+
+**Contact time: 150 minutes** = quiz/review 10 + explanation/demo 15 + supervised practical 100 + debrief/reasoning 20 + evidence/exit 5. Pre-pull images and prepare tools before class. The full concepts, longer questions and extension tasks stay available for preparation/follow-up; the instructor uses the bounded core below in class.
+
+**Both assigned versions include the same common practical 60 points.** Complete that core plus **one** assigned 40-point section: **Conventional** = Part 2 written questions 20 + Part 4 reflection 20; **AIR-Sec** = Audit-the-AI 20 + Explain-in-Plain-English 10 + Prompt Problem 10. Each version totals 100. The unassigned section is reference practice, not another required 40 points. Only the named 100-minute core is assessed in the shared 60; other practical tasks are optional extension/reference unless explicitly used in the assigned written questions, and are not a prerequisite for full marks. Each of the twelve individual teaching worksheets contributes `score / 100 × 2.5` course points.
+
+Viva/reproduction checks verify the work within its existing rubric, with no separate score or automatic-zero rule. Complete the common practical evidence in either version, disclose any AI assistance, and use the normal name/Student ID and task-specific evidence requirements. Do not substitute a shared practice flag for proof from an actually assigned hosted instance.
+{% else %}{% endif %}
 ## Part 1 — Student Information
 | Name | Student ID | Date | Group |
 |---|---|---|---|
 | | | | |
 
 ## Part 2 — Lecture Questions
-Answer in your own words (2–4 sentences each).
-1. Distinguish hashing, encryption, and encoding — and give one job each is the wrong tool for.
-2. Why is a fast hash like MD5/SHA-1 a bad choice for storing passwords, and what should be used instead?
-3. What is a salt, what attack does it defeat, and why must it be unique per password?
-4. Why does AES-ECB leak structure, and what does an authenticated mode like AES-GCM add?
+Answer in your own words (2–4 sentences each), from this week's slides.
+1. Hashing, encryption and encoding are three different tools. Which one does `store_password()` in `vulnerable_crypto.py` use, which one does `encrypt_ecb()` use, and why is Base64 never a way to protect a secret?
+2. In {{ ref('sdlc-tooling') }}, Semgrep flagged MD5. Give two reasons a pattern-matching scanner can miss a crypto mistake such as a weak reset token or a hardcoded key.
+3. Why is an encryption key written in source code dangerous even in a private repository, and why does deleting it in a new commit not fix the leak?
+4. An app has 10,000 users whose passwords are stored as unsalted MD5. Why can't you convert them all to argon2id tonight, and how does *rehash-on-login* solve it?
 5. What's the difference between `random` and a CSPRNG (e.g. `secrets`), and where does it matter?
 
 ![Four paired rows showing that password storage, cipher mode, randomness and key source are four separate crypto decisions: MD5 (CWE-916/327) becomes argon2id, AES-ECB with a hardcoded key (CWE-327) becomes AES-GCM with a nonce and tag, a 6-digit random.choice token (CWE-330) becomes secrets.token_urlsafe, and HARDCODED_KEY (CWE-798) becomes a key injected from the environment — so naming AES answers none of the four questions.](img/crypto-misuse.svg)
 
-## Part 3 — Hands-on Lab (115 min in class + 65 min homework)
+{% if course_code == '02005094' %}## Part 3 — Shared practical core (100 min in class)
+{% else %}## Part 3 — Hands-on Lab (core tasks ~110 min in class; one optional bonus task as homework)
+{% endif %}
+{% if course_code == '02005094' %}**100-minute core:** Baseline behavior (5), scanner observations (10), code review (15), token predictability (10), key-handling analysis (10), student rehash-on-login (30), fixed control checks (20).
 
-> **In class or homework.** Tasks marked *in class* are done during the lab, where the instructor
-> checks your evidence and reasoning. Tasks marked *homework* are finished after class and submitted
-> with the rest of this worksheet, before the next class. Every task keeps its time and its marks.
-> Answer Part 2 before class, from this week's slides; Part 4, *Audit the AI* and *Comprehension &
-> Prompt* are homework.
+All original task/question text remains below. The minute labels are activity budgets; the extended task set is preparation/follow-up, not extra work to fit inside the 100-minute core. Complete Part 2/Part 4 only for the assigned Conventional 40, or Audit/EiPE/Prompt only for the assigned AIR-Sec 40.
+
+{% else %}> **Core vs optional.** The **core tasks are 0–6** — everyone does these in class, where the
+> instructor checks your evidence and reasoning. **Task 7 is optional**: do it as homework for a
+> **bonus of up to +5**. Answer Part 2 before class, from this week's slides; Part 4, *Audit the AI*
+> and *Comprehension & Prompt* are homework.
 >
-> **In class (115 min):** Tasks 0, 1, 2, 3, 4, 7 and 9 · **Homework (65 min):** Tasks 5, 6 and 8
-**Learning goals:** exploit four crypto misuses, then remediate them with a vetted KDF, authenticated encryption, and a CSPRNG.
-**Prerequisites:** Docker (or local Python 3.12); `hashcat` or `john`; the `rockyou.txt` wordlist.
+> **Core, in class:** Tasks 0, 1, 2, 3, 4, 5 and 6 · **Optional bonus (homework):** Task 7
+{% endif %}
+**Learning goals:** find four crypto misuses in application code — first with scanners, then by reading the code — and fix them with the right library call: a vetted KDF with a migration path, authenticated encryption, a CSPRNG, and a key from the environment.
+**Prerequisites:** Docker, the scanner images from {{ ref('sdlc-tooling') }} (`semgrep/semgrep`, `zricethezav/gitleaks`), and this lab's prepared `kosen-swsec-week03:local` image. Build the lab image while online before class; no new tool is needed during the practical.
 
 **Environment setup**
 ```bash
 cd {{ labpath }}
-docker compose up           # installs pycryptodome + argon2-cffi, runs both scripts
+docker compose build        # once before class, while online; installs pinned Python packages
+docker compose up           # runs both scripts without downloading packages
 # or locally:
 pip install pycryptodome argon2-cffi
-python vulnerable_crypto.py # see the md5 hash, repeated ECB blocks, 6-digit token
+python vulnerable_crypto.py # prints an md5 digest, an ecb ciphertext and a 6-digit token
 ```
-Targets: `vulnerable_crypto.py` (the misuses), `hashes.txt` (four unsalted MD5s), and `solution_skeleton.py` (the fix).
+Targets: `vulnerable_crypto.py` (four crypto mistakes, not labelled), `migrate.py` (Task 5) and `solution_skeleton.py` (the fixed version).
 
-**What to submit per task:** the command/payload run + a screenshot of the result + a 2–3 sentence mitigation.
+**What to submit per task:** the command run + a screenshot of the result + the short answer the task asks for.
 
-**Task 0 — Onboarding (5 min, in class)** · *Goal:* see the misuse output. *Steps:* run `python vulnerable_crypto.py`; note the md5 digest, the identical ECB ciphertext blocks, and the short token. *Deliverable:* screenshot of the program output.
+**Task 0 — Onboarding (5 min, in class)** · *Goal:* see what the code produces. *Steps:* run `docker compose up` (or `python vulnerable_crypto.py`); note the `md5:`, `ecb:` and `token:` lines. *Deliverable:* screenshot of the program output.
 
-**Task 1 — Capture the Hash (30 min, in class)** · *Goal:* recover the passwords. *Steps:* strip the comment lines from `hashes.txt`, then run `hashcat -m 0 hashes.txt rockyou.txt` (or the `john --format=raw-md5` equivalent); recover all four plaintexts. *Deliverable:* screenshot of the cracked results (mask any real-looking value). Note in one line why unsalted MD5 fell so fast (CWE-916/327).
-
-```sim
-aes-modes
+{% if course_code == '02005094' %}**Task 1 — Let the tools look first (10 min, in class)** · *Goal:* see what a scanner finds on its own. *Steps:* from `{{ labpath }}`, run the two {{ ref('sdlc-tooling') }} tools on `vulnerable_crypto.py`:
+{% else %}**Task 1 — Let the tools look first (15 min, in class)** · *Goal:* see what a scanner finds on its own. *Steps:* from `{{ labpath }}`, run the two {{ ref('sdlc-tooling') }} tools on `vulnerable_crypto.py`:
+{% endif %}
+```bash
+docker run --rm -v "$PWD":/src -w /src semgrep/semgrep \
+    semgrep scan --config p/python --metrics=off vulnerable_crypto.py
+docker run --rm -v "$PWD":/src zricethezav/gitleaks:latest \
+    detect --no-git --source /src/vulnerable_crypto.py --no-banner
 ```
 
-**Task 2 — ECB structure leak (20 min, in class)** · *Goal:* prove ECB leaks. *Steps:* call `encrypt_ecb(b"A"*16 + b"A"*16)` from `vulnerable_crypto.py` and show the two 16-byte ciphertext blocks are identical; explain how this leaks plaintext structure (CWE-327). *Deliverable:* hex output highlighting the repeated block.
+If the Semgrep registry is unavailable, use the supplied narrow rule offline and label that result as the **local fallback**:
 
-**Task 3 — Predictable token (15 min, in class)** · *Goal:* show the reset token is guessable. *Steps:* call `reset_token()` repeatedly; argue why a 6-digit `random` token (10^6 space, non-CSPRNG) is brute-forceable (CWE-330). *Deliverable:* sample tokens + a one-line attack estimate.
+```bash
+docker run --rm --network none -v "$PWD":/src -w /src semgrep/semgrep \
+    semgrep scan --config semgrep-local.yml --metrics=off --disable-version-check vulnerable_crypto.py
+```
 
-**Task 4 — Hardcoded key (5 min, in class)** · *Goal:* identify the key-management flaw. *Steps:* find `HARDCODED_KEY` in `vulnerable_crypto.py`; explain why shipping a key in source is CWE-798 (its cryptographic-key case is CWE-321). *Deliverable:* the line + a 2-sentence mitigation.
+Write down every finding (rule name and line), or "no findings", and which ruleset you used. The local fallback checks MD5 calls only; it cannot establish that the other crypto decisions are safe. If the registry rule prints SHA-256/SHA-3 advice, judge whether that is the right fix **for storing passwords**. *Deliverable:* screenshot of both scanner outputs + your list of findings + one line judging the advice or the fallback rule's limit.
 
-**Task 5 — Crack the project target's hashes (25 min, homework)** · *Goal:* apply cracking to your term project. *Steps:* **NoteVault** stores unsalted MD5 password hashes; obtain them (via the app's `/admin` once you can reach it, or from its `seed()`), and crack them with `hashcat -m 0`. *Deliverable:* the recovered password(s) + note the CWE — record this finding for your project report (`project/REPORT-TEMPLATE.md` in the repo root).
+{% if course_code == '02005094' %}**Task 2 — Find the rest by reading (15 min, in class)** · *Goal:* do the review the tools could not. *Steps:* read `vulnerable_crypto.py` (26 lines) with the checklist from the slides: MD5/SHA-1 used for security, `MODE_ECB`, a key written as a literal, `random` used for something secret. Fill in one row per mistake:
+{% else %}**Task 2 — Find the rest by reading (20 min, in class)** · *Goal:* do the review the tools could not. *Steps:* read `vulnerable_crypto.py` (26 lines) with the checklist from the slides: MD5/SHA-1 used for security, `MODE_ECB`, a key written as a literal, `random` used for something secret. Fill in one row per mistake:
+{% endif %}
+| Line | What the code does | The mistake | CWE | Flagged by a tool in Task 1? |
+|---|---|---|---|---|
+| | | | | |
 
-**Task 6 — Password storage migration (25 min, homework)** · *Goal:* fix it the way real apps do. *Steps:* write `store_password`/`verify_password` with **argon2id**, and a **rehash-on-login** path that upgrades a legacy MD5 record to argon2id the next time the user logs in. *Deliverable:* the code + a short note on why migration matters.
+Then, in the `ecb:` line from Task 0, mark the two identical 16-byte blocks (32 hex characters each): that repetition is what ECB leaks. (*Why* ECB behaves like this is the Cryptography course's cipher-modes lab — here you only need to recognise `MODE_ECB` in code.) For each mistake no tool flagged, write one line on why a pattern-matching tool cannot be sure it is a bug. *Deliverable:* the four-row table + the marked `ecb:` line + the one-liners.
 
-**Task 7 — Authenticated encryption round-trip (20 min, in class)** · *Goal:* use AEAD correctly. *Steps:* encrypt+decrypt a message with **AES-GCM** using a random 12-byte nonce and a key from an env var; then flip one ciphertext byte and show decryption **fails** (tag check). *Deliverable:* the round-trip output + the tampered-fails proof.
+> **Cracking `hashes.txt`?** Not this week — that attack is the Cryptography course's hash lab. The
+> file stays in this folder as optional practice for the midterm practical (no marks here).
 
-**Task 8 — TLS in practice (15 min, homework)** · *Goal:* read a real cert. *Steps:* run `openssl s_client -connect example.com:443 </dev/null 2>/dev/null | tee /tmp/tls.txt | openssl x509 -noout -issuer -subject -dates` for the cert summary, then `grep -E 'Protocol|New,' /tmp/tls.txt` for the negotiated TLS version (the version line is printed by `s_client`, not by `x509`, so the plain pipe would discard it); identify issuer, validity, and that TLS version. *Deliverable:* the cert summary + one line on what TLS protects that hashing/at-rest encryption does not.
+{% if course_code == '02005094' %}**Task 3 — Predictable token (10 min, in class)** · *Goal:* show the reset token is guessable. *Steps:* from `{{ labpath }}`, print several `reset_token()` values with this one Docker command:
+{% else %}**Task 3 — Predictable token (15 min, in class)** · *Goal:* show the reset token is guessable. *Steps:* from `{{ labpath }}`, print several `reset_token()` values with this one Docker command:
+{% endif %}
+```bash
+docker run --rm --network none -v "$PWD":/work -w /work kosen-swsec-week03:local \
+    python -c 'import vulnerable_crypto as v; [print(v.reset_token()) for _ in range(5)]'
+```
 
-**Task 9 — Defend / fix it (20 min, in class)** · *Goal:* remediate using `solution_skeleton.py`. *Steps:* run `python solution_skeleton.py`; confirm `store_password`/`verify_password` use argon2id (auto-salted), `encrypt_gcm` uses a random 12-byte nonce + auth tag with a key from `ENC_KEY_HEX` env, and `reset_token` uses `secrets`. Map each fix to the CWE it closes. *Deliverable:* before/after table (misuse → fix → CWE closed) + screenshot of the fixed script running.
+Argue why a 6-digit `random` token (10^6 space, non-CSPRNG) is brute-forceable (CWE-330). *Deliverable:* sample tokens + a one-line attack estimate.
 
-## Part 4 — Reflection
-1. Map each of the four misuses to its CWE and to OWASP A04, in one line each.
+**Task 4 — Get the key out of the code (10 min, in class)** · *Goal:* fix the key-management mistake properly. *Steps:* find the key literal in `vulnerable_crypto.py`; explain why shipping a key in source is CWE-798 (its cryptographic-key case is CWE-321), and say where the key should come from instead. Then explain why removing the line in a new commit does **not** end the leak (think of what Gitleaks scanned in {{ ref('sdlc-tooling') }}). *Deliverable:* the line + a 2-sentence mitigation + one line on git history.
+
+{% if course_code == '02005094' %}**Task 5 — Rehash-on-login (30 min, in class, guided)** · *Goal:* upgrade old MD5 passwords to argon2id the way real apps do. *Steps:* run `migrate.py`, fill in the one-line `TODO` in `migrate.py`'s `login()`, and run it again until it prints `ALL PASS`:
+{% else %}**Task 5 — Rehash-on-login (25 min, in class, guided)** · *Goal:* upgrade old MD5 passwords to argon2id the way real apps do. *Steps:* run `migrate.py`, fill in the one-line `TODO` in `login()`, and run it again until it prints `ALL PASS`:
+{% endif %}
+```bash
+docker run --rm --network none -v "$PWD":/work -w /work kosen-swsec-week03:local python migrate.py
+```
+
+*Deliverable:* the line you wrote + a screenshot of `ALL PASS` + 2 sentences: why the upgrade can only happen at login, and why the MD5 check uses `hmac.compare_digest`.
+
+**Task 6 — Defend / fix it (20 min, in class, guided)** · *Goal:* check the fixed version, with the key coming from the environment. *Steps:* run `solution_skeleton.py` with a fresh key in `ENC_KEY_HEX`:
+
+```bash
+export ENC_KEY_HEX=$(openssl rand -hex 32)
+docker run --rm --network none -e ENC_KEY_HEX -v "$PWD":/work -w /work \
+    kosen-swsec-week03:local python solution_skeleton.py
+```
+
+Confirm `store_password`/`verify_password` use argon2id (auto-salted), `encrypt_gcm` uses a random 12-byte nonce + auth tag with the key from `ENC_KEY_HEX`, and `reset_token` uses `secrets`. Map each fix to the CWE it closes. *Deliverable:* before/after table (mistake → fix → CWE closed) + screenshot of the fixed script running.
+
+{% if course_code == '02005094' %}**Task 7 — Your project: NoteVault (homework, optional extension; no extra graded points)** · *Goal:* find the same mistakes in your term project. *Steps:* scan the NoteVault starter app from inside its own folder (a scan started at the repo root finds nothing there, because the root `.semgrepignore` excludes it):
+{% else %}**Task 7 — Your project: NoteVault (homework, optional bonus up to +5)** · *Goal:* find the same mistakes in your term project. *Steps:* scan the NoteVault starter app from inside its own folder (a scan started at the repo root finds nothing there, because the root `.semgrepignore` excludes it):
+{% endif %}
+```bash
+cd project/starter-app
+docker run --rm -v "$PWD":/src -w /src semgrep/semgrep \
+    semgrep scan --config p/python --metrics=off .
+```
+
+List the crypto-related findings (file:line + rule), say which of this week's four mistakes NoteVault repeats, and describe in 2–3 sentences how rehash-on-login would move NoteVault's users off MD5. *Deliverable:* the list + the sketch — record it as a finding for your project report (`project/REPORT-TEMPLATE.md` in the repo root).
+
+{% if course_code == '02005094' %}**Supplied reference versus student code:** `solution_skeleton.py` is a complete reference despite its legacy filename. Your required authored change is the rehash-on-login TODO in `migrate.py`. Add a wrong-password/no-migration case and a subsequent successful login to your evidence; do not claim that merely running the reference implements the migration. This week is software misuse review, not a repeat of the cryptography course's cracking/mode-attack lab.
+
+{% else %}{% endif %}## Part 4 — Reflection
+1. Map each of the four mistakes to its CWE and to OWASP A04, in one line each.
 2. Name a real-world breach caused by weak password hashing or hardcoded keys, and which fix here would have prevented it.
-3. Across all four fixes, which closes the largest real-world risk, and why?
+3. Which of the four mistakes did no tool flag, and what would you add to code review or CI so it is caught next time?
 
 ## Grading rubric (100)
-| Criterion | Points |
+{% if course_code == '02005094' %}| Criterion | Conventional | AIR-Sec |
+|---|---:|---:|
+| Common practical: main task and observations | 20 | 20 |
+| Common practical: student defense/control or design, tests and limitations | 20 | 20 |
+| Common practical: reproducible evidence and reasoning | 20 | 20 |
+| Assigned Conventional Part 2 written questions | 20 | — |
+| Assigned Conventional Part 4 reflection | 20 | — |
+| Assigned Audit-the-AI | — | 20 |
+| Assigned Explain-in-Plain-English | — | 10 |
+| Assigned Prompt Problem | — | 10 |
+| **Total** | **100** | **100** |
+{% else %}| Criterion | Points |
 |---|---|
 | Lecture questions (Part 2) | 20 |
-| Exploitation + evidence (cracked hashes + ECB/token/key proof + screenshots) | 40 |
-| Defense (working `solution_skeleton.py` + before/after mapping) | 25 |
-| Reflection (CWE/OWASP mapping + breach + biggest-risk fix) | 15 |
-
+| Finding + evidence (tool run, mistake table + ECB blocks, token, key, rehash-on-login) | 40 |
+| Defense (fixed `solution_skeleton.py` with the key from `ENC_KEY_HEX` + before/after mapping) | 25 |
+| Reflection (CWE/OWASP mapping + breach + what tools miss) | 15 |
+{% endif %}
+{% if course_code == '02005094' %}The optional project/upload extension adds no extra graded points to the common 60 or assigned 40.
+{% else %}Task 7 is optional: up to **+5** bonus on top of the Finding row, which stays capped at 40.
+{% endif %}
 **Due:** 23:59 (Thai time) the night before next week's class (exact time on learn.zcr.ai/submit). **Late:** −10% per started day; 0 after 10 days.
 
 ---
 
-## Evidence & Integrity (required)
-
+{% if course_code == '02005094' %}## Evidence & Integrity — common to both versions
+{% else %}## Evidence & Integrity (required)
+{% endif %}
 - **Identity proof:** every screenshot/diagram must show a terminal running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in the
   same image as the evidence**. When the evidence is a browser page, a DevTools panel or a
   rendered response, put that terminal **beside the browser and capture the whole screen** — a
@@ -96,26 +184,33 @@ aes-modes
   the shot yours. Generic or borrowed evidence is not accepted.
 - **Personalized flag (if this lab issues one):** ____________________
   *Flags are unique per student — submitting another student's flag is a violation. This blank is your personal record only; the flag itself is scored by submitting it in the **`ctf.zcr.ai`** challenge — the worksheet PDF is a separate submission, to **learn.zcr.ai/submit** (full guide: [SUBMISSION.md](../../SUBMISSION.md)).*
-- **Explain in your own words** *(graded on your reasoning, not copied text):*
-  1. What did you do, and **why did the vulnerability work**?
+{% if course_code == '02005094' %}- **Common practical reasoning** *(graded within the common 60, not as another EiPE score):*
+{% else %}- **Explain in your own words** *(graded on your reasoning, not copied text):*
+{% endif %}  1. What did you do, and **why did the vulnerability work**?
   2. **Why does your fix actually stop it** — and what could still break it?
 
 ---
 
-## 🤖 Audit the AI (required)
-
+{% if course_code == '02005094' %}## 🤖 Audit the AI — assigned AIR-Sec section (20)
+{% else %}## 🤖 Audit the AI (required)
+{% endif %}
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
-1. Ask an AI assistant to exploit **or** fix this week's vulnerability. Paste its full answer.
+{% if course_code == '02005094' %}1. Audit a complete AI answer about this week's design, exploit or fix. Use the instructor-provided exhibit if one is assigned, or obtain an answer and paste it in full. A correct answer is allowed: verify its claims and state the remaining assumptions rather than inventing an error.
+2. **Check what is correct, wrong, risky or conditional** — insecure code, an incomplete fix, a hallucinated API/function/CVE, an edge case or unsupported reasoning. Quote the exact line(s) and support the evaluation with evidence.
+3. Supply a verified correction where needed; if the answer is correct, supply the verification and limits. Explain your conclusion in 2–3 sentences. Do not manufacture a defect to satisfy the task.
+{% else %}1. Ask an AI assistant to exploit **or** fix this week's vulnerability. Paste its full answer.
 2. **Find what's wrong or risky** in it — insecure code, a subtly incomplete fix, a hallucinated API/function/CVE, a missed edge case, or wrong reasoning. Quote the exact line(s).
 3. Produce the **correct, verified** version yourself and explain in 2–3 sentences why the AI's output was insufficient.
-
-> Disclose your AI use in the Part 1 table. This task counts toward your **Defense + Reflection** score.
-
+{% endif %}
+{% if course_code == '02005094' %}> Disclose your AI use in the Part 1 table. This is the assigned AIR-Sec Audit component (20 points); it is not added to the common 60 or to the Conventional 40.
+{% else %}> Disclose your AI use in the Part 1 table. This task counts toward your **Defense + Reflection** score.
+{% endif %}
 ---
 
-## 🧠 Comprehension & Prompt (required)
-
+{% if course_code == '02005094' %}## 🧠 Comprehension & Prompt — assigned AIR-Sec section (10 + 10)
+{% else %}## 🧠 Comprehension & Prompt (required)
+{% endif %}
 **A. Explain in Plain English (EiPE).** In 2–3 sentences, in your own words, describe what this week's vulnerable code/endpoint actually *does* and *why it is exploitable* — explain the mechanism, don't dump jargon.
 
 **B. Prompt Problem.** Write a **single prompt** that makes an AI produce a *correct, secure* fix for one finding. Run it: does the exploit now fail? If not, refine the prompt and try again. Submit the **final prompt + the verified result**.

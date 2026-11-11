@@ -50,3 +50,18 @@ def test_labname_has_no_labs_prefix():
     ctx = crossref.context(_manifest(), current_slug="macs")
     assert crossref.render("{{ labname }}", ctx) == "week03-macs"
     assert crossref.render("{{ labpath }}", ctx) == "labs/week03-macs"
+
+
+@pytest.mark.parametrize("code,minutes,expected", [
+    ("02005094", 150, "KOSEN 150"),
+    ("1305315", None, "Original policy"),
+    (None, None, "Original policy"),
+])
+def test_course_policy_does_not_leak_to_other_institutions(code, minutes, expected):
+    manifest = _manifest()
+    if code is not None:
+        manifest.course.update(code=code, class_minutes=minutes)
+    ctx = crossref.context(manifest, current_slug="macs")
+    template = ("{% if course_code == '02005094' %}KOSEN {{ class_minutes }}"
+                "{% else %}Original policy{% endif %}")
+    assert crossref.render(template, ctx) == expected

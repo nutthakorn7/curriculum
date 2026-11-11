@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 290" width="1000" height="290" role="img"
+     aria-label="The server sends a cookie with data and a signature. If the data comes back unchanged, the server's own check matches and it accepts. If someone changes admin=false to admin=true and keeps the old signature, the check does not match and the server refuses.">
+  <title>A signature lets the server notice a changed cookie</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .t  { font: 600 16px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 13px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 13px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 15px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 15px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d }
+      .a  { stroke: #c9ced3 }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+  </defs>
+
+  <text class="t" x="195" y="34">The cookie comes back</text>
+  <text class="t" x="545" y="34">The server checks it</text>
+  <text class="t" x="860" y="34">Result</text>
+
+  <!-- unchanged cookie -->
+  <rect class="bg" x="30" y="55" width="330" height="80" rx="8"/>
+  <text class="ts" x="195" y="76">Not changed</text>
+  <text class="tm" x="195" y="100">data: user=guest&amp;admin=false</text>
+  <text class="tm" x="195" y="122">sig:  f27d…37d4</text>
+
+  <!-- changed cookie -->
+  <rect class="bo" x="30" y="165" width="330" height="80" rx="8"/>
+  <text class="to" x="195" y="186">Changed by hand</text>
+  <text class="tm" x="195" y="210">data: user=guest&amp;admin=true</text>
+  <text class="tm" x="195" y="232">sig:  f27d…37d4 (the old one)</text>
+
+  <!-- server check -->
+  <path class="a" d="M365,95 H425"/>
+  <path class="a" d="M365,205 H425"/>
+  <rect class="b" x="430" y="55" width="230" height="190" rx="10"/>
+  <text class="tb" x="545" y="120">Re-make the signature</text>
+  <text class="ts" x="545" y="146">from the data it received</text>
+  <text class="ts" x="545" y="166">and its own secret,</text>
+  <text class="ts" x="545" y="186">then compare with sig</text>
+
+  <!-- results -->
+  <path class="a" d="M665,95 H745"/>
+  <path class="a" d="M665,205 H745"/>
+  <rect class="b" x="750" y="65" width="220" height="60" rx="8"/>
+  <text class="tb" x="860" y="90">✓ Match</text>
+  <text class="ts" x="860" y="112">the server accepts it</text>
+  <rect class="bo" x="750" y="175" width="220" height="60" rx="8"/>
+  <text class="to" x="860" y="200">✗ No match</text>
+  <text class="ts" x="860" y="222">"bad signature"</text>
+
+  <text class="ts" x="500" y="276">You cannot simply make a new signature, because you do not know the secret.</text>
+</svg>

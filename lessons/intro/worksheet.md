@@ -1,99 +1,125 @@
 # Worksheet 1 — Security Mindset & Threat-Modeling a Cryptographic System
 
-> **Course:** Security & Cryptography (KOSEN69) · **{{ slot_label }}**
+> **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
 > **Aligned to:** NIST FIPS 140-3 · OWASP Cryptographic Storage Cheat Sheet · CWE-320, CWE-330
 > **Kind:** Conceptual — no Docker target, no flag this week. Grading is rubric-based (see below).
 
-## How to use this worksheet — 100-minute class, two versions
+## How to use this worksheet
 
-Everyone completes the **same common activity (60 points)**. Complete only the
-**Conventional written assessment (40)** or the **AIR-Sec assessment (40)** assigned
-by the instructor. AIR-Sec's 40 points are Audit the AI 20, EiPE 10 and Prompt Problem 10.
-Each version totals **100**, and neither version requires the other format for marks.
+- Everyone does **Part A (60 points)**. It is the same for both forms.
+- Then do **only your form (40 points)**. The last digit of your student ID decides:
+  **odd = Conventional (Part 2)**, **even = AIR-Sec (Parts 3–4)**. Write your form in the Group field.
+- You may answer in Thai or English. Short, clear answers are fine.
+- **Use the answer sheet.** In Classroom → Week 01, open the file for your form
+  (`Wk01_Answer_Sheet_Conventional_odd_ID` or `Wk01_Answer_Sheet_AIR-Sec_even_ID`), type your
+  answers in the grey boxes, add your picture and screenshot, then File → Download → PDF.
+- No Docker and no flag this week. Hand in one PDF, `Wk01_<StudentID>.pdf`, at `learn.zcr.ai/submit`.
+- Already started the earlier version of this worksheet? That work also gets full credit.
+- This is a **warm-up week**: both 40-point forms are short. The older, harder questions are
+  kept at the end of Part 2 as optional reading (no marks).
 
-| Common criterion | Points | This week's evidence |
+| Part A | Points | What you hand in |
 |---|---:|---|
-| Core activity / analysis | 20 | Threat-model the supplied small web application: identify assets, actors, data/key flows and trust boundaries. |
-| Control comparison and limitations | 20 | Choose controls for two risks, state the trust assumptions, and explain a residual risk or limitation. |
-| Evidence and causal reasoning | 20 | Submit a labelled diagram, a risk/control table and an explanation linking each conclusion to the stated case. |
+| A1 — Who sees what | 20 | The filled-in component table and a simple picture with two trust boundaries marked |
+| A2 — Risks and controls | 20 | Two rows of the risk table |
+| A3 — Hands-on: crack a weak key | 20 | A screenshot from the simulation and three short answers |
 
-**Before class:** complete the stated reading and any environment setup; software
-installation and first image downloads are preparation, not extra contact minutes.
-**In class (100 minutes):** 10 quiz/review + 10 brief + 60 shared practice/analysis +
-15 debrief + 5 evidence capture. In Week 1 the opening block is orientation/review,
-not a quiz on material not yet taught. The detailed tasks below are a checklist, not
-additional timed class blocks: work through the core observations in the guided practice,
-draft the explanation in the debrief, then finish detailed calculations/write-up and the
-assigned 40-point format before the published deadline. Keep every original question;
-questions in the unassigned format are study extensions.
+## Part A — Common work (both forms, 60 points)
 
-## Shared common activity — threat model (both versions, 60 points)
+**The case** (a teaching scenario, not a real service): a small web app lets signed-in users
+store private notes.
 
-**Case for analysis (a teaching scenario, not a claim about a real service):** a small
-web application lets signed-in users store private notes. A browser talks to an application
-server over TLS. The server can read notes to display them, encrypts the note database with
-an application-managed key, and sends encrypted database backups to an operations team.
-The team must also keep a recovery path for the key. Do not assume that encrypting the
-database hides notes from the application server.
+- The browser talks to the app server over HTTPS (TLS).
+- The app server reads the notes so it can show them.
+- The note database is encrypted with a key that the app manages.
+- Encrypted backups go to an operations (ops) team, which also keeps a way to recover the key.
 
-1. Draw the browser, application, note database, key store and backup/recovery roles. Label
-   where plaintext and keys are visible and where control/trust changes.
-2. Identify the assets, an attacker and **two** concrete failure paths. For each path, name
-   one control, the assumption it relies on, and one remaining risk or availability cost.
-3. Submit your diagram and a table `risk -> control -> assumption -> residual limitation`,
-   then explain why the controls address your selected paths. This is the common evidence;
-   no Docker target, flag or invented runtime output is required.
+### A1 — Who sees what? (20 points)
+
+Fill in the table with **Yes** or **No**, plus a short reason where it helps.
+
+| Component | Can it see the plaintext notes? | Can it see or use the key? |
+|---|---|---|
+| User's browser | | |
+| App server | | |
+| Note database (on disk) | | |
+| Key store | | |
+| Backup / ops team | | |
+
+Then draw a simple box-and-arrow picture of these five parts and mark **two trust boundaries**
+(places where data or a key passes to someone with different control). A photo of a hand drawing
+is fine.
+
+*Hint:* encrypting the database does **not** hide the notes from the app server. Why not?
+
+### A2 — Risks and controls (20 points)
+
+Row 1 is done for you. Write **two more rows**.
+
+| Risk (what goes wrong) | Control (what we do) | Assumption (what must stay true) | Still left (what it does not fix) |
+|---|---|---|---|
+| Backups and the key both go to the ops team, so one leak exposes every note | Keep the key in a separate key store; ops get the backups but not the key | Access to the key store is limited and logged | If the key is lost, the backups cannot be restored |
+| *your row* | | | |
+| *your row* | | | |
+
+*Hint for one row:* an attacker breaks into the app server. What can they read?
+
+### A3 — Hands-on: crack a key that was never really random (20 points)
+
+1. Open **<https://learn.zcr.ai/sim/seed-crack>** on a phone or laptop.
+2. Pick a target (TLS host key, session token or password-reset link) and press
+   **Run the brute force**.
+3. Take a **screenshot** that shows **KEY RECOVERED** and how long it took.
+
+Answer each in 1–2 sentences:
+
+- **a.** How many candidates did your browser try, and how long did it take?
+- **b.** The design assumed 2^128 possible keys. Why did the attacker only need to try so few?
+- **c.** What went wrong here: the algorithm, the key length, or the randomness? Explain.
+
+*Real case:* the Debian OpenSSL bug (2008) left only about 32,768 possible keys.
 
 ## Part 1 — Student Information
 
-| Name | Student ID | Date | Group |
+| Name | Student ID | Date | Group (your form: Conventional or AIR-Sec) |
 |---|---|---|---|
 | | | | |
 
 *Disclose any AI assistance used anywhere in this worksheet here (tool + what you asked it).*
 
-## Part 2 — Conventional form (40 points; only if Conventional is your assigned form): Short-Answer Questions
+## Part 2 — Conventional form (40 points; only if Conventional is your assigned form): Warm-up questions
 
-Answer each in your own words (4–8 sentences unless noted). These are conceptual questions —
-you are graded on the accuracy and completeness of your reasoning, not on matching a specific
-sentence.
+Answer in your own words, in Thai or English. Two to four sentences each is enough; this week's
+slides cover everything you need.
 
-**Q1.** "Cryptographically secure" is a specific, bounded claim. Explain what it actually
-promises (be precise: about what class of attack, under what assumptions, at what security
-level) — and then explain what it does **not** promise about the system that uses the
-primitive. Give one sentence of each.
+**Q1 (10).** What are **plaintext**, **ciphertext** and a **key**? Then explain Kerckhoffs'
+principle in one or two sentences: why is it fine for the algorithm to be public?
 
-**Q2.** Describe one real incident in which a mathematically sound cryptographic primitive was
-used correctly *in theory* but the system around it failed anyway (implementation bug, bad
-randomness, protocol misuse, side channel, or key-management failure — pick one). Name the
-primitive, name the specific misuse, and state what actually leaked or broke as a result. (You
-may use an incident from the References list, or another one you can verify — cite your
-source.)
+**Q2 (10).** Give one difference between **symmetric** and **asymmetric** encryption, and one
+example algorithm of each. Why does HTTPS use both?
 
-**Q3.** Define *trust boundary*. Then apply it specifically to a system that handles
-cryptographic keys: name three concrete points in a typical web application's architecture
-where key material crosses a trust boundary, and for each, name one thing that commonly goes
-wrong at that crossing.
+**Q3 (10).** Pick the right tool for each job — **encryption**, **hash**, **MAC**, **digital
+signature** or **slow password KDF** — and give a one-line reason:
 
-**Q4.** Apply the CIA triad specifically to cryptography (not to security in general). For each
-of Confidentiality, Integrity, and Availability: (a) name the cryptographic mechanism most
-responsible for providing it, and (b) give one concrete example of that property failing *even
-when the underlying primitive was mathematically sound*.
+- a. Keep a file secret on a laptop.
+- b. Check that a downloaded file was not corrupted.
+- c. Prove an API request came from our own server, which shares a secret key with us.
+- d. Prove a software update really came from the vendor.
+- e. Store users' passwords in a database.
 
-**Q5.** "We encrypted the data, so it's secure" is a common but incomplete claim. Explain
-precisely what gap this claim leaves open, using the distinction between confidentiality and
-integrity/authenticity. What specific kind of attack becomes possible when encryption is used
-with no integrity mechanism?
+**Q4 (10).** A developer says: *"The data is encrypted, so nobody can change it."* What is
+wrong with this claim? Which tool would let you **detect** a change?
 
-**Q6.** This course covers eleven more primitive-focused teaching weeks, each pairing one
-textbook-secure primitive with one way real systems break it (see this week's README table;
-Week 16 is a capstone studio, not a new primitive, so it isn't in that table). Pick **two** weeks
-from that table that you have not yet studied. For each, based only on the primitive's name and
-your general knowledge (you are not expected to know the specific attack yet), write one
-sentence hypothesizing what assumption a real system might violate that the primitive itself
-doesn't defend against. (There's no single correct answer here — you'll find out how close your
-intuition was later in the course. You're graded on making a specific, falsifiable guess, not
-on being right.)
+### Going further (optional — no marks)
+
+- What exactly does "cryptographically secure" promise, and what does it *not* promise about the
+  system around it?
+- Find a real incident where a sound primitive was used and the system still failed (cite your
+  source).
+- Name three places in a web app where key material crosses a trust boundary, and what can go
+  wrong at each.
+- Pick two later weeks from this week's README table and guess what real-system mistake each
+  will show.
 
 ## Part 3 — AIR-Sec Arm: Audit the AI (AIR-Sec version only, 20 points)
 
@@ -128,24 +154,16 @@ and every individual factual claim in it is true. Read it carefully before you r
 > guidance on algorithm and key-length selection is the primary defense against real-world
 > cryptographic failure."
 
-**Task.**
+**Task.** Answer in Thai or English.
 
-1. Identify what the answer gets **right**. (It is not wrong about anything it says — this is
-   the trap. Say specifically what's correct and why a shallow reviewer would accept the whole
-   answer on this basis.)
-2. Identify the **gap**: what category (or categories) of real-world cryptographic failure does
-   this answer entirely omit, despite the question asking generally "why does textbook-secure
-   crypto fail in real systems" (not "why do key lengths become insecure")? Be specific — name
-   the missing categories, not just "it's incomplete."
-3. For **each** missing category you name, give one concrete real or realistic example showing
-   a system that used current, correctly-sized, unbroken primitives and still failed. (If you also tried
-   the Conventional Q2, you may reuse that answer if it fits one of the categories, but you need
-   at least two more distinct examples covering different categories.)
-4. Rewrite the answer's **final paragraph only** (the "In summary" paragraph) so that it
-   accurately reflects the full scope of why textbook-secure crypto fails in practice. Keep it
-   to 3–5 sentences — the goal is a correct, complete summary, not a longer one.
+1. **(5)** Name **two** things the AI answer gets right.
+2. **(10)** The question was "why does textbook-secure crypto fail in real systems?" Name **at
+   least one** big area of real-world failure that the answer never mentions, and give **one**
+   real or realistic example of it.
+3. **(5)** Rewrite the answer's **final paragraph only** (the "In summary" paragraph) in 2–3
+   sentences so that it is complete.
 
-**Submit:** your answers to 1–4 in your worksheet PDF.
+**Submit:** your answers to 1–3 in your worksheet PDF.
 
 ## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
@@ -156,26 +174,18 @@ safe?"* In 3–5 sentences, with no jargon (no "nonce," "side channel," "AEAD" �
 and what else determines whether the system is actually safe. A good answer should make sense
 to someone who has never taken a cryptography course.
 
-**B. Prompt Problem.** Write a **single prompt** that asks an AI assistant to produce a
-checklist a development team could use to review a system's cryptography *beyond* algorithm and
-key-length selection — i.e. a checklist that would have caught the gap you identified in Part 3.
-Run it, then critique the result:
+**B. Prompt Problem (10).** Write **one prompt** that asks an AI assistant for a checklist a
+team could use to review a system's cryptography *beyond* algorithm and key-length choice. Run it,
+paste the AI's answer, then mark **Yes** or **No** for whether the answer covers each of these:
 
-- Does it cover **key management** specifically (generation, storage, rotation, revocation,
-  where keys live relative to the data they protect)?
-- Does it cover **randomness/entropy sources** (not just "use a CSPRNG" as a slogan, but what
-  can go wrong if the source is predictable or reused)?
-- Does it cover **protocol/composition misuse** (using a sound primitive in the wrong mode, the
-  wrong order, or without the complementary primitive it depends on — e.g. encryption without
-  integrity)?
-- Does it cover **side channels** (timing, error-message content, cache behavior) as a distinct
-  category from "the algorithm is broken"?
-- Does it hand-wave, over-generalize, or silently omit any of the above the way this week's
-  Exhibit did?
+- key management (where keys live, rotation, recovery)
+- randomness (where keys and nonces come from)
+- protocol misuse (wrong mode, reused nonce, encryption without integrity)
+- side channels (timing, error messages)
 
-**Submit:** your exact prompt, the AI's full response, and a bullet-by-bullet critique against
-the checklist above (mark each item correct / incorrect / hand-waved, quoting the specific line
-you're pointing at).
+Finish with **one** thing the AI missed or explained too vaguely.
+
+**Submit:** your prompt, the AI's answer, your Yes/No marks and your one comment.
 
 ## Part 5 — Viva Spot-Check (formative/authenticity check; no separate points)
 
@@ -186,17 +196,15 @@ Be ready to answer these live, in your own words, with no notes:
    cryptographic system?
 2. Give one example — from this worksheet or from your own reasoning — of a security failure
    that a bigger key size would do **nothing** to prevent. Why not?
-3. This week's Exhibit answer was not wrong about anything it said. Why is "everything it said
-   is true" not the same as "the answer is complete and safe to act on"?
 
 ## Grading rubric — assigned version totals 100
 
 | Criterion | Conventional | AIR-Sec |
 |---|---:|---:|
-| Common core activity / analysis | 20 | 20 |
-| Common control comparison and limitations | 20 | 20 |
-| Common evidence and causal reasoning | 20 | 20 |
-| Conventional written questions | 40 | — |
+| Part A1 — Who sees what (core analysis) | 20 | 20 |
+| Part A2 — Risks and controls (controls and limitations) | 20 | 20 |
+| Part A3 — Hands-on evidence and reasoning | 20 | 20 |
+| Conventional warm-up questions (Q1–Q4, 10 each) | 40 | — |
 | AIR-Sec Audit the AI | — | 20 |
 | AIR-Sec Explain in Plain English (EiPE) | — | 10 |
 | AIR-Sec Prompt Problem | — | 10 |
@@ -220,7 +228,3 @@ no automatic-zero rule. Grade the demonstrated work against the published criter
 - **No personalized flag this week** — this is a Conceptual week, graded on the shared
   threat-model analysis and the assigned assessment format. Viva is formative feedback. See the README for why a CTF-style wrapper isn't
   used for {{ slot_label }}.
-- **Explain in your own words** *(graded on your reasoning, not copied text)*: for the
-  AIR-Sec Audit-the-AI task, when assigned, specifically, restate in 1–2 sentences why the Exhibit's gap matters in
-  practice — i.e. what a team that internalized only the Exhibit's advice would still be
-  exposed to.
