@@ -10,14 +10,14 @@ bugs, security-group inbound-rule hygiene · **Analogous CWE:** CWE-697 (Incorre
 CWE-284 (Improper Access Control).
 
 ## This lesson — what to do
-1. **Before class** — Docker Desktop working; complete the real AWS Academy lab covering Config +
-   Lambda remediation (Cloud Security Foundations Module 7, *Remediating an Incident by Using AWS
-   Config and Lambda*) in your Learner Lab sandbox first (that's still where you learn the actual
-   AWS console UI: Config rules, compliance timeline, Lambda console, CloudWatch Logs).
-2. **This add-on lab (45–60 min)** — a local, from-scratch simulation of the same
-   auto-remediation concept: a tiny Flask API standing in for "a security group" plus a
-   "remediation function" you can inspect and attack without an AWS account. Follow
-   **Step-by-step** below (kickoff: `docker compose up -d --build`).
+1. **Week 18 class (100 min)** — open Cloud Security Foundations Module 7 before class, then
+   complete Lab 7.1 (*Remediating an Incident by Using AWS Config and Lambda*) in the scheduled
+   75-minute Learner Lab block. Use it to learn the AWS console UI: Config rules, compliance
+   timeline, Lambda console, and CloudWatch Logs. Keep before/after security-group observations.
+2. **After that class (45–60 min outside class)** — read the Week 18 course bridge's Local 10
+   slides, then run a local, from-scratch simulation of the same remediation idea. A tiny Flask
+   API stands in for a security group and a remediation function you can inspect without an AWS
+   account. Follow **Step-by-step** below (kickoff: `docker compose up -d --build`).
 3. **Submit** — worksheet evidence and explanation → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Objectives

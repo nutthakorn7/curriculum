@@ -1,25 +1,49 @@
 # {{ slot_label }} — CloudTrail + CloudWatch + EventBridge Monitoring
 
-**Topic (source):** Shinya's own troubleshooting notes for AWS Academy Cloud Security
-Foundations Lab 3.2-class material on failed-console-login alerting (CloudTrail event
-recording → CloudWatch metric filter/alarm → EventBridge rule → SNS notification),
-described here in our own words — **not** copied from any AWS Academy file. **Kind:** HYBRID.
+**Topic (source):** AWS Academy Cloud Security Foundations Module 6 and Lab 6.1,
+*Monitoring and Alerting with CloudTrail and CloudWatch*, followed by our own local
+failed-login detection case. The AWS lab covers a CloudTrail trail, SNS subscription,
+EventBridge rule for security-group changes, CloudWatch metric filter/alarm, and Logs
+Insights. The local case below is an original simulation, **not** an AWS service or a copy
+of AWS Academy instructions. **Kind:** HYBRID.
 **Concepts:** detective controls, log-event aggregation keys, metric filters, alarm
 thresholds, password-spray vs. classic brute-force threat patterns · **Analogous bug class:**
 CWE-778 (Insufficient Logging) adjacent / detective-control logic error — the control exists
 and runs, but its aggregation key silently excludes the real attack shape.
 
 ## This lesson — what to do
-1. **Week 17 class (100 min)** — open Cloud Security Foundations Module 6 before class, then
-   complete Lab 6.1 (CloudTrail/CloudWatch/EventBridge monitoring) in the scheduled 75-minute
-   Learner Lab block. The lab teaches the AWS console UI, metric filter syntax, and EventBridge
-   rule configuration; keep its event and alert notes.
-2. **After that class (45–60 min outside class)** — read the Week 17 course bridge's Local 09
-   slides, then run a local, from-scratch simulation of the counting choice. A tiny Flask service
-   stands in for "a login event was recorded; did our detector alert?" without needing an AWS
-   account. This is a different scenario from the AWS lab's security-group event. Follow
-   **Step-by-step** below (kickoff: `docker compose up -d --build`).
-3. **Submit** — worksheet evidence and explanation → see [SUBMISSION.md](../../SUBMISSION.md).
+1. **Week 17 class (100 min)** — use AWS Academy Module 6 slides and complete Lab 6.1 in your
+   own Learner Lab: 10 minutes briefing, about 75 minutes for the AWS lab, 15 minutes debrief.
+   Record the event, rule, metric/alarm and notification evidence requested by the LMS. The
+   AWS lab is assessed in AWS Academy, not in the Local 09 Answer Sheet.
+2. **Week 17 after class (45–60 min for Local 09)** — read the concept bridge below, then
+   complete only the worksheet Part for your room. **C5R2 does Part 1** (written analysis,
+   no Docker); **C5R1 does Part 2** (local Docker simulation). Students run the local target
+   on their own machines; there is no instructor-hosted target or personal `.env`.
+3. **Submit by Mon 1 Mar 2027, 23:59** — fill in the **Local09 Answer Sheet** copy in Classroom
+   and click Turn in. Late submissions close Mon 8 Mar 2027, 23:59. See
+   [SUBMISSION.md](../../SUBMISSION.md).
+
+## Week 17 concept bridge — two detection paths
+
+The AWS lab's security-group change and this local failed-login case are **different events**.
+Use the AWS lab to learn the services, then apply the idea to the local case:
+
+| Path | What each service does |
+|---|---|
+| Log-to-metric alarm | CloudTrail records the supported account event and can deliver it to CloudWatch Logs. A metric filter counts matching **new** log events; a CloudWatch alarm evaluates that metric over its configured periods and can notify SNS. |
+| Event routing | An EventBridge rule can match an eligible event and send it to a target such as SNS. This is a separate route; EventBridge need not sit after a CloudWatch alarm. |
+
+For Local 09, imagine 20 failed sign-ins from one IP to 20 usernames. A detector counting by
+`(source_ip, username)` sees twenty separate counts of 1 and misses a threshold of 3. A
+detector counting by `source_ip` sees the third attempt cross that threshold. Counting by
+username instead sees repeated attempts against one account, including attempts from several
+IPs. No single grouping detects every attack pattern, and a count of failures does not prove
+that a credential was stolen. The Docker app uses in-memory counters and a client-supplied IP;
+real CloudWatch alarms evaluate metrics over time periods and CloudTrail records the event
+source. In production,
+high-cardinality dimensions such as IP address can create charges and may cause AWS to disable
+a metric filter. Reason about the threat model without deploying this toy design to AWS.
 
 ## Signature exercise — "The Spray That Never Alerts"
 
@@ -228,9 +252,7 @@ answers on the **Local09 Answer Sheet** copy in Classroom and click Turn in (no 
 tasks: `worksheet.md`.
 
 ## References
-- AWS CloudTrail documentation — *Logging AWS API and console sign-in events* (publicly
-  available, general concept — no AWS Academy file used or copied).
-- AWS CloudWatch documentation — *Creating metric filters and alarms for log data*, specifically
-  the concept of an aggregation/dimension key for a custom metric.
-- AWS EventBridge documentation — *Event patterns and rules for routing to a target* (general
-  concept, no AWS Academy file used or copied).
+- [CloudTrail event history and console sign-in events](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-aws-console-sign-in-events.html).
+- [CloudTrail delivery to CloudWatch Logs, metric filters and alarms](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/monitor-cloudtrail-log-files-with-cloudwatch-logs.html).
+- [Metric filters and high-cardinality dimension guidance](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntaxForMetricFilters.html).
+- [EventBridge AWS Sign-In events](https://docs.aws.amazon.com/eventbridge/latest/ref/events-ref-signin.html).

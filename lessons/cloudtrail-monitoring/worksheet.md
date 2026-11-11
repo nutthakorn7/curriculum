@@ -8,6 +8,13 @@ Block 2 AIR-Sec (reversed from Block 1). Complete only the part assigned to you 
 EventBridge, metric filter) and terms such as aggregation key, password spray and `source_ip` in
 English. Short, clear answers are enough: 2–4 sentences per question.
 
+**Weekly scope:** Week 17 class uses AWS Academy Module 6 and Lab 6.1. The lab's
+security-group monitoring example is different from this worksheet's failed-login case.
+After the AWS lab, read the **Week 17 concept bridge** in `README.md` and complete only
+your room's Part outside class. C5R2 answers Part 1 without Docker; C5R1 runs the local
+simulation for Part 2 on their own computer. Submit the Local09 Answer Sheet by the due date
+below. The AWS Course Assessment and Module 8 bridge work are separate LMS tasks.
+
 ## Part 1 — Conventional arm (short answers)
 
 Answer in your own words (no AI-resilience layer, no flag — graded on the writing itself):
