@@ -1,0 +1,31 @@
+x-runtime: &runtime
+  image: kosen-swsec-week10:local
+  build:
+    context: .
+    dockerfile: Dockerfile.student
+
+services:
+  vulnerable-api:
+    <<: *runtime
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    ports:
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8080:5000"
+    # PRACTICE build: with no .env the app serves public demo flags (FLAG{..._demo}).
+    # Graded flags come only from your hosted CTFd instance, never from this local run.
+    environment:
+      - FLAG_BOLA
+      - FLAG_MASSASSIGN
+    command: python vulnerable_api.py
+
+  solution-api:
+    <<: *runtime
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    ports:
+      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
+      - "127.0.0.1:8081:5001"
+    command: python solution_api.py

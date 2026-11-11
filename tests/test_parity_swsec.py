@@ -59,6 +59,31 @@ def test_markdown_matches_source(tmp_path, slug, srcdir):
             f"{slug}: rendered {src.name} != current published content"
 
 
+def test_kosen_nonlesson_weeks_match_public_source(tmp_path):
+    out = _render(tmp_path)
+    weeks = {
+        7: "review-midterm-prep", 8: "midterm-written", 9: "midterm-practical",
+        16: "capstone", 17: "review-final-prep", 18: "final-written",
+        19: "final-ctf-capstone", 20: "feedback",
+    }
+    for number, slug in weeks.items():
+        name = f"week{number:02}-{slug}"
+        source = SRC_LABS / name
+        rendered = out / "labs" / name
+        assert rendered.is_dir(), f"missing rendered {name}"
+        source_files = {p.relative_to(source) for p in source.rglob("*") if p.is_file()
+                        and not p.name.startswith("reference-") and "__pycache__" not in p.parts}
+        rendered_files = {p.relative_to(rendered) for p in rendered.rglob("*") if p.is_file()}
+        assert rendered_files == source_files, f"{name}: published file set drifted"
+        for rel in source_files:
+            assert (rendered / rel).read_bytes() == (source / rel).read_bytes(), f"{name}: {rel} drifted"
+        source_slide = SRC_REPO / "slides" / f"week{number:02}.md"
+        rendered_slide = out / "slides" / f"week{number:02}.md"
+        assert rendered_slide.exists() == source_slide.exists(), f"{name}: slide presence drifted"
+        if source_slide.exists():
+            assert rendered_slide.read_bytes() == source_slide.read_bytes(), f"{name}: slide drifted"
+
+
 MFU_MANIFEST = ROOT / "courses" / "software-security-mfu.yml"
 
 

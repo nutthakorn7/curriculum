@@ -8,6 +8,8 @@ course:
 schedule_unit: weeks
 slot_label: "Week {n}"
 target_repo: "nutthakorn7/software-security"
+content_overlay: course_overrides/software-security-kosen
+content_remove: [labs/week12-supply-chain/img/sigstore-keyless.svg]
 # Static/manually-graded CTFd-only challenges with no attributable per-lesson lab (xss, crack, ecb,
 # fuzz, supplychain, misconfig, indirect), plus the capstone (boss, NoteVault) — not tied to any one
 # scheduled lesson's flag_keys, so they can't come from the lesson union. Preserves this course's
