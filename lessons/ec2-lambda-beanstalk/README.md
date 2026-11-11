@@ -21,12 +21,16 @@ class of bug (SSRF into cloud metadata → temporary credential theft) is one of
 and well-documented real-world cloud incident patterns of the last decade.
 
 ## ✅ This lesson — what to do
-1. **Before class** — prepare the EC2 portion of Cloud Foundations Module 6 and check that Docker
-   Desktop works. Complete the AWS *Introduction to Amazon EC2* lab in class before this local task.
-2. **This add-on lab (45–60 min)** — a local, from-scratch simulation of the SSRF-to-credential-
-   theft concept: a tiny Flask "instance" with a fake attached instance role and a link-preview
-   feature you can attack without an AWS account. Kickoff: `docker compose up -d`.
-3. **Submit** — worksheet evidence and explanation → see [SUBMISSION.md](../../SUBMISSION.md).
+1. **Both sections:** prepare the EC2 portion of Cloud Foundations Module 6 and complete the AWS
+   *Introduction to Amazon EC2* lab in class. AWS work is graded in AWS Academy separately.
+2. **C5R1 / Section B — Conventional:** answer worksheet Part 1 using the EC2 lesson and the
+   supplied URL-fetch scenario. You do not need Docker or request/response screenshots.
+3. **C5R2 / Section A — AIR-Sec:** before class, check Docker Desktop on your own computer and
+   update your copy of this public repo. Complete the local simulation below (45–60 min), then
+   answer worksheet Part 2 with the request/response evidence and prepare for the viva. No
+   instructor-hosted target or personal `.env` is needed.
+4. **Submit only your assigned Part** on the Local02 Answer Sheet in Classroom; see
+   [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Simulation limits (read this before you start)
 On a real EC2 instance, `169.254.169.254` is a **link-local address reachable only from processes
@@ -62,7 +66,7 @@ Two Flask targets, same two endpoints, one difference in `/fetch-preview`:
    external-shaped URL still works normally. That's the empirical proof that the fix is a targeted
    allowlist/blocklist decision, not "fetching is now broken."
 
-## Step-by-step (copy these commands)
+## Step-by-step for C5R2 / Part 2 (copy these commands)
 **First, get this lab onto your computer.** You need your own copy of the course files. You download them once, then update them each
 time. Open a terminal (Terminal on macOS or Linux, **Git Bash** on Windows) and do
 A, B and C in order. You installed Git in the Week 01 setup; if `git` is "not found", do that
