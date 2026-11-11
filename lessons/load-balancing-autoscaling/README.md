@@ -21,7 +21,7 @@ outright.
    internal counter that plays the role of an Auto Scaling Group's `current_instances`. Follow
    **Step-by-step** below (kickoff: `docker compose up -d --build`).
 3. **Submit** — worksheet → see [SUBMISSION.md](../../SUBMISSION.md). The Conventional room does
-   Part 1; the AIR-Sec room does Part 2 and also submits the flag.
+   Part 1; the AIR-Sec room does Part 2 and submits the request/response evidence.
 
 ## Objectives
 - Explain, in your own words, how a **load balancer**, its **target group(s)**, and an
@@ -75,16 +75,15 @@ A. **Download the course files (first time only).** Skip this if you already did
    `already exists`, you have the files already: go on to B.
 
 B. **Get the newest version (every time).** The course files change during the term, so do this
-   even if you downloaded them last week. It never touches your `.env` file.
+   even if you downloaded them last week. Your answers stay in Classroom; update the repo before each lab.
    ```bash
    cd ~/cloud-infrastructure-security
    git pull
    ```
    You should see `Already up to date.` or a list of changed files. If you see
    `No such file or directory`, your copy is in another folder: do A to make a new one here. If you
-   see `Your local changes to the following files would be overwritten`, run `git checkout -- .`
-   and then `git pull` again. That throws away any edits you made to the course files; your
-   answers are on the Answer Sheet, so they are safe.
+   see `Your local changes to the following files would be overwritten`, stop and ask the
+   instructor for help syncing your copy. Do not discard your local changes blindly.
 
 C. **Go into this lab's folder and check it.**
    ```bash
@@ -98,10 +97,10 @@ Run these in a terminal inside this lab folder: Terminal on macOS or Linux, or *
 Windows (it comes with Git). Each step says what you should see. Do them in order: both apps
 remember every call until they restart.
 
-0. **Your personal flag:** save your `.env` file in this folder first (see "Your personal flag"
-   below). It is the same `.env` you got in your Classroom private comment for an earlier lab:
-   one file works for every lab. Without it you capture the shared placeholder flag, which earns
-   no marks.
+0. **No private setup:** this public lab runs without a personal `.env` or an instructor message.
+   The `flag` field is a shared demonstration marker, not proof of identity. Submit the complete
+   request and vulnerable/fixed responses plus your explanation.
+
 1. **Start both apps.** The first run downloads and builds the image, so it can take a few
    minutes.
    ```bash
@@ -128,8 +127,8 @@ remember every call until they restart.
    for i in $(seq 1 40); do printf 'call %s: ' "$i"; curl -s -X POST http://localhost:8109/generate-load; done
    ```
    Watch `current_instances` grow from 2 by one every 10 calls (`load_units` 10, 20, 30, 40). On
-   call 40 it reaches 6 (the maximum) and the answer also contains `"flag":"FLAG{...}"`. That flag
-   is yours: copy it into the worksheet, together with the loop command and the call number.
+   call 40 it reaches 6 (the maximum) and the answer also contains `"flag":"FLAG{...}"`. Record
+   the complete response, loop command, and call number; the marker is shared.
 5. **Check the vulnerable fleet now.**
    ```bash
    curl -s -w 'HTTP %{http_code}\n' http://localhost:8109/status
@@ -180,8 +179,7 @@ app rejecting the anonymous caller (401) before it can accumulate any meaningful
 
 **Verified (2026-11-04):** The "get this lab" commands (A, B and C) were run as written on 2026-11-08, in bash and in zsh, on a fresh clone. `docker compose up -d --build` was run on this machine (macOS) and
 every command in Step-by-step was run as written in bash; the step 4 loop was also run in zsh,
-the macOS default shell. Windows Git Bash was not tested. Step 0 was tested with a stand-in `.env`,
-and the captured flag changed to its value; `docker compose restart vulnerable fixed` returned
+the macOS default shell. Windows Git Bash was not tested. The optional environment override was tested; `docker compose restart vulnerable fixed` returned
 both apps to `current_instances` 2, `load_units` 0. `exploit.py` then ran from the host against
 the published ports and printed the same lines as before. Real captured output, flag value masked:
 ```
@@ -199,20 +197,14 @@ the correct `X-Api-Key` still gets capped — 5 successful calls (`current_insta
 `load_units` stops at 5), then a `6th` call returns `429 {"error": "TooManyRequests", ...}`. This
 is the defense-in-depth proof: the fix is auth **and** a throttle together, not either one alone.
 
-**Your personal flag.** Each student gets a personal `.env` file from the instructor, sent
-privately (in this course, as a Google Classroom private comment). Save it as `.env` in this lab
-folder before `docker compose up`: Compose reads `FLAG_SCALING` from it, so the flag you capture is
-yours alone. Without it, `FLAG_SCALING` falls back to a shared placeholder that is the same for
-everyone and earns no marks. Don't share or commit your `.env` (it is git-ignored). Instructors
-generate the files with `python3 instructor/seed_flags.py env <STUDENT_ID>` (instructor-only, not
-in this repo), which mints this lesson's `scaling` flag from the course manifest.
-
-**Evidence artifact.** The attributable evidence is the captured `flag` value returned by the
-*vulnerable* app once `current_instances` reaches 6. The fixed app never returns it. Submitting
-another student's flag is a violation.
+**Shared demonstration marker.** No personal `.env` or individual flag is required. Any
+`flag` printed by this simulation is a public example marker; it does not identify the student
+and is not graded by itself. Submit the exact request or command, the complete relevant
+vulnerable and fixed responses, and your own explanation of the security effect. The instructor
+may ask you to reproduce and explain the result live. Do not use real credentials in evidence.
 
 ## Deliverable
-The captured flag + the exact request pattern (endpoint, headers-or-lack-thereof, approximate
+The complete vulnerable/fixed response evidence + the exact request pattern (endpoint, headers-or-lack-thereof, approximate
 call count) that produced it + a one-paragraph explanation of why "no rate limit and no
 authentication" on a load-generating endpoint is a security problem even though the endpoint
 itself has no memory-safety bug or injection flaw — the vulnerability is entirely in what the

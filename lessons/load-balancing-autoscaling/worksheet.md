@@ -29,11 +29,14 @@ Answer in your own words (no AI-resilience layer, no flag — graded on the writ
 
 ## Part 2 — AIR-Sec arm
 
+The Docker lab needs no personal `.env`. Any `FLAG{…}` shown is a shared demo marker. Grading
+uses your complete commands, before/after responses, explanation, and a live spot-check.
+
 ### 2a. The lab
 Do the lab with the **Step-by-step** section of `README.md`. Write down:
 - The loop command you sent to the vulnerable app (`:8109`, step 4), and the call number at
   which `current_instances` reached 6.
-- Your flag.
+- The vulnerable response body and HTTP status code; the shared demo marker is not identity evidence.
 - The same request sent to the fixed app with no key (`:8110`, step 6): the HTTP code and the
   error you got.
 - The fixed app with the valid API key (step 7): how many calls were accepted before the first
@@ -54,7 +57,7 @@ radius") one leaked key can do?
 ## Submit
 Write your answers on the **Local05 Answer Sheet** that Classroom copies for you, then click
 **Turn in** on Local 05 (no PDF needed). AIR-Sec-arm students fill in Part 2: the 2a lab
-evidence and the flag, plus the 2b and 2c answers. Conventional-arm students fill in Part 1
+evidence, plus the 2b and 2c answers. Conventional-arm students fill in Part 1
 only.
 
 - **Due:** before the start of the next week's class (the due date on the Classroom assignment).

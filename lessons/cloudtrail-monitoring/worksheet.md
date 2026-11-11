@@ -34,13 +34,16 @@ Answer in your own words (no AI-resilience layer, no flag — graded on the writ
 
 ## Part 2 — AIR-Sec arm
 
+The Docker lab needs no personal `.env`. Any `FLAG{…}` shown is a shared demo marker. Grading
+uses your complete commands, before/after responses, explanation, and a live spot-check.
+
 ### 2a. The lab
 Do the lab with the **Step-by-step** section of `README.md` ("The Spray That Never Alerts").
 Write down:
 - The loop command you sent to the vulnerable app (`:8111`, step 3), which shows the method, URL
   and JSON body, and after how many attempts in total it had still not alerted.
 - The loop command you sent to the fixed app (`:8112`, step 4), the attempt number on which the
-  alert first fired, and your flag.
+  alert first fired, and the complete alert response.
 
 ### 2b. EiPE (Explain-in-Plain-English)
 In 3–4 short sentences that someone without IT knowledge (a parent, say) could follow: why does
@@ -51,8 +54,9 @@ what to group log events by before setting an alert threshold?
 ## Submit
 Write your answers on the **Local09 Answer Sheet** that Classroom copies for you, then click
 **Turn in** on Local 09 (no PDF needed). AIR-Sec-arm students fill in Part 2: the 2a lab evidence
-and the flag, plus the 2b answer. Conventional-arm students fill in Part 1 only.
+plus the 2b answer. Conventional-arm students fill in Part 1 only.
 
-- **Due:** before the start of the next week's class (the due date on the Classroom assignment).
-- **Late:** −10% of the score you earned for every 24 hours after the due time, down to 0 after
-  10 days. Late work is marked only after a short viva. Full rules in SUBMISSION.md.
+- **Due:** Mon 1 Mar 2027, 23:59 (Asia/Bangkok), as on the Classroom assignment.
+- **Late:** −10% of the score you earned for every 24 hours (or part) after the due time. Late
+  submissions close Mon 8 Mar 2027, 23:59 (Asia/Bangkok). Late work is marked only after a short
+  viva, arranged outside class if needed. Full rules in SUBMISSION.md.

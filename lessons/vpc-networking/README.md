@@ -19,7 +19,7 @@ either rule's content is individually wrong.
 2. **This add-on lab (45–60 min)** — a local, from-scratch simulation of one specific,
    easy-to-miss Network ACL bug: rule *number* order, not just rule *content*, decides the
    outcome. Follow **Step-by-step** below (kickoff: `docker compose up -d --build`).
-3. **Submit** — worksheet + flag → see [SUBMISSION.md](../../SUBMISSION.md).
+3. **Submit** — worksheet evidence and explanation → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Objectives
 - State the difference between **security groups** (stateful, instance-level, allow-only) and
@@ -82,16 +82,15 @@ A. **Download the course files (first time only).** Skip this if you already did
    `already exists`, you have the files already: go on to B.
 
 B. **Get the newest version (every time).** The course files change during the term, so do this
-   even if you downloaded them last week. It never touches your `.env` file.
+   even if you downloaded them last week. Your answers stay in Classroom; update the repo before each lab.
    ```bash
    cd ~/cloud-infrastructure-security
    git pull
    ```
    You should see `Already up to date.` or a list of changed files. If you see
    `No such file or directory`, your copy is in another folder: do A to make a new one here. If you
-   see `Your local changes to the following files would be overwritten`, run `git checkout -- .`
-   and then `git pull` again. That throws away any edits you made to the course files; your
-   answers are on the Answer Sheet, so they are safe.
+   see `Your local changes to the following files would be overwritten`, stop and ask the
+   instructor for help syncing your copy. Do not discard your local changes blindly.
 
 C. **Go into this lab's folder and check it.**
    ```bash
@@ -105,9 +104,10 @@ Run these in a terminal inside this lab folder: Terminal on macOS or Linux, or *
 Windows (it comes with Git). Each step says what you should see. The apps only answer questions;
 nothing you send changes them, so you can repeat any step.
 
-0. **Your personal flag:** save the `.env` file from your Classroom private comment in this folder
-   first (see "Your personal flag" below). Without it you capture the shared placeholder flag,
-   which earns no marks.
+0. **No private setup:** this public lab runs without a personal `.env` or an instructor message.
+   The `flag` field is a shared demonstration marker, not proof of identity. Submit the complete
+   request and vulnerable/fixed responses plus your explanation.
+
 1. **Start both apps.** The first run downloads and builds the image, so it can take a few
    minutes.
    ```bash
@@ -138,7 +138,7 @@ nothing you send changes them, so you can repeat any step.
    curl -s -w 'HTTP %{http_code}\n' -X POST http://localhost:8113/check-access -H 'Content-Type: application/json' -d '{"source_ip": "203.0.113.55", "port": 5432}'
    ```
    You should see `"action":"allow"`, `"matched_rule_number":90`, `"flag":"FLAG{...}"` and
-   `HTTP 200`. Rule 90 matched first, so the deny rule 100 never ran. That flag is yours: copy it
+   `HTTP 200`. Rule 90 matched first, so the deny rule 100 never ran. Record the full response
    into the worksheet, together with the whole `curl` command you sent.
 5. **The same request on the fixed app:**
    ```bash
@@ -174,8 +174,7 @@ IP allowed + flag on `:8113`, the identical external IP denied (no flag) on `:81
 
 **Verified (2026-11-04):** The "get this lab" commands (A, B and C) were run as written on 2026-11-08, in bash and in zsh, on a fresh clone. `docker compose up -d --build` was run on this machine (macOS) and
 every command in Step-by-step was run as written, in bash and in zsh (the macOS default shell).
-Windows Git Bash was not tested. Step 0 was tested with a stand-in `.env`, and the captured flag
-changed to its value; without a `.env` the shared placeholder came back. `exploit.py` then ran
+Windows Git Bash was not tested. The optional environment override was tested; the public default is a shared marker. `exploit.py` then ran
 from the host against the published ports. Real captured output, flag value masked:
 ```
 === VULNERABLE (allow-all at #90 shadows deny-all at #100) (http://localhost:8113) ===
@@ -194,20 +193,14 @@ does not break legitimate access); a request on an unrelated port (`22`) with no
 falls through to the implicit default **deny** on both apps, matching AWS's own NACL behavior
 of an implicit deny-all when nothing matches.
 
-**Your personal flag.** Each student gets a personal `.env` file from the instructor, sent
-privately (in this course, as a Google Classroom private comment). Save it as `.env` in this lab
-folder before `docker compose up`: Compose reads `FLAG_NACL` from it, so the flag you capture is
-yours alone. Without it, `FLAG_NACL` falls back to a shared placeholder that is the same for
-everyone and earns no marks. Don't share or commit your `.env` (it is git-ignored). Instructors
-generate the files with `python3 instructor/seed_flags.py env <STUDENT_ID>` (instructor-only, not
-in this repo), which mints this lesson's `nacl` flag from the course manifest.
-
-**Evidence artifact.** The attributable evidence is the captured `flag` value returned by the
-*vulnerable* app's `/check-access` response for an external IP on port 5432. The fixed app
-never returns it for that same request. Submitting another student's flag is a violation.
+**Shared demonstration marker.** No personal `.env` or individual flag is required. Any
+`flag` printed by this simulation is a public example marker; it does not identify the student
+and is not graded by itself. Submit the exact request or command, the complete relevant
+vulnerable and fixed responses, and your own explanation of the security effect. The instructor
+may ask you to reproduce and explain the result live. Do not use real credentials in evidence.
 
 ## Deliverable
-The captured flag + the exact request (`source_ip`, `port`) that produced it + a one-paragraph
+The complete vulnerable/fixed response evidence + the exact request (`source_ip`, `port`) that produced it + a one-paragraph
 explanation of why a visibly-present "deny all" rule at a higher rule number can still be
 completely unreachable — it's not that the deny rule is wrong, it's that a broader rule ahead
 of it already decided the outcome. You may answer in Thai or English. Write your answers on the

@@ -17,7 +17,7 @@ and runs, but its aggregation key silently excludes the real attack shape.
    concept: a tiny Flask service that stands in for "CloudTrail recorded this login event, did
    our alerting pipeline fire?" without needing an AWS account. Follow **Step-by-step** below
    (kickoff: `docker compose up -d --build`).
-3. **Submit** — worksheet + flag → see [SUBMISSION.md](../../SUBMISSION.md).
+3. **Submit** — worksheet evidence and explanation → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Signature exercise — "The Spray That Never Alerts"
 
@@ -96,16 +96,15 @@ A. **Download the course files (first time only).** Skip this if you already did
    `already exists`, you have the files already: go on to B.
 
 B. **Get the newest version (every time).** The course files change during the term, so do this
-   even if you downloaded them last week. It never touches your `.env` file.
+   even if you downloaded them last week. Your answers stay in Classroom; update the repo before each lab.
    ```bash
    cd ~/cloud-infrastructure-security
    git pull
    ```
    You should see `Already up to date.` or a list of changed files. If you see
    `No such file or directory`, your copy is in another folder: do A to make a new one here. If you
-   see `Your local changes to the following files would be overwritten`, run `git checkout -- .`
-   and then `git pull` again. That throws away any edits you made to the course files; your
-   answers are on the Answer Sheet, so they are safe.
+   see `Your local changes to the following files would be overwritten`, stop and ask the
+   instructor for help syncing your copy. Do not discard your local changes blindly.
 
 C. **Go into this lab's folder and check it.**
    ```bash
@@ -120,9 +119,10 @@ Windows (it comes with Git). Each step says what you should see. Do them in orde
 remember every attempt until they restart. In this lab the flag comes from the **fixed** app,
 when its alert fires; the vulnerable app never gives one.
 
-0. **Your personal flag:** save the `.env` file from your Classroom private comment in this folder
-   first (see "Your personal flag" below). Without it you capture the shared placeholder flag,
-   which earns no marks.
+0. **No private setup:** this public lab runs without a personal `.env` or an instructor message.
+   The `flag` field is a shared demonstration marker, not proof of identity. Submit the complete
+   request and vulnerable/fixed responses plus your explanation.
+
 1. **Start both apps.** The first run downloads and builds the image, so it can take a few
    minutes.
    ```bash
@@ -153,7 +153,7 @@ when its alert fires; the vulnerable app never gives one.
    Attempts 1 and 2 say `"alert":false` with `"count_for_key"` 1 and then 2. On **attempt 3**
    the answer says `"alert":true` and contains `"flag":"FLAG{...}"`: the fixed app counts by IP
    alone, so the third failure from that IP fires the alert. Every later attempt alerts too. That
-   flag is yours: copy it into the worksheet, with the loop command and the attempt number where
+   response is the evidence: record it with the loop command and the attempt number where
    the first alert appeared.
 5. **Check that the vulnerable app's counter itself works:** the same username fails 3 times from
    one IP.
@@ -188,8 +188,7 @@ exactly on the 3rd attempt with the flag.
 
 **Verified (2026-11-04):** The "get this lab" commands (A, B and C) were run as written on 2026-11-08, in bash and in zsh, on a fresh clone. `docker compose up -d --build` was run on this machine (macOS) and
 every command in Step-by-step was run as written, in bash and in zsh (the macOS default shell).
-Windows Git Bash was not tested. Step 0 was tested with a stand-in `.env`, and the captured flag
-changed to its value; without a `.env` the shared placeholder came back.
+Windows Git Bash was not tested. The optional environment override was tested; the public default is a shared marker.
 `docker compose restart vulnerable fixed` reset both counters. `exploit.py` then ran from the host
 against the published ports. Real captured output, flag value masked:
 ```
@@ -213,24 +212,14 @@ identically shaped, are in the actual run output.) Negative control confirmed se
 (`alert: true`), proving its counter mechanics work — it is specifically the `(ip, username)`
 key choice that misses the password-spray pattern, not a broken counter.
 
-**Your personal flag.** Each student gets a personal `.env` file from the instructor, sent
-privately (in this course, as a Google Classroom private comment). Save it as `.env` in this lab
-folder before `docker compose up`: Compose reads `FLAG_MONITOR` from it, so the flag you capture is
-yours alone. Without it, `FLAG_MONITOR` falls back to a shared placeholder that is the same for
-everyone and earns no marks. Don't share or commit your `.env` (it is git-ignored). Instructors
-generate the files with `python3 instructor/seed_flags.py env <STUDENT_ID>` (instructor-only, not
-in this repo), which mints this lesson's `monitor` flag from the course manifest.
-Unlike the other lessons, `vulnerable_app.py`'s `FLAG_MONITOR = os.environ.get("FLAG_MONITOR")`
-has **no default value** — if it's unset, the response simply never includes a `flag` key at all
-(by design: the vulnerable app's own code path must never leak one, see below). You don't need to set it by hand: the fixed service reads it from your `.env` (or falls back to the
-shared placeholder in `docker-compose.yml`).
-
-**Evidence artifact.** The attributable evidence is the captured `flag` value returned once the
-*fixed* app's alert fires. The vulnerable app never returns it, no matter how many attempts are
-sent. Submitting another student's flag is a violation.
+**Shared demonstration marker.** No personal `.env` or individual flag is required. Any
+`flag` printed by this simulation is a public example marker; it does not identify the student
+and is not graded by itself. Submit the exact request or command, the complete relevant
+vulnerable and fixed responses, and your own explanation of the security effect. The instructor
+may ask you to reproduce and explain the result live. Do not use real credentials in evidence.
 
 ## Deliverable
-The captured flag + the attempt number it appeared on + a one-paragraph explanation of why
+The complete vulnerable/fixed response evidence + the attempt number on which the alert fired + a one-paragraph explanation of why
 `(source_ip, username)` is the wrong aggregation key for detecting a password-spray attack,
 while `source_ip` alone correctly catches it. You may answer in Thai or English. Write your
 answers on the **Local09 Answer Sheet** copy in Classroom and click Turn in (no PDF needed). Full
