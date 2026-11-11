@@ -2,6 +2,7 @@
 import argparse
 import os
 import shutil
+from pathlib import PurePosixPath
 
 from tools import crossref, model, validate
 
@@ -55,6 +56,44 @@ def _render_lesson(manifest, lesson, out_dir):
                 shutil.copy2(src, dst)                 # byte-for-byte, preserves mode
 
 
+def _safe_relative(path):
+    if not isinstance(path, str) or not path or path.startswith("/") or "\\" in path:
+        raise RenderError(f"invalid content overlay path: {path!r}")
+    parts = path.split("/")
+    if any(part in ("", ".", "..") for part in parts):
+        raise RenderError(f"invalid content overlay path: {path!r}")
+    return PurePosixPath(path)
+
+
+def _apply_content_overlay(manifest, staging):
+    for raw in manifest.content_remove:
+        rel = _safe_relative(raw)
+        target = os.path.join(staging, *rel.parts)
+        if os.path.isdir(target):
+            raise RenderError(f"content_remove names a directory: {raw}")
+        if os.path.exists(target):
+            os.remove(target)
+
+    if not manifest.content_overlay:
+        return
+    rel = _safe_relative(manifest.content_overlay)
+    repo_root = os.path.dirname(os.path.dirname(os.path.realpath(manifest.path)))
+    overlay = os.path.join(repo_root, *rel.parts)
+    if os.path.islink(overlay) or not os.path.isdir(overlay):
+        raise RenderError(f"content overlay missing or symlinked: {overlay}")
+    if os.path.commonpath((repo_root, os.path.realpath(overlay))) != repo_root:
+        raise RenderError(f"content overlay escapes repository: {overlay}")
+    for root, dirs, files in os.walk(overlay):
+        if any(os.path.islink(os.path.join(root, name)) for name in dirs + files):
+            raise RenderError(f"content overlay contains a symlink: {root}")
+        for name in files:
+            src = os.path.join(root, name)
+            rel = os.path.relpath(src, overlay)
+            dst = os.path.join(staging, rel)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copy2(src, dst)
+
+
 def render_course(manifest_path, lessons_root, out_dir):
     manifest = model.load_manifest(manifest_path)
     lessons = model.load_lessons(lessons_root)
@@ -75,6 +114,7 @@ def render_course(manifest_path, lessons_root, out_dir):
     try:
         for slug in manifest.lesson_slugs():
             _render_lesson(manifest, lessons[slug], staging)
+        _apply_content_overlay(manifest, staging)
     except Exception:
         shutil.rmtree(staging, ignore_errors=True)
         raise

@@ -64,6 +64,8 @@ class Manifest:
     extra_challenge_keys: list = field(default_factory=list)  # non-lesson flag keys (capstones,
                                                                 # static/manually-graded CTFd-only
                                                                 # challenges with no attributable lab)
+    content_overlay: str | None = None  # course-specific rendered files, relative to repository root
+    content_remove: list[str] = field(default_factory=list)  # obsolete rendered paths to omit
     path: str = ""
 
     def lesson_slugs(self):
@@ -95,6 +97,8 @@ def load_manifest(path):
         target_repo=d["target_repo"],
         schedule=[_parse_slot(x) for x in d["schedule"]],
         extra_challenge_keys=d.get("extra_challenge_keys", []),
+        content_overlay=d.get("content_overlay"),
+        content_remove=d.get("content_remove", []),
         path=path,
     )
 

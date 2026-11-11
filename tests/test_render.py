@@ -74,6 +74,50 @@ def test_render_is_idempotent(tmp_path):
     assert open(os.path.join(out, "labs", "week02-hash", "README.md"), "rb").read() == first
 
 
+def test_course_overlay_is_scoped_and_can_remove_obsolete_content(tmp_path):
+    root = str(tmp_path)
+    _mk_lesson(root, "hash", {"README.md": "# Shared\n", "obsolete.svg": "old\n"})
+    manifest = _mk_manifest(root, [(2, "hash")])
+    with open(manifest, "a", encoding="utf-8") as f:
+        f.write("content_overlay: course_overrides/kosen\n")
+        f.write("content_remove: [labs/week02-hash/obsolete.svg]\n")
+    override = os.path.join(root, "course_overrides", "kosen", "labs", "week02-hash")
+    os.makedirs(override)
+    with open(os.path.join(override, "README.md"), "w", encoding="utf-8") as f:
+        f.write("# KOSEN only\n")
+    out = os.path.join(root, "out")
+    render.render_course(manifest, lessons_root=os.path.join(root, "lessons"), out_dir=out)
+    assert open(os.path.join(out, "labs", "week02-hash", "README.md"), encoding="utf-8").read() == "# KOSEN only\n"
+    assert not os.path.exists(os.path.join(out, "labs", "week02-hash", "obsolete.svg"))
+
+    shared_manifest = _mk_manifest(root, [(2, "hash")])  # no overlay in the other course
+    shared_out = os.path.join(root, "shared-out")
+    render.render_course(shared_manifest, lessons_root=os.path.join(root, "lessons"), out_dir=shared_out)
+    assert open(os.path.join(shared_out, "labs", "week02-hash", "README.md"), encoding="utf-8").read() == "# Shared\n"
+    assert os.path.isfile(os.path.join(shared_out, "labs", "week02-hash", "obsolete.svg"))
+
+
+def test_course_overlay_rejects_symlink(tmp_path):
+    root = str(tmp_path)
+    _mk_lesson(root, "hash", {"README.md": "# Shared\n"})
+    manifest = _mk_manifest(root, [(2, "hash")])
+    with open(manifest, "a", encoding="utf-8") as f:
+        f.write("content_overlay: course_overrides/kosen\n")
+    override = os.path.join(root, "course_overrides", "kosen")
+    os.makedirs(override)
+    secret = os.path.join(root, "secret.env")
+    with open(secret, "w", encoding="utf-8") as f:
+        f.write("PRIVATE\n")
+    os.symlink(secret, os.path.join(override, "leak.txt"))
+    out = os.path.join(root, "out")
+    try:
+        render.render_course(manifest, lessons_root=os.path.join(root, "lessons"), out_dir=out)
+        assert False, "expected a RenderError for the symlink"
+    except render.RenderError as e:
+        assert "symlink" in str(e).lower()
+    assert not os.path.exists(out)
+
+
 def test_render_is_clean_slate(tmp_path):
     root = str(tmp_path)
     _mk_lesson(root, "hash", {"README.md": "# Hash\n"})
