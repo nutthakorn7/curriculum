@@ -1,9 +1,9 @@
-# Worksheet — {{ slot_label }}: EC2 Instance Roles, Lambda Basics, Elastic Beanstalk
+# Worksheet — {{ slot_label }}: EC2 Instance Roles and SSRF
 
 This lesson is **Block 1** per `course-plan.md`'s block table. Section A = Block 1 **AIR-Sec**;
 Section B = Block 1 **Conventional**. Complete only the part assigned to your section this block.
 
-**Language:** you may answer in Thai or English. Keep AWS names (EC2, IAM, IMDS, Lambda) in
+**Language:** you may answer in Thai or English. Keep AWS names (EC2, IAM, IMDS) in
 English. Short, clear answers are enough: 2–4 sentences per question.
 
 ## Part 1 — Conventional arm (short answers)
@@ -21,12 +21,13 @@ Answer in your own words (no AI-resilience layer, no flag — graded on the writ
    this kind of attack called?
 4. **Two defenses.** Name two ways to stop the attack in Q3. Blocking only the exact text
    `169.254.169.254` does not count as one of them.
-5. **EC2 or Lambda?** What is one big difference between running code on an EC2 instance you
-   manage yourself and running the same code as a Lambda function? Name one security concern
-   that changes (for better or worse) when you move from EC2 to Lambda.
-6. **One bug, many servers.** Elastic Beanstalk can run your app on many EC2 instances behind a
-   load balancer (an auto-scaling group). If the app has the instance-role problem from this
-   lesson, why is it a bigger problem on many instances than on one?
+5. **Temporary credentials and least privilege.** Why must temporary EC2 instance-role
+   credentials still be protected? Explain how limiting the role's permissions reduces the
+   impact if credentials are exposed through the URL-fetch feature.
+6. **Verifying a defense.** Describe two checks for the fixed URL-fetch feature: one that
+   confirms an intended request still works, and one that confirms a metadata-shaped request
+   is rejected. State the expected result and explain why both checks are needed. Use the
+   supplied local scenario; do not probe real metadata endpoints or other systems.
 
 ## Part 2 — AIR-Sec arm
 

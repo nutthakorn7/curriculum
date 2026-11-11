@@ -1,9 +1,8 @@
-# {{ slot_label }} — EC2 Instance Roles, Lambda Basics, Elastic Beanstalk
+# {{ slot_label }} — EC2 Instance Roles and SSRF
 
-**Topic (source):** AWS Academy Cloud Foundations' EC2 instance management, Lambda basics, and
-Elastic Beanstalk (load balancer + auto-scaling groups) modules, described here in our own words
-— **not** copied from any AWS Academy file. **Kind:** HYBRID — a small Docker lab covers the EC2
-instance-role/SSRF concept; Lambda and Elastic Beanstalk stay conceptual (worksheet Part 1 only).
+**Topic (source):** The EC2 portion of AWS Academy Cloud Foundations Module 6, described here in
+our own words — **not** copied from any AWS Academy file. **Kind:** HYBRID — a small Docker lab
+covers the EC2 instance-role/SSRF concept. Lambda and Elastic Beanstalk follow in Week 5.
 **Concepts:** EC2 instance roles vs. long-lived credentials, the Instance Metadata Service (IMDS),
 Server-Side Request Forgery against internal metadata endpoints, credential-theft blast radius ·
 **Analogous CWE:** CWE-918 (Server-Side Request Forgery).
@@ -22,8 +21,8 @@ class of bug (SSRF into cloud metadata → temporary credential theft) is one of
 and well-documented real-world cloud incident patterns of the last decade.
 
 ## ✅ This lesson — what to do
-1. **Before class** — Docker Desktop working; complete the real AWS Academy EC2/Lambda/Elastic
-   Beanstalk lab content in your Learner Lab sandbox first.
+1. **Before class** — prepare the EC2 portion of Cloud Foundations Module 6 and check that Docker
+   Desktop works. Complete the AWS *Introduction to Amazon EC2* lab in class before this local task.
 2. **This add-on lab (45–60 min)** — a local, from-scratch simulation of the SSRF-to-credential-
    theft concept: a tiny Flask "instance" with a fake attached instance role and a link-preview
    feature you can attack without an AWS account. Kickoff: `docker compose up -d`.
@@ -205,12 +204,9 @@ the metadata endpoint" — the metadata endpoint behaved exactly as an EC2 insta
 supposed to for callers on the instance; the vulnerability is entirely in `/fetch-preview` trusting
 a user-supplied URL as a fetch target with no restriction at all.
 
-## Elastic Beanstalk, Lambda — conceptual only (no Docker lab)
-This lesson's Lambda and Elastic Beanstalk topics (function basics; load balancer + auto-scaling
-group behavior under Elastic Beanstalk) are assessed through `worksheet.md` Part 1 essay questions
-only — there is no second Docker lab for them this lesson. See `course-plan.md`'s note that
-"Load balancing & auto-scaling under load" gets its own dedicated HYBRID/LAB treatment elsewhere
-in the course; here they're covered at a concept level alongside the EC2/SSRF lab.
+## What follows in Week 5
+Lambda and Elastic Beanstalk are covered in the next class. Local 02 assesses the EC2 role and
+SSRF investigation taught in Week 4; its Part 1 questions do not require the Week 5 topics.
 
 ## References
 - AWS EC2 documentation — *Instance metadata and user data*, *IAM roles for Amazon EC2*
