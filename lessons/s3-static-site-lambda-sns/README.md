@@ -1,21 +1,26 @@
 # {{ slot_label }} — S3 Static Website Hosting + Lambda/SNS Event-Driven Email
 
-**Topic (source):** AWS Academy Cloud Foundations' S3 static website hosting module and the
-Lambda+SNS event-driven email pattern, described here in our own words — **not** copied from
-any AWS Academy file. **Kind:** LAB.
+**Topic (source):** Week 5 Cloud Foundations Module 6 Lambda/Elastic Beanstalk work and the
+instructor's Lambda/SNS notification reference; Week 6 Module 7 storage, the AWS EBS lab and
+the instructor's S3 website reference. The local S3 investigation is described in our own words
+— **not** copied from any AWS Academy file. **Kind:** LAB.
 **Concepts:** S3 bucket resource policies for static website hosting, public-read vs.
 public-write, principle of least privilege on a resource-based policy, event-driven
 (pub/sub) architecture · **Analogous CWE:** CWE-284 (Improper Access Control), CWE-668
 (Exposure of Resource to Wrong Sphere).
 
 ## This lesson — what to do
-1. **Before class** — Docker Desktop working; complete the real AWS Academy Lab on S3 static
-   website hosting and the Lambda+SNS email exercise in your Learner Lab sandbox first (that's
-   still where you learn the actual AWS console UI, S3 bucket creation, and SNS topic wiring).
-2. **This add-on lab (45–60 min)** — a local, from-scratch simulation of the S3 static-website
-   bucket-policy concept: a tiny "S3 website endpoint"-like API you can inspect and attack
+1. **Week 5** — complete the assigned AWS Lambda and Elastic Beanstalk activities and discuss
+   the instructor's Lambda/SNS notification scenario. Introduce the S3 website read/write case;
+   Local 03 is completed in Week 6, after storage theory. The Lambda/SNS reference is a concept
+   aid, not an additional graded AWS lab.
+2. **Week 6** — prepare Cloud Foundations Module 7 storage theory, complete the assigned AWS EBS
+   lab, and check that Docker Desktop works. Use the instructor's S3 website reference and this
+   README to learn the public-read/public-write policy case before answering Local 03.
+3. **This add-on lab (45–60 min in Week 6)** — a local, from-scratch simulation of the S3
+   static-website bucket-policy concept: a tiny "S3 website endpoint"-like API you can inspect and attack
    without an AWS account. Follow **Step-by-step** below (kickoff: `docker compose up -d --build`).
-3. **Submit** — worksheet + flag → see [SUBMISSION.md](../../SUBMISSION.md).
+4. **Submit Local 03 after Week 6** — worksheet + flag → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Background — the two bugs this lab is and isn't about
 When you enable S3 static website hosting, the bucket must serve pages to anonymous browsers,
@@ -202,14 +207,15 @@ website-hosting bucket — one is the intended public-facing behavior, the other
 access to the entire internet.
 
 ## Conceptual add-on — Lambda + SNS event-driven email (no second Docker lab)
-This lesson's second topic — a Lambda function publishing to an SNS topic to trigger an email
-notification — stays conceptual for this lab; it's covered in **Worksheet Part 1** as an essay
-question. Bring your understanding of the AWS Academy Learner Lab exercise (S3 event triggers
-Lambda, Lambda publishes to SNS, SNS delivers to a subscribed email endpoint) to that question:
-in particular, why the **publisher** (Lambda) can complete its work and return immediately
-without waiting for the **subscriber** (an email inbox) to be reachable, read the message, or
-even exist yet — the defining trait of event-driven (pub/sub) architecture versus a
-synchronous request-response call.
+The Week 5 instructor reference describes a Lambda function **publishing** a message to an SNS
+**Standard topic** with an email **subscription**. Lambda is the publisher; the topic accepts and
+fans out the message; the confirmed subscription identifies the email endpoint to receive it.
+This is a class discussion and Worksheet Part 1 Q5, not a second Docker lab or a required AWS
+Academy SNS exercise. An email subscription must be confirmed before it receives notifications.
+A successful `Publish` response means SNS accepted the message; it does **not** prove delivery to
+the inbox or that anyone read it. A subscription created later receives subsequent publishes;
+SNS Standard topics do not provide built-in replay of old messages. Do not infer that SNS will
+deliver a past message to an address that was unconfirmed or unsubscribed when it was published.
 
 ## References
 - AWS S3 documentation — *Hosting a static website using Amazon S3*, *Bucket policy examples*
@@ -218,3 +224,6 @@ synchronous request-response call.
   difference between `s3:GetObject` and `s3:PutObject` in a public, `Principal: "*"` statement.
 - AWS documentation — *Amazon SNS: how it works*, *Using AWS Lambda with Amazon S3* (general,
   publicly documented event-driven architecture concepts — no AWS Academy file used or copied).
+- AWS SNS documentation — [email subscription setup and management](https://docs.aws.amazon.com/sns/latest/dg/sns-email-notifications.html)
+  and [message archiving and replay](https://docs.aws.amazon.com/sns/latest/dg/message-archiving-and-analytics.html)
+  (confirmation and Standard-topic replay limits).
