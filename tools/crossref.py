@@ -57,6 +57,10 @@ def context(manifest, current_slug):
         "prev": label(ordered[here - 1]) if here > 0 else "",
         "next": label(ordered[here + 1]) if here < len(ordered) - 1 else "",
         "brand": manifest.course.get("brand", ""),
+        # Teaching time and assessment can differ between institutions using
+        # the same lesson. Keep those choices tied to the course manifest.
+        "course_code": manifest.course.get("code", ""),
+        "class_minutes": manifest.course.get("class_minutes"),
     }
 
 
