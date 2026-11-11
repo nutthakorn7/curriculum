@@ -7,6 +7,10 @@ section this block.
 **Language:** you may answer in Thai or English. Keep AWS names (S3, KMS, SSE-KMS, data key,
 `GenerateDataKey`) in English. Short, clear answers are enough: 2–4 sentences per question.
 
+**Scenario assumption:** use per-object SSE-KMS without S3 Bucket Keys. S3 does not retain a
+plaintext data key between object requests. This keeps the key-state questions focused on the
+envelope-encryption flow taught in this lesson.
+
 ## Part 1 — Conventional arm (short answers)
 
 Answer in your own words (no AI-resilience layer, no personalized artifact — graded on the

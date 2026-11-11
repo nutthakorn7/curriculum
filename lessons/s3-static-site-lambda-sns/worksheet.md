@@ -34,12 +34,15 @@ Answer in your own words (no AI-resilience layer, no flag — graded on the writ
 
 ## Part 2 — AIR-Sec arm
 
-### 2a. The lab (flag capture)
+The Docker lab needs no personal `.env`. Any `FLAG{…}` shown is a shared demo marker. Grading
+uses your complete commands, before/after responses, explanation, and a live spot-check.
+
+### 2a. The lab (request and response evidence)
 Follow **Step-by-step** in `README.md` and copy its commands; each step shows what you should
 see. Write down:
-- The request that returned your flag from the vulnerable app (`:8105`): copy the whole `curl`
+- The request that demonstrated the vulnerable result from the vulnerable app (`:8105`): copy the whole `curl`
   command. Notice that it sends no `Authorization` header and no credentials of any kind.
-- Your flag.
+- The vulnerable response body and HTTP status code; the shared demo marker is not identity evidence.
 - What the vulnerable app's `index.html` shows when you read it again after your request (the
   site has really changed).
 - The same request sent to the fixed app (`:8106`), and the response you got (the HTTP code and
@@ -77,7 +80,7 @@ attack, while everyone can still see the website?
 
 ## Submit
 Write your answers on the **Local03 Answer Sheet** that Classroom copies for you, then click
-**Turn in** on Local 03 (no PDF needed). AIR-Sec-arm students fill in Part 2: the flag and the
+**Turn in** on Local 03 (no PDF needed). AIR-Sec-arm students fill in Part 2: the
 2a requests and responses, plus the 2b and 2c answers. Conventional-arm students fill in Part 1
 only.
 

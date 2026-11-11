@@ -26,7 +26,7 @@ and well-documented real-world cloud incident patterns of the last decade.
 2. **This add-on lab (45–60 min)** — a local, from-scratch simulation of the SSRF-to-credential-
    theft concept: a tiny Flask "instance" with a fake attached instance role and a link-preview
    feature you can attack without an AWS account. Kickoff: `docker compose up -d`.
-3. **Submit** — worksheet + flag → see [SUBMISSION.md](../../SUBMISSION.md).
+3. **Submit** — worksheet evidence and explanation → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Simulation limits (read this before you start)
 On a real EC2 instance, `169.254.169.254` is a **link-local address reachable only from processes
@@ -77,16 +77,15 @@ A. **Download the course files (first time only).** Skip this if you already did
    `already exists`, you have the files already: go on to B.
 
 B. **Get the newest version (every time).** The course files change during the term, so do this
-   even if you downloaded them last week. It never touches your `.env` file.
+   even if you downloaded them last week. Your answers stay in Classroom; update the repo before each lab.
    ```bash
    cd ~/cloud-infrastructure-security
    git pull
    ```
    You should see `Already up to date.` or a list of changed files. If you see
    `No such file or directory`, your copy is in another folder: do A to make a new one here. If you
-   see `Your local changes to the following files would be overwritten`, run `git checkout -- .`
-   and then `git pull` again. That throws away any edits you made to the course files; your
-   answers are on the Answer Sheet, so they are safe.
+   see `Your local changes to the following files would be overwritten`, stop and ask the
+   instructor for help syncing your copy. Do not discard your local changes blindly.
 
 C. **Go into this lab's folder and check it.**
    ```bash
@@ -99,9 +98,10 @@ C. **Go into this lab's folder and check it.**
 Run these in a terminal inside this lab folder: Terminal on macOS or Linux, or **Git Bash** on
 Windows (it comes with Git). Each step says what you should see.
 
-0. **Your personal flag:** save the `.env` file from your Classroom private comment in this folder
-   first (see "Your personal flag" below). Without it you capture the shared placeholder flag,
-   which earns no marks.
+0. **No private setup:** this public lab runs without a personal `.env` or an instructor message.
+   The `flag` field is a shared demonstration marker, not proof of identity. Submit the complete
+   request and vulnerable/fixed responses plus your explanation.
+
 1. **Start both apps.** The first run downloads and builds the image, so it can take a few
    minutes.
    ```bash
@@ -126,7 +126,7 @@ Windows (it comes with Git). Each step says what you should see.
    curl -s -w 'HTTP %{http_code}\n' -X POST http://localhost:8104/fetch-preview -H 'Content-Type: application/json' -d '{"url": "http://localhost:5000/latest/meta-data/iam/security-credentials/AppRole"}'
    ```
    You should see `HTTP 200` and a `body` holding fake `AccessKeyId`, `SecretAccessKey` and
-   `Token` values plus `\"flag\":\"FLAG{...}\"`. That flag is yours: copy it into the worksheet,
+   `Token` values plus `\"flag\":\"FLAG{...}\"`. Record the full response in the worksheet,
    together with the `-d '...'` request body you sent.
 5. **The same attack on the fixed app:**
    ```bash
@@ -155,8 +155,7 @@ steps above). Expect five `PASS` lines and exit `0`: the self-SSRF leaks the fla
 bypass, while an ordinary URL still fetches.
 
 **Verified (2026-11-02):** The "get this lab" commands (A, B and C) were run as written on 2026-11-08, in bash and in zsh, on a fresh clone. `docker compose up -d --build` was run on this machine, every command
-in Step-by-step was run as written (Step 0 was tested with a stand-in `.env`, and the captured flag
-changed to its value), and `exploit.py` ran from the host against the published ports. Real
+in Step-by-step was run as written (the optional environment override was tested), and `exploit.py` ran from the host against the published ports. Real
 captured output of `exploit.py`, flag value masked:
 ```
 === VULNERABLE (no URL validation on /fetch-preview) (http://localhost:8104) ===
@@ -185,20 +184,14 @@ in use by this repo's `lesson05-s3-static-site-lambda-sns` lab (built concurrent
 uses `:8104` (vulnerable) and `:8117` (fixed) instead — both confirmed free across every other
 lesson's `docker-compose.yml` in this repo at the time of writing.
 
-**Your personal flag.** Each student gets a personal `.env` file from the instructor, sent
-privately (in this course, as a Google Classroom private comment). Save it as `.env` in this lab
-folder before `docker compose up`: Compose reads `FLAG_EC2` from it, so the flag you capture is
-yours alone. Without it, `FLAG_EC2` falls back to a shared placeholder that is the same for
-everyone and earns no marks. Don't share or commit your `.env` (it is git-ignored). Instructors
-generate the files with `python3 instructor/seed_flags.py env <STUDENT_ID>` (instructor-only, not
-in this repo), which mints this lesson's `ec2` flag from the course manifest.
-
-**Evidence artifact.** The attributable evidence is the captured `flag` value inside the fetched
-metadata body returned by the *vulnerable* app's `/fetch-preview` response. The fixed app never
-returns it. Submitting another student's flag is a violation.
+**Shared demonstration marker.** No personal `.env` or individual flag is required. Any
+`flag` printed by this simulation is a public example marker; it does not identify the student
+and is not graded by itself. Submit the exact request or command, the complete relevant
+vulnerable and fixed responses, and your own explanation of the security effect. The instructor
+may ask you to reproduce and explain the result live. Do not use real credentials in evidence.
 
 ## Deliverable
-The captured flag + the exact request (`POST /fetch-preview` body) that produced it + a
+The complete vulnerable/fixed response evidence + the exact request (`POST /fetch-preview` body) that produced it + a
 one-paragraph explanation of why this is a **Server-Side Request Forgery** and not "just a bug in
 the metadata endpoint" — the metadata endpoint behaved exactly as an EC2 instance's IMDS is
 supposed to for callers on the instance; the vulnerability is entirely in `/fetch-preview` trusting

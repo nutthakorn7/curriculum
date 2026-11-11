@@ -33,12 +33,15 @@ Answer in your own words (no AI-resilience layer, no flag — graded on the writ
 
 ## Part 2 — AIR-Sec arm
 
+The Docker lab needs no personal `.env`. Any `FLAG{…}` shown is a shared demo marker. Grading
+uses your complete commands, before/after responses, explanation, and a live spot-check.
+
 ### 2a. The lab
 Do the lab with the **Step-by-step** section of `README.md` ("The Deny Rule That Never Runs").
 Write down:
-- The whole `curl` command that got you the flag from the vulnerable app (`:8113`), with the
+- The whole `curl` command that demonstrated the vulnerable result from the vulnerable app (`:8113`), with the
   `source_ip` and `port` it sent.
-- Your flag.
+- The vulnerable response body and HTTP status code; the shared demo marker is not identity evidence.
 - The same request sent to the fixed app (`:8114`), and the response you got instead.
 - The `GET /rules` output of both apps (step 3), and which rule number matched first in each
   case.
@@ -69,7 +72,7 @@ narrow, specific rule go, compared with a broad, catch-all one?
 ## Submit
 Write your answers on the **Local07 Answer Sheet** that Classroom copies for you, then click
 **Turn in** on Local 07 (no PDF needed). AIR-Sec-arm students fill in Part 2: the 2a lab evidence
-and the flag, plus the 2b and 2c answers. Conventional-arm students fill in Part 1 only.
+plus the 2b and 2c answers. Conventional-arm students fill in Part 1 only.
 
 - **Due:** before the start of the next week's class (the due date on the Classroom assignment).
 - **Late:** −10% of the score you earned for every 24 hours after the due time, down to 0 after

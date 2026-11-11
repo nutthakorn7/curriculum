@@ -35,16 +35,15 @@ A. **Download the course files (first time only).** Skip this if you already did
    `already exists`, you have the files already: go on to B.
 
 B. **Get the newest version (every time).** The course files change during the term, so do this
-   even if you downloaded them last week. It never touches your `.env` file.
+   even if you downloaded them last week. Your answers remain in Classroom.
    ```bash
    cd ~/cloud-infrastructure-security
    git pull
    ```
    You should see `Already up to date.` or a list of changed files. If you see
    `No such file or directory`, your copy is in another folder: do A to make a new one here. If you
-   see `Your local changes to the following files would be overwritten`, run `git checkout -- .`
-   and then `git pull` again. That throws away any edits you made to the course files; your
-   answers are on the Answer Sheet, so they are safe.
+   see `Your local changes to the following files would be overwritten`, stop and ask the
+   instructor for help syncing your copy. Do not discard your local changes blindly.
 
 C. **Go into this lab's folder and check it.**
    ```bash

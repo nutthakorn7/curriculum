@@ -20,7 +20,7 @@ public-write, principle of least privilege on a resource-based policy, event-dri
 3. **This add-on lab (45–60 min in Week 6)** — a local, from-scratch simulation of the S3
    static-website bucket-policy concept: a tiny "S3 website endpoint"-like API you can inspect and attack
    without an AWS account. Follow **Step-by-step** below (kickoff: `docker compose up -d --build`).
-4. **Submit Local 03 after Week 6** — worksheet + flag → see [SUBMISSION.md](../../SUBMISSION.md).
+4. **Submit Local 03 after Week 6** — worksheet evidence and explanation → see [SUBMISSION.md](../../SUBMISSION.md).
 
 ## Background — the two bugs this lab is and isn't about
 When you enable S3 static website hosting, the bucket must serve pages to anonymous browsers,
@@ -75,16 +75,15 @@ A. **Download the course files (first time only).** Skip this if you already did
    `already exists`, you have the files already: go on to B.
 
 B. **Get the newest version (every time).** The course files change during the term, so do this
-   even if you downloaded them last week. It never touches your `.env` file.
+   even if you downloaded them last week. Your answers stay in Classroom; update the repo before each lab.
    ```bash
    cd ~/cloud-infrastructure-security
    git pull
    ```
    You should see `Already up to date.` or a list of changed files. If you see
    `No such file or directory`, your copy is in another folder: do A to make a new one here. If you
-   see `Your local changes to the following files would be overwritten`, run `git checkout -- .`
-   and then `git pull` again. That throws away any edits you made to the course files; your
-   answers are on the Answer Sheet, so they are safe.
+   see `Your local changes to the following files would be overwritten`, stop and ask the
+   instructor for help syncing your copy. Do not discard your local changes blindly.
 
 C. **Go into this lab's folder and check it.**
    ```bash
@@ -98,9 +97,10 @@ Run these in a terminal inside this lab folder: Terminal on macOS or Linux, or *
 Windows (it comes with Git). Each step says what you should see. Do them in order: the attack in
 step 4 really overwrites the vulnerable app's homepage, so read the original page first.
 
-0. **Your personal flag:** save the `.env` file from your Classroom private comment in this folder
-   first (see "Your personal flag" below). Without it you capture the shared placeholder flag,
-   which earns no marks.
+0. **No private setup:** this public lab runs without a personal `.env` or an instructor message.
+   The `flag` field is a shared demonstration marker, not proof of identity. Submit the complete
+   request and vulnerable/fixed responses plus your explanation.
+
 1. **Start both apps.** The first run downloads and builds the image, so it can take a few
    minutes.
    ```bash
@@ -127,8 +127,7 @@ step 4 really overwrites the vulnerable app's homepage, so read the original pag
    ```bash
    curl -s -w 'HTTP %{http_code}\n' -X PUT http://localhost:8105/bucket/website/index.html -H 'Content-Type: application/json' -d '{"content": "<html><body><h1>PWNED by anonymous PUT</h1></body></html>"}'
    ```
-   You should see `"status":"uploaded"`, `"flag":"FLAG{...}"` and `HTTP 200`. That flag is yours:
-   copy it into the worksheet, together with the whole `curl` command you sent.
+   You should see `"status":"uploaded"`, `"flag":"FLAG{...}"` and `HTTP 200`. The marker is a shared example; record the whole `curl` command and response in the worksheet.
 5. **See that the site really changed:** read the vulnerable app's homepage again.
    ```bash
    curl -s -w 'HTTP %{http_code}\n' http://localhost:8105/bucket/website/index.html
@@ -167,8 +166,7 @@ steps above). Expect two `PASS` lines and exit `0`: an anonymous defacement + fl
 rejected anonymous write (no flag) on `:8106`, with public GET succeeding on both.
 
 **Verified (2026-11-02):** The "get this lab" commands (A, B and C) were run as written on 2026-11-08, in bash and in zsh, on a fresh clone. `docker compose up -d --build` was run on this machine, every command
-in Step-by-step was run as written (Step 0 was tested with a stand-in `.env`, and the captured flag
-changed to its value; `docker compose restart vulnerable` restored the original homepage), and
+in Step-by-step was run as written (the optional environment override was tested; `docker compose restart vulnerable` restored the original homepage), and
 `exploit.py` ran from the host against the published ports. Real captured output of `exploit.py`,
 flag value masked:
 ```
@@ -187,20 +185,14 @@ NoSuchKey` (not a crash) on both apps; re-`GET`ting `index.html` on the vulnerab
 exploit confirms the defacement persisted (the site now really does serve the attacker's HTML),
 demonstrating that this is a real overwrite, not just an accepted-but-discarded request.
 
-**Your personal flag.** Each student gets a personal `.env` file from the instructor, sent
-privately (in this course, as a Google Classroom private comment). Save it as `.env` in this lab
-folder before `docker compose up`: Compose reads `FLAG_S3SITE` from it, so the flag you capture is
-yours alone. Without it, `FLAG_S3SITE` falls back to a shared placeholder that is the same for
-everyone and earns no marks. Don't share or commit your `.env` (it is git-ignored). Instructors
-generate the files with `python3 instructor/seed_flags.py env <STUDENT_ID>` (instructor-only, not
-in this repo), which mints this lesson's `s3site` flag from the course manifest.
-
-**Evidence artifact.** The attributable evidence is the captured `flag` value returned by the
-*vulnerable* app's anonymous write to `index.html`. The fixed app never returns it. Submitting
-another student's flag is a violation.
+**Shared demonstration marker.** No personal `.env` or individual flag is required. Any
+`flag` printed by this simulation is a public example marker; it does not identify the student
+and is not graded by itself. Submit the exact request or command, the complete relevant
+vulnerable and fixed responses, and your own explanation of the security effect. The instructor
+may ask you to reproduce and explain the result live. Do not use real credentials in evidence.
 
 ## Deliverable
-The captured flag + the exact request (method, path, headers-or-lack-thereof, body) that
+The complete vulnerable/fixed response evidence + the exact request (method, path, headers-or-lack-thereof, body) that
 produced it + a one-paragraph explanation of why granting `Principal: "*"` the `PutObject`
 action is a fundamentally different (and much worse) mistake than granting it `GetObject` for a
 website-hosting bucket — one is the intended public-facing behavior, the other hands out write
