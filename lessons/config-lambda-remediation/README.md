@@ -1,8 +1,8 @@
 # {{ slot_label }} — AWS Config + Lambda Auto-Remediation (Inverted Allowlist)
 
-**Topic (source):** Shinya's own troubleshooting notes for the AWS Academy Cloud Security
-Foundations lesson on AWS Config detecting a non-compliant security group and a Lambda function
-auto-remediating it, described here in our own words — **not** copied from any AWS Academy file.
+**Topic:** The Week 18 AWS Academy Cloud Security Foundations Module 7 lab introduces AWS Config
+and Lambda in an incident response workflow. Follow the current AWS Academy instructions for the
+real lab; this original local exercise isolates one remediation logic error.
 **Kind:** HYBRID (small lab + conceptual material; the AWS Config "resource inventory / compliance
 tracking" mechanics are covered as concept only, in the worksheet, not simulated in code).
 **Concepts:** compliance auto-remediation, allowlist vs. denylist logic, silent logic-inversion
@@ -39,10 +39,9 @@ Two Flask targets, same endpoints, one condition flipped in the remediation logi
 | `fixed_app.py` | `:8116` | keeps only rules whose port **is** in the allowed set `{80, 443}` (correct) | **Yes — revoked** | **Yes — kept** |
 
 **Why it's exciting:** the bug is a single flipped comparison (`in` vs. `not in`), the function
-returns `200 OK` with no exception either way, and the compliance dashboard would show
-"remediation: succeeded" — but the dangerous rule is still there and legitimate traffic just
-broke. This is what makes inverted-logic remediation bugs so dangerous: **they fail silently and
-look like success.**
+returns `200 OK` with no exception either way. A system that records only the invocation result
+could show success while the dangerous rule remains and legitimate traffic breaks. Check the
+final security-group state rather than treating the function response as proof of remediation.
 
 1. **Baseline:** `POST /reset` seeds a security group with three inbound rules: port 80
    (`0.0.0.0/0`), port 443 (`0.0.0.0/0`), and port 22/SSH (`0.0.0.0/0`) — the last one is what a
