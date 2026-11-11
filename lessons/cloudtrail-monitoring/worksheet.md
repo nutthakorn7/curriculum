@@ -53,6 +53,7 @@ Write your answers on the **Local09 Answer Sheet** that Classroom copies for you
 **Turn in** on Local 09 (no PDF needed). AIR-Sec-arm students fill in Part 2: the 2a lab evidence
 and the flag, plus the 2b answer. Conventional-arm students fill in Part 1 only.
 
-- **Due:** before the start of the next week's class (the due date on the Classroom assignment).
-- **Late:** −10% of the score you earned for every 24 hours after the due time, down to 0 after
-  10 days. Late work is marked only after a short viva. Full rules in SUBMISSION.md.
+- **Due:** Monday 1 March 2027 at 23:59 Bangkok time, as set on the Classroom assignment.
+- **Late:** −10% of the score you earned for every 24 hours after the due time. Classroom closes
+  late submissions on Monday 8 March 2027 at 23:59; nothing is accepted after that time. Late work
+  is marked only after a short viva. Full rules in SUBMISSION.md.
