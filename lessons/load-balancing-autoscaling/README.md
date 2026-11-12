@@ -40,7 +40,7 @@ requires before it will accept a job:
 | Service | Port | Auth required? | Rate limit? | Anonymous caller can reach `current_instances = 6`? |
 |---|---|---|---|---|
 | `vulnerable_app.py` | `:8109` | No | No | **Yes — in ~40 calls** |
-| `fixed_app.py` | `:8110` | Yes (`X-Api-Key`) | Yes (5 calls/key) | **No — rejected at call 1 (401)**; even a *correctly-keyed* caller is capped at 5 calls, well short of the ~40 needed |
+| `fixed_app.py` | `:8110` | Yes (`X-Api-Key`) | Yes (per-key call cap) | **No — rejected at call 1 (401)**; even a correctly keyed caller reaches the cap well before the ~40 calls needed |
 
 **Why it's exciting:** you don't need to exploit a code bug — the endpoint does exactly what it
 was built to do. The vulnerability is that *nothing* gates who can call it or how often, so a
@@ -56,7 +56,7 @@ script and runs up a large bill before anyone notices.
    ~40, `current_instances` hits 6 and the response includes the flag.
 3. **Confirm the fix:** the identical anonymous loop against the fixed app is rejected
    immediately (`401 Unauthorized` — no `X-Api-Key` header). Even supplying the correct key only
-   buys 5 calls before `429 Too Many Requests` — nowhere near enough to reach max capacity. That
+   buys a bounded number of calls before `429 Too Many Requests` — nowhere near enough to reach max capacity. That
    empirically proves this needs **both** auth *and* a throttle: auth alone still lets a
    legitimate-but-compromised or careless key hammer the endpoint; a throttle alone still lets
    any anonymous caller through.
@@ -125,10 +125,10 @@ remember every call until they restart.
 4. **The attack:** send 40 load requests to the vulnerable app with no key and no headers at
    all. The loop prints the call number in front of each answer.
    ```bash
-   for i in $(seq 1 40); do printf 'call %s: ' "$i"; curl -s -X POST http://localhost:8109/generate-load; done
+   for i in $(seq 1 40); do printf 'call %s: ' "$i"; curl -s -w 'HTTP %{http_code}\n' -X POST http://localhost:8109/generate-load; done
    ```
    Watch `current_instances` grow from 2 by one every 10 calls (`load_units` 10, 20, 30, 40). On
-   call 40 it reaches 6 (the maximum) and the answer also contains `"flag":"FLAG{...}"`. Record
+   call 40 it reaches 6 (the maximum) and the answer contains `"flag":"FLAG{...}"` and `HTTP 200`. Record
    the complete response, loop command, and call number; the marker is shared.
 5. **Check the vulnerable fleet now.**
    ```bash
@@ -165,24 +165,35 @@ returns the flag on the first call and the fixed app answers `429` straight away
 from the beginning, run `docker compose restart vulnerable fixed`. If a step doesn't match, check
 that Docker Desktop is running and that you are in this lab folder, then ask in class.
 
-## Run it
+## Optional self-check
+The Step-by-step above needs only Docker and `curl`. If you also want to run `exploit.py`, install
+its Python dependency in a virtual environment inside this lab folder (`.venv/` is ignored by Git).
+
+macOS or Linux:
 ```bash
-cd {{ labpath }}
-docker compose up -d --build   # vulnerable_app.py on :8109, fixed_app.py on :8110
-python3 -m pip install requests           # once, on the host
-python3 exploit.py
+python3 -m venv .venv
+.venv/bin/python -m pip install requests
+.venv/bin/python exploit.py
+```
+Windows Git Bash (with the Python launcher installed):
+```bash
+py -3 -m venv .venv
+.venv/Scripts/python.exe -m pip install requests
+.venv/Scripts/python.exe exploit.py
 ```
 `exploit.py` runs the main checks in one go (an optional self-check, not a replacement for the
-steps above; the Step-by-step needs no Python). Run it on freshly started apps (`docker compose
+steps above). Run it on freshly started apps (`docker compose
 restart vulnerable fixed` first). Expect two `PASS` lines and exit `0`: the vulnerable app
 reaching max instances (6) and returning the flag in well under 100 anonymous calls, and the fixed
 app rejecting the anonymous caller (401) before it can accumulate any meaningful load.
 
-**Verified (2026-11-04):** The "get this lab" commands (A, B and C) were run as written on 2026-11-08, in bash and in zsh, on a fresh clone. `docker compose up -d --build` was run on this machine (macOS) and
+**Verified (2026-11-08; revised commands retested 2026-11-12 on macOS):** The "get this lab" commands (A, B and C) were run as written on 2026-11-08, in bash and in zsh, on a fresh clone. `docker compose up -d --build` was run on this machine (macOS) and
 every command in Step-by-step was run as written in bash; the step 4 loop was also run in zsh,
 the macOS default shell. Windows Git Bash was not tested. The optional environment override was tested; `docker compose restart vulnerable fixed` returned
 both apps to `current_instances` 2, `load_units` 0. `exploit.py` then ran from the host against
-the published ports and printed the same lines as before. Real captured output, flag value masked:
+the published ports and printed the same lines as before. On 2026-11-12, the revised step 4 loop
+showed `HTTP 200`, and the virtual-environment self-check returned two `PASS` lines. Real captured
+output, flag value masked:
 ```
 === VULNERABLE (no auth, no rate limit) (http://localhost:8109) ===
 [*] call 40: anonymous POST /generate-load -> 200 {'current_instances': 6, 'flag': 'FLAG{...}', 'load_units': 40, 'max_instances': 6, 'min_instances': 2, 'status': 'job-accepted'}
@@ -193,9 +204,9 @@ PASS: anonymous caller drove current_instances to 6 in 40 calls on the vulnerabl
 PASS: anonymous caller correctly REJECTED on the fixed app (401) after 1 call(s), no flag, fleet never reached max instances
 ```
 Exit code `0`. Additional negative-control check performed separately (not part of
-`exploit.py`'s asserted path, but worth demonstrating in class): calling the fixed app **with**
-the correct `X-Api-Key` still gets capped — 5 successful calls (`current_instances` stays at 2,
-`load_units` stops at 5), then a `6th` call returns `429 {"error": "TooManyRequests", ...}`. This
+`exploit.py`'s asserted path, but worth demonstrating in class after students answer 2c): calling
+the fixed app **with** the correct `X-Api-Key` reaches its configured per-key cap and then returns
+`429 {"error": "TooManyRequests", ...}`. This
 is the defense-in-depth proof: the fix is auth **and** a throttle together, not either one alone.
 
 **Shared demonstration marker.** No personal `.env` or individual flag is required. Any
