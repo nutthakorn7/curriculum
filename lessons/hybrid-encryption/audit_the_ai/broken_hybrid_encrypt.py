@@ -13,9 +13,9 @@ Design:
   - Alice decrypts the wrapped key once with her RSA private key, then uses
     it to open every GCM ciphertext in the session.
 
-This mirrors how real systems do it (think: TLS handshake wraps a session
-key once, then symmetric AEAD does the heavy lifting for the rest of the
-connection) rather than paying RSA-OAEP's cost per message.
+This illustrates hybrid encryption: a public-key operation establishes a
+session key, then symmetric AEAD protects the messages. Modern TLS 1.3 uses
+authenticated ephemeral key agreement instead of RSA key transport.
 
     (AI-assistant generated. Not yet reviewed by a human. Audit before use.)
 """

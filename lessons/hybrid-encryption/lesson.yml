@@ -1,8 +1,8 @@
 slug: hybrid-encryption
-title: "Asymmetric & Hybrid Encryption"
-kind: CONCEPTUAL
+title: "Hybrid Encryption: lock the key with RSA, the messages with AES-GCM"
+kind: LAB
 duration_min: 180
-tags: [crypto, asymmetric-encryption, hybrid-encryption, aes-gcm]
-cwe: []
+tags: [crypto, asymmetric-encryption, hybrid-encryption, aes-gcm, nonce-reuse]
+cwe: [CWE-323]
 prereqs: [aead]
 flag_keys: []

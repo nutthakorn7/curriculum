@@ -1,0 +1,11 @@
+services:
+  lab:
+    image: python:3.12-slim
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    # One container, no network ports. Students run demo.py inside it (see worksheet.md).
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt &&
+               echo '--- week 10 lab ready: run python demo.py inside this container ---' &&
+               sleep infinity"
