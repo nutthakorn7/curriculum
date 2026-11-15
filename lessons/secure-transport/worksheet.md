@@ -1,282 +1,428 @@
-# Worksheet 12 — Secure Transport (TLS): Certificate-Validation-Bypass MITM
+# Worksheet 12 — Secure Transport (TLS): "encrypted" is not the same as "encrypted to the right person"
 
 > **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
-> **Aligned to:** RFC 8446 (TLS 1.3), RFC 5280 (X.509 PKI), RFC 6125 (hostname verification) ·
-> CWE-295 (Improper Certificate Validation), CWE-300 (Channel Accessible by Non-Endpoint)
-> **Kind:** Hybrid — a runnable cert-bypass MITM demo (Part 2a) alongside conceptual content that
-> stays theoretical this week (the wider Web PKI trust model, Part 2c).
+> **Aligned to:** RFC 9846 (TLS 1.3), RFC 5280 (X.509), RFC 9525 (hostname verification) · CWE-295 (Improper Certificate Validation), CWE-300 (Channel Accessible by Non-Endpoint)
+> **Kind:** Docker lab แบบทำตามทีละขั้น ไม่ต้องคำนวณเลข มีงานแก้โค้ดสั้น ๆ **3 บรรทัด** ที่มีตัวอย่างให้ดู
 
-## 100-minute class and assigned worksheet version
+> **Ethics note:** ทำเฉพาะกับ container ในเครื่องของตัวเองที่ lab นี้เปิดขึ้นมา (Alice, Bob และผู้แอบอ้าง "Eve" ที่เป็นโค้ดจำลอง) การดักฟังหรือแอบอ้างเซิร์ฟเวอร์ในเครือข่ายจริงที่ไม่ใช่ของเราและไม่ได้รับอนุญาตเป็นเรื่องผิดกฎหมาย
 
-**In class:** 10 min retrieval quiz + 10 min brief explanation + 60 min practice/analysis + 15 min debrief + 5 min evidence capture = 100 min.
+## อ่านก่อนเริ่ม
 
-**Shared core — every student:** Run vulnerable and validating TLS configurations, capture their contrasting results, then implement and test build_client_context() in alice_student.py. Every student completes this coding and evidence task as part of the shared 60 points.
+**วันนี้จะทำอะไร:** Alice ส่งความลับถึง Bob ผ่าน TLS (การเชื่อมต่อที่เข้ารหัส) แต่คนที่อยู่กลางทาง (Eve) เอา**ใบรับรองปลอมที่อ้างว่าเป็น "bob"** มาให้ Alice ถ้า Alice **ไม่ตรวจใบรับรอง** เธอจะคุยกับ Eve อย่างเข้ารหัสสมบูรณ์แบบ และ Eve อ่านความลับได้ เราจะดู Alice ทั้งแบบไม่ตรวจและแบบตรวจ แล้ว**แก้โค้ดของ Alice เอง** สิ่งที่ต้องจำ: **เข้ารหัสแล้ว ไม่ได้แปลว่าคุยกับคนที่ถูกต้อง**
 
-**Preparation and extensions:** Prepare images and read the certificate topology before class. Complete the full PKI/Noise essays or AIR-Sec critique/EiPE/Prompt outside the core block as needed. Preserve the required W12 code link in the worksheet.
+**ทุกขั้นเขียนแบบเดียวกัน:**
 
-**Assessment:** everyone completes the shared core (60 points) plus **one assigned version** (40 points): Conventional written analysis, or AIR-Sec Audit-the-AI 20 + EiPE 10 + Prompt Problem 10. Both versions total 100. All questions remain available; complete the assigned version's full questions, using out-of-class time for extended responses. The other version is ungraded reference practice, not an additional requirement. Viva/micro-demo questions are formative checks of the submitted explanation, with no separate points or automatic pass/fail score gate.
+| หัวข้อ | ความหมาย |
+|---|---|
+| **ทำอะไร** | บอกว่าขั้นนี้จะทำอะไร |
+| **พิมพ์** | คัดลอกทั้งบรรทัดไปวางใน Terminal แล้วกด Enter |
+| **ควรเห็น** | หน้าจอควรขึ้นประมาณนี้ (มีบรรทัดอื่นของ Docker ปนอยู่ด้วย ดูเฉพาะบรรทัดที่ใบงานบอก) |
+| **แปลว่า** | ผลที่เห็นหมายความว่าอะไร |
+| **ลงใบตอบ** | สิ่งที่ต้องคัดลอกหรือเขียนลงใบตอบ |
 
-**Evidence:** record reproducible observations or reasoning and your name/student ID. Where the local target prints a shared placeholder flag, record it as observed; a personalized flag or live CTFd account is not a prerequisite. Follow SUBMISSION.md for the announced hand-in channel.
+**คะแนน**
 
-## Part 0 — Student Information
-| Name | Student ID | Date | Group |
-|---|---|---|---|
+- ทุกคนทำ **Part A (60 คะแนน)** ซึ่งเหมือนกันทั้งสองแบบ
+- จากนั้นทำ **เฉพาะแบบของตัวเอง (40 คะแนน)** ดูจากเลขตัวสุดท้ายของรหัสนักศึกษา: **เลขคี่ = Conventional (Part 2)**, **เลขคู่ = AIR-Sec (Parts 3–4)** (เลข 0 นับเป็นเลขคู่) แล้วเขียนแบบของตัวเองในช่อง Group
+- ตอบเป็นภาษาไทยหรืออังกฤษก็ได้ ตอบสั้น ๆ ให้ชัดก็พอ
+- **ใช้ใบตอบ:** ใน Classroom → Week 12 เปิดไฟล์ตามแบบของตัวเอง (`Wk12_Answer_Sheet_Conventional_odd_ID` หรือ `Wk12_Answer_Sheet_AIR-Sec_even_ID`) กด Open with → Google Docs พิมพ์ลงกรอบสีเทา แล้วกด File → Download → PDF
+- ส่งไฟล์เดียว ตั้งชื่อตามรหัสนักศึกษา เช่น `Wk12_66990000.pdf` (ไม่ต้องใส่เครื่องหมาย `<` `>`) ที่ `learn.zcr.ai/submit` โดยใช้รหัสส่งงานของ Week 12 ที่ได้ทางอีเมล KMITL ภายใน **อาทิตย์ 24 ม.ค. 2027 23:59 น.**
+- **สัปดาห์นี้ต้องแนบลิงก์ commit ของ `alice_student.py` ใน GitHub ด้วย** (ไม่มีคะแนนแยก) ดูวิธีทำในหัวข้อ W12 ของ `SUBMISSION.md` และเตรียม fork ไว้ก่อนวันเรียน
+- ข้อที่เขียนว่า *optional* ไม่มีคะแนน ไม่ต้องทำก็ได้
 
-*Disclose any AI assistance used anywhere in this worksheet here (tool + what you asked it).*
+| Part A | คะแนน | ขั้นที่ลงใบตอบ |
+|---|---:|---|
+| A1 — Alice ไม่ตรวจใบรับรอง Eve อ่านความลับ | 20 | ขั้นที่ 2, 3 |
+| A2 — Alice ตรวจใบรับรอง Eve อ่านไม่ได้ | 20 | ขั้นที่ 5, 6 |
+| A3 — แก้โค้ดของ Alice เอง และทดสอบ | 20 | ขั้นที่ 7, 8, 9, 10 |
+
+**คำศัพท์ที่ต้องรู้**
+
+| คำ | ความหมายแบบง่าย |
+|---|---|
+| Terminal | หน้าต่างสำหรับพิมพ์คำสั่ง |
+| Docker / container | โปรแกรมที่เปิด "เครื่องจำลอง" เล็ก ๆ ในเครื่องของเรา ทำพังก็ลบแล้วเริ่มใหม่ได้ |
+| TLS | วิธีเข้ารหัสการเชื่อมต่อ (เหมือนที่เว็บ https ใช้) |
+| ใบรับรอง (certificate) | เอกสารของเซิร์ฟเวอร์ที่บอกว่า "ฉันคือ bob" |
+| CA (Certificate Authority) | ผู้ออกใบรับรองที่คอมพิวเตอร์ของเรา**เชื่ออยู่แล้ว** เซ็นรับรองว่าใบรับรองนี้เป็นของ bob จริง |
+| self-signed | ใบรับรองที่เซ็นรับรองตัวเอง ไม่มี CA ที่เราเชื่อมาเซ็นให้ ใครก็ทำได้ |
+| MITM (man in the middle) | คนที่อยู่กลางทางและแอบอ้างเป็นปลายทาง (ในใบงานนี้ คือ Eve) |
+| ตรวจใบรับรอง (verify) | ตรวจว่า ใบรับรองถูกเซ็นโดย CA ที่เราเชื่อ และชื่อในใบรับรองตรงกับที่เราเรียก |
+| flag | ข้อความรางวัล (สัปดาห์นี้ไม่มี flag แต่มีข้อความลับ `the vault code is 7731`) |
+
+**คำถามที่มักสงสัย**
+
+- *ต้องเก่งคณิตศาสตร์ไหม?* ไม่ต้อง
+- *ต้องเขียนโปรแกรมไหม?* ต้องแก้โค้ดแค่ **3 บรรทัด** และใบงานมีตัวอย่างบรรทัดที่ถูกให้ดู (ขั้นที่ 7)
+- *ถ้าทำผิด เครื่องจะพังไหม?* ไม่พัง ทุกอย่างอยู่ใน container ถ้าสับสนให้พิมพ์สามคำสั่งในขั้นที่ 11 แล้วเริ่มใหม่
+- *ไม่เข้าใจทุกบรรทัดที่ขึ้นจอ ได้ไหม?* ได้ ดูเฉพาะบรรทัดที่ใบงานบอก
+- *ชื่อ container และเลขในบรรทัดของเราไม่เหมือนตัวอย่าง ผิดไหม?* ไม่ผิด ข้อความลับและบรรทัดสำคัญ (`MITM INTERCEPTED`, `CERT VERIFICATION FAILED`) ต้องเหมือนกัน
+- *วางคำสั่งใน Terminal ยังไง?* คัดลอกคำสั่งจากใบงาน แล้ว Windows: กด Ctrl+V หรือคลิกขวา · Mac: กด Cmd+V จากนั้นกด Enter
+- *คัดลอกผลจาก Terminal ยังไง?* ลากเมาส์คลุมข้อความก่อน แล้ว Windows: กด Ctrl+Shift+C · Mac: กด Cmd+C หรือจะ screenshot ก็ได้
+
+**ถ้าเจอข้อความแบบนี้**
+
+| ข้อความบนจอ | สาเหตุ | วิธีแก้ |
+|---|---|---|
+| มีคำว่า `Cannot connect to the Docker daemon` หรือ `error during connect` | ยังไม่ได้เปิด Docker | เปิด Docker Desktop รอจนขึ้น Engine running |
+| `no configuration file provided: not found` หรือ `open docker-compose...yml: no such file` | Terminal ไม่ได้อยู่ในโฟลเดอร์ lab | ทำเตรียมขั้นที่ 4 อีกครั้ง |
+| `NotImplementedError: TODO: build_client_context()` | ยังไม่ได้แก้ `alice_student.py` หรือยังไม่ได้บันทึกไฟล์ | ทำขั้นที่ 8 แล้วกดบันทึก (Save) |
+| `IndentationError` หรือ `SyntaxError` | บรรทัดที่พิมพ์เยื้องไม่ตรง | ทุกบรรทัดต้องเยื้อง **4 ช่องว่าง** เท่ากับบรรทัดอื่นในฟังก์ชัน |
+| ผลยังเป็นแบบเก่า ทั้งที่แก้ไฟล์แล้ว | ไม่ได้ใส่ `--build` ในคำสั่ง | คัดลอกคำสั่งในขั้นที่ 9 ใหม่ทั้งบรรทัด (มีคำว่า `--build`) |
+| `network ... has active endpoints` ตอน `down` | ยังมี container ค้าง | พิมพ์คำสั่งในขั้นที่ 11 อีกครั้ง |
+
+ลองแล้วยังไม่ได้ ให้ถามเพื่อนหรืออาจารย์ได้เลย
 
 ---
 
-## Part 1 — Conventional Arm: Essay Questions
+## ก่อนเริ่ม: เตรียมเครื่อง (ทำที่บ้าน ทำครั้งเดียว)
 
-Answer each in your own words (roughly 150–250 words per answer — enough to show you understand
-the mechanism, not so much that you're padding). These are the conventional written task; no AI
-layer applies to Part 1.
+ถ้าเคยทำ Week 2–6 หรือ 10–11 มาแล้ว มี Docker และไฟล์ ZIP อยู่แล้ว เริ่มที่**เตรียมขั้นที่ 4** ได้เลย แต่ ZIP ต้องมีโฟลเดอร์ `week12-secure-transport` ถ้าไม่เจอให้โหลดใหม่ตามเตรียมขั้นที่ 2 และสัปดาห์นี้ต้องใช้ **GitHub fork** ของตัวเอง (ดูวิธีใน `SUBMISSION.md` หัวข้อ W12)
 
-**Q1. Evolution SSL → TLS.** SSL was retired and replaced by TLS, culminating in TLS 1.3. Explain
-why the SSL family failed — cover both concrete *security* weaknesses and *design* problems — and
-describe how TLS 1.3 specifically addresses those weaknesses.
+#### เตรียมขั้นที่ 1 — เปิด Docker Desktop
 
-**Q2. Security role of the TLS handshake.** Explain how the TLS handshake prevents a
-man-in-the-middle attack. Describe the roles of (a) key exchange, (b) server authentication, and
-(c) the `CertificateVerify` message, and explain what an attacker could do if any *one* of those
-three components were missing.
+**ทำอะไร:** ถ้ายังไม่มี ให้ติดตั้งจาก <https://www.docker.com/products/docker-desktop/> แล้วเปิดโปรแกรมทิ้งไว้
 
-**Q3. Forward secrecy in TLS 1.3.** Explain what forward secrecy is and how TLS 1.3 provides it.
-Contrast this with legacy static-RSA key exchange (removed in TLS 1.3) and explain the security
-impact of that older design. Use a real example (e.g. Heartbleed) to illustrate why forward
-secrecy matters.
+**ควรเห็น:** ในหน้าต่าง Docker Desktop ขึ้นว่า **Engine running**
 
-**Q4. 0-RTT (early data) trade-off.** TLS 1.3 adds a 0-RTT "early data" mode. Explain the
-performance benefit and the security cost. Why is 0-RTT data *replayable* by an attacker, and why
-should it therefore be restricted to idempotent operations?
+#### เตรียมขั้นที่ 2 — โหลดไฟล์ lab
 
-**Q5. Web PKI trust model.** Trust on the web rests on Certificate Authorities. Explain the risk
-posed by a *misbehaving or compromised* CA. Then compare three mitigations — **certificate
-pinning**, **revocation** (CRL / OCSP / OCSP stapling), and **Certificate Transparency** — and say
-which you would choose for a mobile banking app, and why.
+**ทำอะไร:** เปิด <https://github.com/nutthakorn7/security-cryptography> กดปุ่มสีเขียว **Code** แล้วเลือก **Download ZIP** (หรือใช้ `git clone` ของ fork ตัวเองถ้าทำเป็น)
 
-**Q6. TLS vs. the Noise Protocol Framework.** Compare TLS and Noise across: flexibility,
-runtime/negotiation complexity, upgradeability, and security assumptions. Argue whether Noise is
-more suitable than TLS when *both* endpoints are under your control (e.g. IoT devices or internal
-microservices), and say what you would give up by choosing it.
+#### เตรียมขั้นที่ 3 — แตกไฟล์ ZIP
+
+**ทำอะไร:** Windows: คลิกขวาที่ไฟล์ ZIP เลือก **Extract All** · Mac: ดับเบิลคลิกไฟล์ ZIP
+
+**ควรเห็น:** โฟลเดอร์ชื่อ `security-cryptography-master` บางเครื่องจะมีโฟลเดอร์ชื่อเดียวกันซ้อนสองชั้น ให้เปิดเข้าไปจนเห็นโฟลเดอร์ `labs`
+
+#### เตรียมขั้นที่ 4 — เปิด Terminal ในโฟลเดอร์ lab
+
+**ทำอะไร:** ในโฟลเดอร์ `security-cryptography-master` เข้าไปที่ `labs` แล้วเข้า `week12-secure-transport`
+
+- **Windows:** เปิดโฟลเดอร์ `week12-secure-transport` ใน File Explorer คลิกขวาตรงที่ว่าง เลือก **Open in Terminal** (ถ้าไม่มีเมนูนี้ ให้กด Shift ค้างแล้วคลิกขวา เลือก **Open PowerShell window here**)
+- **Mac:** เปิดแอป Terminal พิมพ์ `cd` เว้นวรรคหนึ่งครั้ง ลากโฟลเดอร์ `week12-secure-transport` มาวางในหน้าต่าง แล้วกด Enter
+
+เช็กว่าอยู่ถูกที่ด้วยคำสั่งนี้:
+
+```bash
+ls
+```
+
+**ควรเห็น:** มีชื่อ `alice_student.py` และ `docker-compose.vulnerable.yml` อยู่ในรายการ
+
+#### เตรียมขั้นที่ 5 — สร้างภาพ (image) ของ lab
+
+**พิมพ์:**
+
+```bash
+docker compose -f docker-compose.vulnerable.yml build
+```
+
+**ควรเห็น:** บรรทัดลงท้ายว่า `Built` หรือ `Building ... done` ครั้งแรกต้องต่ออินเทอร์เน็ตและอาจรอหลายนาที ระหว่างนั้นอย่าปิดหน้าต่าง
 
 ---
 
-## Part 2 — Shared Lab Core and Assigned AIR-Sec Tasks
+## Part A — The lab (both forms, 60 points)
 
-AI is a power tool you must **distrust** — several parts below are graded on your *critique*, not
-on how well you can prompt an AI. Full run instructions: [`README.md`](README.md).
+มีตัวละครสามตัว (เป็นโปรแกรมใน Docker):
 
-### Part 2a — Shared lab steps + evidence artifact (required for both versions)
+| ตัวละคร | ทำอะไร | ใบรับรอง |
+|---|---|---|
+| **Alice** | ส่งความลับ `the vault code is 7731` ไปให้ "bob" | — (เธอต้องตัดสินใจว่าเชื่อใบรับรองไหม) |
+| **Bob** | เซิร์ฟเวอร์จริง | ใบรับรอง**จริง** ที่ CA เซ็นให้ |
+| **Eve (mitm)** | ดักอยู่กลางทาง แอบอ้างเป็น bob | ใบรับรอง**ปลอม** ที่เซ็นเอง แต่เขียนชื่อว่า "bob" |
 
-**Setup.** `gen_certs.py` generates, into a shared volume, a demo CA, Bob's CA-signed cert
-(`CN=bob`), and a **self-signed impostor** cert that *also* claims `CN=bob`. `mitm.py` presents
-the impostor cert; `bob.py` presents the real one. Alice is configured to dial `mitm`, never `bob`
-directly — that is the premise: an active attacker controls the network path.
+Alice ถูกตั้งให้เชื่อมต่อกับ Eve (เพราะ Eve อยู่กลางทาง) โดยเข้าใจว่านั่นคือ bob ทำตามลำดับ A1 → A2 → A3 ต่อเนื่องกัน ไม่ต้องปิด lab คั่นกลาง
 
-1. Run **vulnerable mode**:
-   ```bash
-   cd {{ labpath }}
-   docker compose -f docker-compose.vulnerable.yml up --build
-   ```
-   Capture the full log output. Your required evidence line is:
-   ```
-   MITM INTERCEPTED: the vault code is 7731
-   ```
-   **This is your attributable artifact for this HYBRID week, in place of a CTF
-   flag.** The message text itself is fixed for every student (`SECRET_MESSAGE` is a lab constant,
-   not per-student), so what makes your submission *yours* is not the string — it's the same
-   attributed mechanism as every other week: include your name/student ID and a reproducible capture or annotated transcript from your own run, as described in Evidence & Integrity.
-   Note in one line: Alice logs that the TLS handshake **succeeded** — so the channel really is
-   encrypted. Why did encryption not protect the secret?
-2. Tear down: `Ctrl-C`, then `docker compose -f docker-compose.vulnerable.yml down -v`.
-3. Run **fixed mode**:
-   ```bash
-   docker compose -f docker-compose.fixed.yml up --build
-   ```
-   Capture the full log output. Your required abort evidence is:
-   ```
-   CERT VERIFICATION FAILED - ABORTING
-   ```
-   from `alice` (with the reason line `ALICE: (reason: self-signed certificate)`), and the
-   **absence** of any `MITM INTERCEPTED` line. Confirm the absence explicitly:
-   ```bash
-   docker compose -f docker-compose.fixed.yml logs | grep -c "MITM INTERCEPTED"
-   ```
-   and record that it prints `0`.
-4. Tear down: `Ctrl-C`, then `docker compose -f docker-compose.fixed.yml down -v`.
-5. **Write the fix yourself.** Every other task this week (and most weeks in this course) has you
-   confirm a pre-built fix, not write one — this is the exception. Open `alice_student.py`: it is
-   identical to `alice.py` except `build_client_context()` is a stub that raises
-   `NotImplementedError`. Replace the stub with real code that trusts only the demo CA, verifies
-   the chain, and verifies the hostname (see the file's docstring for the exact requirements — you
-   do not need to hand-roll chain/hostname validation, one standard-library call does both
-   correctly). Then:
-   ```bash
-   docker compose -f docker-compose.student-task.yml up --build
-   ```
-   You're done when you see `CERT VERIFICATION FAILED - ABORTING` (not a Python traceback, and not
-   `TLS handshake succeeded`). Tear down: `docker compose -f docker-compose.student-task.yml down -v`.
+> **ถ้าใช้ Docker ไม่ได้จริง ๆ:** บอกอาจารย์ แล้วคัดลอกบรรทัดตัวอย่างในใบงานมาใส่ใบตอบ เขียนกำกับว่า "จากตัวอย่างในใบงาน" ส่วนขั้นที่ 3, 6 และ 10 ตอบจากการอ่านใบงานได้ (ขั้นที่ 8 ต้องมีโค้ดที่แก้เอง)
 
-**Submit:** both captured logs from steps 1 and 3 (with your name/student ID and reproducible attribution), your one-line note
-from step 1, the `grep -c` output from step 3, **and your completed `alice_student.py`** (paste the
-diff or the full `build_client_context()` function) with a 2–3 sentence explanation of what each
-line does and why it's necessary — you may be asked to explain it live in the viva.
+### A1 — Alice ไม่ตรวจใบรับรอง Eve อ่านความลับ (20 points)
 
-### Part 2b — Assigned AIR-Sec Audit the AI
+#### ขั้นที่ 1 — อ่าน: Alice ไม่ตรวจใบรับรองหมายความว่าอะไร
+
+**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+
+โหมดแรกนี้ Alice ถูกตั้งให้ **ไม่ตรวจใบรับรอง** ของฝั่งตรงข้าม (ไม่ดูว่าใครเซ็น ไม่ดูว่าชื่อตรงไหม) ดังนั้นใบรับรองปลอมของ Eve ที่เขียนว่า "bob" ก็ผ่าน ผลคือ Alice เปิดการเชื่อมต่อ TLS กับ Eve และส่งความลับไป ข้อมูลถูกเข้ารหัสจริง แต่เข้ารหัสไปให้ **Eve** ซึ่งถอดรหัสได้เพราะเป็นปลายทางของการเชื่อมต่อนั้น
+
+#### ขั้นที่ 2 — รัน Alice แบบไม่ตรวจ แล้วดูว่า Eve ได้อะไร
+
+**ทำอะไร:** ให้ Alice ส่งความลับ แล้วดู log ของ Eve
+
+**พิมพ์** ทีละบรรทัด:
+
+```bash
+docker compose -f docker-compose.vulnerable.yml run --rm alice
+docker compose -f docker-compose.vulnerable.yml logs mitm
+```
+
+**ควรเห็น:** คำสั่งแรกมีบรรทัดของ Alice สามบรรทัด คำสั่งที่สองมีบรรทัดของ Eve ให้หาบรรทัดสำคัญเหล่านี้
+
+```
+ALICE: TLS handshake succeeded WITHOUT verifying the server cert -- sending secret
+week12-mitm  | MITM INTERCEPTED: the vault code is 7731
+```
+
+**แปลว่า:** Alice บอกเองว่า TLS handshake **สำเร็จ** (การเชื่อมต่อเข้ารหัสจริง) แต่เธอ**ไม่ได้ตรวจ**ใบรับรอง Eve จึงอ่านความลับได้ (`MITM INTERCEPTED`)
+
+**✍️ ลงใบตอบ (ขั้นที่ 2):** คัดลอกสองบรรทัดข้างบนจากหน้าจอของตัวเอง
+
+#### ขั้นที่ 3 — สรุปด้วยคำของตัวเอง
+
+**ทำอะไร:** เติมคำในช่องว่าง
+
+> TLS handshake ของ Alice ________ (เลือกคำ: `สำเร็จ` / `ล้มเหลว`) และการเชื่อมต่อถูกเข้ารหัสจริง แต่ Eve อ่านความลับได้ เพราะ Alice ไม่ได้ตรวจ ________ ของฝั่งตรงข้าม (เลือกคำ: `ใบรับรอง` / `ความเร็ว`)
+
+**✍️ ลงใบตอบ (ขั้นที่ 3):** เขียนประโยคนี้ให้ครบ
+
+### A2 — Alice ตรวจใบรับรอง Eve อ่านไม่ได้ (20 points)
+
+#### ขั้นที่ 4 — อ่าน: Alice แบบตรวจ
+
+**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+
+โหมดที่สอง Alice โหลด **CA ที่เราเชื่อ** (CA ของ lab) และตรวจสองอย่าง: (1) ใบรับรองถูกเซ็นโดย CA นั้นไหม (2) ชื่อในใบรับรองตรงกับ "bob" ไหม ใบรับรองปลอมของ Eve เขียนชื่อ "bob" ถูกต้อง แต่ **ไม่มี CA เซ็นรับรอง** (เซ็นเอง) จึงไม่ผ่านข้อ (1) และ Alice ตัดการเชื่อมต่อ**ก่อนส่งความลับ** ผู้โจมตีและโค้ดของ Eve ไม่ได้เปลี่ยนเลย เปลี่ยนแค่ฝั่ง Alice
+
+#### ขั้นที่ 5 — รัน Alice แบบตรวจ แล้วดูว่า Eve ได้อะไร
+
+**ทำอะไร:** รัน Alice แบบตรวจ แล้วดู log ของ Eve
+
+**พิมพ์** ทีละบรรทัด:
+
+```bash
+docker compose -f docker-compose.fixed.yml run --rm alice
+docker compose -f docker-compose.fixed.yml logs mitm
+```
+
+**ควรเห็น:** ให้หาสามบรรทัดนี้ (และไม่มีบรรทัด `MITM INTERCEPTED`)
+
+```
+CERT VERIFICATION FAILED - ABORTING
+ALICE: (reason: self-signed certificate)
+week12-mitm  | MITM: handshake aborted by client, intercepted NOTHING (SSLError)
+```
+
+**แปลว่า:** Alice ปฏิเสธใบรับรองเพราะ **self-signed** (ไม่มี CA ที่เราเชื่อเซ็นให้) แม้ชื่อจะเป็น "bob" และ Eve ได้ **ไม่ได้อะไรเลย** (`intercepted NOTHING`)
+
+**✍️ ลงใบตอบ (ขั้นที่ 5):** คัดลอกสามบรรทัดข้างบนจากหน้าจอของตัวเอง
+
+#### ขั้นที่ 6 — ตอบคำถามสองข้อ
+
+**ทำอะไร:** เติมคำในช่องว่างทั้งสองข้อ (คำใบ้: ขั้นที่ 4 และผลในขั้นที่ 5)
+
+> a) ใบรับรองปลอมของ Eve ถูกปฏิเสธเพราะ ________ (เลือกคำ: `ชื่อไม่ตรง` / `ไม่มี CA ที่เราเชื่อเซ็นรับรอง`)
+>
+> b) Alice ตัดการเชื่อมต่อ ________ ส่งความลับ (เลือกคำ: `ก่อน` / `หลัง`) จึงไม่มีอะไรรั่ว
+
+**✍️ ลงใบตอบ (ขั้นที่ 6):** เขียนทั้งสองประโยคให้ครบ
+
+### A3 — แก้โค้ดของ Alice เอง และทดสอบ (20 points)
+
+#### ขั้นที่ 7 — ดูโค้ดที่ถูก
+
+**ทำอะไร:** ดูบรรทัดที่ทำให้ Alice แบบตรวจทำงานถูก ในไฟล์ `alice.py`
+
+**พิมพ์:**
+
+```bash
+docker compose -f docker-compose.fixed.yml run --rm --entrypoint grep alice -n -A4 "FIXED: trust only" alice.py
+```
+
+**ควรเห็น:**
+
+```
+80:        # FIXED: trust only the demo CA, verify the chain and the hostname.
+81-        ca_path = wait_for_ca_cert()
+82-        ctx = ssl.create_default_context(cafile=ca_path)
+83-        # create_default_context already sets check_hostname=True and
+84-        # verify_mode=CERT_REQUIRED; we keep both.
+```
+
+**แปลว่า:** สองบรรทัดที่สำคัญ (81 และ 82) บรรทัดแรกหาไฟล์ CA ของ lab บรรทัดที่สองสร้างตัวตรวจใบรับรองที่เชื่อเฉพาะ CA นั้น ตรวจทั้งสายการรับรองและชื่อ ให้อัตโนมัติ
+
+**✍️ ลงใบตอบ (ขั้นที่ 7):** คัดลอกบรรทัด `ca_path = ...` และ `ctx = ...` ที่ขึ้นบนจอ
+
+#### ขั้นที่ 8 — แก้ `alice_student.py` เอง (3 บรรทัด)
+
+**ทำอะไร:** ไฟล์ `alice_student.py` เหมือน `alice.py` ทุกอย่างยกเว้นฟังก์ชัน `build_client_context()` ที่ยังไม่เสร็จ ให้เปิดไฟล์ด้วยโปรแกรมแก้ข้อความที่มี (Notepad, TextEdit, VS Code ก็ได้) แล้วทำตามนี้
+
+1. หาฟังก์ชัน `def build_client_context()` และบรรทัด `raise NotImplementedError(` (กับอีกสองบรรทัดที่ต่อกันจนถึงเครื่องหมาย `)`) **ลบสามบรรทัดนั้นทิ้ง**
+2. พิมพ์สามบรรทัดนี้แทน โดยเยื้องเข้าไป **4 ช่องว่าง** (เท่ากับบรรทัด `# ====== YOUR TASK` ที่อยู่ด้านบน):
+
+```python
+    ca_path = wait_for_ca_cert()
+    ctx = ssl.create_default_context(cafile=ca_path)
+    return ctx
+```
+
+3. บันทึกไฟล์ (Save)
+
+**แปลว่า:** `wait_for_ca_cert()` ให้ที่อยู่ไฟล์ CA ของ lab ส่วน `create_default_context(cafile=...)` สร้างตัวตรวจที่เชื่อ**เฉพาะ CA นั้น** และตรวจชื่อ `bob` ให้ด้วย ไม่ต้องเขียนการตรวจเอง
+
+**✍️ ลงใบตอบ (ขั้นที่ 8):** วางฟังก์ชัน `build_client_context()` ทั้งฟังก์ชันที่คุณแก้แล้ว (สามบรรทัดข้างบนกับบรรทัดหัวฟังก์ชัน)
+
+#### ขั้นที่ 9 — ทดสอบสองแบบ: ผู้แอบอ้าง และ Bob ตัวจริง
+
+**ทำอะไร:** ทดสอบ Alice ที่คุณแก้ กับ Eve (ต้องปฏิเสธ) แล้วกับ Bob ตัวจริง (ต้องรับ) ถ้า Alice ปฏิเสธทุกใบรับรอง ก็ผ่านการทดสอบแรกได้เหมือนกัน จึงต้องทดสอบกับ Bob ด้วย
+
+**พิมพ์** ทีละบรรทัด (**ต้องมี `--build`** ในบรรทัดแรก เพื่อให้ Docker เอาไฟล์ที่แก้ไปใช้):
+
+```bash
+docker compose -f docker-compose.student-task.yml run --rm --build alice
+docker compose -f docker-compose.student-task.yml up -d bob
+docker compose -f docker-compose.student-task.yml run --rm --no-deps -e PEER_HOST=bob alice
+```
+
+**ควรเห็น:** คำสั่งแรกขึ้นผลปฏิเสธ คำสั่งที่สามขึ้นผลสำเร็จ ให้หาบรรทัดเหล่านี้
+
+```
+CERT VERIFICATION FAILED - ABORTING
+ALICE: TLS handshake succeeded -- sending secret
+```
+
+**แปลว่า:** กับ Eve (ใบรับรองปลอม) Alice ปฏิเสธ กับ Bob (ใบรับรองจริงที่ CA เซ็น) Alice ยอมรับและส่งความลับ ถ้าเห็น `Traceback` แทน แปลว่าโค้ดในขั้นที่ 8 ยังไม่ถูก ดูตารางข้อความผิดพลาดด้านบน
+
+**✍️ ลงใบตอบ (ขั้นที่ 9):** คัดลอกสองบรรทัดข้างบนจากหน้าจอของตัวเอง
+
+#### ขั้นที่ 10 — ทำไมต้องทดสอบทั้งสองแบบ
+
+**ทำอะไร:** อ่านแล้วตอบ 1–2 ประโยค
+
+ผลทั้งสองแบบรวมกันพิสูจน์ว่า Alice ของเรา**รับคนที่ถูกต้อง** และ**ปฏิเสธผู้แอบอ้าง** แต่ข้อจำกัดที่เหลือคือ ถ้า CA ที่เราเชื่อไปเซ็นรับรองใบรับรองปลอมให้ (เพราะถูกแฮ็กหรือไม่ซื่อสัตย์) Alice ก็จะหลงเชื่อ lab นี้ไม่ได้ทดสอบกรณีนั้น
+
+> ทำไมต้องทดสอบทั้งกับ Eve และกับ Bob ตัวจริง และ Alice ที่ตรวจใบรับรองยังพ่ายแพ้ได้ในกรณีไหน (คำใบ้: ขั้นที่ 9)
+
+**✍️ ลงใบตอบ (ขั้นที่ 10):** เขียนคำตอบ
+
+#### ขั้นที่ 11 — ปิด lab และเช็กใบตอบ
+
+**ทำอะไร:** ทำหลังจากคัดลอกผลครบแล้ว (สามคำสั่งนี้ลบ container และใบรับรองเดโมที่ค้างอยู่)
+
+**พิมพ์** ทีละบรรทัด:
+
+```bash
+docker compose -f docker-compose.vulnerable.yml down -v
+docker compose -f docker-compose.fixed.yml down -v
+docker compose -f docker-compose.student-task.yml down -v
+```
+
+**ควรเห็น:** บรรทัดลงท้ายว่า `Removed` จากนั้นดูว่าในใบตอบมีครบ: ขั้นที่ 2, 3 (A1), ขั้นที่ 5, 6 (A2), ขั้นที่ 7, 8, 9, 10 (A3) แล้วไปทำส่วนของแบบตัวเอง: เลขคี่ทำ Part 2 เลขคู่ทำ Part 3 และ Part 4 และอย่าลืมแนบลิงก์ commit ของ `alice_student.py` (ดู `SUBMISSION.md` หัวข้อ W12)
+
+---
+
+## Part 1 — Student Information
+
+| Name | Student ID | Date | Group (your form) | AI tools used (which, for what) |
+|---|---|---|---|---|
+| | | | | |
+
+---
+
+## Part 2 — Conventional form (40 points; only if Conventional is your assigned form)
+
+ตอบข้อละ 2–3 ประโยค ภาษาไทยได้ ส่วนนี้ให้**ตอบด้วยตัวเอง** ไม่ใช้ AI ตอบ
+
+**Q1 (10). เข้ารหัสแล้ว แต่ Eve ยังอ่านได้.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+
+- Alice บอกว่า TLS handshake สำเร็จ แปลว่าการเชื่อมต่อเข้ารหัสจริงไหม (คำใบ้: ขั้นที่ 2)
+- ถ้าเข้ารหัสจริง ทำไม Eve ยังอ่านความลับได้
+- "เข้ารหัส" กับ "คุยกับคนที่ถูกต้อง" ต่างกันอย่างไร
+
+**Q2 (10). ใบรับรองและ CA.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+
+- ใบรับรองของ Eve เขียนชื่อ "bob" ถูกต้อง ทำไมใครก็ทำใบรับรองแบบนั้นได้ (คำใบ้: ขั้นที่ 4)
+- CA เซ็นรับรองเพิ่มอะไรให้ใบรับรองของ Bob ตัวจริง (เทียบกับการที่หน่วยงานที่เราเชื่อรับรองบัตรประชาชน)
+- ทำไม Alice แบบตรวจจึงปฏิเสธ Eve ตั้งแต่ก่อนส่งความลับ (คำใบ้: ขั้นที่ 5 และ 6) และตรวจอะไรบ้างสองอย่าง
+
+**Q3 (10). TLS กันคนกลางได้อย่างไร.** อธิบายหน้าที่สามอย่างของการจับมือ TLS และบอกว่าถ้าขาดอย่างใดอย่างหนึ่ง ผู้โจมตีทำอะไรได้: (ก) แลกกุญแจ (key exchange) (ข) พิสูจน์ตัวตนเซิร์ฟเวอร์ด้วยใบรับรอง (ค) เซิร์ฟเวอร์ลงลายเซ็นยืนยัน (`CertificateVerify`) ตอบข้อละ 1–2 ประโยค
+
+**Q4 (10). Forward secrecy.** ตอบให้ครบสองอย่างนี้ (ข้อละ 2–3 ประโยค): forward secrecy คืออะไร (ใช้คำง่าย ๆ เช่น "ถ้ากุญแจระยะยาวรั่วในอนาคต ข้อมูลที่เคยแอบบันทึกไว้ในอดีตยังปลอดภัย") และการแลกกุญแจแบบ ephemeral (EC)DHE ใน TLS 1.3 ทำให้เป็นเช่นนั้นได้อย่างไร (กุญแจชั่วคราวถูกทิ้งทุกครั้ง)
+
+### Going further (optional — no marks)
+
+- **Q5 — SSL → TLS.** ทำไมตระกูล SSL จึงล้มเหลว (จุดอ่อนด้านความปลอดภัยและการออกแบบ) และ TLS 1.3 แก้อย่างไร
+- **Q6 — 0-RTT.** ข้อดีด้านความเร็วและความเสี่ยง (ข้อมูลถูกส่งซ้ำ/replay ได้) ทำไมควรใช้กับงานที่ส่งซ้ำได้อย่างปลอดภัยเท่านั้น
+- **Q7 — Web PKI.** ความเสี่ยงของ CA ที่ถูกแฮ็ก และการป้องกัน: certificate pinning, การเพิกถอน (CRL / OCSP) และ Certificate Transparency
+- **Q8 — TLS กับ Noise.** เปรียบเทียบความยืดหยุ่นและความซับซ้อน และเมื่อใดที่ Noise เหมาะกว่า
+
+---
+
+## Part 3 — AIR-Sec Arm: Audit the AI (AIR-Sec version only, 20 points)
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
-A teammate asked an AI assistant, *"write me a Python function that fetches JSON from our internal
-HTTPS API — it kept throwing SSL errors so make it just work."* Here is what the AI produced. It
-runs, the SSL errors go away, and it looks reassuringly tidy. It is also exactly the bug you just
-watched intercept a secret.
+AI เขียนฟังก์ชันดึง JSON จาก API ภายในผ่าน HTTPS รันผ่านและดูเรียบร้อย แต่มี**บั๊กเดียวกับ Alice แบบไม่ตรวจ**
 
-> **AI's answer — "a robust HTTPS client":**
+> **AI's answer:**
 >
 > ```python
 > import requests
 > import urllib3
-> urllib3.disable_warnings()  # silence the noisy SSL warnings
+> urllib3.disable_warnings()
 >
 > def fetch(url, token):
->     """Fetch JSON from our internal API. Uses TLS, so the connection is encrypted
->     and secure end-to-end."""
 >     resp = requests.get(
 >         url,
 >         headers={"Authorization": f"Bearer {token}"},
->         verify=False,          # our internal cert isn't in the public trust store,
->                                # so we disable verification to avoid errors
+>         verify=False,
 >         timeout=10,
 >     )
 >     resp.raise_for_status()
 >     return resp.json()
 > ```
 >
-> "This is secure: `requests` uses HTTPS, so all traffic — including the bearer token — is
-> encrypted in transit with TLS and cannot be read by anyone on the network. Setting
-> `verify=False` just tells it to accept our internal certificate; it does not weaken the
-> encryption. I also silenced the warnings so the logs stay clean."
+> "This is secure: HTTPS encrypts all traffic, including the token. verify=False just accepts our internal certificate; it does not weaken the encryption."
 >
 > — end of AI answer —
 
-1. **Find what's wrong.** Quote the exact line(s). (Hint: the crypto *is* real — the connection
-   genuinely is TLS-encrypted, so don't waste your critique claiming "it's not encrypted." Look at
-   what `verify=False` turns off, and map it directly onto what you saw `alice.py` do in
-   vulnerable mode.)
-2. **Explain the attack it enables.** In 2–3 sentences: with `verify=False`, what stops an
-   attacker on the network path from doing to *this* client exactly what `mitm.py` did to Alice?
-   Be specific about *what the bearer token would leak to* and why "it's encrypted" is true but
-   irrelevant.
-3. **Name the false reassurance.** The AI makes a specific claim that is *true but misleading*.
-   Quote it and explain in one sentence why encryption-to-the-wrong-endpoint is worthless.
-4. **Produce the corrected version yourself.** Rewrite `fetch` so it validates the internal cert
-   properly. State the single most important change — and, since the reason the teammate reached
-   for `verify=False` was a real problem (the internal cert isn't in the public trust store), say
-   what the *correct* fix for that root cause is (hint: it is not "disable verification"; it is to
-   tell the client which CA to trust — the same move `alice.py` makes in fixed mode with
-   `VERIFY=1`).
+1. **Find what's wrong (10).** คัดลอกบรรทัดที่ผิด และอธิบาย 2–3 ประโยคว่าคนกลางทางทำอะไรได้ เหมือนที่ Eve ทำ (คำใบ้: ขั้นที่ 2)
+2. **Fix it (10).** แก้อย่างไรให้ตรวจได้โดยไม่ปิดการตรวจ (คำใบ้: บอกโค้ดให้เชื่อ **CA ภายใน**) และประโยคไหนของ AI "จริงแต่หลอก"
 
-> Disclose any additional AI use in the Part 0 table. This task counts toward your Defense +
-> Reflection score.
-
-### Part 2c — Assigned AIR-Sec EiPE: why a CA signature matters
-
-The lab's fixed mode rejected the impostor cert because it was **self-signed** — not signed by a
-trusted CA — even though it claimed the exact same name (`CN=bob`, `SAN=DNS:bob`) as the real
-server. This section is the conceptual half of this HYBRID week: source Q5 asked you to reason
-about the Web PKI trust model formally; here, explain it **in plain English to a non-technical
-friend** (no "X.509," "chain," "root store," or "CA" used without first explaining what you mean
-in ordinary words). In 4–6 sentences, cover:
-- What a certificate is *claiming* (roughly: "I am bob"), and why anyone — including an attacker —
-  can *make* a certificate that says that (as the impostor did).
-- What a **Certificate Authority's signature** adds: why a signature from a party your computer
-  already trusts turns an unverifiable claim into a checkable one (use an everyday analogy —
-  a notary, a passport office, a referral from someone you already trust).
-- Why the self-signed impostor failed the check even though its *name* was correct — i.e. the
-  computer isn't checking "does this say bob?", it's checking "did someone I trust vouch that this
-  is bob?".
-- One sentence on the limit of this trust model: what happens to the whole scheme if the trusted
-  authority itself is dishonest or gets hacked (this connects back to Q5's compromised-CA risk —
-  the demo does *not* cover this case, and you should say so).
-
-### Part 2d — Assigned AIR-Sec Prompt Problem
-
-Write a **single prompt** asking an AI to *implement a secure HTTPS client in Python that connects
-to a service using a private/internal certificate authority, resistant to man-in-the-middle
-attacks.* Run it, paste its full response, then critique it against these checks:
-- Does it **keep certificate verification on** (a proper `verify=<ca-bundle>` / `cafile=` /
-  `SSLContext` with the internal CA loaded) — or does it take the lazy exit and hand you
-  `verify=False` / `CERT_NONE` (the trap this week is all about)?
-- Does it distinguish *encryption* from *authentication* — i.e. does it note that TLS being "on"
-  is not enough, the peer's cert must be **validated against a trust anchor** — or does it assert
-  "it uses HTTPS so it's secure" and stop there?
-- Does it get the trust bootstrap right: that "trust the internal CA" means *distributing that CA
-  certificate to the client in advance by a secure channel*, and that the whole scheme is only as
-  trustworthy as that CA — or does it hand-wave where the trust comes from?
-- Does it hallucinate a mechanism (a made-up `requests` argument, a nonexistent flag, or a wrong
-  claim like "pinning is built into `requests` by default")?
-
-**Submit:** your exact prompt, the AI's full response, and a bullet-by-bullet critique quoting the
-specific sentence(s) that are correct, hand-waved, or wrong. A strong prompt names the threat model
-("must resist an attacker who controls the network path and can present their own certificate") so
-the AI can't wriggle out with a toy example.
-
-### Part 2e — Formative Viva Spot-Check (no separate points)
-
-Be ready to answer these live, in your own words, with no notes:
-
-1. In vulnerable mode, Alice's own log says the TLS handshake **succeeded** and the channel is
-   encrypted — yet the MITM printed the secret in cleartext. Reconcile those two facts: if the
-   encryption really worked, how did the attacker read the message?
-2. In fixed mode, `mitm.py` runs the **exact same code** — it still presents the same self-signed
-   impostor cert. Nothing about the attacker changed. So what, precisely, changed on Alice's side
-   that made the attack fail, and at what point in the exchange did it fail (before or after Alice
-   sent the secret)?
-3. The impostor cert claims `CN=bob` and `SAN=DNS:bob` — the *same* name as the real Bob. So the
-   fixed client's rejection reason is `self-signed certificate`, not a name mismatch. Why is that
-   distinction the entire point of the lab — what *one* property of the real cert does the
-   impostor lack, and who is supposed to provide it?
+> Disclose any other AI use in the Part 1 table. This task counts toward the **Audit the AI** row.
 
 ---
 
-## Grading rubric (100)
+## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
+
+**A. Explain in Plain English (EiPE, 10).** เพื่อนถามว่า *"ใบรับรองของ Eve เขียนชื่อ 'bob' ถูก ทำไมคอมพิวเตอร์ไม่เชื่อ?"* อธิบาย 3–5 ประโยค **ไม่ใช้ศัพท์ยาก** (ใครก็ทำใบรับรองได้, CA ที่เราเชื่อเซ็นรับรองเพิ่มอะไร, เปรียบกับบัตรประชาชน) และปิดด้วยหนึ่งประโยคว่าถ้า CA ไม่ซื่อสัตย์จะเกิดอะไร
+
+**B. Prompt Problem (10).** ใช้ AI ตัวไหนก็ได้ แล้วทำตามนี้:
+
+1. เขียน prompt **หนึ่งอัน** ขอ HTTPS client ใน Python ที่ใช้ CA ภายในและต้านคนกลางทางได้
+2. คัดลอกคำตอบของ AI ลงใบตอบ
+3. ตรวจ: (ก) เปิดการตรวจใบรับรองไว้และโหลด CA ภายใน หรือใช้ทางลัด `verify=False` / `CERT_NONE` (ข) แยก "เข้ารหัส" กับ "ตรวจตัวตน" หรือสรุปแค่ว่า "ใช้ HTTPS จึงปลอดภัย" (ค) พูดอะไรผิดหรือแต่งเรื่องไหม
+4. ในตารางของใบตอบ ติ๊ก **ผ่าน / ไม่ผ่าน** ทีละข้อพร้อมเหตุผล 1 ประโยค แล้วจบด้วย 1 ประโยคว่า จะเชื่อคำตอบของ AI นี้ไหม เพราะอะไร
+
+ส่ง **prompt + คำตอบของ AI + ตารางตรวจพร้อมเหตุผลของตัวเอง**
+
+---
+
+## 🎤 Viva spot-check (formative/authenticity check; no separate points)
+
+An instructor may ask any of these live, at random, to confirm you did the work yourself:
+
+1. "ในขั้นที่ 2 Alice บอกว่า TLS สำเร็จและเข้ารหัสจริง แต่ Eve อ่านความลับได้ เป็นไปได้อย่างไร"
+2. "ในขั้นที่ 5 โค้ดของ Eve เหมือนเดิมทุกอย่าง อะไรบนฝั่ง Alice ที่เปลี่ยน และ Alice ปฏิเสธตอนไหน"
+3. "ใบรับรองปลอมเขียนชื่อ bob ถูกต้อง ทำไมยังถูกปฏิเสธ และอะไรที่ใบรับรองจริงมีแต่ใบรับรองปลอมไม่มี"
+
+---
+
+## Grading rubric — assigned version totals 100
 
 | Criterion | Conventional | AIR-Sec |
 |---|---:|---:|
-| Shared practical core: run both modes and implement/test build_client_context() | 20 | 20 |
-| Shared control and limitations: compare the secure control and explain what it does and does not show | 20 | 20 |
-| Shared reproducible evidence and reasoning: attributable observations, commands/results and explanation | 20 | 20 |
-| Assigned Conventional written questions | 40 | — |
-| Assigned AIR-Sec Audit-the-AI | — | 20 |
-| Assigned AIR-Sec Explain-in-Plain-English | — | 10 |
-| Assigned AIR-Sec Prompt Problem | — | 10 |
+| A1 — Alice ไม่ตรวจ Eve อ่านความลับ | 20 | 20 |
+| A2 — Alice ตรวจ Eve อ่านไม่ได้ | 20 | 20 |
+| A3 — แก้โค้ดเอง + ทดสอบ + reasoning | 20 | 20 |
+| Conventional written questions (Q1–Q4) | 40 | — |
+| AIR-Sec Audit the AI | — | 20 |
+| AIR-Sec Explain in Plain English (EiPE) | — | 10 |
+| AIR-Sec Prompt Problem | — | 10 |
 | **Total for the assigned version** | **100** | **100** |
-
-**Deadline and late work:** hand in by 23:59 Thai time (ICT) on the Sunday before the next week's
-class (KOSEN rule); the exact date is in your codes email and in the week's Classroom post.
-Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
-Uploading or replacing a file after the deadline makes the whole hand-in late.
-
-Viva/micro-demo checks are formative: no separate points and no automatic score gate. The 60 shared points apply to both versions; do not add the unassigned version's 40 points.
-
-See the instructor answer key *(instructor use only, not in this file)* for model answers to all 6
-essay questions and the detailed lab/audit/viva grading notes.
-
----
 
 ## Evidence & Integrity (required)
 
-- **Attribution and reproducibility (both versions):** put your name/student ID on the submitted work and provide your own commands, observations and explanation. A screenshot or annotated transcript is acceptable; shared placeholder output is not per-student proof by itself.
-- **Optional terminal-stamp example:** `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'`. This is one way to label a capture, not a separate requirement, point allocation or live-personalization prerequisite.
-- **Personalized/attributable artifact:** the `MITM INTERCEPTED: the vault code is 7731` line from
-  Part 2a, submitted **together with** your attributed screenshot or annotated transcript — the attribution is what
-  makes it yours, not the message text (see Part 2a for why). Submitting someone else's captured
-  log without your own attribution is a violation.
-- **Explain in your own words** *(graded on your reasoning, not copied text)*:
-  1. What did the attack do, and **why did it work** against a client that skipped certificate
-     validation — given that the channel really was TLS-encrypted?
-  2. **Why does loading the CA and keeping hostname checking on actually stop it** — and what is
-     the one thing that would still defeat this check even in fixed mode (hint: think about Q5's
-     compromised-CA scenario — what could an attacker present then that *would* chain to a trusted
-     CA)?
+- ใส่ชื่อ รหัสนักศึกษา และวันที่ในใบตอบ และคัดลอกคำสั่งกับผลจากเครื่อง**ของตัวเอง** ข้อความลับเหมือนกันทุกคน (เป็นค่าคงที่ของ lab) สิ่งที่ทำให้งานเป็นของเรา คือผลที่คัดลอกจากเครื่องของเราเองและโค้ดที่เราแก้เอง ห้ามเอาผลของเพื่อนมาส่งเป็นของตัวเอง
+- **ลิงก์ commit ของ `alice_student.py` ใน GitHub (บังคับ ไม่มีคะแนนแยก):** ทำตามหัวข้อ W12 ใน `SUBMISSION.md` แล้ววางลิงก์ไว้ในใบตอบ
+- **อธิบายด้วยคำของตัวเอง** (ให้คะแนนจากเหตุผล): ข้อที่ให้เติมคำจากคลังคำ (ขั้นที่ 3, 6) ใช้คำที่ให้ไว้ได้ ส่วนคำตอบสั้น ๆ ของขั้นที่ 10 และข้อเขียนของฟอร์มตัวเองต้องเขียนด้วยคำของตัวเอง (ทำไม Eve อ่านความลับได้ทั้งที่เข้ารหัสจริง และทำไมการตรวจใบรับรองกันได้) ไม่ต้องเขียนเพิ่มนอกจากนี้
+
+**กำหนดส่งและการส่งช้า:** ส่งภายใน 23:59 น. (เวลาไทย) ของ **อาทิตย์ 24 ม.ค. 2027** (กฎ KOSEN: ก่อนคาบถัดไป) ส่งช้าหักวันละ 10% ของคะแนนใบงานนี้ (ไม่เต็มวันนับเป็นหนึ่งวัน) จนเหลือ 0 การอัปโหลดหรือเปลี่ยนไฟล์หลังกำหนดส่งนับว่าส่งช้าทั้งชิ้น ส่งงานร่วม 60 คะแนน และแบบของตัวเอง**หนึ่งแบบ**เท่านั้น ทำทั้งสองแบบไม่ได้คะแนนเพิ่ม Viva ใช้ตรวจความเข้าใจ ไม่มีคะแนนแยก
