@@ -1,156 +1,156 @@
-# Worksheet 5 — Key Exchange: คนแอบกลางทาง (MITM) กับ Diffie-Hellman
+# Worksheet 5 — Key Exchange: Man-in-the-Middle (MITM) and Diffie-Hellman
 
 > **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
-> **Kind:** Docker lab แบบทำตามทีละขั้น ไม่ต้องเขียนโปรแกรม และไม่ต้องคำนวณเลข
+> **Kind:** Docker lab, step by step. No programming and no maths.
 
-> **Ethics note:** ทำเฉพาะกับ container 3 ตัว (alice, bob, relay) ในเครื่องของตัวเองที่ lab นี้เปิดขึ้นมา ไม่มีพอร์ตเปิดออกนอกเครื่อง
-> การแอบอยู่กลางทางของระบบที่ไม่ใช่ของเราและไม่ได้รับอนุญาตเป็นเรื่องผิดกฎหมาย
+> **Ethics note:** Only work on the 3 containers (alice, bob, relay) on your own computer that this lab starts. No port is opened to the outside of your computer.
+> Getting in the middle of a system that is not yours, without permission, is illegal.
 
-## อ่านก่อนเริ่ม
+## Read this first
 
-**วันนี้จะทำอะไร:** Alice กับ Bob อยากได้กุญแจลับร่วมกันผ่านเน็ตสาธารณะ จึงใช้ **Diffie-Hellman (DH)** แต่มี `relay` แอบอยู่กลางทาง เราจะดูสองรอบ: รอบ**ไม่ยืนยันตัวตน** relay อ่านข้อความของ Alice ได้โดยที่ทั้งสองคนไม่รู้ตัว และรอบ**ยืนยันด้วย HMAC** relay ล้มเหลว สิ่งที่ต้องจำ: **DH กันคนที่แค่แอบฟังได้ แต่ไม่กันคนที่แทรกกลางทาง**
+**What you will do today:** Alice and Bob want a shared secret key over the open internet, so they use **Diffie-Hellman (DH)**. But a `relay` is hiding in the middle. You will watch two rounds: in the round with **no authentication**, the relay can read Alice's message and neither of them knows; in the round **authenticated with HMAC**, the relay fails. Remember this: **DH stops someone who only listens, but it does not stop someone who gets in the middle.**
 
-**ทุกขั้นเขียนแบบเดียวกัน:**
+**Every step is written the same way:**
 
-| หัวข้อ | ความหมาย |
+| Heading | Meaning |
 |---|---|
-| **ทำอะไร** | บอกว่าขั้นนี้จะทำอะไร |
-| **พิมพ์** | คัดลอกทั้งบรรทัดไปวางใน Terminal แล้วกด Enter |
-| **ควรเห็น** | หน้าจอควรขึ้นประมาณนี้ |
-| **แปลว่า** | ผลที่เห็นหมายความว่าอะไร |
-| **ลงใบตอบ** | สิ่งที่ต้องคัดลอกหรือเขียนลงใบตอบ |
+| **What to do** | Says what this step does |
+| **Type** | Copy the whole line, paste it into the Terminal, and press Enter |
+| **You should see** | The screen should look roughly like this |
+| **Means** | What the result means |
+| **Write in the answer sheet** | What to copy or write in your answer sheet |
 
-**คะแนน**
+**Marks**
 
-- ทุกคนทำ **Part A (60 คะแนน)** ซึ่งเหมือนกันทั้งสองแบบ
-- จากนั้นทำ **เฉพาะแบบของตัวเอง (40 คะแนน)** ดูจากเลขตัวสุดท้ายของรหัสนักศึกษา: **เลขคี่ = Conventional (Part 2)**, **เลขคู่ = AIR-Sec (Parts 3–4)** (เลข 0 นับเป็นเลขคู่) แล้วเขียนแบบของตัวเองในช่อง Group
-- ตอบเป็นภาษาไทยหรืออังกฤษก็ได้ ตอบสั้น ๆ ให้ชัดก็พอ
-- **ใช้ใบตอบ:** ใน Classroom → Week 05 เปิดไฟล์ตามแบบของตัวเอง (`Wk05_Answer_Sheet_Conventional_odd_ID` หรือ `Wk05_Answer_Sheet_AIR-Sec_even_ID`) กด Open with → Google Docs พิมพ์ลงกรอบสีเทา แล้วกด File → Download → PDF
-- ส่งไฟล์เดียว ตั้งชื่อตามรหัสนักศึกษา เช่น `Wk05_66990000.pdf` (ไม่ต้องใส่เครื่องหมาย `<` `>`) ที่ `learn.zcr.ai/submit` โดยใช้รหัสส่งงานของ Week 5 ที่ได้ทางอีเมล KMITL ภายใน **อาทิตย์ 6 ธ.ค. 23:59 น.**
-- ข้อที่เขียนว่า *optional* ไม่มีคะแนน ไม่ต้องทำก็ได้
+- Everyone does **Part A (60 marks)**, which is the same for both forms.
+- Then do **only your own form (40 marks)**. Look at the last digit of your student ID: **odd = Conventional (Part 2)**, **even = AIR-Sec (Parts 3–4)** (0 counts as even). Write your form in the Group box.
+- You may answer in English or Thai. Short and clear is enough.
+- **Answer sheet:** in Classroom → Week 05, open the file for your form (`Wk05_Answer_Sheet_Conventional_odd_ID` or `Wk05_Answer_Sheet_AIR-Sec_even_ID`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
+- Submit one file named with your student ID, for example `Wk05_66990000.pdf` (do not type the `<` `>` signs), at `learn.zcr.ai/submit` with your Week 5 submission code from your KMITL email, by **Sunday 6 Dec, 23:59**.
+- Items marked *optional* have no marks. You can skip them.
 
-| Part A | คะแนน | ขั้นที่ลงใบตอบ |
+| Part A | Marks | Steps to write in the answer sheet |
 |---|---:|---|
-| A1 — relay แอบอ่านข้อความได้ | 20 | ขั้นที่ 2, 3 |
-| A2 — ยืนยันกุญแจด้วย HMAC แล้ว relay ล้มเหลว | 20 | ขั้นที่ 6, 7, 8 |
-| A3 — ทำไม HMAC หยุดได้ และข้อจำกัด | 20 | ขั้นที่ 10, 11, 12 |
+| A1 — The relay can read the message | 20 | Steps 2, 3 |
+| A2 — Check the key with HMAC and the relay fails | 20 | Steps 6, 7, 8 |
+| A3 — Why HMAC stops it, and its limits | 20 | Steps 10, 11, 12 |
 
-**คำศัพท์ที่ต้องรู้**
+**Words you need to know**
 
-| คำ | ความหมายแบบง่าย |
+| Word | Simple meaning |
 |---|---|
-| Terminal / Docker / container | หน้าต่างพิมพ์คำสั่ง / โปรแกรมที่เปิด "เครื่องจำลอง" เล็ก ๆ ในเครื่องเรา ทำพังก็ลบแล้วเริ่มใหม่ได้ |
-| Diffie-Hellman (DH) | วิธีให้สองฝ่ายได้ความลับร่วมกัน โดยส่งแค่ "ค่าสาธารณะ" ผ่านเน็ต คนที่แอบฟังเห็นแต่ค่าสาธารณะ คำนวณความลับไม่ได้ |
-| ค่าสาธารณะ (public value) | ตัวเลขที่แต่ละฝ่ายส่งให้อีกฝ่ายเห็นได้ ไม่ใช่ความลับ |
-| ความลับร่วม (shared secret) | ผลของ DH ใช้สร้างกุญแจเข้ารหัสข้อความ |
-| relay / MITM | ตัวที่แอบอยู่กลางทาง ตอบรับ DH กับทั้งสองฝ่ายพร้อมกัน (man-in-the-middle) |
-| HMAC / tag | "ตราประทับ" ที่คำนวณด้วยกุญแจลับ ใช้ตรวจว่าข้อมูลถูกแก้หรือไม่ (เรียนใน Week 3) |
-| AUTH_KEY | กุญแจที่ Alice กับ Bob รู้ร่วมกันล่วงหน้า relay ไม่รู้ ใช้คำนวณ tag |
-| log | ข้อความที่โปรแกรมพิมพ์เล่าว่ากำลังทำอะไร |
+| Terminal / Docker / container | A window where you type commands / a program that starts a small "pretend computer" on your computer. If you break it, delete it and start again |
+| Diffie-Hellman (DH) | A way for two sides to get a shared secret by sending only "public values" over the internet. Someone who only listens sees the public values and cannot work out the secret |
+| public value | A number each side sends so the other side can see it. It is not secret |
+| shared secret | The result of DH, used to make the key that encrypts messages |
+| relay / MITM | Something hiding in the middle that answers the DH handshake with both sides at once (man-in-the-middle) |
+| HMAC / tag | A "seal" calculated with a secret key, used to check whether data was changed (learned in Week 3) |
+| AUTH_KEY | A key that Alice and Bob both know in advance. The relay does not know it. It is used to calculate the tag |
+| log | Text a program prints to tell you what it is doing |
 
-**คำถามที่มักสงสัย**
+**Questions people often ask**
 
-- *ต้องเก่งคณิตศาสตร์ไหม?* ไม่ต้อง วันนี้ไม่มีการคำนวณ
-- *ต้องเขียนโปรแกรมไหม?* ไม่ต้อง คัดลอกคำสั่งไปวางได้เลย
-- *ถ้าทำผิด เครื่องจะพังไหม?* ไม่พัง ทุกอย่างอยู่ใน container ถ้าสับสนให้พิมพ์ `docker compose -f docker-compose.vulnerable.yml down` และ `docker compose -f docker-compose.fixed.yml down` แล้วเริ่มใหม่
-- *log ยาวและมีคำเตือน `CryptographyDeprecationWarning` เต็มไปหมด ผิดไหม?* ไม่ผิด เป็นคำเตือนว่า DH แบบนี้เก่าแล้ว ใบงานให้กรองเหลือเฉพาะบรรทัดที่ต้องดู
-- *วางคำสั่งใน Terminal ยังไง?* คัดลอกคำสั่งจากใบงาน แล้ว Windows: กด Ctrl+V หรือคลิกขวา · Mac: กด Cmd+V จากนั้นกด Enter
-- *คัดลอกผลจาก Terminal ยังไง?* ลากเมาส์คลุมข้อความก่อน แล้ว Windows: กด Ctrl+Shift+C · Mac: กด Cmd+C หรือจะ screenshot ก็ได้
+- *Do I need to be good at maths?* No. There is no calculation today.
+- *Do I need to write programs?* No. Copy the commands and paste them.
+- *If I make a mistake, will my computer break?* No. Everything is inside containers. If you get confused, type `docker compose -f docker-compose.vulnerable.yml down` and `docker compose -f docker-compose.fixed.yml down` and start again.
+- *The log is long and full of `CryptographyDeprecationWarning` warnings. Is that wrong?* No. It is a warning that this kind of DH is old. The worksheet filters the log down to just the lines you need.
+- *How do I paste a command into the Terminal?* Copy the command from the worksheet, then Windows: press Ctrl+V or right-click · Mac: press Cmd+V, then press Enter.
+- *How do I copy results from the Terminal?* Select the text with the mouse first, then Windows: press Ctrl+Shift+C · Mac: press Cmd+C. Or take a screenshot.
 
-**ถ้าเจอข้อความแบบนี้**
+**If you see a message like this**
 
-| ข้อความบนจอ | สาเหตุ | วิธีแก้ |
+| Message on screen | Cause | Fix |
 |---|---|---|
-| มีคำว่า `Cannot connect to the Docker daemon` หรือ `error during connect` | ยังไม่ได้เปิด Docker | เปิด Docker Desktop รอจนขึ้น Engine running |
-| `no configuration file provided: not found` หรือ `open docker-compose...: no such file` | Terminal ไม่ได้อยู่ในโฟลเดอร์ lab | ทำเตรียมขั้นที่ 4 อีกครั้ง |
-| ขั้นที่ 2 หรือ 6 ขึ้นไม่ครบ | ยังรันไม่เสร็จ | รอ 10–15 วินาที แล้วพิมพ์คำสั่งเดิมอีกครั้ง |
-| ขั้นที่ 6 มี `AUTH FAILED` แค่บรรทัดเดียว | อ่านจอเร็วเกินไป | รอสักครู่แล้วพิมพ์คำสั่งเดิมอีกครั้ง ต้องเห็นสองบรรทัด (alice และ bob) |
-| Windows: `grep` ไม่รู้จัก | Windows ไม่มี `grep` | ใช้คำสั่งแบบ `findstr` หรือ PowerShell ที่ใบงานให้ไว้ในแต่ละขั้น |
+| `Cannot connect to the Docker daemon` or `error during connect` | Docker is not open | Open Docker Desktop and wait until it says Engine running |
+| `no configuration file provided: not found` or `open docker-compose...: no such file` | The Terminal is not in the lab folder | Repeat Prep step 4 |
+| Step 2 or 6 does not show everything | It has not finished running | Wait 10–15 seconds, then type the same command again |
+| Step 6 shows only one `AUTH FAILED` line | You read the screen too early | Wait a moment and type the same command again. You must see two lines (alice and bob) |
+| Windows: `grep` is not recognised | Windows has no `grep` | Use the `findstr` or PowerShell commands that the worksheet gives in each step |
 
-ลองแล้วยังไม่ได้ ให้ถามเพื่อนหรืออาจารย์ได้เลย ถ้าใช้ Docker ไม่ได้จริง ๆ ให้บอกอาจารย์ แล้วตอบขั้นที่ 3 และ 10–12 จากการอ่านใบงานและรูป ขั้นที่เหลือเขียนกำกับว่า "ไม่ได้รันเอง"
+If you still cannot do it, ask a friend or your instructor. If you really cannot use Docker, tell your instructor, then answer Steps 3 and 10–12 by reading the worksheet and the picture. For the other steps, write "did not run it myself".
 
 ---
 
-## ก่อนเริ่ม: เตรียมเครื่อง (ทำที่บ้าน ทำครั้งเดียว)
+## Before you start: set up your computer (at home, once)
 
-ถ้าเคยทำ Week 2–4 มาแล้ว มี Docker และไฟล์ ZIP อยู่แล้ว เริ่มที่**เตรียมขั้นที่ 4** ได้เลย ถ้าหาโฟลเดอร์ `week05-key-exchanges` ไม่เจอ ให้โหลด ZIP ใหม่ตามเตรียมขั้นที่ 2
+If you already did Weeks 2–4, you have Docker and the ZIP file. Start at **Prep step 4**. If you cannot find the `week05-key-exchanges` folder, download the ZIP again as in Prep step 2.
 
-**ถ้าปิดเครื่องไปแล้วกลับมาทำต่อ:** ทำเตรียมขั้นที่ 1 และ 4 ใหม่
+**If you turned your computer off and came back:** repeat Prep steps 1 and 4.
 
-#### เตรียมขั้นที่ 1 — เปิด Docker Desktop
+#### Prep step 1 — Open Docker Desktop
 
-**ทำอะไร:** ถ้ายังไม่มี ให้ติดตั้งจาก <https://www.docker.com/products/docker-desktop/> แล้วเปิดโปรแกรมทิ้งไว้ **ควรเห็น:** ขึ้นว่า **Engine running**
+**What to do:** If you do not have it yet, install it from <https://www.docker.com/products/docker-desktop/> and leave the program open. **You should see:** it says **Engine running**.
 
-#### เตรียมขั้นที่ 2 — โหลดและแตกไฟล์ lab
+#### Prep step 2 — Download and unzip the lab files
 
-**ทำอะไร:** เปิด <https://github.com/nutthakorn7/security-cryptography> กดปุ่มสีเขียว **Code** แล้วเลือก **Download ZIP** (ไม่ต้องมีบัญชี GitHub) แล้วแตกไฟล์ (Windows: คลิกขวา **Extract All** · Mac: ดับเบิลคลิก) **ควรเห็น:** โฟลเดอร์ `security-cryptography-master` บางเครื่องมีโฟลเดอร์ชื่อเดียวกันซ้อนสองชั้น ให้เปิดเข้าไปจนเห็นโฟลเดอร์ `labs`
+**What to do:** Open <https://github.com/nutthakorn7/security-cryptography>, click the green **Code** button, and choose **Download ZIP** (you do not need a GitHub account), then unzip it (Windows: right-click and choose **Extract All** · Mac: double-click). **You should see:** a folder called `security-cryptography-master`. Some computers make a folder with the same name inside it; open it until you can see the `labs` folder.
 
-#### เตรียมขั้นที่ 3 — เข้าโฟลเดอร์ lab
+#### Prep step 3 — Go into the lab folder
 
-**ทำอะไร:** เข้าไปที่ `labs` แล้วเข้า `week05-key-exchanges`
+**What to do:** Go into `labs`, then into `week05-key-exchanges`.
 
-#### เตรียมขั้นที่ 4 — เปิด Terminal ในโฟลเดอร์ lab
+#### Prep step 4 — Open a Terminal inside the lab folder
 
-- **Windows:** เปิดโฟลเดอร์ `week05-key-exchanges` ใน File Explorer คลิกขวาตรงที่ว่าง เลือก **Open in Terminal** (ถ้าไม่มี ให้กด Shift ค้างแล้วคลิกขวา เลือก **Open PowerShell window here**)
-- **Mac:** เปิดแอป Terminal พิมพ์ `cd` เว้นวรรคหนึ่งครั้ง ลากโฟลเดอร์ `week05-key-exchanges` มาวางในหน้าต่าง แล้วกด Enter
+- **Windows:** open the `week05-key-exchanges` folder in File Explorer, right-click an empty spot, and choose **Open in Terminal** (if you do not see it, hold Shift, right-click, and choose **Open PowerShell window here**).
+- **Mac:** open the Terminal app, type `cd` and one space, drag the `week05-key-exchanges` folder into the window, then press Enter.
 
-เช็กว่าอยู่ถูกที่ด้วยคำสั่งนี้ (Windows ใช้ `dir`):
+Check that you are in the right place with this command (Windows: use `dir`):
 
 ```bash
 ls
 ```
 
-**ควรเห็น:** มีชื่อ `docker-compose.vulnerable.yml` และ `docker-compose.fixed.yml` อยู่ในรายการ
+**You should see:** `docker-compose.vulnerable.yml` and `docker-compose.fixed.yml` in the list.
 
-#### เตรียมขั้นที่ 5 — สร้าง image (ต้องต่ออินเทอร์เน็ต)
+#### Prep step 5 — Build the lab (you need the internet)
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose -f docker-compose.vulnerable.yml build
 ```
 
-**ควรเห็น:** ลงท้ายด้วย `Built` ครั้งแรกอาจรอหลายนาที ระหว่างนั้นอย่าปิดหน้าต่าง ถ้าทำเสร็จแล้ว ตอนเรียนจะเริ่มเร็วขึ้น
+**You should see:** the last line ends with `Built`. The first time it may take several minutes. Do not close the window while you wait. If you finish this at home, the lesson will start faster.
 
 ---
 
-## Part A — The lab (both forms, 60 points)
+## Part A — The lab (both forms, 60 marks)
 
-Lab นี้มีสามตัวละคร: **Alice** ส่งข้อความลับหา **Bob** แต่ Alice ถูกตั้งให้ติดต่อผ่าน `relay` (ไม่ได้ต่อถึง Bob ตรง ๆ) นั่นคือสถานการณ์จริง: คนที่ "รับสายเมื่อเราโทรหา Bob" อาจไม่ใช่ Bob
+This lab has three characters: **Alice** sends a secret message to **Bob**, but Alice is set up to talk through the `relay` (she does not reach Bob directly). That is the real situation: whoever "picks up when we call Bob" may not be Bob.
 
-![รูป: ในรอบไม่ยืนยันตัวตน Alice ทำ DH กับ relay ได้ความลับชุดหนึ่ง relay ทำ DH กับ Bob ได้ความลับอีกชุดหนึ่ง relay จึงถอดข้อความของ Alice อ่านแล้วเข้ารหัสส่งต่อให้ Bob ใหม่ Alice กับ Bob ไม่มีความลับร่วมกันโดยตรง (English: relay does one DH with Alice and another with Bob, so it can read and forward the message; Alice and Bob never share a secret with each other.)](img/w5-two-handshakes.svg)
+![Picture: in the round with no authentication, Alice does a DH with the relay and gets one secret, and the relay does a DH with Bob and gets another secret. So the relay can decrypt Alice's message, read it, and encrypt it again to forward to Bob. Alice and Bob do not share a secret with each other directly. (The relay does one DH with Alice and another with Bob, so it can read and forward the message; Alice and Bob never share a secret with each other.)](img/w5-two-handshakes.svg)
 
-### A1 — relay แอบอ่านข้อความได้ (20 points)
+### A1 — The relay can read the message (20 marks)
 
-#### ขั้นที่ 1 — เปิดรอบ "ไม่ยืนยันตัวตน"
+#### Step 1 — Start the round with no authentication
 
-**ทำอะไร:** เปิด alice, bob และ relay ในรอบที่ไม่มีการยืนยันตัวตน แล้วรอให้ทำงานเสร็จ
+**What to do:** Start alice, bob and the relay in the round where nobody checks who they are talking to, then wait for it to finish running.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose -f docker-compose.vulnerable.yml up -d
 ```
 
-**ควรเห็น:** มีคำว่า `Started` ประมาณสามบรรทัด รอประมาณ 15 วินาที ขั้นนี้ไม่ต้องลงใบตอบ
+**You should see:** the word `Started` on about three lines. Wait about 15 seconds. This step has nothing to write in the answer sheet.
 
-#### ขั้นที่ 2 — อ่าน log เฉพาะบรรทัดที่ต้องดู
+#### Step 2 — Read the log, only the lines you need
 
-**ทำอะไร:** ดู log และกรองเหลือเฉพาะบรรทัดของ ALICE, BOB และ RELAY
+**What to do:** Look at the log, filtered to the lines from ALICE, BOB and RELAY.
 
-**พิมพ์** (Mac):
+**Type** (Mac):
 
 ```bash
 docker compose -f docker-compose.vulnerable.yml logs | grep -E "ALICE|BOB|RELAY"
 ```
 
-**พิมพ์** (Windows PowerShell):
+**Type** (Windows PowerShell):
 
 ```powershell
 docker compose -f docker-compose.vulnerable.yml logs | findstr "ALICE BOB RELAY"
 ```
 
-**ควรเห็น:** ประมาณ 9 บรรทัด ให้หา**สี่บรรทัดนี้** (ลำดับอาจสลับเล็กน้อย ที่อยู่หลัง `from` เป็นเลขที่อยู่ในเครื่อง ไม่ต้องสนใจ)
+**You should see:** about 9 lines. Find **these four lines** (the order may be slightly different; the text after `from` is an address inside your computer, ignore it):
 
 ```
 RELAY: completed independent DH handshake with Alice (posing as Bob)
@@ -159,139 +159,139 @@ RELAY: completed independent DH handshake with Bob (posing as Alice)
 RELAY INTERCEPTED: the launch code is 4471
 ```
 
-**แปลว่า:** relay ทำ DH แยกกันสองรอบ รอบแรกกับ Alice (แกล้งเป็น Bob) รอบที่สองกับ Bob (แกล้งเป็น Alice) แล้วถอดรหัสข้อความของ Alice อ่านได้ (`INTERCEPTED`) ขณะที่ Bob ก็ได้รับข้อความตามปกติ (`BOB RECEIVED`) ทั้งสองฝ่ายจึงไม่รู้ตัว ข้อความ `the launch code is 4471` เป็นข้อความตายตัวของ lab ไม่ใช่รหัสเฉพาะคน
+**Means:** the relay did DH twice, separately. The first time with Alice (pretending to be Bob), the second time with Bob (pretending to be Alice). Then it decrypted Alice's message and could read it (`INTERCEPTED`), while Bob also received the message normally (`BOB RECEIVED`). So neither of them noticed. The message `the launch code is 4471` is a fixed message of the lab. It is not a personal code.
 
-**✍️ ลงใบตอบ (ขั้นที่ 2):** คัดลอกสี่บรรทัดข้างบนจากหน้าจอของตัวเอง
+**✍️ Write in the answer sheet (Step 2):** copy the four lines above from your own screen.
 
-#### ขั้นที่ 3 — สรุปด้วยคำของตัวเอง
+#### Step 3 — Summarise in your own words
 
-**ทำอะไร:** ดูรูปด้านบนแล้วเติมคำในช่องว่าง
+**What to do:** Look at the picture above and fill in the blanks.
 
-> a) relay มีความลับร่วมกับ Alice **และ**มีความลับร่วมกับ Bob รวมเป็น ________ ชุด (1 / 2) ส่วน Alice กับ Bob (มี / ไม่มี) ความลับร่วมกันโดยตรง
+> a) The relay shares a secret with Alice **and** a secret with Bob, so there are ________ secrets in total (1 / 2). Alice and Bob (have / do not have) a secret directly between them.
 >
-> b) relay อ่านข้อความได้เพราะมัน (ได้ถอดรหัสด้วยความลับที่ตัวเองมี / ไปแก้สมการ DH ที่ยากมาก)
+> b) The relay can read the message because it (decrypted it with a secret it holds itself / solved the very hard DH equation).
 
-**✍️ ลงใบตอบ (ขั้นที่ 3):** เขียนทั้งสองประโยคให้ครบ
+**✍️ Write in the answer sheet (Step 3):** write both sentences in full.
 
-#### ขั้นที่ 4 — ปิดรอบแรก
+#### Step 4 — Shut down the first round
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose -f docker-compose.vulnerable.yml down
 ```
 
-**ควรเห็น:** ลงท้ายว่า `Removed` ขั้นนี้ไม่ต้องลงใบตอบ
+**You should see:** a line ending in `Removed`. This step has nothing to write in the answer sheet.
 
-### A2 — ยืนยันกุญแจด้วย HMAC แล้ว relay ล้มเหลว (20 points)
+### A2 — Check the key with HMAC and the relay fails (20 marks)
 
-#### ขั้นที่ 5 — เปิดรอบ "ยืนยันด้วย HMAC"
+#### Step 5 — Start the round "authenticated with HMAC"
 
-**ทำอะไร:** รอบนี้ Alice กับ Bob แนบ tag (HMAC ด้วย AUTH_KEY) ไปกับค่าสาธารณะของตัวเอง relay ไม่รู้ AUTH_KEY
+**What to do:** In this round Alice and Bob attach a tag (an HMAC made with AUTH_KEY) to their own public value. The relay does not know AUTH_KEY.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose -f docker-compose.fixed.yml up -d
 ```
 
-**ควรเห็น:** มีคำว่า `Started` รอประมาณ 15 วินาที ขั้นนี้ไม่ต้องลงใบตอบ
+**You should see:** the word `Started`. Wait about 15 seconds. This step has nothing to write in the answer sheet.
 
-#### ขั้นที่ 6 — อ่าน log รอบที่สอง
+#### Step 6 — Read the log of the second round
 
-**พิมพ์** (Mac):
+**Type** (Mac):
 
 ```bash
 docker compose -f docker-compose.fixed.yml logs | grep -E "ALICE|BOB|RELAY|AUTH"
 ```
 
-**พิมพ์** (Windows PowerShell):
+**Type** (Windows PowerShell):
 
 ```powershell
 docker compose -f docker-compose.fixed.yml logs | findstr "ALICE BOB RELAY AUTH"
 ```
 
-**ควรเห็น:** ให้หา**สี่บรรทัดนี้** (relay ยังพยายามแทรกค่าของตัวเอง แต่ทั้ง alice และ bob ตรวจเจอและยกเลิก)
+**You should see:** find **these four lines** (the relay still tries to insert its own value, but both alice and bob notice and cancel):
 
 ```
 RELAY: (fixed mode) attempted DH substitution with Alice (posing as Bob)
 RELAY: (fixed mode) attempted DH substitution with Bob (posing as Alice)
-AUTH FAILED - ABORTING      (จาก bob)
-AUTH FAILED - ABORTING      (จาก alice)
+AUTH FAILED - ABORTING      (from bob)
+AUTH FAILED - ABORTING      (from alice)
 ```
 
-**แปลว่า:** relay ใช้โค้ดเกือบเดิมและยังแทรกค่าของตัวเอง แต่มันทำ tag ที่ถูกต้องให้ค่านั้นไม่ได้ เพราะไม่มี AUTH_KEY ทั้งสองฝ่ายจึงตรวจเจอและหยุด ก่อนจะส่งข้อความลับใด ๆ
+**Means:** the relay uses almost the same code and still inserts its own value, but it cannot make a correct tag for that value, because it does not have AUTH_KEY. Both sides noticed and stopped, before sending any secret message.
 
-**✍️ ลงใบตอบ (ขั้นที่ 6):** คัดลอกสี่บรรทัดข้างบน (ให้เห็นว่าบรรทัด `AUTH FAILED` มาจาก alice และ bob อย่างละหนึ่ง)
+**✍️ Write in the answer sheet (Step 6):** copy the four lines above (so that one `AUTH FAILED` line comes from alice and one from bob).
 
-#### ขั้นที่ 7 — นับว่า relay อ่านข้อความได้กี่ครั้ง
+#### Step 7 — Count how many times the relay could read the message
 
-**พิมพ์** (Mac):
+**Type** (Mac):
 
 ```bash
 docker compose -f docker-compose.fixed.yml logs | grep -c "RELAY INTERCEPTED"
 ```
 
-**พิมพ์** (Windows PowerShell):
+**Type** (Windows PowerShell):
 
 ```powershell
 (docker compose -f docker-compose.fixed.yml logs | Select-String -SimpleMatch "RELAY INTERCEPTED" | Measure-Object).Count
 ```
 
-**ควรเห็น:** `0`
+**You should see:** `0`
 
-**แปลว่า:** ในรอบนี้ไม่มีบรรทัด `RELAY INTERCEPTED` เลย (ตัวเลขนี้บอกแค่ว่า relay ไม่ได้อ่านข้อความ ไม่ได้พิสูจน์ว่า Alice กับ Bob คุยกันสำเร็จ)
+**Means:** in this round there is no `RELAY INTERCEPTED` line at all. (This number only says that the relay did not read the message. It does not prove that Alice and Bob talked successfully.)
 
-**✍️ ลงใบตอบ (ขั้นที่ 7):** เขียนตัวเลขที่ได้
+**✍️ Write in the answer sheet (Step 7):** write the number you got.
 
-#### ขั้นที่ 8 — สรุปด้วยคำของตัวเอง
+#### Step 8 — Summarise in your own words
 
-**ทำอะไร:** เติมคำในช่องว่าง
+**What to do:** Fill in the blanks.
 
-> relay ทำ ________ ที่ถูกต้องให้ค่าสาธารณะของตัวเองไม่ได้ เพราะมันไม่มี ________ (เลือกคำ: `tag` / `AUTH_KEY`, ช่องที่สองตอบ `AUTH_KEY`)
+> The relay cannot make a correct ________ for its own public value, because it does not have the ________. (Choose: `tag` / `AUTH_KEY`; the second blank is `AUTH_KEY`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 8):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 8):** write the full sentence.
 
-#### ขั้นที่ 9 — ปิดรอบที่สอง
+#### Step 9 — Shut down the second round
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose -f docker-compose.fixed.yml down
 ```
 
-**ควรเห็น:** ลงท้ายว่า `Removed` ขั้นนี้ไม่ต้องลงใบตอบ
+**You should see:** a line ending in `Removed`. This step has nothing to write in the answer sheet.
 
-### A3 — ทำไม HMAC หยุดได้ และข้อจำกัด (20 points)
+### A3 — Why HMAC stops it, and its limits (20 marks)
 
-#### ขั้นที่ 10 — ดูโค้ดที่ทำ tag
+#### Step 10 — Look at the code that makes the tag
 
-**ทำอะไร:** อ่านสองบรรทัดนี้จาก `common.py` (ไม่ต้องพิมพ์อะไร) ฟังก์ชันแรกคำนวณ tag จากค่าสาธารณะและ AUTH_KEY ฟังก์ชันที่สองตรวจว่า tag ที่ได้รับตรงกับที่คำนวณเองหรือไม่
+**What to do:** Read these two lines from `common.py` (you do not need to type anything). The first function calculates the tag from the public value and AUTH_KEY. The second checks whether the tag that arrived matches the one it calculated itself.
 
 ```python
-return hmac.new(auth_key, pubkey_bytes, hashlib.sha256).digest()      # ทำ tag
-return hmac.compare_digest(expected, tag)                            # ตรวจ tag
+return hmac.new(auth_key, pubkey_bytes, hashlib.sha256).digest()      # make the tag
+return hmac.compare_digest(expected, tag)                            # check the tag
 ```
 
-> tag ถูกคำนวณจาก ________ และ ________ (เลือกคำ: `ค่าสาธารณะ` / `AUTH_KEY` / `ข้อความลับ`)
+> The tag is calculated from ________ and ________. (Choose: `the public value` / `AUTH_KEY` / `the secret message`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 10):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 10):** write the full sentence.
 
-#### ขั้นที่ 11 — ทำไมยังต้องทำ DH สดทุกครั้ง
+#### Step 11 — Why still do a fresh DH every time?
 
-**ทำอะไร:** อ่านแล้วตอบ 1–2 ประโยค Alice กับ Bob รู้ AUTH_KEY ร่วมกันอยู่แล้ว ทำไมไม่ใช้ AUTH_KEY เป็นกุญแจเข้ารหัสข้อความไปเลย (คำใบ้: ถ้าปีหน้า AUTH_KEY หลุด ข้อความที่มีคนบันทึกไว้เมื่อวันนี้จะเป็นอย่างไร ถ้ากุญแจแต่ละรอบสร้างจาก DH ใหม่ที่ลบความลับทิ้งแล้ว)
+**What to do:** Read, then answer in 1–2 sentences. Alice and Bob already know AUTH_KEY together. Why not just use AUTH_KEY as the key to encrypt the messages? (Hint: if AUTH_KEY leaks next year, what happens to the messages somebody recorded today? What if each round's key was made by a new DH whose secrets were thrown away?)
 
-**✍️ ลงใบตอบ (ขั้นที่ 11):** เขียนคำตอบ
+**✍️ Write in the answer sheet (Step 11):** write your answer.
 
-#### ขั้นที่ 12 — ข้อจำกัดของวิธีนี้
+#### Step 12 — The limit of this method
 
-**ทำอะไร:** ตอบ 1–2 ประโยค วิธีนี้ใช้ได้เพราะเงื่อนไขหนึ่งข้อ คือ Alice กับ Bob ต้องมี AUTH_KEY ร่วมกัน**ล่วงหน้า**และเก็บเป็นความลับ ถ้า relay ได้ AUTH_KEY ไปด้วย จะเกิดอะไรขึ้น และ AUTH_KEY นี้ควรส่งให้กันผ่านทางไหน
+**What to do:** Answer in 1–2 sentences. This method works because of one condition: Alice and Bob must share AUTH_KEY **in advance** and keep it secret. If the relay got AUTH_KEY too, what would happen? And by what route should AUTH_KEY be shared between them?
 
-**✍️ ลงใบตอบ (ขั้นที่ 12):** เขียนคำตอบ
+**✍️ Write in the answer sheet (Step 12):** write your answer.
 
-#### ขั้นที่ 13 — เช็กก่อนไปต่อ
+#### Step 13 — Check before you go on
 
-ดูว่าในใบตอบมีครบ: ขั้นที่ 2, 3 (A1), ขั้นที่ 6, 7, 8 (A2), ขั้นที่ 10, 11, 12 (A3) แล้วไปทำส่วนของแบบตัวเอง: เลขคี่ทำ Part 2 เลขคู่ทำ Part 3 และ Part 4
+Check that your answer sheet has everything: Steps 2, 3 (A1), Steps 6, 7, 8 (A2), Steps 10, 11, 12 (A3). Then do your own form: odd IDs do Part 2; even IDs do Parts 3 and 4.
 
 ---
 
@@ -302,17 +302,17 @@ return hmac.compare_digest(expected, tag)                            # ตรว
 
 ---
 
-## Part 2 — Conventional form (40 points; only if Conventional is your assigned form)
+## Part 2 — Conventional form (40 marks; only if Conventional is your assigned form)
 
-ตอบข้อละ 2–3 ประโยค ภาษาไทยได้ ส่วนนี้ให้**ตอบด้วยตัวเอง** ไม่ใช้ AI ตอบ ไม่ต้องคำนวณ
+Answer each in 2–3 sentences. You may answer in Thai. In this part you must **answer yourself** and not use AI. There is no calculation.
 
-**Q1 (10). ทำไมไม่ส่งกุญแจ AES ตรง ๆ ผ่านเน็ต.** ถ้าส่งกุญแจไปตรง ๆ คนที่แอบฟังจะได้อะไร และ DH ให้ Alice กับ Bob ทำอะไรได้แทน (คำใบ้: ค่าสาธารณะ)
+**Q1 (10). Why not send the AES key straight over the internet.** If the key were sent straight over the internet, what would someone who only listens get, and what does DH let Alice and Bob do instead? (Hint: public value)
 
-**Q2 (10). relay อ่านได้อย่างไร.** ในรอบไม่ยืนยันตัวตน ใครมีความลับร่วมกับ Alice และใครมีกับ Bob relay อ่านข้อความได้อย่างไรโดยไม่ต้องแก้ปัญหายาก ๆ (คำใบ้: ขั้นที่ 2 และ 3)
+**Q2 (10). How does the relay read it.** In the round with no authentication, who shares a secret with Alice and who shares one with Bob? How can the relay read the message without solving any hard problem? (Hint: Steps 2 and 3)
 
-**Q3 (10). HMAC หยุดอะไร.** DH ธรรมดากันคนที่แค่แอบฟังได้ แต่ relay แทรกค่าของตัวเองได้ HMAC ในรอบที่สองหยุดอะไร และวิธีนี้ต้องมีเงื่อนไขอะไรข้อหนึ่ง (คำใบ้: ขั้นที่ 6 และ 12)
+**Q3 (10). What does HMAC stop.** Plain DH stops someone who only listens, but the relay can insert its own value. What does the HMAC in the second round stop, and what one condition does this method need? (Hint: Steps 6 and 12)
 
-**Q4 (10). ทำไมยังทำ DH สด.** ทำไมรอบที่สองยังสร้างกุญแจใหม่ด้วย DH แทนที่จะใช้ AUTH_KEY เข้ารหัสข้อความ ถ้า AUTH_KEY หลุดทีหลัง ข้อความที่บันทึกไว้ก่อนหน้าจะเป็นอย่างไร (คำใบ้: ขั้นที่ 11)
+**Q4 (10). Why still do a fresh DH.** Why does the second round still make a new key with DH, instead of using AUTH_KEY to encrypt the messages? If AUTH_KEY leaks later, what happens to messages recorded earlier? (Hint: Step 11)
 
 ### Going further (optional — no marks)
 
@@ -326,17 +326,17 @@ return hmac.compare_digest(expected, tag)                            # ตรว
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
-เพื่อนคนหนึ่งถาม AI ว่าจะกันคนแทรกกลางใน DH ได้อย่างไร AI ตอบ (ภาษาอังกฤษ ไม่ต้องแปลทุกคำ):
+A friend asked an AI how to stop a man-in-the-middle in DH. The AI answered as below (in English; you do not need to translate every word):
 
 > **AI's answer:**
 > "Alice and Bob can run plain DH, derive a fresh session key, and then authenticate every message with HMAC under that derived key. A MITM cannot know the session key, so a valid message HMAC proves Bob's identity. No certificate or pre-shared key is needed."
 >
 > — end of AI answer —
 
-ทำตามนี้ (ใช้สิ่งที่เห็นในแล็บ):
+Do this (use what you saw in the lab):
 
-1. **Find what's wrong.** คัดลอกประโยคที่ผิด แล้วเขียน 1–2 ประโยคว่าทำไมผิด (คำใบ้: ในขั้นที่ 2 relay ก็มี "กุญแจ session" ของตัวเองกับ Alice อยู่แล้ว)
-2. **Write the corrected version.** เขียนคำอธิบายที่ถูกต้อง 2–3 ประโยค โดยบอกว่าต้องมีอะไรที่ relay ไม่มี (คำใบ้: ขั้นที่ 6 และ 12)
+1. **Find what's wrong.** Copy the sentence that is wrong, then write 1–2 sentences on why it is wrong (hint: in Step 2 the relay already has a "session key" of its own with Alice).
+2. **Write the corrected version.** Write a correct explanation in 2–3 sentences, saying what is needed that the relay does not have (hint: Steps 6 and 12).
 
 > Disclose any other AI use in the Part 1 table. This task counts toward the **Audit the AI** row.
 
@@ -344,19 +344,19 @@ AI is a power tool you must **distrust** — you are graded on your *critique*, 
 
 ## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
-**A. Explain in Plain English (EiPE, 10).** อธิบายให้เพื่อนที่ไม่เคยเรียน DH ฟัง 2–4 ประโยค **ไม่ใช้ศัพท์ยาก** ว่าในรอบแรก ใครมีความลับร่วมกับ Alice ใครมีกับ Bob และทำไม relay จึงอ่านและส่งต่อข้อความได้ (คำใบ้: ดูรูปและขั้นที่ 3 แล้วใช้คำพูดของตัวเอง)
+**A. Explain in Plain English (EiPE, 10).** Explain to a friend who has never studied DH, in 2–4 sentences, **without difficult words**: in the first round, who shares a secret with Alice, who shares one with Bob, and why can the relay read and forward the message? (Hint: look at the picture and Step 3, and use your own words)
 
-**B. Prompt Problem (10).** ใช้ AI ตัวไหนก็ได้ แล้วทำตามนี้:
+**B. Prompt Problem (10).** Use any AI you like and follow these steps:
 
-1. เขียน prompt **หนึ่งอัน** เช่น *"Explain why authenticated Diffie-Hellman prevents a man-in-the-middle attack"*
-2. คัดลอกคำตอบของ AI ลงใบตอบ
-3. ตรวจคำตอบของ AI ทีละข้อ แล้วติ๊ก **ผ่าน / ไม่ผ่าน** พร้อมเหตุผลสั้น ๆ 1 ประโยคต่อข้อ:
+1. Write **one** prompt, for example *"Explain why authenticated Diffie-Hellman prevents a man-in-the-middle attack"*
+2. Copy the AI's answer into your answer sheet.
+3. Check the AI's answer against what you learned, one point at a time, and tick **Pass / Fail** with a one-sentence reason for each:
 
-- AI แยก "กันคนแอบฟัง" (DH ธรรมดามีให้แล้ว) ออกจาก "ยืนยันว่าอีกฝั่งคือใคร" (DH ธรรมดาไม่มี) หรือไม่
-- AI บอกไหมว่าต้องผูกค่าสาธารณะกับตัวตนอย่างไร (เช่น tag, ลายเซ็น, ใบรับรอง) และกุญแจหรือใบรับรองนั้นต้องถูกส่งให้ถึงกันอย่างปลอดภัยก่อน
-- AI แต่งเรื่องหรือพูดผิดไหม (Does it make anything up?) เช่น ตั้งชื่อวิธีที่ไม่มีจริง
+- Does the AI separate "stops eavesdroppers" (plain DH already does this) from "confirms who is on the other end" (plain DH does not)?
+- Does the AI say how the public value is tied to an identity (for example a tag, a signature, a certificate), and that the key or certificate has to reach each side safely first?
+- Does the AI make anything up or say something wrong? (Does it make anything up?) For example, naming a method that does not exist.
 
-ส่ง **prompt + คำตอบของ AI + ตารางตรวจพร้อมเหตุผลของตัวเอง**
+Hand in the **prompt + the AI's answer + the check table with your own reasons**.
 
 ---
 
@@ -364,9 +364,9 @@ AI is a power tool you must **distrust** — you are graded on your *critique*, 
 
 An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
-1. "ในขั้นที่ 2 relay ทำ DH สองรอบก่อนพิมพ์ `RELAY INTERCEPTED` ทำไมต้องสองรอบ ถ้าทำแค่รอบเดียวจะเป็นอย่างไร"
-2. "ในขั้นที่ 6 relay ยังแทรกค่าของตัวเอง ใช้โค้ดเกือบเดิม ทำไมคราวนี้ล้มเหลว"
-3. "Alice กับ Bob มี AUTH_KEY ร่วมกันอยู่แล้ว ทำไมไม่ใช้เป็นกุญแจเข้ารหัสเลย (ขั้นที่ 11)"
+1. "In Step 2 the relay did DH twice before it printed `RELAY INTERCEPTED`. Why twice? What would happen if it did it only once?"
+2. "In Step 6 the relay still inserted its own value, with almost the same code. Why did it fail this time?"
+3. "Alice and Bob already share AUTH_KEY. Why not use it directly as the encryption key? (Step 11)"
 
 ---
 
@@ -385,7 +385,7 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 ## Evidence & Integrity (required)
 
-- ใส่ชื่อ รหัสนักศึกษา และวันที่ในใบตอบ และคัดลอกคำสั่งกับผลจากเครื่อง**ของตัวเอง** บรรทัด `the launch code is 4471` เป็นข้อความตายตัวของ lab เหมือนกันทุกคน ไม่ใช่ flag เฉพาะคน ห้ามเอาผลของเพื่อนมาส่งเป็นของตัวเอง
-- **อธิบายด้วยคำของตัวเอง** (ให้คะแนนจากเหตุผล): ข้อที่ให้เติมคำ (ขั้นที่ 3, 8, 10) ใช้คำที่ให้ไว้ได้เลย ส่วนคำตอบสั้น ๆ ของขั้นที่ 11 และ 12 และข้อเขียนของฟอร์มตัวเองต้องเขียนด้วยคำของตัวเอง
+- Put your name, student ID and the date in the answer sheet, and copy the commands and results from **your own** computer. The line `the launch code is 4471` is a fixed message of the lab, the same for everyone. It is not a personal flag. You must not submit a friend's results as your own.
+- **Explain in your own words** (marks are given for the reasoning): for the fill-in-the-blank steps (Steps 3, 8, 10) you can use the words given. The short answers in Steps 11 and 12 and the written parts of your own form must be in your own words.
 
-**กำหนดส่งและการส่งช้า:** ส่งภายใน 23:59 น. (เวลาไทย) ของ **อาทิตย์ 6 ธ.ค.** ส่งช้าหักวันละ 10% ของคะแนนใบงานนี้ (ไม่เต็มวันนับเป็นหนึ่งวัน) จนเหลือ 0 การอัปโหลดหรือเปลี่ยนไฟล์หลังกำหนดส่งนับว่าส่งช้าทั้งชิ้น ส่งงานร่วม 60 คะแนน และแบบของตัวเอง**หนึ่งแบบ**เท่านั้น ทำทั้งสองแบบไม่ได้คะแนนเพิ่ม Viva ใช้ตรวจความเข้าใจ ไม่มีคะแนนแยก
+**Deadline and late work:** submit by 23:59 (Thai time) on **Sunday 6 Dec**. Late work loses 10% of this worksheet's marks per day (a part day counts as a day), down to 0. Uploading or replacing a file after the deadline counts as late for the whole submission. Submit the common 60 marks and **one** form of your own only; doing both forms gives no extra marks. The viva checks your understanding and has no separate marks.
