@@ -1,145 +1,425 @@
-# Worksheet 10 — Asymmetric & Hybrid Encryption
+# Worksheet 10 — Hybrid Encryption: lock the key with RSA, lock the messages with AES-GCM
 
 > **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
-> **Aligned to:** NIST SP 800-56A (key establishment), SP 800-38D (GCM) · OWASP Cryptographic Storage Cheat Sheet
-> **Kind:** Conceptual — no Docker target, no flag this week. Grading is rubric-based (see below).
+> **Kind:** Docker lab แบบทำตามทีละขั้น ไม่ต้องเขียนโปรแกรม และไม่ต้องคำนวณเลข (ส่วน AIR-Sec มีงานเขียนสคริปต์สั้น ๆ ใน Part 3)
 
-## 100-minute class and assigned worksheet version
+> **Ethics note:** ทำเฉพาะกับโค้ดเดโมใน container ในเครื่องของตัวเองที่ lab นี้เปิดขึ้นมา ไม่มีเซิร์ฟเวอร์จริงและไม่มีพอร์ตที่เปิดออกนอกเครื่อง การใช้ nonce ซ้ำกับระบบจริงที่ไม่ใช่ของเราและไม่ได้รับอนุญาตเป็นเรื่องผิดกฎหมาย
 
-**In class:** 10 min retrieval quiz + 10 min brief explanation + 60 min practice/analysis + 15 min debrief + 5 min evidence capture = 100 min.
+## อ่านก่อนเริ่ม
 
-**Shared core — every student:** Trace the hybrid-encryption protocol and key roles; compare correct nonce discipline with a repeated-nonce case. Provide a repeatable diagram, state table or two-message XOR derivation. No Docker target, flag or standalone code submission is required for the shared core.
+**วันนี้จะทำอะไร:** RSA เข้ารหัสไฟล์ใหญ่ ๆ ไม่ไหว (ช้า และข้อมูลยาวได้จำกัด) ระบบจริงจึงใช้ **hybrid encryption**: Bob สร้าง**กุญแจ AES หนึ่งดอก** ล็อกกุญแจนั้นด้วย**กุญแจสาธารณะของ Alice** ส่งไปครั้งเดียว แล้วใช้กุญแจ AES เข้ารหัสทุกข้อความด้วย AES-GCM ซึ่งใช้ **nonce** (เลขใช้ครั้งเดียว) ต่อหนึ่งข้อความ วันนี้เราจะเห็น Bob ส่งข้อความหา Alice จริง ๆ แล้วดูว่าถ้า Bob ใช้ **nonce ซ้ำ** คนดักฟัง (Eve) อ่านข้อความลับได้โดยไม่มีกุญแจเลย สิ่งที่ต้องจำ: **กุญแจแข็งแรงแค่ไหน ก็ไม่ช่วย ถ้า nonce ซ้ำ**
 
-**Preparation and extensions:** Prepare the public-key/AEAD reading and Python environment if using the AIR-Sec task. Complete the assigned version's full essays or code audit, proof and corrected code outside the core block as needed.
+**ทุกขั้นเขียนแบบเดียวกัน:**
 
-**Assessment:** everyone completes the shared core (60 points) plus **one assigned version** (40 points): Conventional written analysis, or AIR-Sec Audit-the-AI 20 + EiPE 10 + Prompt Problem 10. Both versions total 100. All questions remain available; complete the assigned version's full questions, using out-of-class time for extended responses. The other version is ungraded reference practice, not an additional requirement. Viva/micro-demo questions are formative checks of the submitted explanation, with no separate points or automatic pass/fail score gate.
+| หัวข้อ | ความหมาย |
+|---|---|
+| **ทำอะไร** | บอกว่าขั้นนี้จะทำอะไร |
+| **พิมพ์** | คัดลอกทั้งบรรทัดไปวางใน Terminal แล้วกด Enter |
+| **ควรเห็น** | หน้าจอควรขึ้นประมาณนี้ (ตัวเลขฐานสิบหกของ nonce จะไม่เหมือนตัวอย่าง เป็นเรื่องปกติ) |
+| **แปลว่า** | ผลที่เห็นหมายความว่าอะไร |
+| **ลงใบตอบ** | สิ่งที่ต้องคัดลอกหรือเขียนลงใบตอบ |
 
-**Evidence:** record reproducible observations or reasoning and your name/student ID. Where the local target prints a shared placeholder flag, record it as observed; a personalized flag or live CTFd account is not a prerequisite. Follow SUBMISSION.md for the announced hand-in channel.
+**คะแนน**
 
-## Part 1 — Student Information
-| Name | Student ID | Date | Group |
-|---|---|---|---|
-| | | | |
+- ทุกคนทำ **Part A (60 คะแนน)** ซึ่งเหมือนกันทั้งสองแบบ
+- จากนั้นทำ **เฉพาะแบบของตัวเอง (40 คะแนน)** ดูจากเลขตัวสุดท้ายของรหัสนักศึกษา: **เลขคี่ = Conventional (Part 2)**, **เลขคู่ = AIR-Sec (Parts 3–4)** (เลข 0 นับเป็นเลขคู่) แล้วเขียนแบบของตัวเองในช่อง Group
+- ตอบเป็นภาษาไทยหรืออังกฤษก็ได้ ตอบสั้น ๆ ให้ชัดก็พอ
+- **ใช้ใบตอบ:** ใน Classroom → Week 10 เปิดไฟล์ตามแบบของตัวเอง (`Wk10_Answer_Sheet_Conventional_odd_ID` หรือ `Wk10_Answer_Sheet_AIR-Sec_even_ID`) กด Open with → Google Docs พิมพ์ลงกรอบสีเทา แล้วกด File → Download → PDF
+- ส่งไฟล์เดียว ตั้งชื่อตามรหัสนักศึกษา เช่น `Wk10_66990000.pdf` (ไม่ต้องใส่เครื่องหมาย `<` `>`) ที่ `learn.zcr.ai/submit` โดยใช้รหัสส่งงานของ Week 10 ที่ได้ทางอีเมล KMITL ภายในกำหนดส่งที่ระบุในอีเมลและโพสต์ใน Classroom
+- ข้อที่เขียนว่า *optional* ไม่มีคะแนน ไม่ต้องทำก็ได้
 
-*Disclose any AI assistance used anywhere in this worksheet here (tool + what you asked it).*
+| Part A | คะแนน | ขั้นที่ลงใบตอบ |
+|---|---:|---|
+| A1 — Bob ส่งข้อความหา Alice (nonce ใหม่ทุกครั้ง) | 20 | ขั้นที่ 2, 3 |
+| A2 — Bob ใช้ nonce ซ้ำ แล้ว Eve อ่านข้อความลับ | 20 | ขั้นที่ 5, 6 |
+| A3 — nonce ใหม่ทุกครั้ง Eve อ่านไม่ออก | 20 | ขั้นที่ 7, 8, 9, 10 |
 
-## Part 2 — Conventional Arm: Essay Questions
+**คำศัพท์ที่ต้องรู้**
 
-Answer each in your own words. These are conceptual questions with no single "correct" sentence
-to copy — you are graded on the accuracy and completeness of your reasoning, not length.
+| คำ | ความหมายแบบง่าย |
+|---|---|
+| Terminal | หน้าต่างสำหรับพิมพ์คำสั่ง |
+| Docker / container | โปรแกรมที่เปิด "เครื่องจำลอง" เล็ก ๆ ในเครื่องของเรา ทำพังก็ลบแล้วเริ่มใหม่ได้ |
+| กุญแจสาธารณะ / กุญแจส่วนตัว | คู่กุญแจของ Alice: **ใครก็ล็อกด้วยกุญแจสาธารณะได้ แต่มีแค่ Alice ที่เปิดด้วยกุญแจส่วนตัวได้** |
+| RSA | วิธีเข้ารหัสแบบกุญแจคู่ ช้า และใส่ข้อมูลได้สั้น จึงใช้ล็อก**กุญแจ AES** เท่านั้น |
+| กุญแจ session | กุญแจ AES ที่ Bob สร้างขึ้นใหม่ทุกครั้งที่เริ่มคุย ใช้เข้ารหัสข้อความจริง |
+| AES-GCM | วิธีเข้ารหัสข้อความที่เร็ว และมี tag ไว้ตรวจว่าถูกแก้หรือไม่ (รู้จากสัปดาห์ที่ 4 และ 6) |
+| nonce | เลขที่ใช้คู่กับกุญแจเมื่อเข้ารหัสแต่ละข้อความ **ต้องไม่ซ้ำ** กับข้อความอื่นที่ใช้กุญแจเดิม ส่งไปกับข้อความได้ ไม่ต้องเป็นความลับ |
+| Eve | คนดักฟังที่เห็นทุกอย่างที่วิ่งบนเครือข่าย แต่ไม่รู้กุญแจใดเลย |
+| flag | ข้อความรางวัล รูปแบบ `FLAG{...}` เป็นหลักฐานว่าทำสำเร็จ |
 
-**Q1.** Explain why asymmetric encryption is not suitable for encrypting large files such as
-videos or PDFs. Mention both performance and message size limitations.
+**คำถามที่มักสงสัย**
 
-**Q2.** Describe the complete process of hybrid encryption when Bob sends a message to Alice —
-what keys are generated, what is encrypted with which key, what is sent, how Alice decrypts.
+- *ต้องเก่งคณิตศาสตร์ไหม?* ไม่ต้อง วันนี้ไม่มีการคำนวณ
+- *ต้องเขียนโปรแกรมไหม?* ไม่ต้อง คัดลอกคำสั่งไปวางได้เลย (ยกเว้นงาน Audit ของแบบ AIR-Sec)
+- *ถ้าทำผิด เครื่องจะพังไหม?* ไม่พัง ทุกอย่างอยู่ใน container ถ้าสับสนให้พิมพ์ `docker compose down` แล้วเริ่มใหม่จากเตรียมขั้นที่ 5
+- *ไม่เข้าใจทุกตัวอักษรที่ขึ้นจอ ได้ไหม?* ได้ ดูเฉพาะบรรทัดที่ใบงานบอก
+- *เลข nonce ของเราไม่เหมือนเพื่อน ผิดไหม?* ไม่ผิด กุญแจและ nonce สุ่มใหม่ทุกครั้งที่รัน แต่ข้อความ ผลลัพธ์ YES/NO และบรรทัด RESULT ต้องเหมือนกัน และต้องคัดลอกจากเครื่องของตัวเองเสมอ
+- *วางคำสั่งใน Terminal ยังไง?* คัดลอกคำสั่งจากใบงาน แล้ว Windows: กด Ctrl+V หรือคลิกขวา · Mac: กด Cmd+V จากนั้นกด Enter
+- *คัดลอกผลจาก Terminal ยังไง?* ลากเมาส์คลุมข้อความก่อน แล้ว Windows: กด Ctrl+Shift+C · Mac: กด Cmd+C หรือจะ screenshot ก็ได้
 
-**Q3.** In a public-key system, Alice publishes her public key. Explain how Bob can send Alice a
-secret message using this key, and why only Alice can read the message.
+**ถ้าเจอข้อความแบบนี้**
 
-**Q4.** Explain how asymmetric encryption can be used for key exchange. Describe how a shared
-secret is created and why an attacker cannot learn it.
+| ข้อความบนจอ | สาเหตุ | วิธีแก้ |
+|---|---|---|
+| มีคำว่า `Cannot connect to the Docker daemon` หรือ `error during connect` | ยังไม่ได้เปิด Docker | เปิด Docker Desktop รอจนขึ้น Engine running |
+| `no configuration file provided: not found` | Terminal ไม่ได้อยู่ในโฟลเดอร์ lab | ทำเตรียมขั้นที่ 4 อีกครั้ง |
+| `service "lab" is not running` | ยังไม่ได้เปิด lab | ทำเตรียมขั้นที่ 5 และ 6 |
+| `ModuleNotFoundError: No module named 'cryptography'` | lab ยังติดตั้งแพ็กเกจไม่เสร็จ | รอสักครู่ แล้วทำเตรียมขั้นที่ 6 อีกครั้ง |
+| `can't open file '/lab/demo.py'` | ZIP ที่โหลดไว้เก่า ไม่มีไฟล์ `demo.py` | โหลด ZIP ใหม่ตามเตรียมขั้นที่ 2 |
+| บรรทัดแรกที่ขึ้นเป็นข้อความอธิบายยาว ๆ (`Week 10 helper: ...`) | พิมพ์คำสั่งผิดหรือตกคำ | คัดลอกคำสั่งจากใบงานใหม่ทั้งบรรทัด |
 
-**Q5.** ECIES is a hybrid encryption scheme based on elliptic-curve Diffie-Hellman. Explain how
-ECIES allows Alice and Bob to encrypt and decrypt a message without ever sending the symmetric
-key directly.
-
-*(120–200 words per answer is a reasonable target — enough to show you understand the
-mechanism, not so much that you're padding.)*
-
-## Part 3 — Assigned AIR-Sec Arm: Audit the AI
-
-AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's
-answer. Full task instructions: [`audit_the_ai/README.md`](audit_the_ai/README.md).
-
-**Setup.** `audit_the_ai/broken_hybrid_encrypt.py` is a plausible, AI-generated implementation
-of Bob-to-Alice hybrid encryption (RSA-OAEP wraps a fresh AES-256 session key; AES-GCM encrypts
-each message). It runs. It round-trips correctly. It has exactly one planted bug.
-
-**Task.**
-1. Read the code. Confirm for yourself that RSA-OAEP usage, AES-256 key generation, and GCM's
-   authentication-tag handling are all correct — they are, and checking only those is exactly
-   the trap.
-2. Find the one bug. Quote the exact line(s).
-3. Write a short proof script demonstrating the concrete attack the bug enables against two
-   messages sent in the same session. Include its output.
-4. Explain in your own words (3–5 sentences): what the vulnerability is, what an eavesdropper
-   who records two or more of Bob's messages can actually do, and why.
-5. Submit `fixed_hybrid_encrypt.py` — the smallest correct fix — and state explicitly why the
-   RSA/OAEP portion of the file did not need to change.
-
-**Submit:** the quoted buggy line(s), your proof script + output, your explanation, and
-`fixed_hybrid_encrypt.py`.
-
-## Part 4 — Assigned AIR-Sec Comprehension & Prompt
-
-**A. Explain in Plain English (EiPE).** A non-technical stakeholder on your team asks: *"Why not
-just use RSA for everything? Why bother mixing in AES at all?"* In 3–5 sentences, with no
-jargon (no "OAEP," "GCM," "asymptotic complexity" — explain the *idea*, not the acronyms),
-explain why real systems use hybrid encryption instead of pure asymmetric encryption. A good
-answer should make sense to someone who has never taken a cryptography course.
-
-**B. Prompt Problem.** Write a single prompt asking an AI assistant to **implement ECIES**
-(Elliptic-Curve Integrated Encryption Scheme) correctly in Python. Run it, then critique the
-result:
-- Did it choose a real, standard curve (e.g. P-256/secp256r1 or X25519) rather than inventing
-  parameters, or silently picking something inappropriate?
-- Did it derive the symmetric key via a proper KDF (e.g. HKDF) from the ECDH shared secret,
-  rather than using the raw shared secret directly as an AES key?
-- Did it use authenticated encryption (AES-GCM or ChaCha20-Poly1305) for the payload, or
-  something unauthenticated?
-- Did it handle the nonce correctly (this week's Part 3 bug, watch for it recurring here), and
-  transmit the ephemeral public key + nonce alongside the ciphertext?
-- Did it hand-wave, skip, or get wrong anything else — e.g. point validation on the received
-  public key, constant-time comparison, or error messages that leak whether decryption failed
-  at the KDF/tag stage (a padding-oracle-style leak)?
-
-**Submit:** your exact prompt, the AI's full response, and a bullet-by-bullet critique against
-the checklist above (mark each item correct / incorrect / hand-waved, with the specific line
-you're pointing at).
-
-## Part 5 — Formative Viva Spot-Check (no separate points)
-
-Be ready to answer these live, in your own words, with no notes:
-
-1. Why does the bug in `broken_hybrid_encrypt.py` not show up when you only send one message
-   per session?
-2. If a program only ever sends exactly one message per `HybridEncryptor` session and then
-   discards it, is the code in `broken_hybrid_encrypt.py` secure? Is it still bad practice?
-3. Suppose the nonce were derived from the current wall-clock time in seconds instead of being
-   a fixed constant. Would that fix the bug? Why or why not?
-
-## Grading rubric (100)
-
-| Criterion | Conventional | AIR-Sec |
-|---|---:|---:|
-| Shared protocol/analysis core: correct key roles and hybrid flow | 20 | 20 |
-| Shared secure-construction analysis: nonce discipline, trust assumptions and limitations | 20 | 20 |
-| Shared reproducible reasoning: diagram/state trace or two-message derivation, with sources and attribution | 20 | 20 |
-| Assigned Conventional written questions | 40 | — |
-| Assigned AIR-Sec Audit-the-AI | — | 20 |
-| Assigned AIR-Sec Explain-in-Plain-English | — | 10 |
-| Assigned AIR-Sec Prompt Problem | — | 10 |
-| **Total for the assigned version** | **100** | **100** |
-
-**Deadline and late work:** hand in by 23:59 Thai time (ICT) on the Sunday before the next week's
-class (KOSEN rule); the exact date is in your codes email and in the week's Classroom post.
-Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
-Uploading or replacing a file after the deadline makes the whole hand-in late.
-
-Viva/micro-demo checks are formative: no separate points and no automatic score gate. The 60 shared points apply to both versions; do not add the unassigned version's 40 points.
-
-See [`instructor` answer key] *(instructor use only, not in this file)* for the detailed
-Audit-the-AI rubric bands (full/partial/no credit) and expected-answer notes for the viva.
+ลองแล้วยังไม่ได้ ให้ถามเพื่อนหรืออาจารย์ได้เลย
 
 ---
 
+## ก่อนเริ่ม: เตรียมเครื่อง (ทำที่บ้าน ทำครั้งเดียว)
+
+ถ้าเคยทำ Week 2–6 มาแล้ว มี Docker และไฟล์ ZIP อยู่แล้ว เริ่มที่**เตรียมขั้นที่ 4** ได้เลย แต่ ZIP ต้องเป็นฉบับใหม่ที่มีโฟลเดอร์ `week10-hybrid-encryption` และไฟล์ `demo.py` ถ้าไม่เจอให้โหลดใหม่ตามเตรียมขั้นที่ 2
+
+**ถ้าปิดเครื่องไปแล้วกลับมาทำต่อ:** ทำเตรียมขั้นที่ 1, 4, 5, 6 ใหม่
+
+#### เตรียมขั้นที่ 1 — เปิด Docker Desktop
+
+**ทำอะไร:** ถ้ายังไม่มี ให้ติดตั้งจาก <https://www.docker.com/products/docker-desktop/> แล้วเปิดโปรแกรมทิ้งไว้
+
+**ควรเห็น:** ในหน้าต่าง Docker Desktop ขึ้นว่า **Engine running**
+
+#### เตรียมขั้นที่ 2 — โหลดไฟล์ lab
+
+**ทำอะไร:** เปิด <https://github.com/nutthakorn7/security-cryptography> กดปุ่มสีเขียว **Code** แล้วเลือก **Download ZIP**
+
+ไม่ต้องมีบัญชี GitHub และไม่ต้อง fork
+
+#### เตรียมขั้นที่ 3 — แตกไฟล์ ZIP
+
+**ทำอะไร:** Windows: คลิกขวาที่ไฟล์ ZIP เลือก **Extract All** · Mac: ดับเบิลคลิกไฟล์ ZIP วางไว้ในที่ที่หาง่าย เช่น Desktop
+
+**ควรเห็น:** โฟลเดอร์ชื่อ `security-cryptography-master` บางเครื่องจะมีโฟลเดอร์ชื่อเดียวกันซ้อนสองชั้น ให้เปิดเข้าไปจนเห็นโฟลเดอร์ `labs`
+
+#### เตรียมขั้นที่ 4 — เปิด Terminal ในโฟลเดอร์ lab
+
+**ทำอะไร:** ในโฟลเดอร์ `security-cryptography-master` เข้าไปที่ `labs` แล้วเข้า `week10-hybrid-encryption`
+
+- **Windows:** เปิดโฟลเดอร์ `week10-hybrid-encryption` ใน File Explorer คลิกขวาตรงที่ว่าง เลือก **Open in Terminal** (ถ้าไม่มีเมนูนี้ ให้กด Shift ค้างแล้วคลิกขวา เลือก **Open PowerShell window here**)
+- **Mac:** เปิดแอป Terminal พิมพ์ `cd` เว้นวรรคหนึ่งครั้ง ลากโฟลเดอร์ `week10-hybrid-encryption` มาวางในหน้าต่าง แล้วกด Enter
+
+เช็กว่าอยู่ถูกที่ด้วยคำสั่งนี้:
+
+```bash
+ls
+```
+
+**ควรเห็น:** มีชื่อ `docker-compose.yml` และ `demo.py` อยู่ในรายการ
+
+#### เตรียมขั้นที่ 5 — เปิด lab
+
+**พิมพ์:**
+
+```bash
+docker compose up -d
+```
+
+**ควรเห็น:** บรรทัดลงท้ายว่า `Started` (ถ้าเปิดอยู่แล้วอาจเห็น `Running`) **ทุกครั้งที่เปิด lab ต้องต่ออินเทอร์เน็ต** เพราะ container ติดตั้งแพ็กเกจใหม่ทุกครั้งที่เริ่ม ครั้งแรกอาจรอหลายนาที ระหว่างนั้นอย่าปิดหน้าต่าง
+
+#### เตรียมขั้นที่ 6 — เช็กว่า lab พร้อม
+
+**พิมพ์** (Mac):
+
+```bash
+docker compose logs | grep "lab ready"
+```
+
+**พิมพ์** (Windows):
+
+```powershell
+docker compose logs | findstr /C:"lab ready"
+```
+
+**ควรเห็น:** บรรทัดที่มีคำว่า `week 10 lab ready` ถ้าไม่ขึ้นอะไรเลย ให้รอสักครู่แล้วพิมพ์คำสั่งนี้อีกครั้ง ถ้ารอเกิน 2 นาทีให้พิมพ์ `docker compose ps -a` แล้ว screenshot ส่งอาจารย์
+
+---
+
+## Part A — The lab (both forms, 60 points)
+
+Bob ส่งข้อความสองข้อความหา Alice ในการคุยครั้งเดียว (หนึ่ง session) สคริปต์ `demo.py` ทำได้สองแบบ ต่างกันแค่การเลือก nonce:
+
+| แบบ | nonce | ผลกับ Eve |
+|---|---|---|
+| `good` | **ใหม่ทุกข้อความ** | Eve อ่านไม่ออก |
+| `reuse` | **ซ้ำ** ทั้งสองข้อความ | Eve อ่านข้อความลับได้โดยไม่มีกุญแจ |
+
+> **ถ้าใช้ Docker ไม่ได้จริง ๆ:** บอกอาจารย์ แล้วทำตามตัวอย่างผลที่ใบงานให้ไว้ในแต่ละขั้น เขียนกำกับว่า "จากตัวอย่างในใบงาน" ส่วนขั้นที่ 6, 8 และ 10 ตอบจากการอ่านใบงานได้
+
+### A1 — Bob ส่งข้อความหา Alice (nonce ใหม่ทุกครั้ง) (20 points)
+
+#### ขั้นที่ 1 — อ่าน: ใครถืออะไร
+
+**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+
+| ใคร | ถืออะไร | ทำอะไร |
+|---|---|---|
+| **Alice** | กุญแจสาธารณะ (แจกให้ทุกคน) และกุญแจส่วนตัว (เก็บไว้คนเดียว) | เปิดกุญแจ session ด้วยกุญแจส่วนตัว แล้วเปิดข้อความ |
+| **Bob** | กุญแจ AES ที่สุ่มสร้างเอง (กุญแจ session) | ล็อกกุญแจ session ด้วย**กุญแจสาธารณะของ Alice** ส่งครั้งเดียว แล้วเข้ารหัสแต่ละข้อความด้วยกุญแจ session กับ nonce |
+| **Eve** | ไม่มีกุญแจเลย | เห็นแค่ของที่วิ่งบนเครือข่าย: กุญแจที่ถูกล็อก, nonce และข้อความที่เข้ารหัส |
+
+#### ขั้นที่ 2 — ดู Bob ส่งสองข้อความ (nonce ใหม่ทุกครั้ง)
+
+**ทำอะไร:** ให้สคริปต์จำลอง Bob ส่งข้อความหา Alice แล้ว Alice เปิดอ่าน
+
+**พิมพ์:**
+
+```bash
+docker compose exec lab python demo.py good
+```
+
+**ควรเห็น:** หลายบรรทัด ให้ดู**สี่บรรทัดนี้** (เลข nonce ของเราจะต่างจากตัวอย่าง)
+
+```
+Bob made ONE session key (AES-256) and locked it with Alice's public key: 256 bytes, sent once.
+message 1: nonce da87a4db6e7e0a5d6c5d2bea  ciphertext 35 bytes + 16-byte tag
+message 2: nonce 83d9bf4841c7fb276580aab7  ciphertext 33 bytes + 16-byte tag
+nonces equal? NO (a new nonce for every message)
+```
+
+**แปลว่า:** กุญแจ session ถูกล็อกด้วย RSA และส่งครั้งเดียว ส่วนข้อความเข้ารหัสด้วย AES-GCM ทีละข้อความ แต่ละข้อความมี nonce ของตัวเอง **ไม่ซ้ำกัน** (`NO`) Alice เปิดอ่านได้ครบทั้งสองข้อความ (ดูบรรทัด `message 1 ->` และ `message 2 ->` ในผลเต็ม)
+
+**✍️ ลงใบตอบ (ขั้นที่ 2):** คัดลอกสี่บรรทัดข้างบนจากหน้าจอของตัวเอง
+
+#### ขั้นที่ 3 — สรุปด้วยคำของตัวเอง
+
+**ทำอะไร:** เติมคำในช่องว่าง
+
+> Bob ล็อกกุญแจ session ด้วยกุญแจ ________ ของ Alice และ Alice เปิดด้วยกุญแจ ________ ของตัวเอง (เลือกคำ: `สาธารณะ` / `ส่วนตัว`) ส่วนตัวข้อความจริงเข้ารหัสด้วย ________ (เลือกคำ: `RSA` / `AES`)
+
+**✍️ ลงใบตอบ (ขั้นที่ 3):** เขียนประโยคนี้ให้ครบ
+
+### A2 — Bob ใช้ nonce ซ้ำ แล้ว Eve อ่านข้อความลับ (20 points)
+
+#### ขั้นที่ 4 — อ่าน: Eve ทำอะไรได้
+
+**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+
+AES-GCM ใช้กุญแจกับ nonce สร้าง "แถบสุ่ม" มาปิดข้อความ ถ้า nonce **ซ้ำ** แถบสุ่มก็**ซ้ำ** ข้อความสองข้อความจึงถูกปิดด้วยแถบเดียวกัน Eve ไม่ต้องรู้กุญแจ แค่เอาข้อความที่เข้ารหัสสองอันมาเทียบกัน แล้วถ้าเธอรู้ข้อความแรกอยู่แล้ว (เช่นคำทักทายที่ Bob ใช้ทุกครั้ง) เธอก็ได้ข้อความที่สองออกมา สคริปต์ทำขั้นตอนนี้ให้เอง ไม่ต้องคำนวณ
+
+#### ขั้นที่ 5 — ให้ Bob ใช้ nonce ซ้ำ แล้วให้ Eve ลอง
+
+**ทำอะไร:** รันแบบ `reuse` ให้เห็นว่า nonce ซ้ำแต่ Alice ยังอ่านได้ปกติ แล้วให้ Eve ลองอ่านข้อความที่สอง
+
+**พิมพ์** ทีละบรรทัด:
+
+```bash
+docker compose exec lab python demo.py reuse
+docker compose exec lab python demo.py attack reuse
+```
+
+**ควรเห็น:** คำสั่งแรกขึ้นหลายบรรทัด ให้ดูสองบรรทัด `message 1:` และ `message 2:` กับบรรทัด `nonces equal?` คำสั่งที่สองขึ้นผลของ Eve
+
+```
+message 1: nonce a3236abaf2924d9ec5591526  ciphertext 35 bytes + 16-byte tag
+message 2: nonce a3236abaf2924d9ec5591526  ciphertext 33 bytes + 16-byte tag
+nonces equal? YES (the same nonce was used twice)
+Eve's reading of message 2: Secret: FLAG{same_nonce_leaks_it}
+RESULT: Eve read message 2 WITHOUT the key.
+```
+
+**แปลว่า:** สอง nonce **เหมือนกันทุกตัว** (`YES`) Alice ยังเปิดอ่านได้ปกติ จึงไม่มีอะไรบอกว่ามีปัญหา แต่ Eve อ่านข้อความที่สองซึ่งมี flag ได้ **โดยไม่มีกุญแจ** บรรทัด `Eve's reading` เหมือนกันทุกเครื่อง
+
+**✍️ ลงใบตอบ (ขั้นที่ 5):** คัดลอกห้าบรรทัดข้างบนจากหน้าจอของตัวเอง
+
+#### ขั้นที่ 6 — ตอบคำถามสองข้อ
+
+**ทำอะไร:** เติมคำในช่องว่างทั้งสองข้อ (คำใบ้: ขั้นที่ 4 และบรรทัดในขั้นที่ 5)
+
+> a) Eve (รู้ / ไม่รู้) กุญแจ แต่ก็อ่านข้อความที่สองได้ เพราะ Bob ใช้ ________ ซ้ำ (เลือกคำ: `nonce` / `กุญแจ`)
+>
+> b) Eve ต้องรู้ข้อความแรกก่อน (เช่นคำทักทายที่ Bob ใช้ทุกครั้ง) จึงอ่านข้อความที่สองได้ (เลือกคำ: `จริง` / `ไม่จริง`)
+
+**✍️ ลงใบตอบ (ขั้นที่ 6):** เขียนทั้งสองประโยคให้ครบ
+
+### A3 — nonce ใหม่ทุกครั้ง Eve อ่านไม่ออก (20 points)
+
+#### ขั้นที่ 7 — ให้ Eve ลองกับแบบ nonce ใหม่
+
+**ทำอะไร:** ให้ Eve ใช้วิธีเดิมกับ session แบบ `good` (nonce ใหม่ทุกข้อความ)
+
+**พิมพ์:**
+
+```bash
+docker compose exec lab python demo.py attack good
+```
+
+**ควรเห็น:** สามบรรทัดนี้ (ตัวอักษรแปลก ๆ ในบรรทัด `Eve's reading` จะต่างจากตัวอย่างทุกครั้ง)
+
+```
+nonces equal? NO
+Eve's reading of message 2: ?T(??J?m??w?o???J??p??q????W Ulk?
+RESULT: Eve got nothing readable.
+```
+
+**แปลว่า:** nonce ต่างกัน แถบสุ่มจึงต่างกัน วิธีเดิมของ Eve ได้แต่ตัวอักษรมั่ว ๆ
+
+**✍️ ลงใบตอบ (ขั้นที่ 7):** คัดลอกสามบรรทัดข้างบนจากหน้าจอของตัวเอง
+
+#### ขั้นที่ 8 — สรุปด้วยคำของตัวเอง
+
+**ทำอะไร:** ดูผลขั้นที่ 5 กับขั้นที่ 7 แล้วเติมคำ
+
+> เมื่อ nonce **ต่างกัน** Eve อ่านข้อความ ________ (เลือกคำ: `ออก` / `ไม่ออก`) และเมื่อ nonce **ซ้ำ** Eve อ่านข้อความ ________ (เลือกคำ: `ออก` / `ไม่ออก`)
+
+**✍️ ลงใบตอบ (ขั้นที่ 8):** เขียนประโยคนี้ให้ครบ
+
+#### ขั้นที่ 9 — หาบรรทัดที่ต่างกันในโค้ด
+
+**ทำอะไร:** ดูสองบรรทัดในโค้ดที่เลือก nonce
+
+**พิมพ์:**
+
+```bash
+docker compose exec lab grep -n "nonces = " demo.py
+```
+
+**ควรเห็น:**
+
+```
+40:        nonces = [os.urandom(12)] * 2                              # the SAME nonce for both messages
+42:        nonces = [os.urandom(12), os.urandom(12)]                  # a NEW nonce for each message
+```
+
+**แปลว่า:** บรรทัดแรกสุ่มเลขหนึ่งตัวแล้วใช้ซ้ำสองครั้ง (`* 2`) บรรทัดที่สองสุ่มเลขใหม่สองตัว ความต่างเล็กนิดเดียวในโค้ด แต่ผลต่างกันมาก
+
+**✍️ ลงใบตอบ (ขั้นที่ 9):** คัดลอกสองบรรทัดที่ขึ้นบนจอ
+
+#### ขั้นที่ 10 — ทำไม nonce ซ้ำจึงอันตราย
+
+**ทำอะไร:** อ่านแล้วตอบ 1–2 ประโยค
+
+nonce **ไม่ต้องเป็นความลับ** (ส่งไปกับข้อความได้) แต่ **ต้องไม่ซ้ำ** กับข้อความอื่นที่ใช้กุญแจเดิม RSA ที่ล็อกกุญแจ session แข็งแรงแค่ไหน ก็ไม่ช่วยถ้า nonce ซ้ำ
+
+> ทำไม Eve จึงอ่านข้อความที่สองได้ทั้งที่ไม่รู้กุญแจ และ Bob ควรทำอย่างไรเพื่อไม่ให้เกิดเรื่องนี้ (คำใบ้: ขั้นที่ 5 และ 9)
+
+**✍️ ลงใบตอบ (ขั้นที่ 10):** เขียนคำตอบ
+
+#### ขั้นที่ 11 — ปิด lab และเช็กใบตอบ
+
+**ทำอะไร:** ทำหลังจากคัดลอกผลครบแล้ว
+
+**พิมพ์:**
+
+```bash
+docker compose down
+```
+
+**ควรเห็น:** บรรทัดลงท้ายว่า `Removed` จากนั้นดูว่าในใบตอบมีครบ: ขั้นที่ 2, 3 (A1), ขั้นที่ 5, 6 (A2), ขั้นที่ 7, 8, 9, 10 (A3) แล้วไปทำส่วนของแบบตัวเอง: เลขคี่ทำ Part 2 เลขคู่ทำ Part 3 และ Part 4
+
+---
+
+## Part 1 — Student Information
+
+| Name | Student ID | Date | Group (your form) | AI tools used (which, for what) |
+|---|---|---|---|---|
+| | | | | |
+
+---
+
+## Part 2 — Conventional form (40 points; only if Conventional is your assigned form)
+
+ตอบข้อละ 2–3 ประโยค ภาษาไทยได้ ส่วนนี้ให้**ตอบด้วยตัวเอง** ไม่ใช้ AI ตอบ
+
+**Q1 (10). ทำไมไม่ใช้ RSA กับไฟล์ใหญ่.** RSA ล็อกวิดีโอหรือ PDF ทั้งไฟล์ไม่ได้ดี
+
+ตอบให้ครบสองอย่างนี้ (ข้อละ 1–2 ประโยค):
+
+- ทำไมการเข้ารหัสแบบกุญแจคู่ (เช่น RSA) จึงไม่เหมาะกับไฟล์ใหญ่ (คำใบ้: เรื่อง**ความเร็ว**และ**ความยาวข้อมูลที่ใส่ได้**)
+- ระบบจริงแก้เรื่องนี้อย่างไร และใช้ RSA ทำอะไรแทน (คำใบ้: ตารางในขั้นที่ 1)
+
+**Q2 (10). Bob ส่งข้อความหา Alice.** เล่าขั้นตอนของ hybrid encryption ตั้งแต่ต้นจนจบ
+
+ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+
+- Bob สร้างกุญแจอะไร และส่งอะไรไปหา Alice ครั้งเดียว
+- อะไรถูกเข้ารหัสด้วยกุญแจไหน (คำใบ้: ผลในขั้นที่ 2)
+- Alice เปิดอ่านข้อความได้อย่างไร
+
+**Q3 (10). ทำไมมีแต่ Alice อ่านได้.** Alice แจกกุญแจสาธารณะให้ทุกคน
+
+ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+
+- ทำไม Bob (หรือใครก็ได้) ล็อกข้อความถึง Alice ด้วยกุญแจสาธารณะได้
+- ทำไมมีแต่ Alice ที่เปิดอ่านได้ (คำใบ้: ขั้นที่ 3)
+- Eve ที่ดักฟังอยู่เห็นอะไรบ้าง และทำไมยังอ่านข้อความไม่ได้
+
+**Q4 (10). nonce ซ้ำ.** ในแล็บ Eve อ่านข้อความลับได้โดยไม่รู้กุญแจ
+
+ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+
+- Bob ทำอะไรผิด (คำใบ้: ขั้นที่ 5 และ 9)
+- nonce ต้องเป็นความลับไหม และต้องมีคุณสมบัติอะไร
+- การล็อกกุญแจ session ด้วย RSA ช่วยกันปัญหานี้ได้ไหม เพราะอะไร (คำใบ้: ขั้นที่ 10)
+
+### Going further (optional — no marks)
+
+- **Q5 — Key exchange.** การแลกเปลี่ยนกุญแจแบบ Diffie-Hellman สร้างความลับร่วมกันได้อย่างไร และทำไม Eve ที่เห็นค่าสาธารณะทั้งสองก็ยังรู้ความลับไม่ได้ (รู้จากสัปดาห์ที่ 5)
+- **Q6 — ECIES.** ECIES เป็น hybrid encryption ที่ใช้ Diffie-Hellman แบบเส้นโค้งวงรี อธิบายว่า Alice กับ Bob เข้ารหัสและถอดรหัสโดยไม่ต้องส่งกุญแจ AES ตรง ๆ ได้อย่างไร
+- **Extension — ทำไม nonce ซ้ำจึงอ่านได้ (สำหรับคนที่อยากรู้).** แถบสุ่ม (keystream) ที่ปิดข้อความ: ข้อความที่เข้ารหัส = ข้อความ ⊕ แถบสุ่ม ถ้าแถบสุ่มซ้ำ ข้อความที่เข้ารหัสสองอันมา ⊕ กัน แถบสุ่มจะหายไป เหลือ ข้อความ 1 ⊕ ข้อความ 2 แล้ว ⊕ กับข้อความแรกที่รู้ ก็ได้ข้อความที่สอง
+
+---
+
+## Part 3 — AIR-Sec Arm: Audit the AI (AIR-Sec version only, 20 points)
+
+AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
+
+เพื่อนให้ AI เขียนโค้ด hybrid encryption ไว้ที่ `audit_the_ai/broken_hybrid_encrypt.py` รันแล้วได้ผลถูก ดูรอบคอบ แต่มีข้อผิดพลาดหนึ่งจุดที่คล้ายกับที่เราเห็นใน Part A แต่ซ่อนอยู่ในโค้ดอีกแบบ (RSA-OAEP, กุญแจ AES และการตรวจ tag ถูกต้องแล้ว) รันใน container เดิมได้ เช่น `docker compose exec lab python audit_the_ai/broken_hybrid_encrypt.py` รายละเอียดเพิ่มอยู่ที่ `audit_the_ai/README.md`
+
+1. **Find what's wrong (7).** คัดลอกบรรทัดที่ผิด และเขียน 1–2 ประโยคว่าทำไมผิด
+2. **Prove it (7).** เขียนสคริปต์สั้น ๆ ส่งสองข้อความใน session เดียว แล้วแสดงว่าคนที่เห็นแต่ข้อความที่เข้ารหัสทำอะไรได้ (ใส่สคริปต์และผลลัพธ์)
+3. **Fix it (6).** ส่ง `fixed_hybrid_encrypt.py` (แก้น้อยที่สุด) และเขียน 1–2 ประโยคว่าทำไมส่วน RSA/OAEP ไม่ต้องแก้
+
+> Disclose any other AI use in the Part 1 table. This task counts toward the **Audit the AI** row.
+
+---
+
+## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
+
+**A. Explain in Plain English (EiPE, 10).** เพื่อนที่ไม่เคยเรียนเข้ารหัสถามว่า *"ทำไมไม่ใช้ RSA เข้ารหัสทุกอย่างเลย ทำไมต้องเอา AES มาผสม?"* อธิบาย 3–5 ประโยค **ไม่ใช้ศัพท์ยาก** (คำใบ้: ตารางในขั้นที่ 1)
+
+**B. Prompt Problem (10).** ใช้ AI ตัวไหนก็ได้ แล้วทำตามนี้:
+
+1. เขียน prompt **หนึ่งอัน** ขอให้ AI เขียน hybrid encryption (Bob ส่งหลายข้อความหา Alice) ใน Python
+2. คัดลอกคำตอบของ AI ลงใบตอบ
+3. ตรวจ: (ก) ใช้ AEAD (AES-GCM หรือ ChaCha20-Poly1305) ไหม (ข) **nonce ใหม่ทุกข้อความไหม** (ค) AI พูดอะไรผิดหรือแต่งเรื่องไหม (เช่น "nonce ซ้ำได้ ถ้ากุญแจแข็งแรง")
+4. ในตารางของใบตอบ ติ๊ก **ผ่าน / ไม่ผ่าน** ทีละข้อพร้อมเหตุผล 1 ประโยค แล้วจบด้วย 1 ประโยคว่า จะเชื่อคำตอบของ AI นี้ไหม เพราะอะไร
+
+ส่ง **prompt + คำตอบของ AI + ตารางตรวจพร้อมเหตุผลของตัวเอง**
+
+---
+
+## 🎤 Viva spot-check (formative/authenticity check; no separate points)
+
+An instructor may ask any of these live, at random, to confirm you did the work yourself:
+
+1. "ในขั้นที่ 5 Bob ใช้ nonce ซ้ำ ทำไม Alice ไม่รู้เลยว่ามีปัญหา แต่ Eve อ่านข้อความลับได้"
+2. "ในขั้นที่ 7 nonce ต่างกัน Eve ได้อะไร และทำไม"
+3. "ถ้า Bob ส่งข้อความเดียวต่อหนึ่ง session แล้วทิ้งกุญแจ โค้ดแบบ `reuse` ยังอันตรายอยู่ไหม แล้วทำไมยังเป็นนิสัยที่ไม่ดี"
+
+---
+
+## Grading rubric — assigned version totals 100
+
+| Criterion | Conventional | AIR-Sec |
+|---|---:|---:|
+| A1 — hybrid flow, nonce ใหม่ทุกครั้ง | 20 | 20 |
+| A2 — nonce ซ้ำ Eve อ่านข้อความลับ | 20 | 20 |
+| A3 — nonce ใหม่ Eve อ่านไม่ออก + reasoning | 20 | 20 |
+| Conventional written questions (Q1–Q4) | 40 | — |
+| AIR-Sec Audit the AI | — | 20 |
+| AIR-Sec Explain in Plain English (EiPE) | — | 10 |
+| AIR-Sec Prompt Problem | — | 10 |
+| **Total for the assigned version** | **100** | **100** |
+
 ## Evidence & Integrity (required)
 
-- **Identity proof:** put your name/student ID and the date on every file you submit (Part 1).
-- **No personalized flag this week** — this is a Conceptual week, graded entirely on your
-  shared protocol reasoning and the assigned version's written or code-analysis evidence. See `audit_the_ai/README.md` for why a
-  CTF-style wrapper isn't used here.
-- **Explain in your own words** *(graded on your reasoning, not copied text)*: for the
-  Audit-the-AI task specifically, re-state in 1–2 sentences why the fix you chose is correct
-  and what would happen if you had instead only changed something else (e.g. the RSA key size).
+- ใส่ชื่อ รหัสนักศึกษา และวันที่ในใบตอบ และคัดลอกคำสั่งกับผลจากเครื่อง**ของตัวเอง** ค่า nonce สุ่มไม่เหมือนเพื่อนเป็นเรื่องปกติ สัปดาห์นี้ไม่มี flag เฉพาะคน และห้ามเอาผลของเพื่อนมาส่งเป็นของตัวเอง
+- **อธิบายด้วยคำของตัวเอง** (ให้คะแนนจากเหตุผล): ข้อที่ให้เติมคำจากคลังคำ (ขั้นที่ 3, 6, 8) ใช้คำที่ให้ไว้ได้ ส่วนคำตอบสั้น ๆ ของขั้นที่ 10 และข้อเขียนของฟอร์มตัวเองต้องเขียนด้วยคำของตัวเอง (ทำไมเมื่อ nonce ซ้ำ Eve อ่านข้อความลับได้ทั้งที่ไม่รู้กุญแจ) ไม่ต้องเขียนเพิ่มนอกจากนี้
+
+**กำหนดส่งและการส่งช้า:** ส่งภายใน 23:59 น. (เวลาไทย) ของวันอาทิตย์ก่อนคาบถัดไป (กฎ KOSEN) วันที่แน่นอนอยู่ในอีเมลรหัสส่งงานและโพสต์ของสัปดาห์นี้ใน Classroom ส่งช้าหักวันละ 10% ของคะแนนใบงานนี้ (ไม่เต็มวันนับเป็นหนึ่งวัน) จนเหลือ 0 การอัปโหลดหรือเปลี่ยนไฟล์หลังกำหนดส่งนับว่าส่งช้าทั้งชิ้น ส่งงานร่วม 60 คะแนน และแบบของตัวเอง**หนึ่งแบบ**เท่านั้น ทำทั้งสองแบบไม่ได้คะแนนเพิ่ม Viva ใช้ตรวจความเข้าใจ ไม่มีคะแนนแยก

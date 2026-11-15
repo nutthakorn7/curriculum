@@ -1,62 +1,53 @@
-# {{ slot_label }} — Asymmetric & Hybrid Encryption
+# {{ slot_label }} — Hybrid Encryption (lock the key with RSA, lock the messages with AES-GCM)
 
-**Kind:** Conceptual (no Docker target, no flag — same precedent as this course's {{ ref('intro') }} and
-`software-security`'s Weeks 1, 12–13: honestly flag-less, rubric-graded content).
-**References:** NIST SP 800-56A (key establishment), SP 800-38D (GCM) · OWASP Cryptographic
-Storage Cheat Sheet
+**Kind:** Docker lab, guided step by step. No math and no programming for the common 60 points. One container, no open ports,
+local demo only. (Weeks 2–6 and 11–15 follow the same pattern.)
+**References:** NIST SP 800-56A (key establishment), SP 800-38D (GCM, §8.2 nonce uniqueness) · OWASP Cryptographic Storage Cheat Sheet
+
+## 100-minute class and assigned worksheet version
+
+**In class:** 10 min retrieval review + 10 min brief + 60 min lab + 15 min debrief + 5 min evidence capture = 100 min. The Week 10 scored quiz opens Week 11.
+
+**Common part — every student (60 points):** three guided tasks with `demo.py`: A1 watch Bob send two messages to Alice (new nonce each time),
+A2 Bob reuses the nonce and Eve reads the secret without any key, A3 new nonces and Eve reads nothing, then compare the two lines of code.
+
+**Assessment:** the common 60 points plus **one assigned version** (40 points): Conventional written questions Q1–Q4, or AIR-Sec Audit-the-AI 20 +
+EiPE 10 + Prompt Problem 10. Both versions total 100. The other version is ungraded practice.
+
+**Evidence:** copy the commands and results from your own machine into the answer sheet, with your name and student ID. The nonces are random per run, so your
+hex numbers differ from your friends'; the `YES` / `NO` answers and the `RESULT` lines are the same. There is no personal flag this week.
 
 ## This week — what to do
-1. **Before class** — skim the Week 6 recap (AEAD — the previous teaching week; Weeks 7–9 are review and the midterm sittings). No environment setup needed —
-   this week is Python-only, standard library + `cryptography` (already used in earlier weeks).
-2. **Lecture (120 min)** — weekly quiz first (~10 min), then the lecture. Slides:
-   `{{ slides }}`.
-3. **Lab (180 min)** — complete **Worksheet 10** (`worksheet.md`, Parts 1–5, including the
-   *Audit-the-AI* task in `audit_the_ai/`, plus EiPE + Prompt Problem).
-4. **Submit** — worksheet PDF → see [SUBMISSION.md](../../SUBMISSION.md) · code (`audit_the_ai/fixed_hybrid_encrypt.py`,
-   your proof script) → GitHub · weekly quiz → see [SUBMISSION.md](../../SUBMISSION.md).
-5. **Project** — if your term project sends data between two parties that don't already share a
-   secret, this week's pattern (RSA-OAEP wraps an AES session key) is directly applicable.
+1. **Before class** — Docker Desktop installed and the lab ZIP downloaded (worksheet "ก่อนเริ่ม"). Skim the Week 6 recap (AEAD).
+2. **In class** — follow **Worksheet 10** step by step. Slides: `slides/week10.md`.
+3. **Assigned version** — Conventional answers the four questions in the worksheet; AIR-Sec audits `audit_the_ai/broken_hybrid_encrypt.py`
+   (it runs in the same container) and attaches the proof script, its output and `fixed_hybrid_encrypt.py` in the PDF.
+4. **Submit** — one PDF `Wk10_<StudentID>.pdf` at `learn.zcr.ai/submit` (see [SUBMISSION.md](../../SUBMISSION.md)).
+5. **Project** — if your term project sends data between two parties that do not already share a secret, this week's pattern
+   (a public key locks an AES session key) applies directly.
 
 ## Objectives
-- Explain why asymmetric encryption alone is unsuitable for bulk data (performance + message
-  size limits), and why hybrid encryption exists to solve that.
-- Trace the complete hybrid-encryption flow end to end: key generation, key wrapping, symmetric
-  encryption, transmission, unwrapping, decryption.
-- Explain how a public key lets anyone encrypt to a recipient, while only the holder of the
-  matching private key can decrypt.
-- Explain asymmetric key exchange (how two parties derive a shared secret an eavesdropper
-  cannot compute) and connect it to ECIES as a concrete hybrid scheme built on ECDH.
-- Audit an AI-generated cryptographic implementation for a subtle-but-catastrophic correctness
-  bug that a surface-level review would miss.
+- Explain why RSA alone is not used for bulk data (slow, short messages) and how hybrid encryption solves that.
+- Name who holds which key (Alice: public + private, Bob: session key, Eve: nothing).
+- Explain what a nonce is, and show that reusing one lets Eve read a message without any key.
+- Fix it with a new nonce per message, and say what the scheme still does not give (who sent it, whether the public key is really Alice's).
+- (AIR-Sec) Audit an AI-generated implementation whose only flaw is how the nonce is chosen.
 
-## 🔬 Signature game — "Nonce Detective"
-You're handed a hybrid-encryption implementation that looks textbook-correct — proper RSA-OAEP,
-proper AES-GCM, nothing obviously wrong at a skim. Find the one planted bug, then prove it's real
-by actually recovering leaked plaintext from two intercepted messages, not just pointing at a
-line of code.
-
-**Why it's exciting:** the code passes every "did they use the right primitives" checklist — the
-only way to catch it is to actually think like an attacker, and the payoff is a genuine "aha"
-the moment the recovered plaintext prints.
-
-## Why no lab target this week
-
-Nothing here is a "break into a running service" exploit — it's protocol design and
-correctness analysis, same category as `software-security`'s threat-modeling and supply-chain
-weeks. Rather than force an artificial CTF wrapper onto that, this week's hands-on core is an
-**Audit-the-AI** exercise: a plausible, AI-generated-looking hybrid-encryption implementation
-that passes a shallow review and fails a careful one. See `audit_the_ai/README.md`.
+## Files
+| File | What it is |
+|---|---|
+| `docker-compose.yml`, `requirements.txt` | one container that installs the `cryptography` package and waits |
+| `demo.py` | `good`, `reuse`, `attack good`, `attack reuse` (the helper the worksheet uses) |
+| `audit_the_ai/` | the AIR-Sec audit file and instructions |
+| `img/gcm-nonce-reuse.svg` | picture used on the slides |
 
 ## Deliverable
-- Worksheet 10 (Parts 1–5, all sections including Audit-the-AI + EiPE + Prompt Problem).
-- From `audit_the_ai/`: the exact buggy line(s) quoted, your proof-of-attack script + output,
-  your explanation, and `fixed_hybrid_encrypt.py`.
-- No flag this week — grading is rubric-based (see worksheet.md's grading table).
+The common 60 points plus the assigned 40, as in the worksheet rubric. AIR-Sec keeps every audit deliverable: the quoted line, the proof script and output,
+and the corrected code.
 
 ## References
-- NIST SP 800-56A Rev. 3, *Recommendation for Pair-Wise Key-Establishment Schemes Using
-  Discrete Logarithm Cryptography*.
-- NIST SP 800-38D, *Recommendation for Block Cipher Modes of Operation: GCM and GMAC*.
+- NIST SP 800-56A Rev. 3, *Pair-Wise Key-Establishment Schemes Using Discrete Logarithm Cryptography*.
+- NIST SP 800-38D, *GCM and GMAC*, §8.2 (the uniqueness requirement on the nonce).
 - https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html
-- SEC 1: Elliptic Curve Cryptography, §5.1 (ECIES) — Standards for Efficient Cryptography Group.
+- SEC 1: Elliptic Curve Cryptography, §5.1 (ECIES).
 - Joux, *Authentication Failures in NIST version of GCM* (2006).
