@@ -1,259 +1,259 @@
 # Worksheet 4 — AES / Block-Cipher Modes: CBC vs GCM
 
 > **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
-> **Kind:** Docker lab แบบทำตามทีละขั้น ไม่ต้องเขียนโปรแกรม และไม่ต้องคำนวณเลข
+> **Kind:** Docker lab, step by step. No programming and no maths.
 
-> **Ethics note:** ทำเฉพาะกับ container 2 ตัวในเครื่องของตัวเองที่ lab นี้เปิดขึ้นมา (พอร์ต 8096 และ 8097)
-> การแก้โทเค็นหรือข้อมูลที่เข้ารหัสของระบบที่ไม่ใช่ของเราและไม่ได้รับอนุญาตเป็นเรื่องผิดกฎหมาย เก็บ flag ไว้ใน lab นี้เท่านั้น
+> **Ethics note:** Only work on the 2 containers on your own computer that this lab starts (ports 8096 and 8097).
+> Changing a token or encrypted data of a system that is not yours, without permission, is illegal. Keep the flag inside this lab.
 
-## อ่านก่อนเริ่ม
+## Read this first
 
-**วันนี้จะทำอะไร:** เว็บหนึ่งให้ "โทเค็น" (บัตรผ่าน) ที่เข้ารหัสด้วย AES เรามองไม่ออกว่าข้างในเขียนอะไร เราจะลอง*แก้*โทเค็นนั้นโดยไม่รู้กุญแจ แล้วดูว่าเว็บแบบ **CBC** ไม่รู้เลยว่าถูกแก้ แต่เว็บแบบ **GCM** จับได้ สิ่งที่ต้องจำ: **เข้ารหัสแล้ว ไม่ได้แปลว่าแก้ไม่ได้**
+**What you will do today:** a website gives you a "token" (a pass) that is encrypted with AES. You cannot see what is inside. You will try to *change* that token without knowing the key, and see that the **CBC** website has no idea it was changed, but the **GCM** website catches it. Remember this: **encrypted does not mean it cannot be changed.**
 
-**ทุกขั้นเขียนแบบเดียวกัน:**
+**Every step is written the same way:**
 
-| หัวข้อ | ความหมาย |
+| Heading | Meaning |
 |---|---|
-| **ทำอะไร** | บอกว่าขั้นนี้จะทำอะไร |
-| **พิมพ์** | คัดลอกทั้งบรรทัดไปวางใน Terminal แล้วกด Enter |
-| **ควรเห็น** | หน้าจอควรขึ้นประมาณนี้ |
-| **แปลว่า** | ผลที่เห็นหมายความว่าอะไร |
-| **ลงใบตอบ** | สิ่งที่ต้องคัดลอกหรือเขียนลงใบตอบ |
+| **What to do** | Says what this step does |
+| **Type** | Copy the whole line, paste it into the Terminal, and press Enter |
+| **You should see** | The screen should look roughly like this |
+| **Means** | What the result means |
+| **Write in the answer sheet** | What to copy or write in your answer sheet |
 
-**คะแนน**
+**Marks**
 
-- ทุกคนทำ **Part A (60 คะแนน)** ซึ่งเหมือนกันทั้งสองแบบ
-- จากนั้นทำ **เฉพาะแบบของตัวเอง (40 คะแนน)** ดูจากเลขตัวสุดท้ายของรหัสนักศึกษา: **เลขคี่ = Conventional (Part 2)**, **เลขคู่ = AIR-Sec (Parts 3–4)** (เลข 0 นับเป็นเลขคู่) แล้วเขียนแบบของตัวเองในช่อง Group
-- ตอบเป็นภาษาไทยหรืออังกฤษก็ได้ ตอบสั้น ๆ ให้ชัดก็พอ
-- **ใช้ใบตอบ:** ใน Classroom → Week 04 เปิดไฟล์ตามแบบของตัวเอง (`Wk04_Answer_Sheet_Conventional_odd_ID` หรือ `Wk04_Answer_Sheet_AIR-Sec_even_ID`) กด Open with → Google Docs พิมพ์ลงกรอบสีเทา แล้วกด File → Download → PDF
-- ส่งไฟล์เดียว ตั้งชื่อตามรหัสนักศึกษา เช่น `Wk04_66990000.pdf` (ไม่ต้องใส่เครื่องหมาย `<` `>`) ที่ `learn.zcr.ai/submit` โดยใช้รหัสส่งงานของ Week 4 ที่ได้ทางอีเมล KMITL ภายใน **อาทิตย์ 29 พ.ย. 23:59 น.**
-- ข้อที่เขียนว่า *optional* ไม่มีคะแนน ไม่ต้องทำก็ได้
-- **ท้ายคาบวันนี้:** ตั้งทีม CryptoVault ตรวจแผนออกแบบ (KDF + AEAD) กับอาจารย์ แล้วส่งแผนตามที่ project brief กำหนด นั่นเป็นงานโปรเจกต์ ไม่ใช่ส่วนของใบงานนี้ และไม่ต้องใส่ในไฟล์ PDF ของใบงาน
+- Everyone does **Part A (60 marks)**, which is the same for both forms.
+- Then do **only your own form (40 marks)**. Look at the last digit of your student ID: **odd = Conventional (Part 2)**, **even = AIR-Sec (Parts 3–4)** (0 counts as even). Write your form in the Group box.
+- You may answer in English or Thai. Short and clear is enough.
+- **Answer sheet:** in Classroom → Week 04, open the file for your form (`Wk04_Answer_Sheet_Conventional_odd_ID` or `Wk04_Answer_Sheet_AIR-Sec_even_ID`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
+- Submit one file named with your student ID, for example `Wk04_66990000.pdf` (do not type the `<` `>` signs), at `learn.zcr.ai/submit` with your Week 4 submission code from your KMITL email, by **Sunday 29 Nov, 23:59**.
+- Items marked *optional* have no marks. You can skip them.
+- **At the end of today's class:** your CryptoVault team reviews its design plan (KDF + AEAD) with the instructor, then hands in the plan as the project brief says. That is project work, not part of this worksheet, and it does not go in your worksheet PDF.
 
-| Part A | คะแนน | ขั้นที่ลงใบตอบ |
+| Part A | Marks | Steps to write in the answer sheet |
 |---|---:|---|
-| A1 — เข้ารหัสแล้ว ไม่ได้แปลว่าแก้ไม่ได้ | 20 | ขั้นที่ 1, 2, 3 |
-| A2 — ให้สคริปต์เปลี่ยนโทเค็นเป็น admin | 20 | ขั้นที่ 5, 6 |
-| A3 — GCM จับได้ | 20 | ขั้นที่ 8, 9, 10, 11 |
+| A1 — Encrypted does not mean tamper-proof | 20 | Steps 1, 2, 3 |
+| A2 — Let the script change the token to admin | 20 | Steps 5, 6 |
+| A3 — GCM notices | 20 | Steps 8, 9, 10, 11 |
 
-**คำศัพท์ที่ต้องรู้**
+**Words you need to know**
 
-| คำ | ความหมายแบบง่าย |
+| Word | Simple meaning |
 |---|---|
-| Terminal | หน้าต่างสำหรับพิมพ์คำสั่ง |
-| Docker / container | โปรแกรมที่เปิด "เครื่องจำลอง" เล็ก ๆ ในเครื่องของเรา ทำพังก็ลบแล้วเริ่มใหม่ได้ |
-| AES | วิธีเข้ารหัสมาตรฐานที่แข็งแรงมาก ในงานนี้ AES ไม่ได้พัง ที่มีปัญหาคือ*วิธีใช้* |
-| block | AES เข้ารหัสทีละก้อน ก้อนละ 16 ไบต์ (ราว 16 ตัวอักษร) |
-| mode (โหมด) | วิธีต่อก้อนหลายก้อนเข้าด้วยกัน เช่น ECB, CBC, GCM |
-| ECB | ล็อกทีละก้อนแยกกัน ก้อนที่เหมือนกันจะได้ผลเหมือนกัน (เห็นแบบรูป) |
-| CBC | ก่อนล็อกแต่ละก้อน จะผสมกับก้อนก่อนหน้า แต่**ไม่มีตัวตรวจว่าถูกแก้** |
-| GCM | เข้ารหัส และแนบ tag ไว้ตรวจว่าถูกแก้หรือไม่ |
-| IV (ของ CBC) | ตัวเลขเริ่มต้นของแต่ละข้อความ ไม่ต้องเป็นความลับ แต่ต้องสุ่มใหม่ทุกครั้งและเดาล่วงหน้าไม่ได้ |
-| nonce (ของ GCM) | ตัวเลขประจำแต่ละข้อความ ไม่ต้องเป็นความลับ แต่ห้ามซ้ำกับข้อความอื่นที่ใช้กุญแจเดิม |
-| tag | "ตราประทับ" ท้ายข้อมูลของ GCM คือ MAC แบบที่เรียนใน Week 3 ใช้ตรวจว่าข้อมูลถูกแก้หรือไม่ |
-| โทเค็น (token) | ข้อความที่เว็บฝากไว้ให้เรา เพื่อจำว่าเราเป็นใคร (เก็บในคุกกี้) |
-| base64 | วิธีเขียนข้อมูลให้เป็นตัวอักษร ไม่ใช่การเข้ารหัสลับ |
-| XOR | การ "ผสม" แบบหนึ่ง ผสมสองรอบด้วยค่าเดิม จะได้ของเดิมกลับมา |
-| flag | ข้อความรางวัล รูปแบบ `FLAG{...}` เป็นหลักฐานว่าทำสำเร็จ |
-| flipped token | โทเค็นที่ถูกแก้แล้ว (ในผลของสคริปต์) |
+| Terminal | A window where you type commands |
+| Docker / container | A program that starts a small "pretend computer" on your computer. If you break it, delete it and start again |
+| AES | The standard way to encrypt, and it is very strong. In this work AES is not broken; the problem is *how it is used* |
+| block | AES encrypts one block at a time, 16 bytes per block (about 16 characters) |
+| mode | The way several blocks are joined together, for example ECB, CBC, GCM |
+| ECB | Locks each block separately. Identical blocks give identical results (you can see patterns) |
+| CBC | Before locking each block, mixes it with the block before. But it has **nothing to check whether the data was changed** |
+| GCM | Encrypts, and attaches a tag to check whether the data was changed |
+| IV (of CBC) | A starting number for each message. It does not have to be secret, but it must be random every time and impossible to guess in advance |
+| nonce (of GCM) | A number for each message. It does not have to be secret, but it must never repeat for another message under the same key |
+| tag | A "seal" at the end of GCM data. It is a MAC, like the one in Week 3, used to check whether the data was changed |
+| token | Text a website leaves with you to remember who you are (kept in a cookie) |
+| base64 | A way of writing data as text. It is not secret encryption |
+| XOR | A kind of "mixing". Mixing twice with the same value gives you the original back |
+| flag | A reward text of the form `FLAG{...}`, proof that you succeeded |
+| flipped token | A token that has been changed (in the script's output) |
 
-**คำถามที่มักสงสัย**
+**Questions people often ask**
 
-- *ต้องเก่งคณิตศาสตร์ไหม?* ไม่ต้อง วันนี้ไม่มีการคำนวณ
-- *ต้องเขียนโปรแกรมไหม?* ไม่ต้อง คัดลอกคำสั่งไปวางได้เลย
-- *ถ้าทำผิด เครื่องจะพังไหม?* ไม่พัง ทุกอย่างอยู่ใน container ถ้าสับสนให้พิมพ์ `docker compose down` แล้วเริ่มใหม่จากเตรียมขั้นที่ 5
-- *ไม่เข้าใจทุกตัวอักษรที่ขึ้นจอ ได้ไหม?* ได้ ดูเฉพาะบรรทัดที่ใบงานบอก
-- *โทเค็นของเราไม่เหมือนของเพื่อน ผิดไหม?* ไม่ผิด โทเค็นสุ่มใหม่ทุกครั้งที่ login ใช้ของตัวเองเสมอ
-- *วางคำสั่งใน Terminal ยังไง?* คัดลอกคำสั่งจากใบงาน แล้ว Windows: กด Ctrl+V หรือคลิกขวา · Mac: กด Cmd+V จากนั้นกด Enter
-- *คัดลอกผลจาก Terminal ยังไง?* ลากเมาส์คลุมข้อความก่อน แล้ว Windows: กด Ctrl+Shift+C · Mac: กด Cmd+C หรือจะ screenshot ก็ได้
-- *คำสั่งที่ต้องแก้คำก่อนพิมพ์ (มี `YOUR_TOKEN` หรือ `EDITED_TOKEN`) ทำยังไง?* ใน Terminal คลิกแก้กลางบรรทัดไม่ได้ ให้แก้ใน Notepad (Windows) หรือ TextEdit (Mac) ก่อน: วางคำสั่งทั้งบรรทัดลงไป แก้ตรงนั้น (Windows: เปลี่ยน `curl` เป็น `curl.exe` ด้วย) แล้วค่อยคัดลอกทั้งบรรทัดไปวางใน Terminal กด Enter
-- *คัดลอกโทเค็นยังไงให้ครบ?* ลากเมาส์คลุมตั้งแต่ตัวอักษรแรกถึงตัวสุดท้ายของโทเค็นเท่านั้น (ไม่เอา `token=` และไม่เอา `;`) **อย่าดับเบิลคลิก** เพราะจะหยุดที่เครื่องหมาย `+` และ `/` ซึ่งโทเค็นจริงมักมี (ตัวอย่างในใบงานอาจไม่มี) วางใน Notepad/TextEdit ให้เหลือ**บรรทัดเดียว ไม่มีเว้นวรรค** แล้วนับว่ายาว 64 ตัว (โทเค็น GCM ยาว 80 ตัว) ถ้าข้อความหน้าต่างตัดบรรทัดเอง ให้ขยายหน้าต่าง Terminal ให้กว้างขึ้นก่อน
+- *Do I need to be good at maths?* No. There is no calculation today.
+- *Do I need to write programs?* No. Copy the commands and paste them.
+- *If I make a mistake, will my computer break?* No. Everything is inside containers. If you get confused, type `docker compose down` and start again from Prep step 5.
+- *Do I need to understand every character on the screen?* No. Look only at the lines the worksheet tells you to.
+- *My token is not the same as my friend's. Is that wrong?* No. The token is random every time you log in. Always use your own.
+- *How do I paste a command into the Terminal?* Copy the command from the worksheet, then Windows: press Ctrl+V or right-click · Mac: press Cmd+V, then press Enter.
+- *How do I copy results from the Terminal?* Select the text with the mouse first, then Windows: press Ctrl+Shift+C · Mac: press Cmd+C. Or take a screenshot.
+- *What do I do with a command that needs a word changed before I type it (it has `YOUR_TOKEN` or `EDITED_TOKEN`)?* You cannot click to edit the middle of a line in the Terminal. Edit it in Notepad (Windows) or TextEdit (Mac) first: paste the whole command there, change the word (Windows: also change `curl` to `curl.exe`), then copy the whole line and paste it into the Terminal and press Enter.
+- *How do I copy the token completely?* Select with the mouse from the first character to the last character of the token only (not `token=` and not `;`). **Do not double-click**, because that stops at the characters `+` and `/`, which real tokens often contain (the example in the worksheet may not have them). Paste it into Notepad/TextEdit so that it is **one line with no spaces**, and count that it is 64 characters long (a GCM token is 80 characters). If the Terminal window wraps the line by itself, make the window wider first.
 
-**ถ้าเจอข้อความแบบนี้**
+**If you see a message like this**
 
-| ข้อความบนจอ | สาเหตุ | วิธีแก้ |
+| Message on screen | Cause | Fix |
 |---|---|---|
-| มีคำว่า `Cannot connect to the Docker daemon` หรือ `error during connect` | ยังไม่ได้เปิด Docker | เปิด Docker Desktop รอจนขึ้น Engine running |
-| `no configuration file provided: not found` | Terminal ไม่ได้อยู่ในโฟลเดอร์ lab | ทำเตรียมขั้นที่ 4 อีกครั้ง |
-| `service "vulnerable" is not running` | ยังไม่ได้เปิด lab | ทำเตรียมขั้นที่ 5 และ 6 |
-| `Failed to connect` หรือ `Connection reset by peer` | เซิร์ฟเวอร์ยังไม่พร้อม | รอสักครู่ แล้วทำเตรียมขั้นที่ 6 อีกครั้ง |
-| `{"error":"malformed token"}` ตอนใช้โทเค็นของตัวเองกับเซิร์ฟเวอร์ CBC (8096) | คัดลอกโทเค็นมาไม่ครบ หรือยาวเกิน (เช่น พิมพ์ตัวอักษร "เพิ่ม" แทนที่จะ "เปลี่ยน") | คัดลอกใหม่ ตั้งแต่หลัง `token=` จนถึงก่อนเครื่องหมาย `;` ให้ยาว 64 ตัว (GCM 80 ตัว) |
-| ขั้นที่ 8 ขึ้น `invalid or tampered token` แต่ไม่แน่ใจว่าแก้ถูกไหม | GCM ตอบ 403 แบบเดียวกันทุกครั้งที่โทเค็นผิด รวมถึงคัดลอกมาไม่ครบ | ทำขั้นที่ 7 ให้เห็น `guest` ด้วยโทเค็นเดิมก่อน แล้วจดตัวอักษร 4 ตัวแรกก่อนและหลังแก้ และนับให้ได้ 80 ตัว |
-| Windows ถามหา `Uri` หรือขึ้นตัวแดงตอนใช้ `curl` | Windows มีคำสั่ง curl คนละตัว | เปลี่ยนคำแรกเป็น `curl.exe` |
-| `FAIL: fixed app never came up` (รอประมาณ 1 นาที) | ลืม `-e FIXED_HOST=fixed` | คัดลอกคำสั่งขั้นที่ 5 ใหม่ทั้งบรรทัด |
+| `Cannot connect to the Docker daemon` or `error during connect` | Docker is not open | Open Docker Desktop and wait until it says Engine running |
+| `no configuration file provided: not found` | The Terminal is not in the lab folder | Repeat Prep step 4 |
+| `service "vulnerable" is not running` | The lab is not started | Do Prep steps 5 and 6 |
+| `Failed to connect` or `Connection reset by peer` | The server is not ready yet | Wait a moment, then repeat Prep step 6 |
+| `{"error":"malformed token"}` when you use your own token with the CBC server (8096) | You copied the token incompletely, or it is too long (for example you typed an extra character instead of replacing one) | Copy it again, from just after `token=` to just before `;`, so it is 64 characters (GCM: 80) |
+| Step 8 shows `invalid or tampered token`, but you are not sure you changed it correctly | GCM gives the same 403 every time a token is wrong, including when you copied it incompletely | Do Step 7 first and see `guest` with the original token, then write down the first 4 characters before and after the change, and count 80 |
+| Windows asks for `Uri`, or red text appears when you use `curl` | Windows has a different `curl` command | Change the first word to `curl.exe` |
+| `FAIL: fixed app never came up` (after waiting about 1 minute) | You forgot `-e FIXED_HOST=fixed` | Copy the Step 5 command again, the whole line |
 
-ลองแล้วยังไม่ได้ ให้ถามเพื่อนหรืออาจารย์ได้เลย
+If you still cannot do it, ask a friend or your instructor.
 
 ---
 
-## ก่อนเริ่ม: เตรียมเครื่อง (ทำที่บ้าน ทำครั้งเดียว)
+## Before you start: set up your computer (at home, once)
 
-ถ้าเคยทำ Week 2 หรือ Week 3 มาแล้ว มี Docker และไฟล์ ZIP อยู่แล้ว เริ่มที่**เตรียมขั้นที่ 4** ได้เลย ไฟล์ ZIP เดิมใช้ต่อได้ ถ้าหาโฟลเดอร์ `week04-aes-modes` ไม่เจอ ให้โหลดใหม่ตามเตรียมขั้นที่ 2
+If you already did Week 2 or Week 3, you have Docker and the ZIP file. Start at **Prep step 4**. The old ZIP file can be reused. If you cannot find the `week04-aes-modes` folder, download the ZIP again as in Prep step 2.
 
-**ถ้าปิดเครื่องไปแล้วกลับมาทำต่อ:** ทำเตรียมขั้นที่ 1, 4, 5, 6 ใหม่
+**If you turned your computer off and came back:** repeat Prep steps 1, 4, 5 and 6.
 
-#### เตรียมขั้นที่ 1 — เปิด Docker Desktop
+#### Prep step 1 — Open Docker Desktop
 
-**ทำอะไร:** ถ้ายังไม่มี ให้ติดตั้งจาก <https://www.docker.com/products/docker-desktop/> แล้วเปิดโปรแกรมทิ้งไว้
+**What to do:** If you do not have it yet, install it from <https://www.docker.com/products/docker-desktop/> and leave the program open.
 
-**ควรเห็น:** ในหน้าต่าง Docker Desktop ขึ้นว่า **Engine running**
+**You should see:** the Docker Desktop window says **Engine running**.
 
-#### เตรียมขั้นที่ 2 — โหลดไฟล์ lab
+#### Prep step 2 — Download the lab files
 
-**ทำอะไร:** เปิด <https://github.com/nutthakorn7/security-cryptography> กดปุ่มสีเขียว **Code** แล้วเลือก **Download ZIP**
+**What to do:** Open <https://github.com/nutthakorn7/security-cryptography>, click the green **Code** button, and choose **Download ZIP**.
 
-ไม่ต้องมีบัญชี GitHub และไม่ต้อง fork
+You do not need a GitHub account and you do not need to fork.
 
-#### เตรียมขั้นที่ 3 — แตกไฟล์ ZIP
+#### Prep step 3 — Unzip the ZIP file
 
-**ทำอะไร:** Windows: คลิกขวาที่ไฟล์ ZIP เลือก **Extract All** · Mac: ดับเบิลคลิกไฟล์ ZIP วางไว้ในที่ที่หาง่าย เช่น Desktop
+**What to do:** Windows: right-click the ZIP file and choose **Extract All** · Mac: double-click the ZIP file. Put it somewhere easy to find, such as the Desktop.
 
-**ควรเห็น:** โฟลเดอร์ชื่อ `security-cryptography-master` บางเครื่องจะมีโฟลเดอร์ชื่อเดียวกันซ้อนสองชั้น ให้เปิดเข้าไปจนเห็นโฟลเดอร์ `labs`
+**You should see:** a folder called `security-cryptography-master`. Some computers make a folder with the same name inside it; open it until you can see the `labs` folder.
 
-#### เตรียมขั้นที่ 4 — เปิด Terminal ในโฟลเดอร์ lab
+#### Prep step 4 — Open a Terminal inside the lab folder
 
-**ทำอะไร:** ในโฟลเดอร์ `security-cryptography-master` เข้าไปที่ `labs` แล้วเข้า `week04-aes-modes`
+**What to do:** In `security-cryptography-master`, go to `labs`, then `week04-aes-modes`.
 
-- **Windows:** เปิดโฟลเดอร์ `week04-aes-modes` ใน File Explorer คลิกขวาตรงที่ว่าง เลือก **Open in Terminal** (ถ้าไม่มีเมนูนี้ ให้กด Shift ค้างแล้วคลิกขวา เลือก **Open PowerShell window here**)
-- **Mac:** เปิดแอป Terminal พิมพ์ `cd` เว้นวรรคหนึ่งครั้ง ลากโฟลเดอร์ `week04-aes-modes` มาวางในหน้าต่าง แล้วกด Enter
+- **Windows:** open the `week04-aes-modes` folder in File Explorer, right-click an empty spot, and choose **Open in Terminal** (if you do not see it, hold Shift, right-click, and choose **Open PowerShell window here**).
+- **Mac:** open the Terminal app, type `cd` and one space, drag the `week04-aes-modes` folder into the window, then press Enter.
 
-เช็กว่าอยู่ถูกที่ด้วยคำสั่งนี้:
+Check that you are in the right place with this command:
 
 ```bash
 ls
 ```
 
-**ควรเห็น:** มีชื่อ `docker-compose.yml` และ `exploit.py` อยู่ในรายการ
+**You should see:** `docker-compose.yml` and `exploit.py` in the list.
 
-#### เตรียมขั้นที่ 5 — เปิด lab
+#### Prep step 5 — Start the lab
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose up -d
 ```
 
-**ควรเห็น:** บรรทัดลงท้ายว่า `Started` สองบรรทัด (ถ้าเปิดอยู่แล้วอาจเห็น `Running`) **ทุกครั้งที่เปิด lab ต้องต่ออินเทอร์เน็ต** เพราะ container ติดตั้งแพ็กเกจใหม่ทุกครั้งที่เริ่ม ครั้งแรกอาจรอหลายนาที ระหว่างนั้นอย่าปิดหน้าต่าง
+**You should see:** two lines ending in `Started` (if it was already running you may see `Running`). **You need the internet every time you start this lab**, because the containers install packages each time they start. The first time it may take several minutes. Do not close the window while you wait.
 
-#### เตรียมขั้นที่ 6 — เช็กว่า lab พร้อม
+#### Prep step 6 — Check that the lab is ready
 
-**พิมพ์** (Mac):
+**Type** (Mac):
 
 ```bash
 docker compose logs | grep "Running on"
 ```
 
-**พิมพ์** (Windows):
+**Type** (Windows):
 
 ```powershell
 docker compose logs | findstr /C:"Running on"
 ```
 
-**ควรเห็น:** ประมาณ 6 บรรทัด มีชื่อ container นำหน้าทุกบรรทัด เป็นเรื่องปกติ ให้หาสองบรรทัดนี้ ต้องมี**ครบทั้งสองบรรทัด** (ต้องเห็นทั้ง 8096 และ 8097)
+**You should see:** about 6 lines, each with the container name at the start. That is normal. Find these two lines. You must see **both lines** (you must see both 8096 and 8097):
 
 ```
 vulnerable-1  |  * Running on http://127.0.0.1:8096
 fixed-1       |  * Running on http://127.0.0.1:8097
 ```
 
-บรรทัด `Running on` อื่น ๆ ไม่ต้องสนใจ ถ้าไม่ขึ้นอะไรเลย หรือยังไม่ครบ ให้รอสักครู่แล้วพิมพ์คำสั่งนี้อีกครั้ง ถ้ารอเกิน 2 นาทีแล้วยังไม่ขึ้น ให้พิมพ์ `docker compose ps -a` และ `docker compose logs` (ไม่ต้องกรอง) แล้ว screenshot ส่งให้อาจารย์ดู อย่ารอเฉย ๆ สาเหตุที่พบบ่อยคืออินเทอร์เน็ตหลุดตอนติดตั้งแพ็กเกจ
+Other `Running on` lines can be ignored. If nothing appears, or it is not complete yet, wait a moment and type the command again. If it still does not appear after 2 minutes, type `docker compose ps -a` and `docker compose logs` (no filter), take a screenshot, and send it to your instructor. Do not just keep waiting. A common cause is the internet dropping while the packages install.
 
 ---
 
-## Part A — The lab (both forms, 60 points)
+## Part A — The lab (both forms, 60 marks)
 
-เว็บนี้ให้โทเค็นที่เข้ารหัสด้วย AES-256 มีสองชุด เหมือนกันทุกอย่าง ต่างกันแค่ "โหมด" ที่ใช้เข้ารหัส:
+This website gives a token that is encrypted with AES-256. It comes in two versions that are the same in every way except the "mode" used to encrypt:
 
-| ชุด | พอร์ต | วิธีเข้ารหัส | ถ้าโทเค็นถูกแก้ เซิร์ฟเวอร์จะรู้ไหม |
+| Version | Port | How it encrypts | If the token is changed, does the server notice? |
 |---|---|---|---|
-| `vulnerable_app.py` | `:8096` | AES-256-**CBC** (ไม่มี tag) | **ไม่รู้** |
-| `fixed_app.py` | `:8097` | AES-256-**GCM** (มี tag) | **รู้** |
+| `vulnerable_app.py` | `:8096` | AES-256-**CBC** (no tag) | **No** |
+| `fixed_app.py` | `:8097` | AES-256-**GCM** (with a tag) | **Yes** |
 
-> **ถ้าใช้ Docker ไม่ได้จริง ๆ:** บอกอาจารย์ แล้วเปิด **<https://learn.zcr.ai/sim/cbc-bitflip>** เลือกตัวอย่างแรก (Session role cookie) กดปุ่ม **Compute the forged token** แล้ว screenshot ผลของทั้ง **Verifier A (CBC)** และ **Verifier B (AEAD)** มาแทนขั้นที่ 5 และ 8 (หน้านี้ใช้ตัวเข้ารหัสจำลองขนาดเล็ก ไม่ใช่ AES จริง) ส่วนขั้นที่ 1, 2, 7 และ 9 ให้คัดลอกตัวอย่างในใบงานมา แล้วเขียนกำกับว่า "จากตัวอย่างในใบงาน" ขั้นที่เหลือตอบจากการอ่านใบงานได้
+> **If you really cannot use Docker:** tell your instructor, then open **<https://learn.zcr.ai/sim/cbc-bitflip>**, choose the first example (Session role cookie), click **Compute the forged token**, and take a screenshot of the results for both **Verifier A (CBC)** and **Verifier B (AEAD)** instead of Steps 5 and 8 (this page uses a small pretend cipher, not real AES). For Steps 1, 2, 7 and 9, copy the examples in the worksheet and write "from the worksheet example" next to them. The other steps can be answered by reading the worksheet.
 
-### A1 — เข้ารหัสแล้ว ไม่ได้แปลว่าแก้ไม่ได้ (20 points)
+### A1 — Encrypted does not mean tamper-proof (20 marks)
 
-#### ขั้นที่ 1 — เข้าสู่ระบบเพื่อรับโทเค็น
+#### Step 1 — Log in to get a token
 
-**ทำอะไร:** ขอโทเค็นจากเซิร์ฟเวอร์ชุด CBC (พอร์ต 8096)
+**What to do:** Ask the CBC server (port 8096) for a token.
 
-**พิมพ์** (Windows: เปลี่ยนคำแรก `curl` เป็น `curl.exe`):
+**Type** (Windows: change the first word `curl` to `curl.exe`):
 
 ```bash
 curl -i "localhost:8096/login"
 ```
 
-**ควรเห็น:** มีหลายบรรทัด ให้หาสองบรรทัดนี้ (โทเค็นของเราเป็นตัวอักษรยาว 64 ตัวและไม่เหมือนตัวอย่าง)
+**You should see:** several lines. Find these two lines (your token is 64 characters long and will not look like the example):
 
 ```
 Set-Cookie: token=IFliisCSeiehXoA2cL6xYLPFjXPJFKKbje2hpdemQHAYpxtaMVoliq6XR3I5zfJb; Path=/
 logged in as guest (role=guest)
 ```
 
-**แปลว่า:** เราเข้าระบบเป็น `guest` และได้โทเค็นหนึ่งอัน คือข้อความยาว ๆ หลัง `token=` จนถึงก่อน `;` โทเค็นนี้เป็นข้อมูลที่เข้ารหัสไว้ เขียน `role=admin` ลงไปเองไม่ได้
+**Means:** you are logged in as `guest` and you got a token. The token is the long text after `token=` up to the `;`. It is encrypted data, so you cannot write `role=admin` into it yourself.
 
-**ฝึกคัดลอกโทเค็น:** วิธีคัดลอกให้ครบอยู่ในหัวข้อ "คำถามที่มักสงสัย" ด้านบน คัดลอกแล้ววางใน Notepad (Windows) หรือ TextEdit (Mac) ให้เหลือบรรทัดเดียว ไม่มีเว้นวรรค ยาว **64 ตัว** เก็บไว้ใช้ในขั้นที่ 2
+**Practice copying the token:** the way to copy it completely is in "Questions people often ask" above. Copy it and paste it into Notepad (Windows) or TextEdit (Mac) so that it is one line with no spaces and **64 characters** long. Keep it for Step 2.
 
-**✍️ ลงใบตอบ (ขั้นที่ 1):** คัดลอกบรรทัด `Set-Cookie: token=...` จากหน้าจอของตัวเอง
+**✍️ Write in the answer sheet (Step 1):** copy the `Set-Cookie: token=...` line from your own screen.
 
-#### ขั้นที่ 2 — แก้โทเค็นของเราเล็กน้อย
+#### Step 2 — Change your token a little
 
-**ทำอะไร:** แก้โทเค็นจริงของเราเพียง**ตัวอักษรเดียว** แล้วดูว่าเซิร์ฟเวอร์สังเกตเห็นไหม
+**What to do:** Change your real token by just **one character** and see whether the server notices.
 
-1. วางโทเค็นของเราใน Notepad/TextEdit
-2. **ลบตัวอักษรแรกแล้วพิมพ์ใหม่แทน** เป็น `A` (ถ้าตัวแรกเป็น `A` อยู่แล้วให้เป็น `B`) ไม่ใช่พิมพ์เพิ่ม โทเค็นต้องยังยาว 64 ตัว เช่น `IFli...` กลายเป็น `AFli...`
-3. จดตัวอักษร 4 ตัวแรก**ก่อนแก้**และ**หลังแก้**
-4. ใส่โทเค็นที่แก้แล้วแทน `EDITED_TOKEN`
+1. Paste your token into Notepad/TextEdit.
+2. **Delete the first character and type a new one in its place**: type `A` (if the first character is already `A`, type `B`). Do not add a character. The token must still be 64 characters. For example `IFli...` becomes `AFli...`.
+3. Write down the first 4 characters **before the change** and **after the change**.
+4. Put the edited token in place of `EDITED_TOKEN`.
 
-**พิมพ์** (Windows: เปลี่ยนคำแรกเป็น `curl.exe`):
+**Type** (Windows: change the first word to `curl.exe`):
 
 ```bash
 curl --cookie "token=EDITED_TOKEN" localhost:8096/whoami
 ```
 
-**ควรเห็น:**
+**You should see:**
 
 ```
 {"role":"guest"}
 ```
 
-**แปลว่า:** เซิร์ฟเวอร์ CBC ถอดรหัสโทเค็นที่ถูกแก้แล้วยังตอบ `guest` เหมือนเดิม มัน**ไม่รู้เลยว่าโทเค็นถูกแก้** เพราะ CBC ไม่มีอะไรไว้ตรวจ (ตัวอักษรแรกอยู่ในส่วน IV ซึ่งมีผลกับก้อนแรกเท่านั้น ก้อนแรกในแล็บนี้เป็นแค่ข้อความ comment ไม่ใช่ role จึงไม่กระทบ `guest` ดูรายละเอียดในขั้นที่ 4)
+**Means:** the CBC server decrypted the changed token and still answered `guest`. It **does not know the token was changed**, because CBC has nothing to check it with. (The first character belongs to the IV, which only affects the first block. In this lab the first block is just a comment, not the role, so `guest` is not affected. See Step 4 for more.)
 
-ถ้าได้ `malformed token` แสดงว่าโทเค็นยาวไม่เท่าเดิมหรือคัดลอกมาไม่ครบ ให้ทำขั้นที่ 2 ใหม่
+If you get `malformed token`, your token is not the same length as before, or you copied it incompletely. Redo Step 2.
 
-**✍️ ลงใบตอบ (ขั้นที่ 2):** คัดลอกข้อความที่เซิร์ฟเวอร์ตอบ และเขียนตัวอักษร 4 ตัวแรกของโทเค็นก่อนแก้ → หลังแก้ (เช่น `IFli` → `AFli`)
+**✍️ Write in the answer sheet (Step 2):** copy the answer the server gave, and write the first 4 characters of the token before → after the change (for example `IFli` → `AFli`).
 
-#### ขั้นที่ 3 — สรุปด้วยคำของตัวเอง
+#### Step 3 — Summarise in your own words
 
-**ทำอะไร:** เติมคำในช่องว่าง คำว่า **tag** คือ "ตราประทับ" หรือ MAC แบบที่เรียนใน Week 3 ที่แนบท้ายข้อมูลไว้ตรวจว่าข้อมูลถูกแก้หรือเปล่า
+**What to do:** Fill in the blanks. The word **tag** means a "seal" or MAC, like the one in Week 3, attached to the data to check whether it was changed.
 
-> เซิร์ฟเวอร์ CBC (รู้ / ไม่รู้) ว่าโทเค็นถูกแก้ เพราะ CBC ไม่มี ________ ไว้ตรวจว่าข้อมูลถูกแก้หรือเปล่า (เลือกคำ: `tag` / `กุญแจ`)
+> The CBC server (knows / does not know) that the token was changed, because CBC has no ________ to check whether the data was changed. (Choose: `tag` / `key`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 3):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 3):** write the full sentence.
 
-### A2 — ให้สคริปต์เปลี่ยนโทเค็นเป็น admin (20 points)
+### A2 — Let the script change the token to admin (20 marks)
 
-#### ขั้นที่ 4 — ทำไมแก้โทเค็นได้ทั้งที่อ่านไม่ออก
+#### Step 4 — Why can a token be changed when you cannot read it?
 
-**ทำอะไร:** แค่อ่านและดูรูป ไม่ต้องพิมพ์อะไร
+**What to do:** Just read and look at the picture. You do not need to type anything.
 
-![รูป: CBC อ่านแต่ละก้อนกลับมาเป็นสองขั้น คือปลดล็อกด้วยกุญแจ แล้วผสมกับก้อนก่อนหน้า ถ้ามีคนแก้ก้อนก่อนหน้า ตำแหน่งเดียวกันในผลลัพธ์ก็เปลี่ยนตาม role guest จึงกลายเป็น role admin ได้โดยไม่ต้องมีกุญแจ ส่วนก้อนที่ถูกแก้เองกลายเป็นขยะ แต่ในแล็บนี้ไม่มีใครอ่านก้อนนั้น (English: in CBC the block before is mixed into the next block, so changing it changes the same spot of the next block without the key.)](img/w4-cbc-mix.svg)
+![Picture: CBC reads each block back in two steps: unlock it with the key, then mix it with the block before. If someone changes the block before, the same position in the result changes with it, so role guest can become role admin without the key. The block that was changed turns into garbage, but nobody reads that block in this lab. (In CBC the block before is mixed into the next block, so changing it changes the same spot of the next block without the key.)](img/w4-cbc-mix.svg)
 
-**โทเค็นข้างในมีอะไรบ้าง:** โทเค็น = **IV** + ก้อนข้อมูล 2 ก้อน IV ทำหน้าที่เป็น "ก้อนก่อนหน้า" ของก้อนแรก ก้อนแรกเป็นข้อความ comment ที่ไม่มีใครอ่าน ส่วน**ก้อนที่สอง**เก็บ role (`role=guest`) ดังนั้น "ก้อนก่อนหน้า" ของก้อน role ก็คือก้อนแรกในโทเค็น
+**What is inside the token:** token = **IV** + 2 blocks of data. The IV acts as the "block before" the first block. The first block is a comment that nobody reads. The **second block** holds the role (`role=guest`). So the "block before" the role block is the first block in the token.
 
-CBC อ่านแต่ละก้อนกลับมาเป็นสองขั้น คือ "ปลดล็อกด้วยกุญแจ" แล้ว "ผสมกับก้อนก่อนหน้า" ก้อนก่อนหน้าอยู่ในโทเค็นที่เราถืออยู่ ถ้าเราแก้ก้อนก่อนหน้า ผลจะเปลี่ยนตรง**ตำแหน่งเดียวกัน** โดยไม่ต้องรู้กุญแจเลย ส่วนก้อนที่ถูกแก้เองจะกลายเป็นขยะ (ในแล็บนี้เป็น comment ที่ไม่มีใครอ่าน) สคริปต์ `exploit.py` ที่อาจารย์เตรียมไว้ทำแบบนี้ให้ โดยเปลี่ยน `guest` เป็น `admin` ในโทเค็นของเรา
+CBC reads each block back in two steps: it "unlocks it with the key", then "mixes it with the block before". The block before is inside the token that you hold. If you change the block before, the result changes at the **same position**, without knowing the key at all. The block that you changed turns into garbage (in this lab it is the comment, which nobody reads). The `exploit.py` script prepared by the instructor does exactly this. It changes `guest` into `admin` in your token.
 
-#### ขั้นที่ 5 — รันสคริปต์
+#### Step 5 — Run the script
 
-**ทำอะไร:** ให้สคริปต์ลองแก้โทเค็นกับเว็บทั้งสองชุด สคริปต์รันใน container จึงไม่ต้องลง Python ในเครื่อง
+**What to do:** Let the script try to change the token against both websites. The script runs inside a container, so you do not need to install Python on your computer.
 
-**พิมพ์** (คัดลอกให้ครบทั้งบรรทัด อย่าตัด `-e FIXED_HOST=fixed` ออก):
+**Type** (copy the whole line; do not cut off `-e FIXED_HOST=fixed`):
 
 ```bash
 docker compose exec -e FIXED_HOST=fixed vulnerable python exploit.py
 ```
 
-**ควรเห็น:** ผลยาวมาก บรรทัดที่ขึ้นต้นด้วย `[*]` คือสคริปต์เล่าว่ากำลังทำอะไร ให้หา**สี่บรรทัดนี้** (`flipped` แปลว่า "ถูกแก้แล้ว" และ `FLAG{...}` ของจริงจะมีข้อความอยู่ข้างในปีกกา)
+**You should see:** a very long output. Lines that start with `[*]` are the script telling you what it is doing. Find **these four lines** (`flipped` means "changed", and the real `FLAG{...}` has text inside the curly brackets):
 
 ```
 [*] /whoami on original token -> {'role': 'guest'}
@@ -262,85 +262,85 @@ PASS: CBC bit-flip accepted by vulnerable app (:8096) -- flag = FLAG{...}
 PASS: tampered token correctly REJECTED by fixed/GCM app (:8097) -- status=403, no flag
 ```
 
-**แปลว่า:** ก่อนแก้เซิร์ฟเวอร์เห็นเราเป็น `guest` หลังสคริปต์แก้โทเค็น เซิร์ฟเวอร์เห็นเป็น `admin` และให้ flag `PASS` แรกแปลว่าเว็บ CBC ยอมรับโทเค็นที่ถูกแก้ ส่วน `PASS` ที่สองเป็นของเว็บ GCM ที่ตอบ `403` คือไม่ยอมรับและไม่ให้ flag เราจะดูต่อในขั้นที่ 7 และ 8 ถ้าหาบรรทัดไม่เจอ พิมพ์คำสั่งนี้อีกครั้งได้ (ผลเหมือนเดิม)
+**Means:** before the change the server sees us as `guest`. After the script changes the token the server sees `admin` and gives the flag. The first `PASS` means the CBC website accepted the changed token. The second `PASS` is the GCM website, which answered `403`: it did not accept the token and gave no flag. We will look at this again in Steps 7 and 8. If you cannot find the lines, type the command again (the result is the same).
 
-**✍️ ลงใบตอบ (ขั้นที่ 5):** คัดลอกสี่บรรทัดข้างบน
+**✍️ Write in the answer sheet (Step 5):** copy the four lines above.
 
-> **ถ้าใช้ Docker ไม่ได้:** ดูกรอบ "ถ้าใช้ Docker ไม่ได้จริง ๆ" ที่ต้นของ Part A
+> **If you cannot use Docker:** see the box "If you really cannot use Docker" at the top of Part A.
 
-#### ขั้นที่ 6 — ตอบคำถามสองข้อ
+#### Step 6 — Answer the two questions
 
-**ทำอะไร:** เติมคำในช่องว่างทั้งสองข้อ (คำใบ้: ขั้นที่ 4)
+**What to do:** Fill in the blanks in both questions (hint: Step 4).
 
-> a) สคริปต์ (รู้ / ไม่รู้) กุญแจ AES และมันแก้ก้อนที่อยู่ (ก่อนหน้า / หลัง) ก้อนที่เก็บ role
+> a) The script (knows / does not know) the AES key, and it changes the block that comes (before / after) the block that holds the role.
 >
-> b) เซิร์ฟเวอร์ยอมรับโทเค็นที่ถูกแก้ เพราะ CBC ไม่มี ________ ให้ตรวจ มันถอดรหัสแล้วเชื่อผลที่ได้เลย (เลือกคำ: `tag` / `กุญแจ`)
+> b) The server accepts the changed token because CBC has no ________ to check. It decrypts the token and simply trusts the result. (Choose: `tag` / `key`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 6):** เขียนทั้งสองประโยคให้ครบ
+**✍️ Write in the answer sheet (Step 6):** write both sentences in full.
 
-### A3 — GCM จับได้ (20 points)
+### A3 — GCM notices (20 marks)
 
 ![A GCM token has a nonce, the encrypted data and a tag. The server re-makes the tag from what arrived using its secret key and compares it with the tag that came in. If they match it accepts; if anything was changed they do not match and it answers invalid or tampered token.](img/w4-gcm-tag-check.svg)
 
-#### ขั้นที่ 7 — รับโทเค็นจากเว็บชุด GCM
+#### Step 7 — Get a token from the GCM website
 
-**ทำอะไร:** ขอโทเค็นจากเซิร์ฟเวอร์ชุด GCM (พอร์ต 8097) แล้วดูว่าใช้ได้ตามปกติ
+**What to do:** Ask the GCM server (port 8097) for a token and check that it works normally.
 
-**พิมพ์** (Windows: เปลี่ยนคำแรก `curl` เป็น `curl.exe`):
+**Type** (Windows: change the first word `curl` to `curl.exe`):
 
 ```bash
 curl -i "localhost:8097/login"
 ```
 
-**ควรเห็น:** โทเค็นของ GCM ยาวกว่า (80 ตัว) เพราะมี tag ต่อท้าย
+**You should see:** the GCM token is longer (80 characters) because it has a tag at the end.
 
 ```
 Set-Cookie: token=...; Path=/
 logged in as guest (role=guest)
 ```
 
-จากนั้นถามว่าเราเป็นใคร (เปลี่ยน `YOUR_TOKEN` เป็นโทเค็นของเรา Windows: เปลี่ยนคำแรกเป็น `curl.exe`):
+Then ask who you are (replace `YOUR_TOKEN` with your own token; Windows: change the first word to `curl.exe`):
 
 ```bash
 curl --cookie "token=YOUR_TOKEN" localhost:8097/whoami
 ```
 
-**ควรเห็น:** `{"role":"guest"}`
+**You should see:** `{"role":"guest"}`
 
-**แปลว่า:** โทเค็นที่ไม่ถูกแก้ใช้ได้ตามปกติ ขั้นนี้ไม่ต้องลงใบตอบ
+**Means:** a token that is not changed works normally. This step has nothing to write in the answer sheet.
 
-#### ขั้นที่ 8 — แก้โทเค็น GCM แบบเดียวกับขั้นที่ 2
+#### Step 8 — Change the GCM token the same way as Step 2
 
-**ทำอะไร:** ทำเหมือนขั้นที่ 2 เป๊ะ: โทเค็น GCM ของเราใน Notepad/TextEdit ยาว **80 ตัว** ลบตัวอักษร**ตัวแรก**แล้วพิมพ์ `A` แทน (ถ้าเป็น `A` อยู่แล้วให้เป็น `B`) ไม่ใช่พิมพ์เพิ่ม แล้วใส่แทน `EDITED_TOKEN`
+**What to do:** Do exactly the same as Step 2: your GCM token in Notepad/TextEdit is **80 characters** long. Delete the **first** character and type `A` in its place (if it is already `A`, type `B`). Do not add a character. Then put it in place of `EDITED_TOKEN`.
 
-**พิมพ์** (Windows: เปลี่ยนคำแรกเป็น `curl.exe`):
+**Type** (Windows: change the first word to `curl.exe`):
 
 ```bash
 curl -i --cookie "token=EDITED_TOKEN" localhost:8097/whoami
 ```
 
-**ควรเห็น:** มีหลายบรรทัด ให้หาสองอย่างนี้
+**You should see:** several lines. Find these two things:
 
 ```
 HTTP/1.1 403 FORBIDDEN
 {"error":"invalid or tampered token"}
 ```
 
-**แปลว่า:** GCM ตรวจ tag เจอว่าไม่ตรงกับข้อมูล จึงปฏิเสธ (403) และไม่อ่านอะไรจากโทเค็นนั้นเลย ต่างจาก CBC ในขั้นที่ 2 ที่ยอมรับ ข้อควรระวัง: GCM ตอบ 403 แบบเดียวกันทุกครั้งที่โทเค็นผิดไม่ว่าเพราะอะไร (รวมถึงคัดลอกมาไม่ครบ) ดังนั้นต้องเห็น `guest` ในขั้นที่ 7 ด้วยโทเค็นเดิมก่อน แล้วค่อยแก้ตัวแรกตัวเดียว
+**Means:** GCM checked the tag, found that it does not match the data, and refused (403). It did not read anything from that token. This is different from CBC in Step 2, which accepted. Careful: GCM gives the same 403 every time a token is wrong for any reason (including when you copied it incompletely). So you must first see `guest` in Step 7 with the original token, then change just the first character.
 
-**✍️ ลงใบตอบ (ขั้นที่ 8):** คัดลอกสองบรรทัดข้างบน และเขียนตัวอักษร 4 ตัวแรกของโทเค็น GCM ก่อนแก้ → หลังแก้
+**✍️ Write in the answer sheet (Step 8):** copy the two lines above, and write the first 4 characters of your GCM token before → after the change.
 
-#### ขั้นที่ 9 — หาบรรทัดที่ต่างกันในโค้ด
+#### Step 9 — Find the lines that differ in the code
 
-**ทำอะไร:** ดูบรรทัดที่เข้ารหัส/ถอดรหัสของทั้งสองไฟล์
+**What to do:** Look at the lines that encrypt and decrypt in both files.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose exec vulnerable grep -n -E "modes.CBC|AESGCM\(KEY\)" vulnerable_app.py fixed_app.py
 ```
 
-**ควรเห็น:**
+**You should see:**
 
 ```
 vulnerable_app.py:54:    enc = Cipher(algorithms.AES(KEY), modes.CBC(iv)).encryptor()
@@ -349,43 +349,43 @@ fixed_app.py:42:    ct_and_tag = AESGCM(KEY).encrypt(nonce, PLAINTEXT, None)
 fixed_app.py:50:    pt = AESGCM(KEY).decrypt(nonce, ct_and_tag, None)   # raises InvalidTag if tampered
 ```
 
-**แปลว่า:** ไฟล์ vulnerable ใช้ `modes.CBC` ส่วนไฟล์ fixed ใช้ `AESGCM` และตอนถอดรหัส `AESGCM` จะ "ส่งข้อผิดพลาด" ถ้า tag ไม่ตรง (`InvalidTag`)
+**Means:** the vulnerable file uses `modes.CBC`, and the fixed file uses `AESGCM`. When decrypting, `AESGCM` "raises an error" if the tag does not match (`InvalidTag`).
 
-> ไฟล์ vulnerable เข้ารหัสด้วยโหมด ________ ส่วนไฟล์ fixed ใช้โหมด ________ (เลือกคำ: `CBC` / `GCM`)
+> The vulnerable file encrypts with the ________ mode, and the fixed file uses the ________ mode. (Choose: `CBC` / `GCM`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 9):** คัดลอกทั้งสี่บรรทัด และเขียนประโยคด้านบนให้ครบ
+**✍️ Write in the answer sheet (Step 9):** copy all four lines, and write the sentence above in full.
 
-#### ขั้นที่ 10 — ทำไม GCM จึงจับได้
+#### Step 10 — Why does GCM catch it?
 
-**ทำอะไร:** อ่านแล้วเติมคำ
+**What to do:** Read, then fill in the blanks.
 
-GCM แนบ **tag** (ตราประทับแบบ MAC) ไว้ท้ายข้อมูล ตอนถอดรหัสเซิร์ฟเวอร์จะคำนวณ tag ใหม่จากข้อมูลที่ได้รับ แล้วเทียบกับ tag ที่มากับโทเค็น ถ้ามีใครแก้ข้อมูลแม้ตัวเดียว tag จะ**ไม่ตรง** และคนที่ไม่มีกุญแจก็ทำ tag ใหม่ที่ถูกต้องไม่ได้ (การส่งโทเค็นเดิมที่ถูกต้องซ้ำยังผ่าน ซึ่งต้องป้องกันด้วยวิธีอื่น วันนี้ยังไม่เรียน)
+GCM attaches a **tag** (a MAC-style seal) at the end of the data. When decrypting, the server works out the tag again from the data it received and compares it with the tag that came with the token. If anyone changes even one character of the data, the tag will **not match**, and someone without the key cannot make a new correct tag. (Sending the same valid token again still passes. That needs another defence, which we have not learned yet.)
 
-> GCM จับได้เพราะมันตรวจ ________ ถ้า ________ ไม่ตรงกับข้อมูล จะปฏิเสธโทเค็น (เลือกคำ: `tag` / `กุญแจ` ใช้คำเดิมซ้ำในสองช่องได้)
+> GCM catches it because it checks the ________. If the ________ does not match the data, it rejects the token. (Choose: `tag` / `key`; you may use the same word in both blanks)
 
-**✍️ ลงใบตอบ (ขั้นที่ 10):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 10):** write the full sentence.
 
-#### ขั้นที่ 11 — ถ้านักพัฒนาไม่สนใจ error ล่ะ
+#### Step 11 — What if the developer ignores the error?
 
-**ทำอะไร:** อ่านแล้วตอบ 1–2 ประโยค
+**What to do:** Read, then answer in 1–2 sentences.
 
-GCM จะช่วยได้ก็ต่อเมื่อโปรแกรม**ทำตาม**ผลการตรวจ tag ลองนึกว่านักพัฒนาเขียนโปรแกรมผิด ให้**ยอมรับโทเค็นต่อทั้งที่ tag ไม่ตรง** ในแล็บนี้ไลบรารีจะส่ง error `InvalidTag` เมื่อ tag ไม่ตรง และโปรแกรมที่ถูกต้องต้องปฏิเสธโทเค็นนั้น
+GCM only helps if the program **obeys** the result of the tag check. Imagine a developer writes the program wrongly so that it **keeps accepting the token even though the tag does not match**. In this lab the library raises an `InvalidTag` error when the tag does not match, and a correct program must reject that token.
 
-> ถ้าโปรแกรมยอมรับโทเค็นทั้งที่ tag ไม่ตรง มัน**ต่าง**จากเซิร์ฟเวอร์ CBC ในขั้นที่ 2 หรือ**ไม่ต่าง** เพราะอะไร? เขียน 1–2 ประโยค (คำใบ้: ถ้าไม่มีใครทำตามผลตรวจ การตรวจก็ไม่มีประโยชน์)
+> If a program accepts the token even though the tag does not match, is that **different** from the CBC server in Step 2, or **not different**? Why? Write 1–2 sentences (hint: if nobody obeys the check result, the check is useless).
 
-**✍️ ลงใบตอบ (ขั้นที่ 11):** เขียนคำตอบ
+**✍️ Write in the answer sheet (Step 11):** write your answer.
 
-#### ขั้นที่ 12 — ปิด lab และเช็กใบตอบ
+#### Step 12 — Shut down the lab and check your answer sheet
 
-**ทำอะไร:** ทำหลังจากคัดลอกผลครบแล้ว
+**What to do:** Do this after you have copied all your results.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose down
 ```
 
-**ควรเห็น:** บรรทัดลงท้ายว่า `Removed` จากนั้นดูว่าในใบตอบมีครบ: ขั้นที่ 1, 2, 3 (A1), ขั้นที่ 5, 6 (A2), ขั้นที่ 8, 9, 10, 11 (A3) แล้วไปทำส่วนของแบบตัวเอง: เลขคี่ทำ Part 2 เลขคู่ทำ Part 3 และ Part 4
+**You should see:** a line ending in `Removed`. Then check that your answer sheet has everything: Steps 1, 2, 3 (A1), Steps 5, 6 (A2), Steps 8, 9, 10, 11 (A3). Then do your own form: odd IDs do Part 2; even IDs do Parts 3 and 4.
 
 ---
 
@@ -396,40 +396,40 @@ docker compose down
 
 ---
 
-## Part 2 — Conventional form (40 points; only if Conventional is your assigned form)
+## Part 2 — Conventional form (40 marks; only if Conventional is your assigned form)
 
-ตอบข้อละ 2–3 ประโยค ภาษาไทยได้ ส่วนนี้ให้**ตอบด้วยตัวเอง** ไม่ใช้ AI ตอบ เลขข้อมาจากคลังข้อสอบเดิม จึงข้ามเลขบ้าง
+Answer each in 2–3 sentences. You may answer in Thai. In this part you must **answer yourself** and not use AI. The question numbers come from the original question bank, so some numbers are skipped.
 
-**Q1 (10). ECB.** AES เองแข็งแรง แต่ทำไมไม่ควรใช้โหมด **ECB** กับข้อมูลจริง
+**Q1 (10). ECB.** AES itself is strong, but why should the **ECB** mode not be used with real data?
 
 ![The same two blocks HELLO and HELLO are encrypted. In ECB they give two equal ciphertext blocks, so the pattern leaks. In CBC they give two different ciphertext blocks.](img/w4-ecb-same-blocks.svg)
 
-ตอบให้ครบสองอย่างนี้:
+Answer both of these:
 
-- ถ้ามีสองก้อนที่เหมือนกัน ECB ให้ผลเข้ารหัสของสองก้อนนั้นเหมือนหรือต่างกัน
-- ทำไมเรื่องนี้ทำให้ข้อมูลรั่ว (คำใบ้: ดูรูป ผู้ดักฟังเห็น "แบบรูป" โดยไม่ต้องรู้กุญแจ)
+- If two blocks are identical, does ECB give the same or a different ciphertext for those two blocks?
+- Why does this make data leak? (Hint: look at the picture. An eavesdropper sees a "pattern" without knowing the key)
 
-**Q3 (10). เข้ารหัสแต่ไม่ตรวจว่าถูกแก้.** ระบบเข้ารหัสข้อมูลด้วยกุญแจ แต่ไม่มี tag หรือ MAC ไว้ตรวจว่าข้อมูลถูกแก้หรือไม่
+**Q3 (10). Encrypted but not checked for changes.** A system encrypts data with a key, but it has no tag or MAC to check whether the data was changed.
 
-ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+Answer all three of these (1–2 sentences each):
 
-- คนร้ายที่ไม่รู้กุญแจ ทำอะไรกับข้อมูลที่เข้ารหัสได้บ้าง (คำใบ้: ขั้นที่ 2 และ 5)
-- ยกตัวอย่างจากแล็บวันนี้ 1 อย่างว่าเกิดอะไรขึ้นกับ `guest`
-- ระบบอื่นเก็บ `plan=free` ในโทเค็นที่เข้ารหัสด้วย CBC แบบไม่มี tag เหมือนในแล็บ (`free` กับ `paid` ยาวเท่ากัน 4 ตัวอักษร) สมมติว่าคนร้ายรู้ว่าค่านี้อยู่ตรงไหน เขาแก้เป็น `plan=paid` แบบเดียวกับที่สคริปต์ทำได้ไหม และเจ้าของระบบควรแก้อย่างไร (คำใบ้: ขั้นที่ 4 และ 8)
+- What can an attacker who does not know the key do to the encrypted data? (Hint: Steps 2 and 5)
+- Give one example from today's lab of what happened to `guest`.
+- Another system stores `plan=free` in a token encrypted with CBC and no tag, as in the lab (`free` and `paid` are both 4 characters). Suppose the attacker knows where this value is. Can they change it to `plan=paid` the same way the script did, and how should the owner fix it? (Hint: Steps 4 and 8)
 
-**Q4 (10). ทำไมใช้ GCM แทน CBC.** ระบบสมัยใหม่ เช่น HTTPS รุ่นใหม่ (TLS 1.3) เลิกใช้ AES-**CBC** และใช้เฉพาะโหมดที่มี tag เช่น AES-**GCM**
+**Q4 (10). Why GCM instead of CBC.** Modern systems, such as recent HTTPS (TLS 1.3), stopped using AES-**CBC** and only use modes that have a tag, such as AES-**GCM**.
 
-ตอบให้ครบสองอย่างนี้:
+Answer both of these:
 
-- เหตุผลหลักคืออะไร (คำใบ้: ขั้นที่ 8 และ 10 ว่า GCM ทำอะไรเพิ่มที่ CBC ไม่ทำ)
-- ยกตัวอย่างจากแล็บ 1 อย่างที่เห็นความต่างนี้ (คำใบ้: ขั้นที่ 2 กับขั้นที่ 8)
+- What is the main reason? (Hint: Steps 8 and 10: what does GCM do that CBC does not?)
+- Give one example from the lab that shows this difference. (Hint: Step 2 and Step 8)
 
-**Q5 (10). nonce.** ใน GCM มีค่าที่เรียกว่า **nonce** (ตัวเลขที่ใช้ครั้งเดียว) ต่อหนึ่งข้อความ
+**Q5 (10). Nonce.** In GCM there is a value called a **nonce** (a number used once) for each message.
 
-ตอบให้ครบสองอย่างนี้:
+Answer both of these:
 
-- nonce ต้องเป็นความลับไหม และต้องมีคุณสมบัติอะไร (คำใบ้: "ใช้ครั้งเดียว")
-- ถ้า nonce ซ้ำกับข้อความอื่นที่ใช้กุญแจเดิม จะเสียหายอย่างไร (เลือกจากรายการนี้ได้ตั้งแต่ 1 อย่างขึ้นไป แล้วอธิบายสั้น ๆ: ข้อมูลรั่ว / tag ถูกปลอมได้ / ไม่เสียหายอะไร)
+- Does the nonce have to be secret, and what property must it have? (Hint: "used once")
+- If a nonce is repeated for another message under the same key, what goes wrong? (Choose one or more from this list and explain briefly: data leaks / the tag can be forged / nothing goes wrong)
 
 ### Going further (optional — no marks)
 
@@ -446,7 +446,7 @@ docker compose down
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
-เพื่อนคนหนึ่งขอให้ AI ช่วย: *"Write me a Python helper that encrypts a session token so clients can't read or change the role field."* AI ตอบโค้ดด้านล่าง โค้ดรันได้ ใช้ไลบรารี AES จริง และดูเป็นมืออาชีพ แต่มี**ข้อผิดพลาดร้ายแรงอย่างน้อยหนึ่งข้อ** ซึ่งเป็นหัวข้อของสัปดาห์นี้พอดี งานของเราคือหาให้เจอ
+A friend asked an AI for help: *"Write me a Python helper that encrypts a session token so clients can't read or change the role field."* The AI gave the code below. The code runs, uses a real AES library, and looks professional, but it has **at least one serious mistake**, and it is exactly this week's topic. Your job is to find it.
 
 > **AI's answer:**
 > ```python
@@ -482,16 +482,16 @@ AI is a power tool you must **distrust** — you are graded on your *critique*, 
 > — end of AI answer —
 
 
-คำตอบของ AI ด้านบนเป็นภาษาอังกฤษ ไม่ต้องแปลทุกคำ ทำตามนี้ทีละขั้น:
+The AI's answer above is in English, so you do not need to translate every word. Follow these steps one at a time:
 
-**P3-1 อ่านคร่าว ๆ:** โค้ดมีสองฟังก์ชัน คือ `make_token` (เข้ารหัสโทเค็น) กับ `read_role` (ถอดรหัสแล้วอ่าน role) ตามด้วยคำอธิบายสองประโยค
+**P3-1 Skim it:** the code has two functions, `make_token` (encrypts the token) and `read_role` (decrypts it and reads the role), followed by an explanation of two sentences.
 
-**P3-2 สิ่งที่ถูกแล้ว (ไม่ต้องไปวิจารณ์):** ใช้ AES-256, สุ่ม IV ใหม่ทุกครั้ง และใช้ PKCS7 ทั้งสามอย่างนี้ถูกต้อง (PKCS7 หรือ padding แค่เติมข้อมูลให้ครบก้อนละ 16 ไบต์ ไม่ได้ทำหน้าที่ตรวจว่าโทเค็นถูกแก้)
+**P3-2 What is already correct (do not criticise it):** it uses AES-256, a new random IV every time, and PKCS7. All three are fine. (PKCS7, or padding, only fills the data up to blocks of 16 bytes. It does not check whether the token was changed.)
 
-**P3-3 หาจุดผิด:** อ่านประโยคสุดท้ายของคำอธิบาย ("the client also cannot change the role...") แล้วถามตัวเองว่า ถ้าโทเค็นถูกแก้ระหว่างทาง `read_role` มีขั้นตอนไหนที่ตรวจว่าถูกแก้หรือเปล่า (ลองนึกถึงขั้นที่ 2 และ 5 ของ Part A)
+**P3-3 Find the mistake:** read the last sentence of the explanation ("the client also cannot change the role...") and ask yourself: if the token is changed on the way, is there any step in `read_role` that checks whether it was changed? (Think back to Steps 2 and 5 in Part A.)
 
-1. **Find what's wrong or risky.** คัดลอกประโยคที่ผิด แล้วเขียน 1–2 ประโยคว่าทำไมผิด (ใช้สิ่งที่เห็นในแล็บ)
-2. **Write the corrected version yourself.** แก้ให้ปลอดภัย โดยเปลี่ยนไปใช้ **AES-GCM** แล้วเขียนว่า `read_role` ต้องทำอะไรเมื่อ tag ไม่ตรง (ต้องปฏิเสธ และไม่ใช้ข้อมูลต่อ) เขียนเป็นคำอธิบายสั้น ๆ ก็พอ ไม่ต้องเขียนโค้ด จากนั้นเขียน 1–2 ประโยคว่า ทำไม `read_role` เดิมจึงเชื่อโทเค็นที่ถูกแก้ ทั้งที่ไม่มีการตรวจ tag เลย
+1. **Find what's wrong or risky.** Copy the sentence that is wrong, then write 1–2 sentences on why it is wrong (use what you saw in the lab).
+2. **Write the corrected version yourself.** Make it safe by changing to **AES-GCM**, and write what `read_role` must do when the tag does not match (it must reject, and not use the data any further). A short written explanation is enough. You do not need to write code. Then write 1–2 sentences on why the original `read_role` trusts a changed token even though it never checks a tag.
 
 > Disclose any other AI use in the Part 1 table. This task counts toward the **Audit the AI** row.
 
@@ -499,26 +499,26 @@ AI is a power tool you must **distrust** — you are graded on your *critique*, 
 
 ## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
-**A. Explain in Plain English (EiPE, 10).** เพื่อนนักพัฒนาบอกว่า *"โทเค็นนี้เข้ารหัสด้วยกุญแจที่มีแต่เซิร์ฟเวอร์รู้ ผู้ใช้อ่านไม่ออก ก็แก้ role ไม่ได้หรอก"*
+**A. Explain in Plain English (EiPE, 10).** A developer friend says *"This token is encrypted with a key that only the server knows. The user cannot read it, so they cannot change the role."*
 
-อธิบายให้เพื่อนฟัง 2–4 ประโยค **ไม่ใช้ศัพท์ยาก** โดยตอบให้ครบสองอย่างนี้ (คำใบ้: ดูรูปในขั้นที่ 4 แล้วใช้คำพูดของตัวเอง):
+Explain to your friend in 2–4 sentences, **without difficult words**. Answer both of these (hint: look at the picture in Step 4 and use your own words):
 
-- คนร้ายทำอะไรกับโทเค็นได้ ทั้งที่อ่านไม่ออก
-- ทำไมความคิดที่ว่า "เข้ารหัสแล้วปลอดภัย" ถึงใช้ไม่ได้ที่นี่ (อธิบายด้วยแนวคิดที่ว่า "แต่ละก้อนถูกผสมกับก้อนก่อนหน้า และคนร้ายแก้ก้อนก่อนหน้าได้")
+- What can an attacker do to the token even though they cannot read it?
+- Why does the idea "it is encrypted, so it is safe" not work here? (Explain with the idea that "each block is mixed with the block before, and the attacker can change the block before")
 
-**B. Prompt Problem (10).** ใช้ AI ตัวไหนก็ได้ แล้วทำตามนี้:
+**B. Prompt Problem (10).** Use any AI you like and follow these steps:
 
-1. เขียน prompt **หนึ่งอัน** ถาม AI ว่า *ทำไม AES-CBC ที่ไม่มี MAC ถูกแก้ได้ แต่ AES-GCM แก้ไม่ได้* ขอให้ AI อธิบายแบบง่าย ๆ
-2. คัดลอกคำตอบของ AI ลงใบตอบ
-3. ตรวจคำตอบของ AI กับสิ่งที่เรียนมาทีละข้อ:
+1. Write **one** prompt that asks the AI *why AES-CBC without a MAC can be changed but AES-GCM cannot*. Ask the AI to explain it simply.
+2. Copy the AI's answer into your answer sheet.
+3. Check the AI's answer against what you learned, one point at a time:
 
-- AI อธิบายไหมว่าใน CBC แต่ละก้อนถูกผสมกับก้อนก่อนหน้า ดังนั้นแก้ก้อนก่อนหน้าแล้วก้อนถัดไปเปลี่ยนตรงตำแหน่งเดียวกัน (Does it explain the "block before" idea?)
-- AI บอกไหมว่า **tag** ของ GCM (ไม่ใช่ตัวเข้ารหัส) คือสิ่งที่ปฏิเสธโทเค็นที่ถูกแก้ (Does it say the tag rejects a changed token?)
-- AI แต่งเรื่องหรือพูดผิดไหม (Does it make anything up?) ระวัง: บอกว่า CBC "เข้ารหัสทีละก้อนแยกกัน" (นั่นคือ **ECB**); บอกว่า IV สุ่มอย่างเดียวก็กันการแก้ได้; บอกว่า GCM คือ "CBC ที่เพิ่ม checksum"; หรืออ้างเลขเอกสาร NIST/RFC ผิด (NIST และ RFC คือเอกสารมาตรฐานที่ใช้อ้างอิงกัน ถ้า AI อ้างเลขเอกสาร ให้ค้นดูว่ามีจริงและตรงเรื่องไหม)
+- Does it explain that in CBC each block is mixed with the block before, so changing the block before changes the next block at the same position? (Does it explain the "block before" idea?)
+- Does it say that the **tag** of GCM (not the cipher itself) is what rejects a changed token? (Does it say the tag rejects a changed token?)
+- Does it make anything up or say something wrong? (Does it make anything up?) Watch for: saying CBC "encrypts each block separately" (that is **ECB**); saying a random IV alone stops tampering; saying GCM is "CBC plus a checksum"; or quoting a wrong NIST/RFC document number (NIST and RFC documents are standards that people refer to. If the AI quotes a document number, look it up to see that it exists and is on topic).
 
-4. ในตารางของใบตอบ ติ๊ก **ผ่าน / ไม่ผ่าน** ทีละข้อ และเขียนเหตุผลสั้น ๆ 1 ประโยคต่อข้อ แล้วจบด้วย 1 ประโยคว่า เราจะเชื่อคำตอบของ AI นี้ไหม เพราะอะไร
+4. In the table in your answer sheet, tick **Pass / Fail** for each point and write one short sentence of reason for each. End with 1 sentence on whether you would trust this AI answer, and why.
 
-ส่ง **prompt + คำตอบของ AI + ตารางตรวจพร้อมเหตุผลของตัวเอง**
+Hand in the **prompt + the AI's answer + the check table with your own reasons**.
 
 ---
 
@@ -526,9 +526,9 @@ AI is a power tool you must **distrust** — you are graded on your *critique*, 
 
 An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
-1. "ในขั้นที่ 2 เราแก้โทเค็น CBC แล้วเซิร์ฟเวอร์ยังตอบ guest แต่ในขั้นที่ 8 โทเค็น GCM ที่แก้แบบเดียวกันถูกปฏิเสธ ต่างกันตรงไหน"
-2. "สคริปต์ไม่รู้กุญแจ แล้วทำให้ guest เป็น admin ได้อย่างไร เล่าด้วยคำง่าย ๆ จากรูปในขั้นที่ 4"
-3. "ชี้บรรทัดในขั้นที่ 9 ที่ต่างกันระหว่าง CBC กับ GCM แล้วบอกว่า GCM ตรวจอะไรที่ CBC ไม่ตรวจ"
+1. "In Step 2 we changed the CBC token and the server still answered guest, but in Step 8 the GCM token changed the same way was refused. What is the difference?"
+2. "The script does not know the key. How did it turn guest into admin? Tell it in simple words, using the picture in Step 4."
+3. "Point to the lines in Step 9 that differ between CBC and GCM, and say what GCM checks that CBC does not."
 
 ---
 
@@ -547,7 +547,7 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 ## Evidence & Integrity (required)
 
-- ใส่ชื่อ รหัสนักศึกษา และวันที่ในใบตอบ และคัดลอกคำสั่งกับผลจากเครื่อง**ของตัวเอง** ค่า flag เหมือนเพื่อนได้ สัปดาห์นี้ไม่มี flag เฉพาะคน แต่โทเค็นของแต่ละคนสุ่มใหม่ทุกครั้ง และห้ามเอาผลของเพื่อนมาส่งเป็นของตัวเอง
-- **อธิบายด้วยคำของตัวเอง** (ให้คะแนนจากเหตุผล): ข้อที่ให้เติมคำจากคลังคำ (ขั้นที่ 3, 6, 9, 10) ใช้คำที่ให้ไว้ได้เลย ส่วนคำตอบสั้น ๆ ของขั้นที่ 11 และข้อเขียนของฟอร์มตัวเองต้องเขียนด้วยคำของตัวเอง (ทำไมเซิร์ฟเวอร์ CBC จึงยอมรับโทเค็นที่ถูกแก้ และทำไมเซิร์ฟเวอร์ GCM จึงปฏิเสธ) ไม่ต้องเขียนเพิ่มนอกจากนี้
+- Put your name, student ID and the date in the answer sheet, and copy the commands and results from **your own** computer. The flag may be the same as your friends'. There is no per-student flag this week, but each person's token is random every time, and you must not submit a friend's results as your own.
+- **Explain in your own words** (marks are given for the reasoning): for the fill-in-the-blank steps from a word list (Steps 3, 6, 9, 10) you can use the words given. The short answer in Step 11 and the written parts of your own form must be in your own words (why the CBC server accepts a changed token, and why the GCM server rejects it). You do not need to write anything beyond that.
 
-**กำหนดส่งและการส่งช้า:** ส่งภายใน 23:59 น. (เวลาไทย) ของ **อาทิตย์ 29 พ.ย.** ส่งช้าหักวันละ 10% ของคะแนนใบงานนี้ (ไม่เต็มวันนับเป็นหนึ่งวัน) จนเหลือ 0 การอัปโหลดหรือเปลี่ยนไฟล์หลังกำหนดส่งนับว่าส่งช้าทั้งชิ้น ส่งงานร่วม 60 คะแนน และแบบของตัวเอง**หนึ่งแบบ**เท่านั้น ทำทั้งสองแบบไม่ได้คะแนนเพิ่ม Viva ใช้ตรวจความเข้าใจ ไม่มีคะแนนแยก
+**Deadline and late work:** submit by 23:59 (Thai time) on **Sunday 29 Nov**. Late work loses 10% of this worksheet's marks per day (a part day counts as a day), down to 0. Uploading or replacing a file after the deadline counts as late for the whole submission. Submit the common 60 marks and **one** form of your own only; doing both forms gives no extra marks. The viva checks your understanding and has no separate marks.
