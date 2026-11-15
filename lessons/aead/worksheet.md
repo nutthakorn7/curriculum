@@ -1,192 +1,192 @@
 # Worksheet 6 — AEAD: the CBC Padding Oracle vs AES-GCM
 
 > **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
-> **Kind:** Docker lab แบบทำตามทีละขั้น ไม่ต้องเขียนโปรแกรม และไม่ต้องคำนวณเลข
+> **Kind:** Docker lab, step by step. No programming and no maths.
 
-> **Ethics note:** ทำเฉพาะกับ container 2 ตัวในเครื่องของตัวเองที่ lab นี้เปิดขึ้นมา (พอร์ต 8098 และ 8099)
-> การโจมตีแบบ padding oracle เกิดขึ้นจริง (เช่น POODLE, Lucky Thirteen) การลองกับระบบที่ไม่ใช่ของเราและไม่ได้รับอนุญาตเป็นเรื่องผิดกฎหมาย เก็บ flag ไว้ใน lab นี้เท่านั้น
+> **Ethics note:** Only work on the 2 containers on your own computer that this lab starts (ports 8098 and 8099).
+> Padding oracle attacks happen in real life (for example POODLE and Lucky Thirteen). Trying them on a system that is not yours, without permission, is illegal. Keep the flag inside this lab only.
 
-## อ่านก่อนเริ่ม
+## Read this first
 
-**วันนี้จะทำอะไร:** เซิร์ฟเวอร์หนึ่งเก็บข้อความลับที่เข้ารหัสด้วย AES-CBC มัน**ไม่เคยบอกข้อความลับ** บอกแค่คำตอบสั้น ๆ ว่า "ok" หรือ "bad padding" แต่คำตอบสั้น ๆ นี้เองหลุดข้อมูลออกมา จนสคริปต์อ่านข้อความลับทั้งหมดได้โดยไม่มีกุญแจ แล้วเราจะดูว่าเซิร์ฟเวอร์แบบ **GCM** ตอบอย่างไรจึงไม่หลุดอะไรเลย สิ่งที่ต้องจำ: **"ไม่บอกข้อความลับ" ไม่เท่ากับ "ไม่หลุดอะไรเลย"**
+**What you will do today:** One server keeps a secret message encrypted with AES-CBC. It **never tells you the secret**. It only gives a short answer: "ok" or "bad padding". But that short answer leaks information, so a script can read the whole secret without the key. Then you will see how a **GCM** server answers, so that it leaks nothing. Remember this: **"does not tell the secret" is not the same as "leaks nothing".**
 
-**ทุกขั้นเขียนแบบเดียวกัน:**
+**Every step is written the same way:**
 
-| หัวข้อ | ความหมาย |
+| Heading | Meaning |
 |---|---|
-| **ทำอะไร** | บอกว่าขั้นนี้จะทำอะไร |
-| **พิมพ์** | คัดลอกทั้งบรรทัดไปวางใน Terminal แล้วกด Enter |
-| **ควรเห็น** | หน้าจอควรขึ้นประมาณนี้ |
-| **แปลว่า** | ผลที่เห็นหมายความว่าอะไร |
-| **ลงใบตอบ** | สิ่งที่ต้องคัดลอกหรือเขียนลงใบตอบ |
+| **What to do** | Says what this step does |
+| **Type** | Copy the whole line, paste it into the Terminal, and press Enter |
+| **You should see** | The screen should look roughly like this |
+| **Means** | What the result means |
+| **Write in the answer sheet** | What to copy or write in your answer sheet |
 
-**คะแนน**
+**Marks**
 
-- ทุกคนทำ **Part A (60 คะแนน)** ซึ่งเหมือนกันทั้งสองแบบ
-- จากนั้นทำ **เฉพาะแบบของตัวเอง (40 คะแนน)** ดูจากเลขตัวสุดท้ายของรหัสนักศึกษา: **เลขคี่ = Conventional (Part 2)**, **เลขคู่ = AIR-Sec (Parts 3–4)** (เลข 0 นับเป็นเลขคู่) แล้วเขียนแบบของตัวเองในช่อง Group
-- ตอบเป็นภาษาไทยหรืออังกฤษก็ได้ ตอบสั้น ๆ ให้ชัดก็พอ
-- **ใช้ใบตอบ:** ใน Classroom → Week 06 เปิดไฟล์ตามแบบของตัวเอง (`Wk06_Answer_Sheet_Conventional_odd_ID` หรือ `Wk06_Answer_Sheet_AIR-Sec_even_ID`) กด Open with → Google Docs พิมพ์ลงกรอบสีเทา แล้วกด File → Download → PDF
-- ส่งไฟล์เดียว ตั้งชื่อตามรหัสนักศึกษา เช่น `Wk06_66990000.pdf` (ไม่ต้องใส่เครื่องหมาย `<` `>`) ที่ `learn.zcr.ai/submit` โดยใช้รหัสส่งงานของ Week 6 ที่ได้ทางอีเมล KMITL ภายใน **อาทิตย์ 13 ธ.ค. 23:59 น.**
-- ข้อที่เขียนว่า *optional* ไม่มีคะแนน ไม่ต้องทำก็ได้
+- Everyone does **Part A (60 marks)**, which is the same for both forms.
+- Then do **only your own form (40 marks)**. Look at the last digit of your student ID: **odd = Conventional (Part 2)**, **even = AIR-Sec (Parts 3–4)** (0 counts as even). Write your form in the Group box.
+- You may answer in English or Thai. Short and clear is enough.
+- **Answer sheet:** in Classroom → Week 06, open the file for your form (`Wk06_Answer_Sheet_Conventional_odd_ID` or `Wk06_Answer_Sheet_AIR-Sec_even_ID`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
+- Submit one file named with your student ID, for example `Wk06_66990000.pdf` (do not type the `<` `>` signs), at `learn.zcr.ai/submit` with your Week 6 submission code from your KMITL email, by **Sunday 13 Dec, 23:59**.
+- Items marked *optional* have no marks. You can skip them.
 
-| Part A | คะแนน | ขั้นที่ลงใบตอบ |
+| Part A | Marks | Steps to write in the answer sheet |
 |---|---:|---|
-| A1 — เซิร์ฟเวอร์ CBC บอกอะไรโดยไม่ตั้งใจ | 20 | ขั้นที่ 2, 3 |
-| A2 — ให้สคริปต์อ่านข้อความลับโดยไม่มีกุญแจ | 20 | ขั้นที่ 5, 6 |
-| A3 — GCM ไม่หลุดอะไรเลย | 20 | ขั้นที่ 7, 8, 9, 10 |
+| A1 — What the CBC server leaks without meaning to | 20 | Steps 2, 3 |
+| A2 — A script reads the secret without the key | 20 | Steps 5, 6 |
+| A3 — GCM leaks nothing | 20 | Steps 7, 8, 9, 10 |
 
-**คำศัพท์ที่ต้องรู้**
+**Words you need to know**
 
-| คำ | ความหมายแบบง่าย |
+| Word | Simple meaning |
 |---|---|
-| Terminal | หน้าต่างสำหรับพิมพ์คำสั่ง |
-| Docker / container | โปรแกรมที่เปิด "เครื่องจำลอง" เล็ก ๆ ในเครื่องของเรา ทำพังก็ลบแล้วเริ่มใหม่ได้ |
-| AES | วิธีเข้ารหัสมาตรฐานที่แข็งแรงมาก ในงานนี้ AES ไม่ได้พัง ที่มีปัญหาคือ*วิธีใช้* |
-| block (บล็อก) | AES เข้ารหัสทีละก้อน ก้อนละ 16 ไบต์ (ราว 16 ตัวอักษร) |
-| CBC | โหมดที่ต่อบล็อกหลายก้อนเข้าด้วยกัน แต่**ไม่มีตัวตรวจว่าถูกแก้** (รู้จากสัปดาห์ที่ 4) |
-| padding | ข้อมูลที่เติมท้ายข้อความให้ครบบล็อกละ 16 ไบต์ ข้อความ 34 ตัวอักษรต้องเติมอีก 14 ไบต์ จึงครบ 3 บล็อก |
-| PKCS#7 | วิธีเติม padding ที่นิยมใช้: เติมเลข "จำนวนที่เติม" ซ้ำกันหลายตัว (เติม 14 ตัวก็เติมเลข 14 ซ้ำ 14 ตัว) |
-| oracle | แปลว่า "ผู้ตอบคำถาม" ในที่นี้คือเซิร์ฟเวอร์ที่ตอบ ใช่/ไม่ใช่ โดยไม่ตั้งใจ แล้วคำตอบนั้นหลุดข้อมูล |
-| padding oracle | oracle ที่ตอบว่า padding หลังถอดรหัสถูกหรือผิด |
-| HTTP 200 / 403 | รหัสที่เซิร์ฟเวอร์ตอบกลับ 200 = รับ (ok) · 403 = ปฏิเสธ |
-| GCM | โหมดเข้ารหัสที่แนบ **tag** ไว้ตรวจว่าข้อมูลถูกแก้หรือไม่ (รู้จากสัปดาห์ที่ 4) |
-| AEAD | Authenticated Encryption with Associated Data: เข้ารหัสและตรวจว่าไม่ถูกแก้ในขั้นเดียว (GCM เป็นหนึ่งใน AEAD) |
-| flag | ข้อความรางวัล รูปแบบ `FLAG{...}` เป็นหลักฐานว่าทำสำเร็จ |
+| Terminal | A window where you type commands |
+| Docker / container | A program that starts a small "pretend computer" on your computer. If you break it, delete it and start again |
+| AES | A standard way to encrypt that is very strong. In this lab AES is not broken. The problem is *how it is used* |
+| block | AES encrypts one chunk at a time, 16 bytes per chunk (about 16 letters) |
+| CBC | A mode that chains many blocks together, but **has nothing that checks whether the data was changed** (learned in Week 4) |
+| padding | Extra data added to the end of a message to fill the last 16-byte block. A 34-letter message needs 14 more bytes to make 3 full blocks |
+| PKCS#7 | A common way to add padding: add the number "how many were added", repeated that many times (14 bytes of padding means the number 14 repeated 14 times) |
+| oracle | Means "something that answers questions". Here it is a server that answers yes/no without meaning to, and that answer leaks information |
+| padding oracle | An oracle that says whether the padding is right or wrong after decrypting |
+| HTTP 200 / 403 | Codes the server answers with. 200 = accepted (ok) · 403 = refused |
+| GCM | An encryption mode that attaches a **tag** to check whether the data was changed (learned in Week 4) |
+| AEAD | Authenticated Encryption with Associated Data: encrypts and checks that the data was not changed in one step (GCM is one AEAD) |
+| flag | A prize message in the form `FLAG{...}`, which is proof that you succeeded |
 
-**คำถามที่มักสงสัย**
+**Questions people often ask**
 
-- *ต้องเก่งคณิตศาสตร์ไหม?* ไม่ต้อง วันนี้ไม่มีการคำนวณ
-- *ต้องเขียนโปรแกรมไหม?* ไม่ต้อง คัดลอกคำสั่งไปวางได้เลย
-- *ถ้าทำผิด เครื่องจะพังไหม?* ไม่พัง ทุกอย่างอยู่ใน container ถ้าสับสนให้พิมพ์ `docker compose down` แล้วเริ่มใหม่จากเตรียมขั้นที่ 5
-- *ไม่เข้าใจทุกตัวอักษรที่ขึ้นจอ ได้ไหม?* ได้ ดูเฉพาะบรรทัดที่ใบงานบอก
-- *ข้อความลับของเราไม่เหมือนเพื่อน ผิดไหม?* ในแล็บนี้ทุกคนได้ข้อความลับและ flag เหมือนกัน (ตั้งค่าไว้เหมือนกัน) ไม่ผิด แต่ต้องคัดลอกจากเครื่องของตัวเองเสมอ
-- *วางคำสั่งใน Terminal ยังไง?* คัดลอกคำสั่งจากใบงาน แล้ว Windows: กด Ctrl+V หรือคลิกขวา · Mac: กด Cmd+V จากนั้นกด Enter
-- *คัดลอกผลจาก Terminal ยังไง?* ลากเมาส์คลุมข้อความก่อน แล้ว Windows: กด Ctrl+Shift+C · Mac: กด Cmd+C หรือจะ screenshot ก็ได้
+- *Do I need to be good at maths?* No. There is no calculation today.
+- *Do I need to write programs?* No. Copy the commands and paste them.
+- *If I make a mistake, will my computer break?* No. Everything is inside containers. If you get confused, type `docker compose down` and start again from Prep step 5.
+- *Can I skip understanding every character on the screen?* Yes. Only look at the lines the worksheet tells you to.
+- *My secret message is not the same as my friend's. Is that wrong?* In this lab everyone gets the same secret message and flag (it is set up the same way). That is fine, but you must always copy from your own computer.
+- *How do I paste a command into the Terminal?* Copy the command from the worksheet, then Windows: press Ctrl+V or right-click · Mac: press Cmd+V, then press Enter.
+- *How do I copy results from the Terminal?* Select the text with the mouse first, then Windows: press Ctrl+Shift+C · Mac: press Cmd+C. Or take a screenshot.
 
-**ถ้าเจอข้อความแบบนี้**
+**If you see a message like this**
 
-| ข้อความบนจอ | สาเหตุ | วิธีแก้ |
+| Message on screen | Cause | Fix |
 |---|---|---|
-| มีคำว่า `Cannot connect to the Docker daemon` หรือ `error during connect` | ยังไม่ได้เปิด Docker | เปิด Docker Desktop รอจนขึ้น Engine running |
-| `no configuration file provided: not found` | Terminal ไม่ได้อยู่ในโฟลเดอร์ lab | ทำเตรียมขั้นที่ 4 อีกครั้ง |
-| `service "vulnerable" is not running` | ยังไม่ได้เปิด lab | ทำเตรียมขั้นที่ 5 และ 6 |
-| `Failed to connect` หรือ `Connection reset by peer` | เซิร์ฟเวอร์ยังไม่พร้อม | รอสักครู่ แล้วทำเตรียมขั้นที่ 6 อีกครั้ง |
-| `Cannot reach the vuln server` หรือ `Cannot reach the fixed server` | lab ยังเปิดไม่เสร็จ | รอสักครู่ แล้วทำเตรียมขั้นที่ 6 อีกครั้ง |
-| `can't open file '/lab/ask.py'` | ZIP ที่โหลดไว้เก่า ไม่มีไฟล์ `ask.py` | โหลด ZIP ใหม่ตามเตรียมขั้นที่ 2 |
-| Windows ถามหา `Uri` หรือขึ้นตัวแดงตอนใช้ `curl` | Windows มีคำสั่ง curl คนละตัว | เปลี่ยนคำแรกเป็น `curl.exe` |
-| `FAIL: fixed app never came up` (รอประมาณ 1 นาที) | ลืม `-e FIXED_HOST=fixed` | คัดลอกคำสั่งขั้นที่ 5 ใหม่ทั้งบรรทัด |
+| `Cannot connect to the Docker daemon` or `error during connect` | Docker is not open | Open Docker Desktop and wait until it says Engine running |
+| `no configuration file provided: not found` | The Terminal is not in the lab folder | Repeat Prep step 4 |
+| `service "vulnerable" is not running` | The lab is not started | Do Prep steps 5 and 6 |
+| `Failed to connect` or `Connection reset by peer` | The server is not ready yet | Wait a moment, then repeat Prep step 6 |
+| `Cannot reach the vuln server` or `Cannot reach the fixed server` | The lab has not finished starting | Wait a moment, then repeat Prep step 6 |
+| `can't open file '/lab/ask.py'` | The ZIP you downloaded is old and has no `ask.py` | Download a new ZIP as in Prep step 2 |
+| Windows asks for `Uri` or shows red text when you use `curl` | Windows has a different `curl` command | Change the first word to `curl.exe` |
+| `FAIL: fixed app never came up` (after about 1 minute) | You left out `-e FIXED_HOST=fixed` | Copy the Step 5 command again, the whole line |
 
-ลองแล้วยังไม่ได้ ให้ถามเพื่อนหรืออาจารย์ได้เลย
+If you still cannot do it, ask a friend or your instructor.
 
 ---
 
-## ก่อนเริ่ม: เตรียมเครื่อง (ทำที่บ้าน ทำครั้งเดียว)
+## Before you start: set up your computer (at home, once)
 
-ถ้าเคยทำ Week 2, 3 หรือ 4 มาแล้ว มี Docker และไฟล์ ZIP อยู่แล้ว เริ่มที่**เตรียมขั้นที่ 4** ได้เลย แต่ ZIP ต้องเป็นฉบับใหม่ที่มีไฟล์ `ask.py` ถ้าหาโฟลเดอร์ `week06-aead` ไม่เจอหรือไม่มี `ask.py` ให้โหลดใหม่ตามเตรียมขั้นที่ 2
+If you already did Week 2, 3 or 4, you have Docker and the ZIP file. Start at **Prep step 4**. But the ZIP must be a recent one that has the file `ask.py`. If you cannot find the `week06-aead` folder, or it has no `ask.py`, download the ZIP again as in Prep step 2.
 
-**ถ้าปิดเครื่องไปแล้วกลับมาทำต่อ:** ทำเตรียมขั้นที่ 1, 4, 5, 6 ใหม่
+**If you turned your computer off and came back:** repeat Prep steps 1, 4, 5 and 6.
 
-#### เตรียมขั้นที่ 1 — เปิด Docker Desktop
+#### Prep step 1 — Open Docker Desktop
 
-**ทำอะไร:** ถ้ายังไม่มี ให้ติดตั้งจาก <https://www.docker.com/products/docker-desktop/> แล้วเปิดโปรแกรมทิ้งไว้
+**What to do:** If you do not have it yet, install it from <https://www.docker.com/products/docker-desktop/> and leave the program open.
 
-**ควรเห็น:** ในหน้าต่าง Docker Desktop ขึ้นว่า **Engine running**
+**You should see:** the Docker Desktop window says **Engine running**.
 
-#### เตรียมขั้นที่ 2 — โหลดไฟล์ lab
+#### Prep step 2 — Download the lab files
 
-**ทำอะไร:** เปิด <https://github.com/nutthakorn7/security-cryptography> กดปุ่มสีเขียว **Code** แล้วเลือก **Download ZIP**
+**What to do:** Open <https://github.com/nutthakorn7/security-cryptography>, click the green **Code** button, and choose **Download ZIP**.
 
-ไม่ต้องมีบัญชี GitHub และไม่ต้อง fork
+You do not need a GitHub account and you do not need to fork.
 
-#### เตรียมขั้นที่ 3 — แตกไฟล์ ZIP
+#### Prep step 3 — Unzip the ZIP file
 
-**ทำอะไร:** Windows: คลิกขวาที่ไฟล์ ZIP เลือก **Extract All** · Mac: ดับเบิลคลิกไฟล์ ZIP วางไว้ในที่ที่หาง่าย เช่น Desktop
+**What to do:** Windows: right-click the ZIP file and choose **Extract All** · Mac: double-click the ZIP file. Put it somewhere easy to find, such as the Desktop.
 
-**ควรเห็น:** โฟลเดอร์ชื่อ `security-cryptography-master` บางเครื่องจะมีโฟลเดอร์ชื่อเดียวกันซ้อนสองชั้น ให้เปิดเข้าไปจนเห็นโฟลเดอร์ `labs`
+**You should see:** a folder called `security-cryptography-master`. Some computers make a folder with the same name inside it; open it until you can see the `labs` folder.
 
-#### เตรียมขั้นที่ 4 — เปิด Terminal ในโฟลเดอร์ lab
+#### Prep step 4 — Open a Terminal inside the lab folder
 
-**ทำอะไร:** ในโฟลเดอร์ `security-cryptography-master` เข้าไปที่ `labs` แล้วเข้า `week06-aead`
+**What to do:** Open the `labs` folder, then open `week06-aead`.
 
-- **Windows:** เปิดโฟลเดอร์ `week06-aead` ใน File Explorer คลิกขวาตรงที่ว่าง เลือก **Open in Terminal** (ถ้าไม่มีเมนูนี้ ให้กด Shift ค้างแล้วคลิกขวา เลือก **Open PowerShell window here**)
-- **Mac:** เปิดแอป Terminal พิมพ์ `cd` เว้นวรรคหนึ่งครั้ง ลากโฟลเดอร์ `week06-aead` มาวางในหน้าต่าง แล้วกด Enter
+- **Windows:** open the `week06-aead` folder in File Explorer, right-click an empty spot, and choose **Open in Terminal** (if you do not see it, hold Shift, right-click, and choose **Open PowerShell window here**)
+- **Mac:** open the Terminal app, type `cd` and one space, drag the `week06-aead` folder into the window, then press Enter
 
-เช็กว่าอยู่ถูกที่ด้วยคำสั่งนี้:
+Check that you are in the right place with this command:
 
 ```bash
 ls
 ```
 
-**ควรเห็น:** มีชื่อ `docker-compose.yml`, `exploit.py` และ `ask.py` อยู่ในรายการ
+**You should see:** `docker-compose.yml`, `exploit.py` and `ask.py` in the list.
 
-#### เตรียมขั้นที่ 5 — เปิด lab
+#### Prep step 5 — Start the lab
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose up -d
 ```
 
-**ควรเห็น:** บรรทัดลงท้ายว่า `Started` สองบรรทัด (ถ้าเปิดอยู่แล้วอาจเห็น `Running`) **ทุกครั้งที่เปิด lab ต้องต่ออินเทอร์เน็ต** เพราะ container ติดตั้งแพ็กเกจใหม่ทุกครั้งที่เริ่ม ครั้งแรกอาจรอหลายนาที ระหว่างนั้นอย่าปิดหน้าต่าง
+**You should see:** two lines ending in `Started` (if the lab was already running you may see `Running`). **You need the internet every time you start this lab**, because the containers install packages each time they start. The first time it may take several minutes. Do not close the window while you wait.
 
-#### เตรียมขั้นที่ 6 — เช็กว่า lab พร้อม
+#### Prep step 6 — Check that the lab is ready
 
-**พิมพ์** (Mac):
+**Type** (Mac):
 
 ```bash
 docker compose logs | grep "Running on"
 ```
 
-**พิมพ์** (Windows):
+**Type** (Windows):
 
 ```powershell
 docker compose logs | findstr /C:"Running on"
 ```
 
-**ควรเห็น:** ประมาณ 6 บรรทัด มีชื่อ container นำหน้าทุกบรรทัด เป็นเรื่องปกติ ให้หาสองบรรทัดนี้ ต้องมี**ครบทั้งสองบรรทัด** (ต้องเห็นทั้ง 8098 และ 8099)
+**You should see:** about 6 lines, each starting with the container name; that is normal. Find these two lines. You must see **both of them** (you must see both 8098 and 8099):
 
 ```
 vulnerable-1  |  * Running on http://127.0.0.1:8098
 fixed-1       |  * Running on http://127.0.0.1:8099
 ```
 
-บรรทัด `Running on` อื่น ๆ ไม่ต้องสนใจ ถ้าไม่ขึ้นอะไรเลย หรือยังไม่ครบ ให้รอสักครู่แล้วพิมพ์คำสั่งนี้อีกครั้ง ถ้ารอเกิน 2 นาทีแล้วยังไม่ขึ้น ให้พิมพ์ `docker compose ps -a` และ `docker compose logs` (ไม่ต้องกรอง) แล้ว screenshot ส่งให้อาจารย์ดู อย่ารอเฉย ๆ สาเหตุที่พบบ่อยคืออินเทอร์เน็ตหลุดตอนติดตั้งแพ็กเกจ
+Other `Running on` lines can be ignored. If you see nothing, or only one, wait a moment and type the command again. If it still fails after 2 minutes, type `docker compose ps -a` and `docker compose logs` (no filter), take a screenshot, and send it to your instructor. Do not just keep waiting. A common cause is the internet dropping while the packages install.
 
 ---
 
 ## Part A — The lab (both forms, 60 points)
 
-มีเซิร์ฟเวอร์สองชุด เก็บข้อความลับเหมือนกัน ต่างกันแค่วิธีเข้ารหัสและวิธีตอบ:
+There are two servers. They keep the same secret message. They differ only in how they encrypt and how they answer:
 
-| ชุด | พอร์ต | วิธีเข้ารหัส | ตอบคำถามว่า padding ถูกหรือผิดไหม |
+| Server | Port | Encryption | Does it say whether the padding is right? |
 |---|---|---|---|
-| `vulnerable_app.py` | `:8098` | AES-256-**CBC** (ไม่มี tag) | **ตอบ** (200 ok / 403 bad padding) จึงเป็น padding oracle |
-| `fixed_app.py` | `:8099` | AES-256-**GCM** (มี tag) | **ไม่ตอบ** ตอบ 403 แบบเดียวกันทุกครั้งที่ ciphertext ผิด |
+| `vulnerable_app.py` | `:8098` | AES-256-**CBC** (no tag) | **Yes** (200 ok / 403 bad padding), so it is a padding oracle |
+| `fixed_app.py` | `:8099` | AES-256-**GCM** (tag) | **No.** It gives the same 403 every time the ciphertext is wrong |
 
-> **ถ้าใช้ Docker ไม่ได้จริง ๆ:** บอกอาจารย์ แล้วเปิด **<https://learn.zcr.ai/sim/padding-oracle>** (ตัวเข้ารหัสจำลองขนาดเล็ก ไม่ใช่ AES จริง) กดปุ่มในหน้านั้น แล้ว screenshot ผลมาแทนขั้นที่ 5 ส่วนขั้นที่ 2, 7 และ 9 ให้คัดลอกตัวอย่างในใบงานมา แล้วเขียนกำกับว่า "จากตัวอย่างในใบงาน" ขั้นที่เหลือตอบจากการอ่านใบงานได้
+> **If you really cannot use Docker:** tell your instructor, then open **<https://learn.zcr.ai/sim/padding-oracle>** (a small pretend encryptor, not real AES), press the buttons on that page, and take a screenshot of the result instead of Step 5. For Steps 2, 7 and 9, copy the examples in the worksheet and write "from the worksheet example" next to them. You can answer the other steps by reading the worksheet.
 
-### A1 — เซิร์ฟเวอร์ CBC บอกอะไรโดยไม่ตั้งใจ (20 points)
+### A1 — What the CBC server leaks without meaning to (20 points)
 
-#### ขั้นที่ 1 — อ่านรูป: padding คืออะไร
+#### Step 1 — Read the picture: what padding is
 
-**ทำอะไร:** แค่อ่านและดูรูป ไม่ต้องพิมพ์อะไร
+**What to do:** Just read and look at the picture. You do not need to type anything.
 
-![A 34-character message is cut into 16-byte blocks; the last block holds only two characters so 14 padding bytes, each with the value 14, fill it. After decrypting, the server checks the padding: valid gives 200 ok, invalid gives 403 bad padding. รูป: ข้อความ 34 ตัวอักษรถูกแบ่งเป็นบล็อกละ 16 ไบต์ บล็อกสุดท้ายมีแค่ 2 ตัวอักษร จึงเติม padding 14 ไบต์ (ทุกตัวเป็นเลข 14) ให้เต็ม หลังถอดรหัสเซิร์ฟเวอร์ตรวจ padding: ถูกตอบ 200 ok ผิดตอบ 403 bad padding](img/w6-padding-blocks.svg)
+![A 34-character message is cut into 16-byte blocks; the last block holds only two characters so 14 padding bytes, each with the value 14, fill it. After decrypting, the server checks the padding: valid gives 200 ok, invalid gives 403 bad padding.](img/w6-padding-blocks.svg)
 
-AES เข้ารหัสทีละบล็อก บล็อกละ 16 ไบต์ ข้อความลับของเรายาว 34 ตัวอักษร จึงต้อง**เติมท้าย (padding)** อีก 14 ไบต์ให้ครบ 3 บล็อก ตัวที่เติมคือเลข 14 ซ้ำ 14 ตัว พอเซิร์ฟเวอร์ถอดรหัส มันจะ**ตรวจ padding ที่ท้าย**ว่าถูกกติกาไหม ถ้าถูกตอบ `200 ok` ถ้าผิดตอบ `403 bad padding`
+AES encrypts one block at a time, 16 bytes per block. Our secret message is 34 letters long, so it needs **padding** of 14 more bytes to make 3 full blocks. The bytes added are the number 14, repeated 14 times. When the server decrypts, it **checks the padding at the end** to see whether it follows the rule. If it does, it answers `200 ok`. If not, it answers `403 bad padding`.
 
-#### ขั้นที่ 2 — แก้ตัวอักษรแรก และตัวอักษรใกล้ท้าย แล้วถามเซิร์ฟเวอร์ CBC
+#### Step 2 — Change the first letter and a letter near the end, then ask the CBC server
 
-**ทำอะไร:** ไฟล์ `ask.py` แก้ตัวอักษรหนึ่งตัวของข้อความที่เข้ารหัสไว้แล้วส่งไปถามเซิร์ฟเวอร์ CBC (พอร์ต 8098) ว่า "ถอดรหัสแล้ว padding โอเคไหม" เราถามสองครั้ง: แก้ตัวแรก และแก้ตัวที่ 83 จาก 88 ใกล้ท้าย
+**What to do:** The file `ask.py` changes one letter of the already-encrypted message and sends it to the CBC server (port 8098) to ask "after decrypting, is the padding okay?". We ask twice: once changing the first letter, and once changing letter number 83 of 88, near the end.
 
-**พิมพ์** ทีละบรรทัด:
+**Type** one line at a time:
 
 ```bash
 docker compose exec vulnerable python ask.py vuln start
 docker compose exec vulnerable python ask.py vuln end
 ```
 
-**ควรเห็น:** ครั้งละสองบรรทัด
+**You should see:** two lines each time
 
 ```
 server: vuln (port 8098)   asked about: start   (letter number 1 of 88 changed from D to A)
@@ -195,39 +195,39 @@ server: vuln (port 8098)   asked about: end   (letter number 83 of 88 changed fr
 answer: HTTP 403 {"error":"bad padding"}
 ```
 
-**แปลว่า:** แก้ตัวแรก เซิร์ฟเวอร์ตอบ `ok` เพราะ CBC ไม่มีอะไรตรวจว่าถูกแก้ (เหมือนสัปดาห์ที่ 4) และตัวแรกไม่กระทบ padding ที่ท้าย แก้ใกล้ท้ายกลับตอบ `403 bad padding` เพราะส่วนท้ายคือบล็อกที่มี padding **ตำแหน่งที่เราแก้ ทำให้คำตอบเปลี่ยน** นั่นคือข้อมูลที่หลุด
+**Means:** When the first letter is changed, the server answers `ok`, because CBC has nothing that checks whether the data was changed (like Week 4), and the first letter does not touch the padding at the end. When a letter near the end is changed, it answers `403 bad padding`, because the end is the block that holds the padding. **Where we change a letter changes the answer.** That is the information that leaks.
 
-**✍️ ลงใบตอบ (ขั้นที่ 2):** คัดลอกสี่บรรทัดข้างบนจากหน้าจอของตัวเอง
+**✍️ Write in the answer sheet (Step 2):** copy the four lines above from your own screen.
 
-#### ขั้นที่ 3 — สรุปด้วยคำของตัวเอง
+#### Step 3 — Summarise in your own words
 
-**ทำอะไร:** เติมคำในช่องว่าง
+**What to do:** Fill in the blanks.
 
-> ถ้าแก้ตัวอักษรแรก เซิร์ฟเวอร์ตอบ ________ แต่ถ้าแก้ใกล้ท้าย เซิร์ฟเวอร์ตอบ ________ (เลือกคำ: `200` / `403`) คำตอบที่ต่างกันนี้บอกผู้โจมตีโดยไม่ตั้งใจว่า ________ ถูกต้องหรือไม่ (เลือกคำ: `padding` / `กุญแจ`)
+> If the first letter is changed, the server answers ________, but if a letter near the end is changed, the server answers ________ (choose words: `200` / `403`). This difference in answers tells an attacker, without meaning to, whether the ________ is correct (choose a word: `padding` / `key`).
 
-**✍️ ลงใบตอบ (ขั้นที่ 3):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 3):** write the full sentence.
 
-### A2 — ให้สคริปต์อ่านข้อความลับโดยไม่มีกุญแจ (20 points)
+### A2 — A script reads the secret without the key (20 points)
 
-#### ขั้นที่ 4 — อ่านรูป: ทายทีละไบต์
+#### Step 4 — Read the picture: guessing one byte at a time
 
-**ทำอะไร:** แค่อ่านและดูรูป ไม่ต้องพิมพ์อะไร
+**What to do:** Just read and look at the picture. You do not need to type anything.
 
-![To find one hidden byte the helper script tries every value from 0 to 255 in one position of a forged block and asks the server each time. Almost all answers are 403 bad padding; the one value that gets 200 ok tells the script what that byte is. It repeats for the 16 bytes of a block and the 3 blocks, a few thousand questions, a few seconds. รูป: สคริปต์ลองค่า 0 ถึง 255 ทีละค่าในตำแหน่งเดียว เกือบทุกครั้งเซิร์ฟเวอร์ตอบ 403 ค่าเดียวที่ได้ 200 ทำให้รู้ว่าไบต์นั้นคืออะไร แล้วทำซ้ำทุกไบต์ ทุกบล็อก รวมไม่กี่พันคำถาม ใช้เวลาไม่กี่วินาที](img/w6-guess-bytes.svg)
+![To find one hidden byte the helper script tries every value from 0 to 255 in one position of a forged block and asks the server each time. Almost all answers are 403 bad padding; the one value that gets 200 ok tells the script what that byte is. It repeats for the 16 bytes of a block and the 3 blocks, a few thousand questions, a few seconds.](img/w6-guess-bytes.svg)
 
-สคริปต์ `exploit.py` **ไม่รู้กุญแจ** มันแค่ถามเซิร์ฟเวอร์ซ้ำ ๆ เหมือนเล่นเกมทายตัวเลข: เปลี่ยนข้อมูลในตำแหน่งเดียว ลองค่า 0 ถึง 255 ทีละค่า พอเซิร์ฟเวอร์ตอบ `200` ก็รู้ค่าของไบต์ที่ซ่อนอยู่ แล้วทำซ้ำกับไบต์ถัดไป ทั้ง 16 ไบต์ในบล็อก ทั้ง 3 บล็อก รวมแล้วไม่กี่พันคำถาม (ไม่ต้องคำนวณเอง วิธีคิดละเอียดอยู่ในข้อ optional ท้าย Part 2)
+The script `exploit.py` **does not know the key**. It just asks the server again and again, like a number-guessing game: change the data in one position, try the values 0 to 255 one at a time, and when the server answers `200` it knows the value of the hidden byte. Then it repeats for the next byte, for all 16 bytes in a block, for all 3 blocks. That is a few thousand questions in total (you do not need to calculate this yourself; the detailed idea is in the optional item at the end of Part 2).
 
-#### ขั้นที่ 5 — รันสคริปต์ (กับเซิร์ฟเวอร์ CBC และ GCM)
+#### Step 5 — Run the script (against the CBC server and the GCM server)
 
-**ทำอะไร:** ให้สคริปต์ถามเซิร์ฟเวอร์ CBC ทีละไบต์เพื่ออ่านข้อความลับ แล้วทำแบบเดียวกันกับเซิร์ฟเวอร์ GCM สคริปต์รันใน container จึงไม่ต้องลง Python ในเครื่อง
+**What to do:** Let the script ask the CBC server one byte at a time to read the secret message, then do the same against the GCM server. The script runs inside a container, so you do not need to install Python on your computer.
 
-**พิมพ์** (คัดลอกให้ครบทั้งบรรทัด อย่าตัด `-e FIXED_HOST=fixed` ออก):
+**Type** (copy the whole line; do not cut off `-e FIXED_HOST=fixed`):
 
 ```bash
 docker compose exec -e FIXED_HOST=fixed vulnerable python exploit.py
 ```
 
-**ควรเห็น:** ใช้เวลาไม่กี่วินาที (เครื่องช้าอาจถึงครึ่งนาที) ผลยาวหลายบรรทัด ให้หา**เจ็ดบรรทัดนี้** (ข้อความจริงจะขึ้นให้เห็นเอง ในตัวอย่างย่อเป็น `...`) ห้าบรรทัดแรกเป็นของ CBC สองบรรทัดหลังเป็นของ GCM
+**You should see:** it takes a few seconds (up to half a minute on a slow computer). The output is several lines long. Find **these seven lines** (the real text appears on your screen; in the example it is shortened to `...`). The first five lines are from CBC and the last two are from GCM:
 
 ```
     [oracle] block 0 recovered: b'...'
@@ -239,31 +239,31 @@ PASS: padding oracle recovered the plaintext WITHOUT the key on vulnerable app (
 PASS: padding-oracle attack got NO usable signal from the AEAD app (:8099) -- plaintext NOT recovered (uniform 403, tag checked first)
 ```
 
-**แปลว่า:** สคริปต์อ่านข้อความลับของเซิร์ฟเวอร์ CBC ได้ครบทั้ง 3 บล็อกโดยไม่มีกุญแจ มีแค่คำตอบ `200` / `403` ส่วนเซิร์ฟเวอร์ GCM สคริปต์ทายไบต์แรกก็ไม่ได้ เพราะทุกคำถามได้คำตอบ 403 เหมือนกันหมด `PASS` ทั้งสองบรรทัดแปลว่าผลเป็นไปตามที่ควรเป็น ถ้าหาบรรทัดไม่เจอ ให้พิมพ์คำสั่งนี้อีกครั้งได้ (ผลเหมือนเดิม)
+**Means:** The script read the whole secret from the CBC server, all 3 blocks, without the key. It had only the answers `200` / `403`. Against the GCM server the script could not even guess the first byte, because every question got the same 403 answer. Both `PASS` lines mean the result is what it should be. If you cannot find the lines, you can type the command again (the result is the same).
 
-**✍️ ลงใบตอบ (ขั้นที่ 5):** คัดลอกเจ็ดบรรทัดข้างบน (สามบรรทัด `[oracle] block`, `Recovered plaintext`, `PASS` ที่มี flag, แล้วสองบรรทัดของ GCM)
+**✍️ Write in the answer sheet (Step 5):** copy the seven lines above (the three `[oracle] block` lines, `Recovered plaintext`, the `PASS` line with the flag, then the two GCM lines).
 
-> **ถ้าใช้ Docker ไม่ได้:** ดูกรอบ "ถ้าใช้ Docker ไม่ได้จริง ๆ" ที่ต้นของ Part A
+> **If you cannot use Docker:** see the box "If you really cannot use Docker" at the start of Part A.
 
-#### ขั้นที่ 6 — ตอบคำถามสองข้อ
+#### Step 6 — Answer two questions
 
-**ทำอะไร:** เติมคำในช่องว่างทั้งสองข้อ (คำใบ้: ขั้นที่ 4 และบรรทัดบล็อกสุดท้ายในขั้นที่ 5)
+**What to do:** Fill in the blanks in both items (hint: Step 4 and the last block line in Step 5).
 
-> a) สคริปต์ (รู้ / ไม่รู้) กุญแจ AES แต่ก็อ่านข้อความลับได้ เพราะเซิร์ฟเวอร์บอกเรื่อง ________ ทุกครั้งที่ถาม (เลือกคำ: `padding` / `กุญแจ`)
+> a) The script (knows / does not know) the AES key, but it can still read the secret because the server tells it about the ________ every time it asks (choose a word: `padding` / `key`).
 >
-> b) ข้อความลับยาว 34 ตัวอักษร ciphertext มี 3 บล็อก (48 ไบต์) ตัว `\x0e` ที่เห็น 14 ตัวท้ายคือ ________ ที่เติมให้ครบบล็อก (เลือกคำ: `padding` / `flag`)
+> b) The secret message is 34 letters long, the ciphertext has 3 blocks (48 bytes), and the 14 `\x0e` characters you see at the end are the ________ added to fill the block (choose a word: `padding` / `flag`).
 
-**✍️ ลงใบตอบ (ขั้นที่ 6):** เขียนทั้งสองประโยคให้ครบ
+**✍️ Write in the answer sheet (Step 6):** write both sentences in full.
 
-### A3 — GCM ไม่หลุดอะไรเลย (20 points)
+### A3 — GCM leaks nothing (20 points)
 
-![The attacker changes a letter near the start or near the end of a GCM ciphertext. The GCM server first checks the tag, which no longer matches, so it answers 403 decryption failed wherever the letter was changed. Only the untouched ciphertext gets 200 ok. รูป: เซิร์ฟเวอร์ GCM ตรวจ tag ก่อน ถ้าแก้ตัวอักษรตรงไหนก็ตอบ 403 แบบเดียวกัน มีแต่ข้อความที่ไม่ถูกแก้เท่านั้นที่ได้ 200](img/w6-gcm-same-answer.svg)
+![The attacker changes a letter near the start or near the end of a GCM ciphertext. The GCM server first checks the tag, which no longer matches, so it answers 403 decryption failed wherever the letter was changed. Only the untouched ciphertext gets 200 ok.](img/w6-gcm-same-answer.svg)
 
-#### ขั้นที่ 7 — ถามเซิร์ฟเวอร์ GCM สามแบบ
+#### Step 7 — Ask the GCM server three ways
 
-**ทำอะไร:** ถามเซิร์ฟเวอร์ GCM (พอร์ต 8099) ด้วยข้อความเดิมที่ไม่แก้อะไร แล้วแก้ตัวแรก แล้วแก้ใกล้ท้าย แบบเดียวกับขั้นที่ 2
+**What to do:** Ask the GCM server (port 8099) with the original message unchanged, then with the first letter changed, then with a letter near the end changed, the same way as in Step 2.
 
-**พิมพ์** ทีละบรรทัด:
+**Type** one line at a time:
 
 ```bash
 docker compose exec vulnerable python ask.py fixed original
@@ -271,7 +271,7 @@ docker compose exec vulnerable python ask.py fixed start
 docker compose exec vulnerable python ask.py fixed end
 ```
 
-**ควรเห็น:** ครั้งละสองบรรทัด ให้ดูบรรทัด `answer:` ของแต่ละครั้ง
+**You should see:** two lines each time. Look at the `answer:` line of each one
 
 ```
 answer: HTTP 200 {"status":"ok"}                          (original)
@@ -279,60 +279,60 @@ answer: HTTP 403 {"error":"decryption failed"}            (start)
 answer: HTTP 403 {"error":"decryption failed"}            (end)
 ```
 
-**แปลว่า:** ข้อความที่ไม่ถูกแก้ใช้ได้ตามปกติ (200) แต่ GCM ตรวจ tag ก่อน เจอว่า tag ไม่ตรงจึงปฏิเสธ (403) **แก้ตรงไหนก็ได้คำตอบเดิม** ต่างจาก CBC ในขั้นที่ 2 ที่คำตอบขึ้นกับตำแหน่ง จึงไม่มีอะไรให้ผู้โจมตีใช้ทาย
+**Means:** The unchanged message works as normal (200). But GCM checks the tag first, finds that the tag does not match, and refuses (403). **Wherever you change a letter, the answer is the same.** This is different from CBC in Step 2, where the answer depended on the position, so the attacker has nothing to use for guessing.
 
-**✍️ ลงใบตอบ (ขั้นที่ 7):** คัดลอกบรรทัด `answer:` ของทั้งสามครั้ง
+**✍️ Write in the answer sheet (Step 7):** copy the `answer:` line of all three runs.
 
-#### ขั้นที่ 8 — สรุปด้วยคำของตัวเอง
+#### Step 8 — Summarise in your own words
 
-**ทำอะไร:** ดูผลขั้นที่ 7 แล้วเติมคำ
+**What to do:** Look at the result of Step 7 and fill in the blank.
 
-> GCM ตอบ ________ (เลือกคำ: `เหมือนกัน` / `ต่างกัน`) ไม่ว่าเราจะแก้ตัวอักษรตรงไหน
+> GCM answers ________ (choose a word: `the same` / `differently`) wherever we change a letter.
 
-**✍️ ลงใบตอบ (ขั้นที่ 8):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 8):** write the full sentence.
 
-#### ขั้นที่ 9 — หาบรรทัดที่ต่างกันในโค้ด
+#### Step 9 — Find the lines that differ in the code
 
-**ทำอะไร:** ดูบรรทัดสำคัญของทั้งสองไฟล์
+**What to do:** Look at the key line in each of the two files.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose exec vulnerable grep -n -E "pkcs7_valid\(plaintext\)|_aesgcm.decrypt" vulnerable_app.py fixed_app.py
 ```
 
-**ควรเห็น:**
+**You should see:**
 
 ```
 vulnerable_app.py:117:    if pkcs7_valid(plaintext):
 fixed_app.py:83:        _aesgcm.decrypt(nonce, ct_and_tag, None)
 ```
 
-**แปลว่า:** ไฟล์ vulnerable ถอดรหัสแล้ว**ตรวจ padding** (`pkcs7_valid`) และตอบต่างกันตามผล ส่วนไฟล์ fixed ใช้ `_aesgcm.decrypt` ซึ่ง**ตรวจ tag ก่อน** ถ้าไม่ตรงจะส่ง error และโค้ดตอบ 403 แบบเดียวกันทุกกรณี
+**Means:** The vulnerable file decrypts, then **checks the padding** (`pkcs7_valid`) and answers differently depending on the result. The fixed file uses `_aesgcm.decrypt`, which **checks the tag first**. If it does not match, it raises an error and the code answers the same 403 in every case.
 
-**✍️ ลงใบตอบ (ขั้นที่ 9):** คัดลอกสองบรรทัดที่ขึ้นบนจอ
+**✍️ Write in the answer sheet (Step 9):** copy the two lines that appear on your screen.
 
-#### ขั้นที่ 10 — ทำไมวิธีทายไบต์ใช้กับ GCM ไม่ได้
+#### Step 10 — Why the byte-guessing method does not work on GCM
 
-**ทำอะไร:** อ่านแล้วตอบ 1–2 ประโยค
+**What to do:** Read, then answer in 1–2 sentences.
 
-GCM แนบ **tag** (ตราประทับแบบ MAC) และ**ตรวจ tag ก่อน**จะถอดรหัสอะไรทั้งนั้น ถ้า tag ไม่ตรงก็ปฏิเสธด้วยคำตอบเดียวกัน (ไม่ว่าจะผิดตรงไหน) แต่ GCM ช่วยได้ก็ต่อเมื่อโปรแกรมทำตามผลตรวจนี้ (สัปดาห์ที่ 4 ขั้นที่ 11)
+GCM attaches a **tag** (a seal made with a MAC) and **checks the tag before** it decrypts anything. If the tag does not match, it refuses with the same answer (wherever the mistake is). But GCM only helps if the program obeys this check (Week 4 Step 11).
 
-> ทำไมสคริปต์ที่อ่านข้อความ CBC ได้ จึงอ่าน GCM ไม่ได้เลย (คำใบ้: ขั้นที่ 7 และคำว่า "คำตอบเหมือนกัน")
+> Why can the script that reads the CBC message not read the GCM message at all? (hint: Step 7 and the words "the same answer")
 
-**✍️ ลงใบตอบ (ขั้นที่ 10):** เขียนคำตอบ
+**✍️ Write in the answer sheet (Step 10):** write your answer.
 
-#### ขั้นที่ 11 — ปิด lab และเช็กใบตอบ
+#### Step 11 — Shut down the lab and check your answer sheet
 
-**ทำอะไร:** ทำหลังจากคัดลอกผลครบแล้ว
+**What to do:** Do this after you have copied all the results.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose down
 ```
 
-**ควรเห็น:** บรรทัดลงท้ายว่า `Removed` จากนั้นดูว่าในใบตอบมีครบ: ขั้นที่ 2, 3 (A1), ขั้นที่ 5, 6 (A2), ขั้นที่ 7, 8, 9, 10 (A3) แล้วไปทำส่วนของแบบตัวเอง: เลขคี่ทำ Part 2 เลขคู่ทำ Part 3 และ Part 4
+**You should see:** lines ending in `Removed`. Then check that your answer sheet has everything: Steps 2, 3 (A1), Steps 5, 6 (A2), Steps 7, 8, 9, 10 (A3). Then do the part for your own form: odd IDs do Part 2, even IDs do Part 3 and Part 4.
 
 ---
 
@@ -345,45 +345,45 @@ docker compose down
 
 ## Part 2 — Conventional form (40 points; only if Conventional is your assigned form)
 
-ตอบข้อละ 2–3 ประโยค ภาษาไทยได้ ส่วนนี้ให้**ตอบด้วยตัวเอง** ไม่ใช้ AI ตอบ เลขข้อมาจากคลังข้อสอบเดิม จึงข้ามเลขบ้าง
+Answer each item in 2–3 sentences. You may answer in English or Thai. In this part **answer by yourself**, without using AI to answer. The question numbers come from the original question bank, so some numbers are skipped.
 
-**Q1 (10). AEAD.** AEAD คือชื่อของเครื่องมือเข้ารหัสแบบหนึ่ง เช่น AES-GCM
+**Q1 (10). AEAD.** AEAD is the name of a kind of encryption tool, for example AES-GCM.
 
-ตอบให้ครบสองอย่างนี้:
+Answer both of these:
 
-- AEAD ย่อมาจากอะไร และให้อะไรบ้างในขั้นตอนเดียว (คำใบ้: ดูตารางคำศัพท์ และคำว่า "ตรวจว่าไม่ถูกแก้")
-- ในแล็บวันนี้ GCM ให้อะไรที่ CBC ไม่ให้ (คำใบ้: ขั้นที่ 2 กับขั้นที่ 7)
+- What does AEAD stand for, and what does it give you in a single step? (hint: look at the word table and the words "checks that it was not changed")
+- In today's lab, what does GCM give that CBC does not? (hint: Step 2 and Step 7)
 
-**Q3 (10). Padding oracle.** เซิร์ฟเวอร์ CBC ในแล็บไม่เคยบอกข้อความลับ แต่สคริปต์ก็อ่านได้ทั้งหมด
+**Q3 (10). Padding oracle.** The CBC server in the lab never tells the secret, but the script could still read all of it.
 
-ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+Answer all three of these (1–2 sentences each):
 
-- เซิร์ฟเวอร์บอกอะไรโดยไม่ตั้งใจ (คำใบ้: ขั้นที่ 2)
-- ทำไมแค่คำตอบ ok / ไม่ ok ก็พอให้อ่านข้อความลับได้ (คำใบ้: ขั้นที่ 4 เกมทายตัวเลข)
-- เว็บล็อกอินหนึ่งตอบ "ไม่พบผู้ใช้นี้" เมื่อชื่อผู้ใช้ผิด แต่ตอบ "รหัสผ่านไม่ถูกต้อง" เมื่อรหัสผ่านผิด สองคำตอบนี้หลุดข้อมูลแบบเดียวกันไหม และควรแก้อย่างไร (คำใบ้: ดูขั้นที่ 2 เทียบกับขั้นที่ 7)
+- What does the server tell you without meaning to? (hint: Step 2)
+- Why is an ok / not ok answer enough to read the secret? (hint: Step 4, the number-guessing game)
+- A login website answers "user not found" when the username is wrong, but answers "wrong password" when the password is wrong. Do these two answers leak the same kind of information, and how should it be fixed? (hint: compare Step 2 with Step 7)
 
-**Q4 (10). ทำไม GCM ไม่หลุด.** สคริปต์เดียวกันอ่าน CBC ได้แต่อ่าน GCM ไม่ได้
+**Q4 (10). Why GCM does not leak.** The same script reads CBC but cannot read GCM.
 
-ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+Answer all three of these (1–2 sentences each):
 
-- เหตุผลที่ 1 เรื่อง**ลำดับ**: GCM ตรวจอะไรก่อนทำอย่างอื่น (คำใบ้: ขั้นที่ 9)
-- เหตุผลที่ 2 เรื่อง**คำตอบ**: GCM ตอบเวลา ciphertext ผิดอย่างไร (คำใบ้: ขั้นที่ 7)
-- ยกตัวอย่างจากแล็บ 1 อย่างที่เห็นความต่างจาก CBC
+- Reason 1, about **order**: what does GCM check before it does anything else? (hint: Step 9)
+- Reason 2, about the **answer**: how does GCM answer when the ciphertext is wrong? (hint: Step 7)
+- Give one example from the lab where you can see the difference from CBC.
 
-**Q7 (10). ลืมตรวจ tag.** โปรแกรมใช้ AES-GCM แต่นักพัฒนาเขียนให้ "ข้ามผลตรวจ tag" แล้วใช้ข้อมูลที่ถอดรหัสแล้วต่อ
+**Q7 (10). Forgetting to check the tag.** A program uses AES-GCM, but the developer wrote it to "ignore the result of the tag check" and carry on using the decrypted data.
 
-ตอบให้ครบสองอย่างนี้:
+Answer both of these:
 
-- ผลเสียคืออะไร คือ GCM เสีย "การตรวจว่าไม่ถูกแก้" ไปใช่ไหม (คำใบ้: สัปดาห์ที่ 4 ขั้นที่ 11)
-- เทียบกับ CBC ในขั้นที่ 2 เหมือนหรือต่างกันอย่างไร
+- What goes wrong? Does GCM lose its "check that it was not changed"? (hint: Week 4 Step 11)
+- Compare with CBC in Step 2: is it the same or different, and how?
 
 ### Going further (optional — no marks)
 
-- **Q2 — Safe composition.** ถ้าไม่ใช้ GCM แต่ใช้ CBC ร่วมกับ MAC แยก ลำดับ Encrypt-then-MAC ปลอดภัยเมื่อ MAC ครอบทั้ง IV และ ciphertext ใช้กุญแจแยกกันสองดอก และตรวจ MAC **ก่อน**ถอดรหัส เหตุใด MAC-then-Encrypt กับ Encrypt-and-MAC จึงเสี่ยงกว่า
-- **Q5 — Associated data.** ข้อมูลที่ต้องการ "ตรวจว่าไม่ถูกแก้ แต่ไม่เข้ารหัส" คืออะไร ยกตัวอย่าง และถ้าไม่ตรวจจะเกิดอะไร
-- **Q6 — CBC malleability.** ทำไมการแก้บล็อกก่อนหน้า ทำให้บล็อกถัดไปเปลี่ยนตรงตำแหน่งเดียวกัน (รู้จากสัปดาห์ที่ 4) และเกี่ยวกับ padding oracle อย่างไร
-- **Q8 — Choosing an AEAD.** AES-GCM, ChaCha20-Poly1305 และ AES-GCM-SIV เลือกอย่างไรตามเครื่องและความเสี่ยง
-- **Extension — ทำไม 200 บอกค่าไบต์ (สำหรับคนที่อยากรู้).** เมื่อเราเปลี่ยนไบต์ท้ายของ "บล็อกก่อนหน้า" ที่ปลอมขึ้น และเซิร์ฟเวอร์ตอบ 200 แปลว่าไบต์ท้ายของข้อความที่ถอดแล้วเป็น `0x01` ได้ จึงคำนวณค่าที่ซ่อนอยู่ได้จาก `D(C_t)[15] = ค่าที่ทาย XOR 0x01` ถ้าตอบ 200 เพราะ padding เป็น `02 02` พอดี สคริปต์จะเปลี่ยนไบต์ข้าง ๆ แล้วถามซ้ำเพื่อตัดกรณีนี้ออก (ดู `exploit.py` ฟังก์ชัน `recover_intermediate`)
+- **Q2 — Safe composition.** If you do not use GCM but use CBC with a separate MAC, the order Encrypt-then-MAC is safe when the MAC covers both the IV and the ciphertext, the two keys are different, and the MAC is checked **before** decrypting. Why are MAC-then-Encrypt and Encrypt-and-MAC riskier?
+- **Q5 — Associated data.** What is data that you want to "check was not changed, but not encrypt"? Give an example, and say what happens if you do not check it.
+- **Q6 — CBC malleability.** Why does changing the previous block change the next block at the same position (learned in Week 4), and how does that relate to the padding oracle?
+- **Q8 — Choosing an AEAD.** How do you choose between AES-GCM, ChaCha20-Poly1305 and AES-GCM-SIV, depending on the machine and the risk?
+- **Extension — why 200 tells you the byte value (for those who are curious).** When we change the last byte of the forged "previous block" and the server answers 200, the last byte of the decrypted message can be `0x01`, so we can work out the hidden value from `D(C_t)[15] = the guessed value XOR 0x01`. If it answered 200 because the padding happened to be exactly `02 02`, the script changes the neighbouring byte and asks again to rule that case out (see the function `recover_intermediate` in `exploit.py`).
 
 ---
 
@@ -391,7 +391,7 @@ docker compose down
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
-เพื่อนคนหนึ่งขอให้ AI เขียน "endpoint ถอดรหัสที่ปลอดภัย" สำหรับบริการ AES-CBC AI ตอบโค้ดด้านล่าง ดูรอบคอบ ตรวจ padding ตรวจรูปแบบข้อความ และตอบ error แยกชัดเจน แต่มี**ข้อผิดพลาดร้ายแรง**ที่ทำให้กลับมาเป็น padding oracle งานของเราคือหาให้เจอ
+A friend asked an AI to write a "safe decrypt endpoint" for an AES-CBC service. The AI answered with the code below. It looks careful: it checks the padding, checks the message format, and answers each error clearly. But it has a **serious mistake** that turns it back into a padding oracle. Your job is to find it.
 
 > **AI's answer — "a safe CBC decrypt endpoint":**
 >
@@ -419,16 +419,16 @@ AI is a power tool you must **distrust** — you are graded on your *critique*, 
 > — end of AI answer —
 
 
-คำตอบของ AI ด้านบนเป็นภาษาอังกฤษ ไม่ต้องแปลทุกคำ ทำตามนี้ทีละขั้น:
+The AI's answer above is in English. You do not need to translate every word. Follow these steps one at a time:
 
-**P3-1 อ่านคร่าว ๆ:** โค้ดมีฟังก์ชันเดียว `decrypt()` ถอดรหัส ตัด padding ถ้า padding ผิดตอบ `400` ถ้าข้อความไม่ขึ้นต้นด้วย `MSG:` ตอบ `422` นอกนั้นตอบ `200` แล้วตามด้วยคำอธิบายหนึ่งย่อหน้า
+**P3-1 Skim it:** The code has one function, `decrypt()`. It decrypts and strips the padding. If the padding is wrong it answers `400`. If the message does not start with `MSG:` it answers `422`. Otherwise it answers `200`. Then there is one paragraph of explanation.
 
-**P3-2 สิ่งที่ถูกแล้ว (ไม่ต้องไปวิจารณ์):** การเรียก AES ถอดรหัส และการใช้ PKCS#7 padding เป็นวิธีปกติของ CBC (PKCS#7 หรือ padding แค่เติมข้อมูลให้ครบบล็อก ไม่ได้ทำหน้าที่ตรวจว่าข้อมูลถูกแก้)
+**P3-2 What is already right (do not criticise it):** Calling AES to decrypt and using PKCS#7 padding are the normal way to do CBC. (PKCS#7, or padding, only fills the data up to a full block. It does not check that the data was not changed.)
 
-**P3-3 หาจุดผิด:** ดูว่าลูกค้าได้คำตอบกี่แบบจาก endpoint นี้ (`400`, `422`, `200`) แล้วถามตัวเองว่าแต่ละแบบบอกอะไรเกี่ยวกับ padding ของสิ่งที่ถอดรหัส (ลองนึกถึงขั้นที่ 2 ของ Part A)
+**P3-3 Find the mistake:** Count how many different answers a client can get from this endpoint (`400`, `422`, `200`), and ask yourself what each one tells you about the padding of what was decrypted (think of Step 2 of Part A).
 
-1. **Find what's wrong or risky.** คัดลอกบรรทัดที่ทำให้คำตอบต่างกัน แล้วเขียน 1–2 ประโยคว่าทำไมผิด (ใช้สิ่งที่เห็นในแล็บ)
-2. **Write the corrected version yourself.** แก้ให้ปลอดภัย โดยเปลี่ยนไปใช้ **AES-GCM** แล้วเขียนว่า endpoint ต้องทำอะไรเมื่อ tag ไม่ตรง (ต้องปฏิเสธด้วยคำตอบเดียวกันทุกกรณี และไม่ใช้ข้อมูลต่อ) เขียนเป็นคำอธิบายสั้น ๆ ก็พอ ไม่ต้องเขียนโค้ด จากนั้นเขียน 1–2 ประโยคว่า ทำไมโค้ดเดิมที่ตอบ `400` / `422` / `200` จึงหลุดข้อมูลแม้ไม่ได้ส่ง plaintext กลับไป
+1. **Find what's wrong or risky.** Copy the lines that make the answers differ, then write 1–2 sentences on why they are wrong (use what you saw in the lab).
+2. **Write the corrected version yourself.** Make it safe by changing to **AES-GCM**, and write what the endpoint must do when the tag does not match (it must refuse with the same answer every time and must not use the data any further). A short explanation is enough; you do not need to write code. Then write 1–2 sentences on why the original code, which answers `400` / `422` / `200`, leaks information even though it never sends the plaintext back.
 
 > Disclose any other AI use in the Part 1 table. This task counts toward the **Audit the AI** row.
 
@@ -436,26 +436,26 @@ AI is a power tool you must **distrust** — you are graded on your *critique*, 
 
 ## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
-**A. Explain in Plain English (EiPE, 10).** เพื่อนที่รู้จัก AES แต่ไม่เคยได้ยินเรื่อง padding ถามว่า *"เซิร์ฟเวอร์ไม่เคยส่งข้อความลับกลับมา แค่ตอบ ok หรือ error แล้วทำไมถึงถูกอ่านข้อความลับได้?"*
+**A. Explain in Plain English (EiPE, 10).** A friend who knows AES but has never heard of padding asks: *"The server never sends the secret message back. It only answers ok or error. So why can someone read the secret?"*
 
-อธิบายให้เพื่อนฟัง 2–4 ประโยค **ไม่ใช้ศัพท์ยาก** โดยตอบให้ครบสองอย่างนี้ (คำใบ้: ดูรูปในขั้นที่ 1 และขั้นที่ 4 แล้วใช้คำพูดของตัวเอง):
+Explain it to your friend in 2–4 sentences **without hard words**, answering both of these (hint: look at the pictures in Step 1 and Step 4 and use your own words):
 
-- padding คืออะไร และเซิร์ฟเวอร์ตอบคำถามข้อไหนโดยไม่ตั้งใจ
-- ทำไมการถามซ้ำหลายพันครั้งจึงพอให้อ่านข้อความลับได้โดยไม่มีกุญแจ
+- What is padding, and which question does the server answer without meaning to?
+- Why is asking again and again, a few thousand times, enough to read the secret without the key?
 
-**B. Prompt Problem (10).** ใช้ AI ตัวไหนก็ได้ แล้วทำตามนี้:
+**B. Prompt Problem (10).** Use any AI you like and do this:
 
-1. เขียน prompt **หนึ่งอัน** ขอให้ AI เขียน endpoint `decrypt()` สำหรับบริการข้อความเข้ารหัส ที่ทนต่อการโจมตีแบบ padding oracle (บอก AI ด้วยว่าผู้โจมตีส่ง ciphertext อะไรก็ได้และดูคำตอบได้)
-2. คัดลอกคำตอบของ AI ลงใบตอบ
-3. ตรวจคำตอบของ AI กับสิ่งที่เรียนมาทีละข้อ:
+1. Write **one** prompt asking the AI to write a `decrypt()` endpoint for an encrypted-message service that resists padding oracle attacks (also tell the AI that the attacker can send any ciphertext and can see the answers).
+2. Copy the AI's answer into your answer sheet.
+3. Check the AI's answer against what you learned, one item at a time:
 
-- AI เลือกใช้ AEAD (AES-GCM หรือ ChaCha20-Poly1305) หรือเขียน CBC กับการตรวจ padding เอง (Does it use an AEAD cipher?)
-- ถ้ายังใช้ CBC: AI ตรวจ MAC ก่อนถอดรหัส และตอบแบบเดียวกันทุกกรณีหรือไม่ (If it keeps CBC, does it check a MAC first and answer the same way every time?)
-- AI พูดอะไรผิดหรือแต่งเรื่องหรือไม่ (Does it make anything up?) ระวัง: บอกว่า "ตอบ error 500 แบบเดียวกันแล้ว CBC ปลอดภัย"; บอกว่า "PKCS#7 padding ถูกตรวจว่าไม่ถูกแก้อยู่แล้ว"; หรือบอกว่า AES-GCM "ยังต้องมี padding"
+- Does the AI choose an AEAD (AES-GCM or ChaCha20-Poly1305), or does it write CBC with its own padding check? (Does it use an AEAD cipher?)
+- If it still uses CBC: does the AI check a MAC before decrypting, and answer the same way every time? (If it keeps CBC, does it check a MAC first and answer the same way every time?)
+- Does the AI say anything wrong or make anything up? (Does it make anything up?) Watch out for: saying that "answering the same error 500 makes CBC safe"; saying that "PKCS#7 padding already checks that the data was not changed"; or saying that AES-GCM "still needs padding".
 
-4. ในตารางของใบตอบ ติ๊ก **ผ่าน / ไม่ผ่าน** ทีละข้อ และเขียนเหตุผลสั้น ๆ 1 ประโยคต่อข้อ แล้วจบด้วย 1 ประโยคว่า เราจะเชื่อคำตอบของ AI นี้ไหม เพราะอะไร
+4. In the table in your answer sheet, tick **pass / fail** for each item and write a short reason of 1 sentence for each. Finish with 1 sentence saying whether you would trust this AI's answer, and why.
 
-ส่ง **prompt + คำตอบของ AI + ตารางตรวจพร้อมเหตุผลของตัวเอง**
+Submit **your prompt + the AI's answer + your check table with your own reasons**.
 
 ---
 
@@ -463,9 +463,9 @@ AI is a power tool you must **distrust** — you are graded on your *critique*, 
 
 An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
-1. "ในขั้นที่ 2 เซิร์ฟเวอร์ CBC ตอบไม่เหมือนกัน ตอบอะไรเมื่อไหร่ และคำตอบที่ต่างกันบอกอะไรกับผู้โจมตี"
-2. "สคริปต์ไม่รู้กุญแจ แล้วอ่านข้อความลับได้อย่างไร เล่าด้วยคำง่าย ๆ จากรูปในขั้นที่ 4"
-3. "เซิร์ฟเวอร์ GCM ในขั้นที่ 7 ตอบอย่างไร และทำไมสคริปต์เดียวกันจึงไม่ได้อะไรเลย"
+1. "In Step 2 the CBC server answered differently. What did it answer, and when? What does the different answer tell an attacker?"
+2. "The script does not know the key, so how can it read the secret? Explain in simple words from the picture in Step 4."
+3. "How does the GCM server answer in Step 7, and why does the same script get nothing at all?"
 
 ---
 
@@ -484,7 +484,7 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 ## Evidence & Integrity (required)
 
-- ใส่ชื่อ รหัสนักศึกษา และวันที่ในใบตอบ และคัดลอกคำสั่งกับผลจากเครื่อง**ของตัวเอง** ค่า flag เหมือนเพื่อนได้ สัปดาห์นี้ไม่มี flag เฉพาะคน และห้ามเอาผลของเพื่อนมาส่งเป็นของตัวเอง
-- **อธิบายด้วยคำของตัวเอง** (ให้คะแนนจากเหตุผล): ข้อที่ให้เติมคำจากคลังคำ (ขั้นที่ 3, 6, 8) ใช้คำที่ให้ไว้ได้ ส่วนคำตอบสั้น ๆ ของขั้นที่ 10 และข้อเขียนของฟอร์มตัวเองต้องเขียนด้วยคำของตัวเอง (ทำไมเซิร์ฟเวอร์ CBC ถูกอ่านข้อความลับได้ และทำไมเซิร์ฟเวอร์ GCM ไม่หลุดอะไรเลย) ไม่ต้องเขียนเพิ่มนอกจากนี้
+- Put your name, student ID and date in the answer sheet, and copy the commands and results from **your own** computer. Your flag may be the same as a friend's. This week there is no personal flag. Do not submit a friend's results as your own.
+- **Explain in your own words** (marks are given for the reasoning): for the fill-in-the-blank items that give you a word bank (Steps 3, 6, 8) you may use the words given. The short answer in Step 10 and the written part of your own form must be in your own words (why the CBC server's secret can be read, and why the GCM server leaks nothing). You do not need to write anything more than that.
 
-**กำหนดส่งและการส่งช้า:** ส่งภายใน 23:59 น. (เวลาไทย) ของ **อาทิตย์ 13 ธ.ค.** ส่งช้าหักวันละ 10% ของคะแนนใบงานนี้ (ไม่เต็มวันนับเป็นหนึ่งวัน) จนเหลือ 0 การอัปโหลดหรือเปลี่ยนไฟล์หลังกำหนดส่งนับว่าส่งช้าทั้งชิ้น ส่งงานร่วม 60 คะแนน และแบบของตัวเอง**หนึ่งแบบ**เท่านั้น ทำทั้งสองแบบไม่ได้คะแนนเพิ่ม Viva ใช้ตรวจความเข้าใจ ไม่มีคะแนนแยก
+**Deadline and late submission:** Submit by 23:59 (Thai time) on **Sunday 13 Dec**. A late submission loses 10% of this worksheet's marks for each day late (a part day counts as a day), down to 0. Uploading or replacing a file after the deadline counts the whole submission as late. Submit the common 60 marks and **one** form of your own only; doing both forms gives no extra marks. The viva is used to check understanding and has no separate marks.
