@@ -1,192 +1,372 @@
-# Worksheet 5 — Key Exchanges: MITM Against Unauthenticated Diffie-Hellman
+# Worksheet 5 — Key Exchange: คนแอบกลางทาง (MITM) กับ Diffie-Hellman
 
 > **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
-> **Aligned to:** RFC 3526 (MODP groups) · CWE-322 (Key Exchange without Entity Authentication),
-> CWE-300 (Channel Accessible by Non-Endpoint)
-> **Kind:** Hybrid — a runnable MITM demo (Part 2) alongside conceptual content that stays
-> theoretical this week (small-subgroup confinement, Part 2b).
+> **Kind:** Docker lab แบบทำตามทีละขั้น ไม่ต้องเขียนโปรแกรม และไม่ต้องคำนวณเลข
 
-## How to use this worksheet — 100-minute class, two versions
+> **Ethics note:** ทำเฉพาะกับ container 3 ตัว (alice, bob, relay) ในเครื่องของตัวเองที่ lab นี้เปิดขึ้นมา ไม่มีพอร์ตเปิดออกนอกเครื่อง
+> การแอบอยู่กลางทางของระบบที่ไม่ใช่ของเราและไม่ได้รับอนุญาตเป็นเรื่องผิดกฎหมาย
 
-Everyone completes the **same common activity (60 points)**. Complete only the
-**Conventional written assessment (40)** or the **AIR-Sec assessment (40)** assigned
-by the instructor. AIR-Sec's 40 points are Audit the AI 20, EiPE 10 and Prompt Problem 10.
-Each version totals **100**, and neither version requires the other format for marks.
+## อ่านก่อนเริ่ม
 
-| Common criterion | Points | This week's evidence |
+**วันนี้จะทำอะไร:** Alice กับ Bob อยากได้กุญแจลับร่วมกันผ่านเน็ตสาธารณะ จึงใช้ **Diffie-Hellman (DH)** แต่มี `relay` แอบอยู่กลางทาง เราจะดูสองรอบ: รอบ**ไม่ยืนยันตัวตน** relay อ่านข้อความของ Alice ได้โดยที่ทั้งสองคนไม่รู้ตัว และรอบ**ยืนยันด้วย HMAC** relay ล้มเหลว สิ่งที่ต้องจำ: **DH กันคนที่แค่แอบฟังได้ แต่ไม่กันคนที่แทรกกลางทาง**
+
+**ทุกขั้นเขียนแบบเดียวกัน:**
+
+| หัวข้อ | ความหมาย |
+|---|---|
+| **ทำอะไร** | บอกว่าขั้นนี้จะทำอะไร |
+| **พิมพ์** | คัดลอกทั้งบรรทัดไปวางใน Terminal แล้วกด Enter |
+| **ควรเห็น** | หน้าจอควรขึ้นประมาณนี้ |
+| **แปลว่า** | ผลที่เห็นหมายความว่าอะไร |
+| **ลงใบตอบ** | สิ่งที่ต้องคัดลอกหรือเขียนลงใบตอบ |
+
+**คะแนน**
+
+- ทุกคนทำ **Part A (60 คะแนน)** ซึ่งเหมือนกันทั้งสองแบบ
+- จากนั้นทำ **เฉพาะแบบของตัวเอง (40 คะแนน)** ดูจากเลขตัวสุดท้ายของรหัสนักศึกษา: **เลขคี่ = Conventional (Part 2)**, **เลขคู่ = AIR-Sec (Parts 3–4)** (เลข 0 นับเป็นเลขคู่) แล้วเขียนแบบของตัวเองในช่อง Group
+- ตอบเป็นภาษาไทยหรืออังกฤษก็ได้ ตอบสั้น ๆ ให้ชัดก็พอ
+- **ใช้ใบตอบ:** ใน Classroom → Week 05 เปิดไฟล์ตามแบบของตัวเอง (`Wk05_Answer_Sheet_Conventional_odd_ID` หรือ `Wk05_Answer_Sheet_AIR-Sec_even_ID`) กด Open with → Google Docs พิมพ์ลงกรอบสีเทา แล้วกด File → Download → PDF
+- ส่งไฟล์เดียว ตั้งชื่อตามรหัสนักศึกษา เช่น `Wk05_66990000.pdf` (ไม่ต้องใส่เครื่องหมาย `<` `>`) ที่ `learn.zcr.ai/submit` โดยใช้รหัสส่งงานของ Week 5 ที่ได้ทางอีเมล KMITL ภายใน **อาทิตย์ 6 ธ.ค. 23:59 น.**
+- ข้อที่เขียนว่า *optional* ไม่มีคะแนน ไม่ต้องทำก็ได้
+
+| Part A | คะแนน | ขั้นที่ลงใบตอบ |
 |---|---:|---|
-| Core activity / analysis | 20 | Run both DH topologies and trace the relay's two independent handshakes and interception. |
-| Control comparison and limitations | 20 | Explain what HMAC authentication changes, its pre-shared-key assumption, forward secrecy and the separate input-validation limitation. |
-| Evidence and causal reasoning | 20 | Record both modes, both authentication failures and the interception count, and explain the observations rather than submitting a flag alone. |
+| A1 — relay แอบอ่านข้อความได้ | 20 | ขั้นที่ 2, 3 |
+| A2 — ยืนยันกุญแจด้วย HMAC แล้ว relay ล้มเหลว | 20 | ขั้นที่ 6, 7, 8 |
+| A3 — ทำไม HMAC หยุดได้ และข้อจำกัด | 20 | ขั้นที่ 10, 11, 12 |
 
-**Before class:** complete the stated reading and any environment setup; software
-installation and first image downloads are preparation, not extra contact minutes.
-**In class (100 minutes):** 10 quiz/review + 10 brief + 60 shared practice/analysis +
-15 debrief + 5 evidence capture. In Week 1 the opening block is orientation/review,
-not a quiz on material not yet taught. The detailed tasks below are a checklist, not
-additional timed class blocks: work through the core observations in the guided practice,
-draft the explanation in the debrief, then finish detailed calculations/write-up and the
-assigned 40-point format before the published deadline. Keep every original question;
-unassigned-format questions and the labelled appendix are study extensions.
+**คำศัพท์ที่ต้องรู้**
 
-## Part 0 — Student Information
-| Name | Student ID | Date | Group |
-|---|---|---|---|
+| คำ | ความหมายแบบง่าย |
+|---|---|
+| Terminal / Docker / container | หน้าต่างพิมพ์คำสั่ง / โปรแกรมที่เปิด "เครื่องจำลอง" เล็ก ๆ ในเครื่องเรา ทำพังก็ลบแล้วเริ่มใหม่ได้ |
+| Diffie-Hellman (DH) | วิธีให้สองฝ่ายได้ความลับร่วมกัน โดยส่งแค่ "ค่าสาธารณะ" ผ่านเน็ต คนที่แอบฟังเห็นแต่ค่าสาธารณะ คำนวณความลับไม่ได้ |
+| ค่าสาธารณะ (public value) | ตัวเลขที่แต่ละฝ่ายส่งให้อีกฝ่ายเห็นได้ ไม่ใช่ความลับ |
+| ความลับร่วม (shared secret) | ผลของ DH ใช้สร้างกุญแจเข้ารหัสข้อความ |
+| relay / MITM | ตัวที่แอบอยู่กลางทาง ตอบรับ DH กับทั้งสองฝ่ายพร้อมกัน (man-in-the-middle) |
+| HMAC / tag | "ตราประทับ" ที่คำนวณด้วยกุญแจลับ ใช้ตรวจว่าข้อมูลถูกแก้หรือไม่ (เรียนใน Week 3) |
+| AUTH_KEY | กุญแจที่ Alice กับ Bob รู้ร่วมกันล่วงหน้า relay ไม่รู้ ใช้คำนวณ tag |
+| log | ข้อความที่โปรแกรมพิมพ์เล่าว่ากำลังทำอะไร |
 
-*Disclose any AI assistance used anywhere in this worksheet here (tool + what you asked it).*
+**คำถามที่มักสงสัย**
 
----
+- *ต้องเก่งคณิตศาสตร์ไหม?* ไม่ต้อง วันนี้ไม่มีการคำนวณ
+- *ต้องเขียนโปรแกรมไหม?* ไม่ต้อง คัดลอกคำสั่งไปวางได้เลย
+- *ถ้าทำผิด เครื่องจะพังไหม?* ไม่พัง ทุกอย่างอยู่ใน container ถ้าสับสนให้พิมพ์ `docker compose -f docker-compose.vulnerable.yml down` และ `docker compose -f docker-compose.fixed.yml down` แล้วเริ่มใหม่
+- *log ยาวและมีคำเตือน `CryptographyDeprecationWarning` เต็มไปหมด ผิดไหม?* ไม่ผิด เป็นคำเตือนว่า DH แบบนี้เก่าแล้ว ใบงานให้กรองเหลือเฉพาะบรรทัดที่ต้องดู
+- *วางคำสั่งใน Terminal ยังไง?* คัดลอกคำสั่งจากใบงาน แล้ว Windows: กด Ctrl+V หรือคลิกขวา · Mac: กด Cmd+V จากนั้นกด Enter
+- *คัดลอกผลจาก Terminal ยังไง?* ลากเมาส์คลุมข้อความก่อน แล้ว Windows: กด Ctrl+Shift+C · Mac: กด Cmd+C หรือจะ screenshot ก็ได้
 
-## Part 1 — Conventional form (40 points; only if Conventional is your assigned form): Essay Questions
+**ถ้าเจอข้อความแบบนี้**
 
-Answer each in your own words (roughly 120–200 words per answer — enough to show you understand
-the mechanism, not so much that you're padding).
+| ข้อความบนจอ | สาเหตุ | วิธีแก้ |
+|---|---|---|
+| มีคำว่า `Cannot connect to the Docker daemon` หรือ `error during connect` | ยังไม่ได้เปิด Docker | เปิด Docker Desktop รอจนขึ้น Engine running |
+| `no configuration file provided: not found` หรือ `open docker-compose...: no such file` | Terminal ไม่ได้อยู่ในโฟลเดอร์ lab | ทำเตรียมขั้นที่ 4 อีกครั้ง |
+| ขั้นที่ 2 หรือ 6 ขึ้นไม่ครบ | ยังรันไม่เสร็จ | รอ 10–15 วินาที แล้วพิมพ์คำสั่งเดิมอีกครั้ง |
+| ขั้นที่ 6 มี `AUTH FAILED` แค่บรรทัดเดียว | อ่านจอเร็วเกินไป | รอสักครู่แล้วพิมพ์คำสั่งเดิมอีกครั้ง ต้องเห็นสองบรรทัด (alice และ bob) |
+| Windows: `grep` ไม่รู้จัก | Windows ไม่มี `grep` | ใช้คำสั่งแบบ `findstr` หรือ PowerShell ที่ใบงานให้ไว้ในแต่ละขั้น |
 
-**Q1.** Why do Alice and Bob need a key exchange instead of simply sending a symmetric key
-directly? Explain what risk the key exchange solves.
-
-**Q2.** In an unauthenticated key exchange, how can an active MITM attacker impersonate both
-sides? Describe the attacker's steps and why Alice/Bob cannot detect it.
-
-**Q3.** Key exchanges protect against passive attackers but not active ones. Give one real-world
-scenario where this distinction matters.
-
-**Q4.** Why must DH choose a very large prime `p` and a generator `g`? What happens if `p` is
-small or non-prime? Explain in terms of the discrete logarithm problem.
-
-**Q5.** Explain why the discrete logarithm problem is "hard" and how this hardness enables DH to
-work securely.
-
-**Q6.** ECDH provides the same security as DH but with much smaller keys. Why is this important
-for real protocols like TLS, SSH, or mobile apps? Discuss performance, storage, or bandwidth.
-
-**Q7.** Why is it dangerous to use custom DH parameters or non-standard groups? (weak primes,
-broken standards)
-
-**Q8.** What security problem occurs if an implementation does not validate received public keys
-during DH or ECDH? Explain the attack surface.
-
-**Q9.** Explain the core idea of a small subgroup attack. Why does sending a malicious public key
-allow an attacker to leak private-key bits?
-
-**Q10.** Why do many modern systems choose X25519 instead of classic P-256 or classic DH?
-Consider security design, simplicity, resistance to pitfalls.
+ลองแล้วยังไม่ได้ ให้ถามเพื่อนหรืออาจารย์ได้เลย ถ้าใช้ Docker ไม่ได้จริง ๆ ให้บอกอาจารย์ แล้วตอบขั้นที่ 3 และ 10–12 จากการอ่านใบงานและรูป ขั้นที่เหลือเขียนกำกับว่า "ไม่ได้รันเอง"
 
 ---
 
-## Part 2 — Shared common practice and assigned AIR-Sec assessment
+## ก่อนเริ่ม: เตรียมเครื่อง (ทำที่บ้าน ทำครั้งเดียว)
 
-AI is a power tool you must **distrust** — several parts below are graded on your *critique*,
-not on how well you can prompt an AI. Full run instructions: [`README.md`](README.md).
+ถ้าเคยทำ Week 2–4 มาแล้ว มี Docker และไฟล์ ZIP อยู่แล้ว เริ่มที่**เตรียมขั้นที่ 4** ได้เลย ถ้าหาโฟลเดอร์ `week05-key-exchanges` ไม่เจอ ให้โหลด ZIP ใหม่ตามเตรียมขั้นที่ 2
 
-### Part 2a — Shared lab steps and evidence (both versions, 60 points)
+**ถ้าปิดเครื่องไปแล้วกลับมาทำต่อ:** ทำเตรียมขั้นที่ 1 และ 4 ใหม่
 
-**Setup.** `common.py` gives all three services (`alice.py`, `bob.py`, `relay.py`) a shared
-RFC3526 Group 14 (2048-bit) DH group. Alice is configured to dial `relay`, never `bob` directly —
-that is the premise: an active attacker controls the network path.
+#### เตรียมขั้นที่ 1 — เปิด Docker Desktop
 
-1. Run **vulnerable mode**:
-   ```bash
-   cd {{ labpath }}
-   docker compose -f docker-compose.vulnerable.yml up --build
-   ```
-   Capture the full log output. Your required evidence line is:
-   ```
-   RELAY INTERCEPTED: the launch code is 4471
-   ```
-   **This is shared lab evidence for both versions, not a personalised flag.**
-   The message is fixed for the class; capture your own run, identify it with your name/student ID,
-   and explain it. Note in one line: which two `RELAY: completed independent DH
-   handshake...` lines appear *before* the interception, and why relay needed both before it
-   could decrypt-and-relog.
-2. Tear down: `Ctrl-C`, then `docker compose -f docker-compose.vulnerable.yml down`.
-3. Run **fixed mode**:
-   ```bash
-   docker compose -f docker-compose.fixed.yml up --build
-   ```
-   Capture the full log output. Your required abort evidence is **both** of:
-   ```
-   AUTH FAILED - ABORTING
-   ```
-   (once from `alice`, once from `bob`) and the **absence** of any `RELAY INTERCEPTED` line.
-   Confirm the absence explicitly, e.g.:
-   ```bash
-   docker compose -f docker-compose.fixed.yml logs | grep -c "RELAY INTERCEPTED"
-   ```
-   and record that it prints `0`.
-4. Tear down: `Ctrl-C`, then `docker compose -f docker-compose.fixed.yml down`.
+**ทำอะไร:** ถ้ายังไม่มี ให้ติดตั้งจาก <https://www.docker.com/products/docker-desktop/> แล้วเปิดโปรแกรมทิ้งไว้ **ควรเห็น:** ขึ้นว่า **Engine running**
 
-**Submit:** both captured logs (identified with your name/student ID), your one-line note from step 1,
-and the `grep -c` output from step 3.
+#### เตรียมขั้นที่ 2 — โหลดและแตกไฟล์ lab
 
-### Part 2a-AIR — Audit the AI (AIR-Sec version only, 20 points)
+**ทำอะไร:** เปิด <https://github.com/nutthakorn7/security-cryptography> กดปุ่มสีเขียว **Code** แล้วเลือก **Download ZIP** (ไม่ต้องมีบัญชี GitHub) แล้วแตกไฟล์ (Windows: คลิกขวา **Extract All** · Mac: ดับเบิลคลิก) **ควรเห็น:** โฟลเดอร์ `security-cryptography-master` บางเครื่องมีโฟลเดอร์ชื่อเดียวกันซ้อนสองชั้น ให้เปิดเข้าไปจนเห็นโฟลเดอร์ `labs`
 
-**Deliberately flawed teaching artifact — critique it; do not implement it:**
+#### เตรียมขั้นที่ 3 — เข้าโฟลเดอร์ lab
 
-> "Alice and Bob can run unauthenticated DH, derive a fresh session key, and then
-> authenticate every message with HMAC under that derived key. A MITM cannot know
-> the session key, so a valid message HMAC proves Bob's identity. There is no need
-> to trust a certificate, signature key or pre-shared authentication key first."
+**ทำอะไร:** เข้าไปที่ `labs` แล้วเข้า `week05-key-exchanges`
 
-1. Quote the claim that fails for the active relay in this lab and explain the difference
-   between authenticating data with a negotiated key and authenticating the peer's identity.
-2. Explain what the attacker knows after its two exchanges. Compare the artifact's proposal
-   with the actual fixed topology and identify the trust assumption that the fix adds.
-3. Correct the explanation and state what fresh DH contributes after authentication is added.
-   Discuss the limitation if the authentication key is exposed. Submit your critique and
-   corrected explanation; no additional exploit or production protocol implementation is required.
+#### เตรียมขั้นที่ 4 — เปิด Terminal ในโฟลเดอร์ lab
 
-### Part 2b — Explain in Plain English (EiPE): small subgroup attacks (AIR-Sec version only, 10 points)
+- **Windows:** เปิดโฟลเดอร์ `week05-key-exchanges` ใน File Explorer คลิกขวาตรงที่ว่าง เลือก **Open in Terminal** (ถ้าไม่มี ให้กด Shift ค้างแล้วคลิกขวา เลือก **Open PowerShell window here**)
+- **Mac:** เปิดแอป Terminal พิมพ์ `cd` เว้นวรรคหนึ่งครั้ง ลากโฟลเดอร์ `week05-key-exchanges` มาวางในหน้าต่าง แล้วกด Enter
 
-The lab you just ran demonstrates a **key-substitution** MITM — it does **not** demonstrate a
-small subgroup attack. This section is the conceptual half of this HYBRID week: source Q9 asked
-you to explain the core idea formally; here, explain it **in plain English to someone who has
-never heard of group theory** (no "subgroup," "order," or "discrete log" used without first
-explaining what you mean in ordinary words). In 4–6 sentences, cover:
-- What a malicious DH public key can make the "shared secret" collapse down to (hint: instead of
-  one of a huge number of possible outcomes, only a handful).
-- Why that lets an attacker who sees how Bob responds to several such malicious keys narrow down
-  bits of Bob's private key, one guess-and-check round at a time.
-- Why this is a *different* failure from the MITM you just ran (that one exploited a **missing
-  identity check**; this one would exploit a **missing input-validation check** on the received
-  public key — see source Q8).
+เช็กว่าอยู่ถูกที่ด้วยคำสั่งนี้ (Windows ใช้ `dir`):
 
-### Part 2c — Prompt Problem (AIR-Sec version only, 10 points)
+```bash
+ls
+```
 
-Ask an AI assistant a single prompt along the lines of: *"Explain why authenticated
-Diffie-Hellman prevents a man-in-the-middle attack."* Paste its full response, then critique it.
-At minimum, check whether the AI's answer:
-- Correctly distinguishes *confidentiality against eavesdroppers* (what plain DH already gives
-  you) from *authentication of the peer's identity* (what plain DH does **not** give you).
-- Explains authentication as binding the DH public key to a verified identity (signature,
-  certificate, or pre-shared MAC key) — not just asserting "authenticated DH is secure" without
-  saying what is actually being checked or against what.
-- Gets the trust bootstrap right: authenticated DH is only as strong as however the
-  authentication key/certificate itself was distributed — an AI answer that hand-waves "just use
-  a certificate" without noting that the certificate's issuer must itself be trusted in advance
-  has hidden the hard part.
-- Doesn't quietly conflate "authenticated" with "still gives forward secrecy" — a good answer
-  should note that authenticating the exchange does not turn it into "just send a symmetric key,"
-  because the DH exponents are still fresh and ephemeral every session.
-- Doesn't hallucinate a mechanism (e.g. inventing a made-up "DH-Auth handshake" or misattributing
-  a specific RFC/algorithm it doesn't actually name correctly).
+**ควรเห็น:** มีชื่อ `docker-compose.vulnerable.yml` และ `docker-compose.fixed.yml` อยู่ในรายการ
 
-**Submit:** your exact prompt, the AI's full response, and a bullet-by-bullet critique quoting
-the specific sentence(s) that are correct, hand-waved, or wrong.
+#### เตรียมขั้นที่ 5 — สร้าง image (ต้องต่ออินเทอร์เน็ต)
 
-### Part 2d — Viva Spot-Check (formative/authenticity check; no separate points)
+**พิมพ์:**
 
-Be ready to answer these live, in your own words, with no notes:
+```bash
+docker compose -f docker-compose.vulnerable.yml build
+```
 
-1. In the vulnerable-mode logs, `relay` completes **two** DH handshakes before it prints
-   `RELAY INTERCEPTED`. Why two, and what would go wrong for the attacker with only one?
-2. In fixed mode, `relay.py`'s `handle_mitm_signed` still runs — it still generates its own DH
-   keypairs and still tries to substitute them into both handshakes. What exactly stops the
-   attack from succeeding, given that `relay` is running almost the same code as in vulnerable
-   mode?
-3. `AUTH_KEY` is a value Alice and Bob share ahead of time. Doesn't that mean they could have
-   just used `AUTH_KEY` itself as the encryption key and skipped DH entirely? Why or why not —
-   what would be lost?
+**ควรเห็น:** ลงท้ายด้วย `Built` ครั้งแรกอาจรอหลายนาที ระหว่างนั้นอย่าปิดหน้าต่าง ถ้าทำเสร็จแล้ว ตอนเรียนจะเริ่มเร็วขึ้น
+
+---
+
+## Part A — The lab (both forms, 60 points)
+
+Lab นี้มีสามตัวละคร: **Alice** ส่งข้อความลับหา **Bob** แต่ Alice ถูกตั้งให้ติดต่อผ่าน `relay` (ไม่ได้ต่อถึง Bob ตรง ๆ) นั่นคือสถานการณ์จริง: คนที่ "รับสายเมื่อเราโทรหา Bob" อาจไม่ใช่ Bob
+
+![รูป: ในรอบไม่ยืนยันตัวตน Alice ทำ DH กับ relay ได้ความลับชุดหนึ่ง relay ทำ DH กับ Bob ได้ความลับอีกชุดหนึ่ง relay จึงถอดข้อความของ Alice อ่านแล้วเข้ารหัสส่งต่อให้ Bob ใหม่ Alice กับ Bob ไม่มีความลับร่วมกันโดยตรง (English: relay does one DH with Alice and another with Bob, so it can read and forward the message; Alice and Bob never share a secret with each other.)](img/w5-two-handshakes.svg)
+
+### A1 — relay แอบอ่านข้อความได้ (20 points)
+
+#### ขั้นที่ 1 — เปิดรอบ "ไม่ยืนยันตัวตน"
+
+**ทำอะไร:** เปิด alice, bob และ relay ในรอบที่ไม่มีการยืนยันตัวตน แล้วรอให้ทำงานเสร็จ
+
+**พิมพ์:**
+
+```bash
+docker compose -f docker-compose.vulnerable.yml up -d
+```
+
+**ควรเห็น:** มีคำว่า `Started` ประมาณสามบรรทัด รอประมาณ 15 วินาที ขั้นนี้ไม่ต้องลงใบตอบ
+
+#### ขั้นที่ 2 — อ่าน log เฉพาะบรรทัดที่ต้องดู
+
+**ทำอะไร:** ดู log และกรองเหลือเฉพาะบรรทัดของ ALICE, BOB และ RELAY
+
+**พิมพ์** (Mac):
+
+```bash
+docker compose -f docker-compose.vulnerable.yml logs | grep -E "ALICE|BOB|RELAY"
+```
+
+**พิมพ์** (Windows PowerShell):
+
+```powershell
+docker compose -f docker-compose.vulnerable.yml logs | findstr "ALICE BOB RELAY"
+```
+
+**ควรเห็น:** ประมาณ 9 บรรทัด ให้หา**สี่บรรทัดนี้** (ลำดับอาจสลับเล็กน้อย ที่อยู่หลัง `from` เป็นเลขที่อยู่ในเครื่อง ไม่ต้องสนใจ)
+
+```
+RELAY: completed independent DH handshake with Alice (posing as Bob)
+BOB RECEIVED: the launch code is 4471
+RELAY: completed independent DH handshake with Bob (posing as Alice)
+RELAY INTERCEPTED: the launch code is 4471
+```
+
+**แปลว่า:** relay ทำ DH แยกกันสองรอบ รอบแรกกับ Alice (แกล้งเป็น Bob) รอบที่สองกับ Bob (แกล้งเป็น Alice) แล้วถอดรหัสข้อความของ Alice อ่านได้ (`INTERCEPTED`) ขณะที่ Bob ก็ได้รับข้อความตามปกติ (`BOB RECEIVED`) ทั้งสองฝ่ายจึงไม่รู้ตัว ข้อความ `the launch code is 4471` เป็นข้อความตายตัวของ lab ไม่ใช่รหัสเฉพาะคน
+
+**✍️ ลงใบตอบ (ขั้นที่ 2):** คัดลอกสี่บรรทัดข้างบนจากหน้าจอของตัวเอง
+
+#### ขั้นที่ 3 — สรุปด้วยคำของตัวเอง
+
+**ทำอะไร:** ดูรูปด้านบนแล้วเติมคำในช่องว่าง
+
+> a) relay มีความลับร่วมกับ Alice **และ**มีความลับร่วมกับ Bob รวมเป็น ________ ชุด (1 / 2) ส่วน Alice กับ Bob (มี / ไม่มี) ความลับร่วมกันโดยตรง
+>
+> b) relay อ่านข้อความได้เพราะมัน (ได้ถอดรหัสด้วยความลับที่ตัวเองมี / ไปแก้สมการ DH ที่ยากมาก)
+
+**✍️ ลงใบตอบ (ขั้นที่ 3):** เขียนทั้งสองประโยคให้ครบ
+
+#### ขั้นที่ 4 — ปิดรอบแรก
+
+**พิมพ์:**
+
+```bash
+docker compose -f docker-compose.vulnerable.yml down
+```
+
+**ควรเห็น:** ลงท้ายว่า `Removed` ขั้นนี้ไม่ต้องลงใบตอบ
+
+### A2 — ยืนยันกุญแจด้วย HMAC แล้ว relay ล้มเหลว (20 points)
+
+#### ขั้นที่ 5 — เปิดรอบ "ยืนยันด้วย HMAC"
+
+**ทำอะไร:** รอบนี้ Alice กับ Bob แนบ tag (HMAC ด้วย AUTH_KEY) ไปกับค่าสาธารณะของตัวเอง relay ไม่รู้ AUTH_KEY
+
+**พิมพ์:**
+
+```bash
+docker compose -f docker-compose.fixed.yml up -d
+```
+
+**ควรเห็น:** มีคำว่า `Started` รอประมาณ 15 วินาที ขั้นนี้ไม่ต้องลงใบตอบ
+
+#### ขั้นที่ 6 — อ่าน log รอบที่สอง
+
+**พิมพ์** (Mac):
+
+```bash
+docker compose -f docker-compose.fixed.yml logs | grep -E "ALICE|BOB|RELAY|AUTH"
+```
+
+**พิมพ์** (Windows PowerShell):
+
+```powershell
+docker compose -f docker-compose.fixed.yml logs | findstr "ALICE BOB RELAY AUTH"
+```
+
+**ควรเห็น:** ให้หา**สี่บรรทัดนี้** (relay ยังพยายามแทรกค่าของตัวเอง แต่ทั้ง alice และ bob ตรวจเจอและยกเลิก)
+
+```
+RELAY: (fixed mode) attempted DH substitution with Alice (posing as Bob)
+RELAY: (fixed mode) attempted DH substitution with Bob (posing as Alice)
+AUTH FAILED - ABORTING      (จาก bob)
+AUTH FAILED - ABORTING      (จาก alice)
+```
+
+**แปลว่า:** relay ใช้โค้ดเกือบเดิมและยังแทรกค่าของตัวเอง แต่มันทำ tag ที่ถูกต้องให้ค่านั้นไม่ได้ เพราะไม่มี AUTH_KEY ทั้งสองฝ่ายจึงตรวจเจอและหยุด ก่อนจะส่งข้อความลับใด ๆ
+
+**✍️ ลงใบตอบ (ขั้นที่ 6):** คัดลอกสี่บรรทัดข้างบน (ให้เห็นว่าบรรทัด `AUTH FAILED` มาจาก alice และ bob อย่างละหนึ่ง)
+
+#### ขั้นที่ 7 — นับว่า relay อ่านข้อความได้กี่ครั้ง
+
+**พิมพ์** (Mac):
+
+```bash
+docker compose -f docker-compose.fixed.yml logs | grep -c "RELAY INTERCEPTED"
+```
+
+**พิมพ์** (Windows PowerShell):
+
+```powershell
+(docker compose -f docker-compose.fixed.yml logs | Select-String -SimpleMatch "RELAY INTERCEPTED" | Measure-Object).Count
+```
+
+**ควรเห็น:** `0`
+
+**แปลว่า:** ในรอบนี้ไม่มีบรรทัด `RELAY INTERCEPTED` เลย (ตัวเลขนี้บอกแค่ว่า relay ไม่ได้อ่านข้อความ ไม่ได้พิสูจน์ว่า Alice กับ Bob คุยกันสำเร็จ)
+
+**✍️ ลงใบตอบ (ขั้นที่ 7):** เขียนตัวเลขที่ได้
+
+#### ขั้นที่ 8 — สรุปด้วยคำของตัวเอง
+
+**ทำอะไร:** เติมคำในช่องว่าง
+
+> relay ทำ ________ ที่ถูกต้องให้ค่าสาธารณะของตัวเองไม่ได้ เพราะมันไม่มี ________ (เลือกคำ: `tag` / `AUTH_KEY`, ช่องที่สองตอบ `AUTH_KEY`)
+
+**✍️ ลงใบตอบ (ขั้นที่ 8):** เขียนประโยคนี้ให้ครบ
+
+#### ขั้นที่ 9 — ปิดรอบที่สอง
+
+**พิมพ์:**
+
+```bash
+docker compose -f docker-compose.fixed.yml down
+```
+
+**ควรเห็น:** ลงท้ายว่า `Removed` ขั้นนี้ไม่ต้องลงใบตอบ
+
+### A3 — ทำไม HMAC หยุดได้ และข้อจำกัด (20 points)
+
+#### ขั้นที่ 10 — ดูโค้ดที่ทำ tag
+
+**ทำอะไร:** อ่านสองบรรทัดนี้จาก `common.py` (ไม่ต้องพิมพ์อะไร) ฟังก์ชันแรกคำนวณ tag จากค่าสาธารณะและ AUTH_KEY ฟังก์ชันที่สองตรวจว่า tag ที่ได้รับตรงกับที่คำนวณเองหรือไม่
+
+```python
+return hmac.new(auth_key, pubkey_bytes, hashlib.sha256).digest()      # ทำ tag
+return hmac.compare_digest(expected, tag)                            # ตรวจ tag
+```
+
+> tag ถูกคำนวณจาก ________ และ ________ (เลือกคำ: `ค่าสาธารณะ` / `AUTH_KEY` / `ข้อความลับ`)
+
+**✍️ ลงใบตอบ (ขั้นที่ 10):** เขียนประโยคนี้ให้ครบ
+
+#### ขั้นที่ 11 — ทำไมยังต้องทำ DH สดทุกครั้ง
+
+**ทำอะไร:** อ่านแล้วตอบ 1–2 ประโยค Alice กับ Bob รู้ AUTH_KEY ร่วมกันอยู่แล้ว ทำไมไม่ใช้ AUTH_KEY เป็นกุญแจเข้ารหัสข้อความไปเลย (คำใบ้: ถ้าปีหน้า AUTH_KEY หลุด ข้อความที่มีคนบันทึกไว้เมื่อวันนี้จะเป็นอย่างไร ถ้ากุญแจแต่ละรอบสร้างจาก DH ใหม่ที่ลบความลับทิ้งแล้ว)
+
+**✍️ ลงใบตอบ (ขั้นที่ 11):** เขียนคำตอบ
+
+#### ขั้นที่ 12 — ข้อจำกัดของวิธีนี้
+
+**ทำอะไร:** ตอบ 1–2 ประโยค วิธีนี้ใช้ได้เพราะเงื่อนไขหนึ่งข้อ คือ Alice กับ Bob ต้องมี AUTH_KEY ร่วมกัน**ล่วงหน้า**และเก็บเป็นความลับ ถ้า relay ได้ AUTH_KEY ไปด้วย จะเกิดอะไรขึ้น และ AUTH_KEY นี้ควรส่งให้กันผ่านทางไหน
+
+**✍️ ลงใบตอบ (ขั้นที่ 12):** เขียนคำตอบ
+
+#### ขั้นที่ 13 — เช็กก่อนไปต่อ
+
+ดูว่าในใบตอบมีครบ: ขั้นที่ 2, 3 (A1), ขั้นที่ 6, 7, 8 (A2), ขั้นที่ 10, 11, 12 (A3) แล้วไปทำส่วนของแบบตัวเอง: เลขคี่ทำ Part 2 เลขคู่ทำ Part 3 และ Part 4
+
+---
+
+## Part 1 — Student Information
+| Name | Student ID | Date | Group (your form) | AI tools used (which, for what) |
+|---|---|---|---|---|
+| | | | | |
+
+---
+
+## Part 2 — Conventional form (40 points; only if Conventional is your assigned form)
+
+ตอบข้อละ 2–3 ประโยค ภาษาไทยได้ ส่วนนี้ให้**ตอบด้วยตัวเอง** ไม่ใช้ AI ตอบ ไม่ต้องคำนวณ
+
+**Q1 (10). ทำไมไม่ส่งกุญแจ AES ตรง ๆ ผ่านเน็ต.** ถ้าส่งกุญแจไปตรง ๆ คนที่แอบฟังจะได้อะไร และ DH ให้ Alice กับ Bob ทำอะไรได้แทน (คำใบ้: ค่าสาธารณะ)
+
+**Q2 (10). relay อ่านได้อย่างไร.** ในรอบไม่ยืนยันตัวตน ใครมีความลับร่วมกับ Alice และใครมีกับ Bob relay อ่านข้อความได้อย่างไรโดยไม่ต้องแก้ปัญหายาก ๆ (คำใบ้: ขั้นที่ 2 และ 3)
+
+**Q3 (10). HMAC หยุดอะไร.** DH ธรรมดากันคนที่แค่แอบฟังได้ แต่ relay แทรกค่าของตัวเองได้ HMAC ในรอบที่สองหยุดอะไร และวิธีนี้ต้องมีเงื่อนไขอะไรข้อหนึ่ง (คำใบ้: ขั้นที่ 6 และ 12)
+
+**Q4 (10). ทำไมยังทำ DH สด.** ทำไมรอบที่สองยังสร้างกุญแจใหม่ด้วย DH แทนที่จะใช้ AUTH_KEY เข้ารหัสข้อความ ถ้า AUTH_KEY หลุดทีหลัง ข้อความที่บันทึกไว้ก่อนหน้าจะเป็นอย่างไร (คำใบ้: ขั้นที่ 11)
+
+### Going further (optional — no marks)
+
+- Why use a large, well-known DH group (RFC 3526)? What if a peer's public value is not validated?
+- How do ECDH and X25519 differ from this finite-field demo?
+- Authenticated DH needs a trusted way to share the key or certificate first. What is that "trust bootstrap" in TLS?
+
+---
+
+## Part 3 — AIR-Sec Arm: Audit the AI (AIR-Sec version only, 20 points)
+
+AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
+
+เพื่อนคนหนึ่งถาม AI ว่าจะกันคนแทรกกลางใน DH ได้อย่างไร AI ตอบ (ภาษาอังกฤษ ไม่ต้องแปลทุกคำ):
+
+> **AI's answer:**
+> "Alice and Bob can run plain DH, derive a fresh session key, and then authenticate every message with HMAC under that derived key. A MITM cannot know the session key, so a valid message HMAC proves Bob's identity. No certificate or pre-shared key is needed."
+>
+> — end of AI answer —
+
+ทำตามนี้ (ใช้สิ่งที่เห็นในแล็บ):
+
+1. **Find what's wrong.** คัดลอกประโยคที่ผิด แล้วเขียน 1–2 ประโยคว่าทำไมผิด (คำใบ้: ในขั้นที่ 2 relay ก็มี "กุญแจ session" ของตัวเองกับ Alice อยู่แล้ว)
+2. **Write the corrected version.** เขียนคำอธิบายที่ถูกต้อง 2–3 ประโยค โดยบอกว่าต้องมีอะไรที่ relay ไม่มี (คำใบ้: ขั้นที่ 6 และ 12)
+
+> Disclose any other AI use in the Part 1 table. This task counts toward the **Audit the AI** row.
+
+---
+
+## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
+
+**A. Explain in Plain English (EiPE, 10).** อธิบายให้เพื่อนที่ไม่เคยเรียน DH ฟัง 2–4 ประโยค **ไม่ใช้ศัพท์ยาก** ว่าในรอบแรก ใครมีความลับร่วมกับ Alice ใครมีกับ Bob และทำไม relay จึงอ่านและส่งต่อข้อความได้ (คำใบ้: ดูรูปและขั้นที่ 3 แล้วใช้คำพูดของตัวเอง)
+
+**B. Prompt Problem (10).** ใช้ AI ตัวไหนก็ได้ แล้วทำตามนี้:
+
+1. เขียน prompt **หนึ่งอัน** เช่น *"Explain why authenticated Diffie-Hellman prevents a man-in-the-middle attack"*
+2. คัดลอกคำตอบของ AI ลงใบตอบ
+3. ตรวจคำตอบของ AI ทีละข้อ แล้วติ๊ก **ผ่าน / ไม่ผ่าน** พร้อมเหตุผลสั้น ๆ 1 ประโยคต่อข้อ:
+
+- AI แยก "กันคนแอบฟัง" (DH ธรรมดามีให้แล้ว) ออกจาก "ยืนยันว่าอีกฝั่งคือใคร" (DH ธรรมดาไม่มี) หรือไม่
+- AI บอกไหมว่าต้องผูกค่าสาธารณะกับตัวตนอย่างไร (เช่น tag, ลายเซ็น, ใบรับรอง) และกุญแจหรือใบรับรองนั้นต้องถูกส่งให้ถึงกันอย่างปลอดภัยก่อน
+- AI แต่งเรื่องหรือพูดผิดไหม (Does it make anything up?) เช่น ตั้งชื่อวิธีที่ไม่มีจริง
+
+ส่ง **prompt + คำตอบของ AI + ตารางตรวจพร้อมเหตุผลของตัวเอง**
+
+---
+
+## 🎤 Viva spot-check (formative/authenticity check; no separate points)
+
+An instructor may ask any of these live, at random, to confirm you did the work yourself:
+
+1. "ในขั้นที่ 2 relay ทำ DH สองรอบก่อนพิมพ์ `RELAY INTERCEPTED` ทำไมต้องสองรอบ ถ้าทำแค่รอบเดียวจะเป็นอย่างไร"
+2. "ในขั้นที่ 6 relay ยังแทรกค่าของตัวเอง ใช้โค้ดเกือบเดิม ทำไมคราวนี้ล้มเหลว"
+3. "Alice กับ Bob มี AUTH_KEY ร่วมกันอยู่แล้ว ทำไมไม่ใช้เป็นกุญแจเข้ารหัสเลย (ขั้นที่ 11)"
 
 ---
 
@@ -194,43 +374,18 @@ Be ready to answer these live, in your own words, with no notes:
 
 | Criterion | Conventional | AIR-Sec |
 |---|---:|---:|
-| Common core activity / analysis | 20 | 20 |
-| Common control comparison and limitations | 20 | 20 |
-| Common evidence and causal reasoning | 20 | 20 |
-| Conventional written questions | 40 | — |
+| A1 — relay reads the message | 20 | 20 |
+| A2 — HMAC check stops relay | 20 | 20 |
+| A3 — why it works + limits | 20 | 20 |
+| Conventional written questions (Q1–Q4) | 40 | — |
 | AIR-Sec Audit the AI | — | 20 |
 | AIR-Sec Explain in Plain English (EiPE) | — | 10 |
 | AIR-Sec Prompt Problem | — | 10 |
 | **Total for the assigned version** | **100** | **100** |
 
-**Deadline and late work:** hand in by 23:59 Thai time (ICT) on the Sunday before the next week's
-class (KOSEN rule); the exact date is in your codes email and in the week's Classroom post.
-Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
-Uploading or replacing a file after the deadline makes the whole hand-in late.
-
-Submit the common work plus **one** assigned assessment format; do not add the two
-format columns or complete both formats for extra marks. The original questions remain
-available for study. A viva is a formative/authenticity check within the relevant criteria,
-with feedback or a request to clarify/reproduce evidence; it has no separate points and
-no automatic-zero rule. Grade the demonstrated work against the published criteria.
-
-
 ## Evidence & Integrity (required)
 
-- **Evidence attribution (the same for both versions):** put your name/student ID and
-  date on the worksheet, and capture your own commands and results. Make clear which run
-  each observation came from. A terminal timestamp or identity stamp is optional context,
-  not an extra scored personal artifact. If evidence is unclear, the instructor may request
-  clarification within the common evidence/reasoning criterion.
-- **Runtime flag (where this lab returns one):** record the value from your own run. Use a
-  personalised configuration only if the instructor supplies it; otherwise the shared demo
-  flag is acceptable with your own evidence and reasoning. No automatic roster/flag validation
-  is assumed. Do not submit a classmate's capture as your own.
-- Optional context stamp: `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'`.
-  You may include this with a terminal/browser capture if useful. A separate terminal or
-  whole-screen identity capture is not required; legible own commands/results and the
-  worksheet name/student ID are sufficient. All common evidence is within the common 60.
-- **Explain in your own words** *(graded on your reasoning, not copied text)*:
-  1. What did the attack do, and **why did it work** against unauthenticated DH?
-  2. **Why does the HMAC fix actually stop it** — and what would still break it (e.g. if `relay`
-     somehow obtained `AUTH_KEY`)?
+- ใส่ชื่อ รหัสนักศึกษา และวันที่ในใบตอบ และคัดลอกคำสั่งกับผลจากเครื่อง**ของตัวเอง** บรรทัด `the launch code is 4471` เป็นข้อความตายตัวของ lab เหมือนกันทุกคน ไม่ใช่ flag เฉพาะคน ห้ามเอาผลของเพื่อนมาส่งเป็นของตัวเอง
+- **อธิบายด้วยคำของตัวเอง** (ให้คะแนนจากเหตุผล): ข้อที่ให้เติมคำ (ขั้นที่ 3, 8, 10) ใช้คำที่ให้ไว้ได้เลย ส่วนคำตอบสั้น ๆ ของขั้นที่ 11 และ 12 และข้อเขียนของฟอร์มตัวเองต้องเขียนด้วยคำของตัวเอง
+
+**กำหนดส่งและการส่งช้า:** ส่งภายใน 23:59 น. (เวลาไทย) ของ **อาทิตย์ 6 ธ.ค.** ส่งช้าหักวันละ 10% ของคะแนนใบงานนี้ (ไม่เต็มวันนับเป็นหนึ่งวัน) จนเหลือ 0 การอัปโหลดหรือเปลี่ยนไฟล์หลังกำหนดส่งนับว่าส่งช้าทั้งชิ้น ส่งงานร่วม 60 คะแนน และแบบของตัวเอง**หนึ่งแบบ**เท่านั้น ทำทั้งสองแบบไม่ได้คะแนนเพิ่ม Viva ใช้ตรวจความเข้าใจ ไม่มีคะแนนแยก
