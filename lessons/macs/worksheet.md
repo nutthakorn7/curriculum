@@ -1,181 +1,181 @@
 # Worksheet 3 — MACs: Hash-Only Cookies and Length-Extension
 
 > **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
-> **Kind:** Docker lab แบบทำตามทีละขั้น ไม่ต้องเขียนโปรแกรม และไม่ต้องคำนวณเลข
+> **Kind:** Docker lab, step by step. No programming and no maths.
 
-> **Ethics note:** ทำเฉพาะกับ container 2 ตัวในเครื่องของตัวเองที่ lab นี้เปิดขึ้นมา (พอร์ต 8092 และ 8093)
-> การปลอมคุกกี้หรือ token ของระบบที่ไม่ใช่ของเราและไม่ได้รับอนุญาตเป็นเรื่องผิดกฎหมาย เก็บ flag ไว้ใน lab นี้เท่านั้น
+> **Ethics note:** Only work on the 2 containers on your own computer that this lab starts (ports 8092 and 8093).
+> Forging a cookie or token of a system that is not yours, without permission, is illegal. Keep the flag inside this lab.
 
-## อ่านก่อนเริ่ม
+## Read this first
 
-**วันนี้จะทำอะไร:** เว็บไซต์หนึ่ง "เซ็นชื่อ" กำกับคุกกี้ไว้เพื่อกันคนแก้ เราจะลองแก้เองแล้วดูว่าถูกจับได้ จากนั้นรันสคริปต์ที่อาจารย์เตรียมไว้เพื่อดูว่าวิธีเซ็นแบบนี้ยังถูกปลอมได้ และดูว่าวิธีเซ็นที่ถูกต้อง (HMAC) ป้องกันได้
+**What you will do today:** a website "signs" its cookie so that nobody can change it. We will try to change it ourselves and see that the server catches us. Then we will run a script prepared by the instructor to see that this way of signing can still be forged, and see that the correct way to sign (HMAC) stops it.
 
-**ทุกขั้นเขียนแบบเดียวกัน:**
+**Every step is written the same way:**
 
-| หัวข้อ | ความหมาย |
+| Heading | Meaning |
 |---|---|
-| **ทำอะไร** | บอกว่าขั้นนี้จะทำอะไร |
-| **พิมพ์** | คัดลอกทั้งบรรทัดไปวางใน Terminal แล้วกด Enter |
-| **ควรเห็น** | หน้าจอควรขึ้นประมาณนี้ |
-| **แปลว่า** | ผลที่เห็นหมายความว่าอะไร |
-| **ลงใบตอบ** | สิ่งที่ต้องคัดลอกหรือเขียนลงใบตอบ |
+| **What to do** | Says what this step does |
+| **Type** | Copy the whole line, paste it into the Terminal, and press Enter |
+| **You should see** | The screen should look roughly like this |
+| **Means** | What the result means |
+| **Write in the answer sheet** | What to copy or write in your answer sheet |
 
-**คะแนน**
+**Marks**
 
-- ทุกคนทำ **Part A (60 คะแนน)** ซึ่งเหมือนกันทั้งสองแบบ
-- จากนั้นทำ **เฉพาะแบบของตัวเอง (40 คะแนน)** ดูจากเลขตัวสุดท้ายของรหัสนักศึกษา: **เลขคี่ = Conventional (Part 2)**, **เลขคู่ = AIR-Sec (Parts 3–4)** แล้วเขียนแบบของตัวเองในช่อง Group
-- ตอบเป็นภาษาไทยหรืออังกฤษก็ได้ ตอบสั้น ๆ ให้ชัดก็พอ
-- **ใช้ใบตอบ:** ใน Classroom → Week 03 เปิดไฟล์ตามแบบของตัวเอง (`Wk03_Answer_Sheet_Conventional_odd_ID` หรือ `Wk03_Answer_Sheet_AIR-Sec_even_ID`) กด Open with → Google Docs พิมพ์ลงกรอบสีเทา แล้วกด File → Download → PDF
-- ส่งไฟล์เดียว ตั้งชื่อตามรหัสนักศึกษา เช่น `Wk03_66990000.pdf` (ไม่ต้องใส่เครื่องหมาย `<` `>`) ที่ `learn.zcr.ai/submit` โดยใช้รหัสส่งงานของ Week 3 ที่ได้ทางอีเมล KMITL ภายใน **อาทิตย์ 22 พ.ย. 23:59 น.**
-- ข้อที่เขียนว่า *optional* ไม่มีคะแนน ไม่ต้องทำก็ได้
+- Everyone does **Part A (60 marks)**, which is the same for both forms.
+- Then do **only your own form (40 marks)**. Look at the last digit of your student ID: **odd = Conventional (Part 2)**, **even = AIR-Sec (Parts 3–4)**. Write your form in the Group box.
+- You may answer in English or Thai. Short and clear is enough.
+- **Answer sheet:** in Classroom → Week 03, open the file for your form (`Wk03_Answer_Sheet_Conventional_odd_ID` or `Wk03_Answer_Sheet_AIR-Sec_even_ID`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
+- Submit one file named with your student ID, for example `Wk03_66990000.pdf` (do not type the `<` `>` signs), at `learn.zcr.ai/submit` with your Week 3 submission code from your KMITL email, by **Sunday 22 Nov, 23:59**.
+- Items marked *optional* have no marks. You can skip them.
 
-| Part A | คะแนน | ขั้นที่ลงใบตอบ |
+| Part A | Marks | Steps to write in the answer sheet |
 |---|---:|---|
-| A1 — ลองแก้คุกกี้ด้วยมือ | 20 | ขั้นที่ 1, 3, 5, 6 |
-| A2 — รันการปลอม แล้วรับ flag | 20 | ขั้นที่ 8, 10, 11 |
-| A3 — ดูว่า HMAC ป้องกันได้ | 20 | ขั้นที่ 12, 13, 14, 15, 16 |
+| A1 — Try editing the cookie by hand | 20 | Steps 1, 3, 5, 6 |
+| A2 — Run the forgery and get the flag | 20 | Steps 8, 10, 11 |
+| A3 — See that HMAC stops it | 20 | Steps 12, 13, 14, 15, 16 |
 
-**คำศัพท์ที่ต้องรู้**
+**Words you need to know**
 
-| คำ | ความหมายแบบง่าย |
+| Word | Simple meaning |
 |---|---|
-| Terminal | หน้าต่างสำหรับพิมพ์คำสั่ง |
-| Docker / container | โปรแกรมที่เปิด "เครื่องจำลอง" เล็ก ๆ ในเครื่องของเรา ทำพังก็ลบแล้วเริ่มใหม่ได้ |
-| คุกกี้ (cookie) | ข้อมูลที่เว็บฝากไว้ในเครื่องเรา เพื่อจำว่าเราเป็นใคร |
-| hash | การแปลงข้อมูลเป็นลายนิ้วมือขนาดคงที่ (เรียนแล้วใน Week 2) |
-| secret | รหัสลับที่มีแต่เซิร์ฟเวอร์รู้ |
-| ลายเซ็น (`sig`) | ค่าที่เซิร์ฟเวอร์สร้างจาก secret เพื่อดูว่าข้อมูลถูกแก้หรือเปล่า |
-| hex | การเขียนข้อมูลด้วยตัวเลข 0–9 และตัวอักษร a–f |
-| flag | ข้อความรางวัล รูปแบบ `FLAG{...}` เป็นหลักฐานว่าทำสำเร็จ |
-| key | รหัสลับ ความหมายเดียวกับ secret |
-| MAC | ค่ายืนยันว่าข้อมูลไม่ถูกแก้ สร้างจาก key |
-| tag | ผลลัพธ์ของ MAC ความหมายเดียวกับลายเซ็น `sig` ในงานนี้ |
-| HMAC | วิธีสร้าง MAC ที่ถูกต้องและใช้กันทั่วไป |
-| SHA-256, SHA-3 | ชื่อของ hash คนละแบบ |
-| `\|\|` | เอาข้อมูลมาต่อกัน เช่น `A \|\| B` คือ A ตามด้วย B |
-| replay | การเอาข้อมูลชุดเดิมมาส่งซ้ำ |
-| counter, timestamp, nonce | ตัวนับ, เวลา, ค่าสุ่มที่ใช้ครั้งเดียว ใช้บอกว่าข้อมูลนี้ใหม่หรือเก่า |
-| length-extension | การเขียนต่อจากค่า hash เดิม เพื่อให้ได้ค่าใหม่ของข้อมูลที่ยาวขึ้น |
+| Terminal | A window where you type commands |
+| Docker / container | A program that starts a small "pretend computer" on your computer. If you break it, delete it and start again |
+| cookie | Data a website leaves on your computer to remember who you are |
+| hash | Turning data into a fixed-size fingerprint (learned in Week 2) |
+| secret | A secret code that only the server knows |
+| signature (`sig`) | A value the server creates from the secret to check whether the data was changed |
+| hex | Writing data with the digits 0–9 and the letters a–f |
+| flag | A reward text of the form `FLAG{...}`, proof that you succeeded |
+| key | A secret code; the same meaning as secret |
+| MAC | A value that proves data was not changed, made from a key |
+| tag | The output of a MAC; the same meaning as the signature `sig` in this lab |
+| HMAC | The correct and widely used way to make a MAC |
+| SHA-256, SHA-3 | Names of two different hashes |
+| `\|\|` | Join data together; `A \|\| B` means A followed by B |
+| replay | Sending the same data again |
+| counter, timestamp, nonce | A count, a time, and a random value used once; they tell you whether data is new or old |
+| length-extension | Writing more after an existing hash value to get the hash of longer data |
 
-**คำถามที่มักสงสัย**
+**Questions people often ask**
 
-- *ต้องเก่งคณิตศาสตร์ไหม?* ไม่ต้อง วันนี้ไม่มีการคำนวณ
-- *ต้องเขียนโปรแกรมไหม?* ไม่ต้อง คัดลอกคำสั่งไปวางได้เลย
-- *ถ้าทำผิด เครื่องจะพังไหม?* ไม่พัง ทุกอย่างอยู่ใน container ถ้าสับสนให้พิมพ์ `docker compose down` แล้วเริ่มใหม่จากเตรียมขั้นที่ 5
-- *ไม่เข้าใจทุกตัวอักษรที่ขึ้นจอ ได้ไหม?* ได้ ดูเฉพาะบรรทัดที่ใบงานบอก
-- *ค่าที่ได้เหมือนเพื่อนทุกตัว ผิดไหม?* ไม่ผิด lab นี้ใช้ secret ชุดเดียวกัน แต่ต้องรันในเครื่องตัวเอง
-- *วางคำสั่งใน Terminal ยังไง?* คัดลอกคำสั่งจากใบงาน แล้ว Windows: กด Ctrl+V หรือคลิกขวา · Mac: กด Cmd+V จากนั้นกด Enter
-- *คัดลอกผลจาก Terminal ยังไง?* ลากเมาส์คลุมข้อความก่อน แล้ว Windows: กด Ctrl+Shift+C · Mac: กด Cmd+C หรือจะ screenshot ก็ได้
+- *Do I need to be good at maths?* No. There is no calculation today.
+- *Do I need to write programs?* No. Copy the commands and paste them.
+- *If I make a mistake, will my computer break?* No. Everything is inside containers. If you get confused, type `docker compose down` and start again from Prep step 5.
+- *Do I need to understand every character on the screen?* No. Look only at the lines the worksheet tells you to.
+- *Is it wrong if my values are the same as my friend's?* No. This lab uses the same secret for everyone, but you must run it on your own computer.
+- *How do I paste a command into the Terminal?* Copy the command from the worksheet, then Windows: press Ctrl+V or right-click · Mac: press Cmd+V, then press Enter.
+- *How do I copy results from the Terminal?* Select the text with the mouse first, then Windows: press Ctrl+Shift+C · Mac: press Cmd+C. Or take a screenshot.
 
-**ถ้าเจอข้อความแบบนี้**
+**If you see a message like this**
 
-| ข้อความบนจอ | สาเหตุ | วิธีแก้ |
+| Message on screen | Cause | Fix |
 |---|---|---|
-| มีคำว่า `Cannot connect to the Docker daemon` หรือ `error during connect` | ยังไม่ได้เปิด Docker | เปิด Docker Desktop รอจนขึ้น Engine running |
-| `no configuration file provided: not found` | Terminal ไม่ได้อยู่ในโฟลเดอร์ lab | ทำเตรียมขั้นที่ 4 อีกครั้ง |
-| `service "vulnerable" is not running` | ยังไม่ได้เปิด lab | ทำเตรียมขั้นที่ 5 และ 6 |
-| `Failed to connect` หรือ `Connection reset by peer` | เซิร์ฟเวอร์ยังไม่พร้อม | รอสักครู่ แล้วทำเตรียมขั้นที่ 6 อีกครั้ง |
-| Windows ถามหา `Uri` หรือขึ้นตัวแดงตอนใช้ `curl` | Windows มีคำสั่ง curl คนละตัว | เปลี่ยนคำแรกเป็น `curl.exe` |
-| `FAIL: fixed app never came up` (รอประมาณ 30 วินาที) | ลืม `-e FIXED_HOST=fixed` | คัดลอกคำสั่งขั้นที่ 8 ใหม่ทั้งบรรทัด |
+| `Cannot connect to the Docker daemon` or `error during connect` | Docker is not open | Open Docker Desktop and wait until it says Engine running |
+| `no configuration file provided: not found` | The Terminal is not in the lab folder | Repeat Prep step 4 |
+| `service "vulnerable" is not running` | The lab is not started | Do Prep steps 5 and 6 |
+| `Failed to connect` or `Connection reset by peer` | The server is not ready yet | Wait a moment, then repeat Prep step 6 |
+| Windows asks for `Uri`, or red text appears when you use `curl` | Windows has a different `curl` command | Change the first word to `curl.exe` |
+| `FAIL: fixed app never came up` (after waiting about 30 seconds) | You forgot `-e FIXED_HOST=fixed` | Copy the Step 8 command again, the whole line |
 
-ลองแล้วยังไม่ได้ ให้ถามเพื่อนหรืออาจารย์ได้เลย
+If you still cannot do it, ask a friend or your instructor.
 
 ---
 
-## ก่อนเริ่ม: เตรียมเครื่อง (ทำที่บ้าน ทำครั้งเดียว)
+## Before you start: set up your computer (at home, once)
 
-ถ้าเคยทำ Week 2 มาแล้ว มี Docker และไฟล์ ZIP อยู่แล้ว เริ่มที่**เตรียมขั้นที่ 4** ได้เลย ไฟล์ ZIP เดิมใช้ต่อได้ ถ้าหาโฟลเดอร์ `week03-macs` ไม่เจอ ให้โหลดใหม่ตามเตรียมขั้นที่ 2
+If you already did Week 2, you have Docker and the ZIP file. Start at **Prep step 4**. The old ZIP file can be reused. If you cannot find the `week03-macs` folder, download the ZIP again as in Prep step 2.
 
-**ถ้าปิดเครื่องไปแล้วกลับมาทำต่อ:** ทำเตรียมขั้นที่ 1, 4, 5, 6 ใหม่
+**If you turned your computer off and came back:** repeat Prep steps 1, 4, 5 and 6.
 
-#### เตรียมขั้นที่ 1 — เปิด Docker Desktop
+#### Prep step 1 — Open Docker Desktop
 
-**ทำอะไร:** ถ้ายังไม่มี ให้ติดตั้งจาก <https://www.docker.com/products/docker-desktop/> แล้วเปิดโปรแกรมทิ้งไว้
+**What to do:** If you do not have it yet, install it from <https://www.docker.com/products/docker-desktop/> and leave the program open.
 
-**ควรเห็น:** ในหน้าต่าง Docker Desktop ขึ้นว่า **Engine running**
+**You should see:** the Docker Desktop window says **Engine running**.
 
-#### เตรียมขั้นที่ 2 — โหลดไฟล์ lab
+#### Prep step 2 — Download the lab files
 
-**ทำอะไร:** เปิด <https://github.com/nutthakorn7/security-cryptography> กดปุ่มสีเขียว **Code** แล้วเลือก **Download ZIP**
+**What to do:** Open <https://github.com/nutthakorn7/security-cryptography>, click the green **Code** button, and choose **Download ZIP**.
 
-ไม่ต้องมีบัญชี GitHub และไม่ต้อง fork
+You do not need a GitHub account and you do not need to fork.
 
-#### เตรียมขั้นที่ 3 — แตกไฟล์ ZIP
+#### Prep step 3 — Unzip the ZIP file
 
-**ทำอะไร:** Windows: คลิกขวาที่ไฟล์ ZIP เลือก **Extract All** · Mac: ดับเบิลคลิกไฟล์ ZIP วางไว้ในที่ที่หาง่าย เช่น Desktop
+**What to do:** Windows: right-click the ZIP file and choose **Extract All** · Mac: double-click the ZIP file. Put it somewhere easy to find, such as the Desktop.
 
-**ควรเห็น:** โฟลเดอร์ชื่อ `security-cryptography-master` บางเครื่องจะมีโฟลเดอร์ชื่อเดียวกันซ้อนสองชั้น ให้เปิดเข้าไปจนเห็นโฟลเดอร์ `labs`
+**You should see:** a folder called `security-cryptography-master`. Some computers make a folder with the same name inside it; open it until you can see the `labs` folder.
 
-#### เตรียมขั้นที่ 4 — เปิด Terminal ในโฟลเดอร์ lab
+#### Prep step 4 — Open a Terminal inside the lab folder
 
-**ทำอะไร:** ในโฟลเดอร์ `security-cryptography-master` เข้าไปที่ `labs` แล้วเข้า `week03-macs`
+**What to do:** In `security-cryptography-master`, go to `labs`, then `week03-macs`.
 
-- **Windows:** เปิดโฟลเดอร์ `week03-macs` ใน File Explorer คลิกขวาตรงที่ว่าง เลือก **Open in Terminal** (ถ้าไม่มีเมนูนี้ ให้กด Shift ค้างแล้วคลิกขวา เลือก **Open PowerShell window here**)
-- **Mac:** เปิดแอป Terminal พิมพ์ `cd` เว้นวรรคหนึ่งครั้ง ลากโฟลเดอร์ `week03-macs` มาวางในหน้าต่าง แล้วกด Enter
+- **Windows:** open the `week03-macs` folder in File Explorer, right-click an empty spot, and choose **Open in Terminal** (if you do not see it, hold Shift, right-click, and choose **Open PowerShell window here**).
+- **Mac:** open the Terminal app, type `cd` and one space, drag the `week03-macs` folder into the window, then press Enter.
 
-เช็กว่าอยู่ถูกที่ด้วยคำสั่งนี้:
+Check that you are in the right place with this command:
 
 ```bash
 ls
 ```
 
-**ควรเห็น:** มีชื่อ `docker-compose.yml` และ `exploit.py` อยู่ในรายการ
+**You should see:** `docker-compose.yml` and `exploit.py` in the list.
 
-#### เตรียมขั้นที่ 5 — เปิด lab
+#### Prep step 5 — Start the lab
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose up -d
 ```
 
-**ควรเห็น:** บรรทัดลงท้ายว่า `Started` สองบรรทัด ครั้งแรกต้องต่ออินเทอร์เน็ตและอาจรอหลายนาที ระหว่างนั้นอย่าปิดหน้าต่าง
+**You should see:** two lines ending in `Started`. The first time you need the internet and it may take several minutes. Do not close the window while you wait.
 
-#### เตรียมขั้นที่ 6 — เช็กว่า lab พร้อม
+#### Prep step 6 — Check that the lab is ready
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose logs
 ```
 
-**ควรเห็น:** ข้อความจะยาวมาก และมีชื่อ container นำหน้าทุกบรรทัด เป็นเรื่องปกติ ให้เลื่อนหาสองบรรทัดนี้ ต้องมี**ครบทั้งสองบรรทัด**
+**You should see:** a very long output, with the container name at the start of every line. That is normal. Scroll to find these two lines. You must see **both lines**:
 
 ```
 vulnerable-1  |  * Running on http://127.0.0.1:8092
 fixed-1       |  * Running on http://127.0.0.1:8093
 ```
 
-จะมีบรรทัด `Running on` อื่น ๆ แทรกอยู่ด้วย ไม่ต้องสนใจ ขอแค่เห็น `127.0.0.1:8092` และ `127.0.0.1:8093` ถ้ายังไม่ครบ ให้รอสักครู่แล้วพิมพ์คำสั่งนี้อีกครั้ง
+Other `Running on` lines may appear between them. Ignore them. You only need to see `127.0.0.1:8092` and `127.0.0.1:8093`. If one is missing, wait a moment and type this command again.
 
 ---
 
-## Part A — The lab (both forms, 60 points)
+## Part A — The lab (both forms, 60 marks)
 
-เว็บไซต์จำเราได้ด้วย **คุกกี้** แต่คุกกี้อยู่ใน*เครื่องของเรา* เราจึงแก้เองได้ เซิร์ฟเวอร์เลยใส่ลายเซ็น `sig` ซึ่งสร้างจาก secret ที่มีแต่เซิร์ฟเวอร์รู้ เว็บนี้มีสองชุด เหมือนกันทุกอย่าง ต่างกันแค่วิธีเซ็น:
+A website remembers us with a **cookie**, but the cookie lives on *our computer*, so we can change it ourselves. The server therefore adds a signature `sig`, made from a secret that only the server knows. This site comes in two versions that are the same in every way except how they sign:
 
-| ชุด | พอร์ต | วิธีสร้าง `sig` | ปลอมได้ไหม |
+| Version | Port | How `sig` is made | Can it be forged? |
 |---|---|---|---|
-| `vulnerable_app.py` | `:8092` | `SHA256(secret + data)` | **ได้** |
-| `fixed_app.py` | `:8093` | `HMAC-SHA256(secret, data)` | **ไม่ได้** |
+| `vulnerable_app.py` | `:8092` | `SHA256(secret + data)` | **Yes** |
+| `fixed_app.py` | `:8093` | `HMAC-SHA256(secret, data)` | **No** |
 
-> **ถ้าใช้ Docker ไม่ได้จริง ๆ:** บอกอาจารย์ แล้วเปิด **<https://learn.zcr.ai/sim/mac-extend>** เลือก *Admin cookie* กดปุ่ม **Compute the forged cookie** แล้ว screenshot ผลทั้งสองช่องมาแทนขั้นที่ 8 และ 12 โดย Verifier A คือแบบพอร์ต 8092 ส่วน Verifier B คือแบบ hash ซ้อนกัน คล้าย HMAC บนพอร์ต 8093 (หน้านี้ใช้ hash จำลองขนาดเล็ก ไม่ใช่ SHA-256 จริง) ส่วนขั้นที่ 1, 3, 5 และ 13 ให้คัดลอกตัวอย่างในใบงานมา แล้วเขียนกำกับว่า "จากตัวอย่างในใบงาน" ขั้นที่เหลือตอบจากการอ่านใบงานได้
+> **If you really cannot use Docker:** tell your instructor, then open **<https://learn.zcr.ai/sim/mac-extend>**, choose *Admin cookie*, click **Compute the forged cookie**, and take a screenshot of both result boxes instead of Steps 8 and 12. Verifier A is the version on port 8092 and Verifier B is the nested-hash version, similar to HMAC, on port 8093 (this page uses a small pretend hash, not the real SHA-256). For Steps 1, 3, 5 and 13, copy the examples in the worksheet and write "from the worksheet example" next to them. The other steps can be answered by reading the worksheet.
 
-### A1 — ลองแก้คุกกี้ด้วยมือ (20 points)
+### A1 — Try editing the cookie by hand (20 marks)
 
 ![The server sends a cookie with data and a signature. If the data comes back unchanged, the server's own check matches and it accepts. If someone changes admin=false to admin=true and keeps the old signature, the check does not match and the server refuses.](img/w3-signed-cookie.svg)
 
-#### ขั้นที่ 1 — เข้าสู่ระบบเป็น guest
+#### Step 1 — Log in as guest
 
-**ทำอะไร:** ขอคุกกี้จากเซิร์ฟเวอร์ในฐานะผู้ใช้ชื่อ `guest`
+**What to do:** Ask the server for a cookie as the user `guest`.
 
-**พิมพ์** (Windows: เปลี่ยนคำแรก `curl` เป็น `curl.exe`):
+**Type** (Windows: change the first word `curl` to `curl.exe`):
 
 ```bash
 curl -i "localhost:8092/login?user=guest"
 ```
 
-**ควรเห็น:** มีหลายบรรทัด ให้หาสามบรรทัดนี้
+**You should see:** several lines. Find these three lines:
 
 ```
 Set-Cookie: data=757365723d67756573742661646d696e3d66616c7365; Path=/
@@ -183,161 +183,161 @@ Set-Cookie: sig=f27d2af10d667e1a70cc928912fd7494c3e29c575af355df66083faf890637d4
 logged in as guest
 ```
 
-**แปลว่า:** เซิร์ฟเวอร์ให้คุกกี้เรามาสองค่า คือ `data` กับ `sig`
+**Means:** the server gave us two cookie values, `data` and `sig`.
 
-**✍️ ลงใบตอบ (ขั้นที่ 1):** คัดลอกบรรทัด `data` และ `sig` จากหน้าจอของตัวเอง
+**✍️ Write in the answer sheet (Step 1):** copy the `data` and `sig` lines from your own screen.
 
-#### ขั้นที่ 2 — รู้จักสองค่านี้
+#### Step 2 — Meet the two values
 
-**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+**What to do:** Just read. You do not need to type anything.
 
-- `data` คือข้อมูลของเรา เขียนเป็น hex จึงยังอ่านไม่ออก
-- `sig` คือลายเซ็นของเซิร์ฟเวอร์ที่ใช้ตรวจว่า `data` ถูกแก้หรือเปล่า
+- `data` is our information, written in hex, so it is not readable yet.
+- `sig` is the server's signature, used to check whether `data` was changed.
 
-#### ขั้นที่ 3 — แปลง hex ให้อ่านออก
+#### Step 3 — Turn the hex into readable text
 
-**ทำอะไร:** แปลง `data` กลับเป็นข้อความ
+**What to do:** Convert `data` back into text.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose exec vulnerable python -c "print(bytes.fromhex('757365723d67756573742661646d696e3d66616c7365'))"
 ```
 
-**ควรเห็น:**
+**You should see:**
 
 ```
 b'user=guest&admin=false'
 ```
 
-**แปลว่า:** คุกกี้เขียนว่าเราชื่อ `guest` และ `admin=false` คือไม่ใช่ผู้ดูแล ส่วนตัว `b` กับเครื่องหมาย `'` เป็นแค่วิธีแสดงผลของ Python ไม่ต้องสนใจ
+**Means:** the cookie says our name is `guest` and `admin=false`, so we are not an administrator. The `b` and the `'` marks are only how Python displays the result. Ignore them.
 
-**✍️ ลงใบตอบ (ขั้นที่ 3):** คัดลอกข้อความที่ได้
+**✍️ Write in the answer sheet (Step 3):** copy the text you got.
 
-#### ขั้นที่ 4 — ลองเข้าหน้า admin ด้วยคุกกี้จริง
+#### Step 4 — Try the admin page with the real cookie
 
-**ทำอะไร:** ส่งคุกกี้จริงไปที่หน้า `/admin` ซึ่งเป็นหน้าสำหรับผู้ดูแล
+**What to do:** Send the real cookie to the `/admin` page, which is for administrators.
 
-**พิมพ์** (Windows: เปลี่ยนคำแรกเป็น `curl.exe`):
+**Type** (Windows: change the first word to `curl.exe`):
 
 ```bash
 curl --cookie "data=757365723d67756573742661646d696e3d66616c7365;sig=f27d2af10d667e1a70cc928912fd7494c3e29c575af355df66083faf890637d4" localhost:8092/admin
 ```
 
-**ควรเห็น:**
+**You should see:**
 
 ```
 {"error":"not admin"}
 ```
 
-**แปลว่า:** ลายเซ็นถูกต้อง แต่คุกกี้บอกว่าเราไม่ใช่ admin จึงเข้าไม่ได้ ถูกต้องแล้ว
+**Means:** the signature is valid, but the cookie says we are not an admin, so we cannot enter. That is correct.
 
-#### ขั้นที่ 5 — ลองโกงด้วยการแก้ `false` เป็น `true`
+#### Step 5 — Try to cheat: change `false` to `true`
 
-**ทำอะไร:** ค่า hex ยาว ๆ ในคำสั่งนี้คือข้อความ `user=guest&admin=true` เราแก้เป็น `true` แต่ยังใช้ `sig` อันเดิม
+**What to do:** The long hex value in this command is the text `user=guest&admin=true`. We changed it to `true` but still use the old `sig`.
 
-**พิมพ์** (Windows: เปลี่ยนคำแรกเป็น `curl.exe`):
+**Type** (Windows: change the first word to `curl.exe`):
 
 ```bash
 curl --cookie "data=757365723d67756573742661646d696e3d74727565;sig=f27d2af10d667e1a70cc928912fd7494c3e29c575af355df66083faf890637d4" localhost:8092/admin
 ```
 
-**ควรเห็น:**
+**You should see:**
 
 ```
 {"error":"bad signature"}
 ```
 
-**แปลว่า:** เซิร์ฟเวอร์จับได้ว่าข้อมูลถูกแก้
+**Means:** the server caught that the data was changed.
 
-**✍️ ลงใบตอบ (ขั้นที่ 5):** คัดลอกข้อความที่เซิร์ฟเวอร์ตอบ
+**✍️ Write in the answer sheet (Step 5):** copy the answer the server gave.
 
-#### ขั้นที่ 6 — สรุปด้วยคำของตัวเอง
+#### Step 6 — Summarise in your own words
 
-**ทำอะไร:** เติมคำในช่องว่าง
+**What to do:** Fill in the blanks.
 
-> เซิร์ฟเวอร์ไม่ยอมรับ เพราะ `sig` เดิมไม่ตรงกับ ________ ที่เราแก้ และเราสร้าง `sig` ใหม่เองไม่ได้ เพราะเราไม่รู้ ________ (เลือกคำ: `data` / `secret`)
+> The server rejects the cookie because the old `sig` does not match the ________ we changed, and we cannot create a new `sig` ourselves because we do not know the ________. (Choose: `data` / `secret`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 6):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 6):** write the full sentence.
 
-### A2 — รันการปลอม แล้วรับ flag (20 points)
+### A2 — Run the forgery and get the flag (20 marks)
 
-#### ขั้นที่ 7 — ทำไมวิธีเซ็นนี้มีปัญหา
+#### Step 7 — Why is this way of signing a problem?
 
-**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+**What to do:** Just read. You do not need to type anything.
 
-SHA-256 แบ่งข้อมูลเป็นก้อนเท่า ๆ กัน แล้วอ่านทีละก้อน พร้อมจำไว้ว่าอ่านถึงไหนแล้ว ใน Week 2 เราเรียกผลของ hash ว่าลายนิ้วมือ ซึ่งถูกต้อง แต่ลายนิ้วมือนั้นก็คือสิ่งที่มันจำไว้ตอนอ่านก้อนสุดท้ายจบ ดังนั้นค่า `sig` ที่เราเห็นจึงเป็น "จุดที่มันอ่านค้างไว้" นั่นเอง
+SHA-256 splits the data into equal-sized blocks and reads them one block at a time, remembering how far it has read. In Week 2 we called the result of a hash a fingerprint. That is true, but the fingerprint is also exactly what the hash remembered when it finished the last block. So the `sig` we see is "the place where it stopped reading".
 
-ลองนึกถึงสมุดที่เจ้าของเซ็นชื่อไว้ท้ายหน้าสุดท้าย คนอื่นอาจเขียนต่อจากตรงนั้นได้ โดยไม่ต้องรู้เลยว่าหน้าแรก ๆ เขียนอะไร สำหรับ `SHA256(secret + data)` หน้าแรก ๆ ก็คือ secret นั่นเอง การโจมตีแบบนี้เรียกว่า **length-extension**
+Think of a notebook where the owner signs at the bottom of the last page. Someone else could keep writing after that point without knowing what the first pages say. For `SHA256(secret + data)`, the first pages are the secret. This attack is called **length-extension**.
 
-สคริปต์ `exploit.py` ที่อาจารย์เตรียมไว้ทำแบบนี้ โดยเริ่มจากคุกกี้ธรรมดาหนึ่งชุด และรู้แค่ว่า secret **ยาวกี่ตัว** แต่ไม่รู้ว่า secret คืออะไร
+The `exploit.py` script prepared by the instructor does this. It starts from one ordinary cookie and knows only **how long** the secret is, but not what the secret is.
 
-#### ขั้นที่ 8 — รันสคริปต์
+#### Step 8 — Run the script
 
-**ทำอะไร:** ให้สคริปต์ลองปลอมคุกกี้กับเว็บทั้งสองชุด สคริปต์รันใน container จึงไม่ต้องลง Python ในเครื่อง
+**What to do:** Let the script try to forge a cookie against both websites. The script runs inside a container, so you do not need to install Python on your computer.
 
-**พิมพ์** (คัดลอกให้ครบทั้งบรรทัด อย่าตัด `-e FIXED_HOST=fixed` ออก):
+**Type** (copy the whole line; do not cut off `-e FIXED_HOST=fixed`):
 
 ```bash
 docker compose exec -e FIXED_HOST=fixed vulnerable python exploit.py
 ```
 
-**ควรเห็น:** บรรทัดที่ขึ้นต้นด้วย `[*]` คือสคริปต์เล่าว่ากำลังทำอะไร ไม่ต้องอ่านทั้งหมด ดูแค่สองบรรทัดสุดท้าย
+**You should see:** lines that start with `[*]` are the script telling you what it is doing. You do not need to read them all. Look only at the last two lines:
 
 ```
 PASS: forged cookie accepted by vulnerable app (:8092) -- flag = FLAG{...}
 PASS: forged cookie correctly REJECTED by fixed/HMAC app (:8093) -- status=403, no flag
 ```
 
-**แปลว่า:** `PASS` แปลว่าผลเป็นไปตามที่ควรเป็น บรรทัดแรกคือปลอมคุกกี้ผ่านและได้ flag บรรทัดที่สองคือเว็บที่ใช้ HMAC ไม่ยอมรับ
+**Means:** `PASS` means the result is what it should be. The first line means the forged cookie was accepted and gave a flag. The second line means the website that uses HMAC did not accept it.
 
-**ระวัง:** อย่าปิดหรือล้าง Terminal จนกว่าจะทำขั้นที่ 12 เสร็จ ถ้าหาบรรทัดไม่เจอ ให้พิมพ์คำสั่งขั้นที่ 8 อีกครั้งได้
+**Careful:** do not close or clear the Terminal until you finish Step 12. If you cannot find the lines, you can type the Step 8 command again.
 
-**✍️ ลงใบตอบ (ขั้นที่ 8):** คัดลอก**บรรทัด PASS แรก** ที่มี flag
+**✍️ Write in the answer sheet (Step 8):** copy the **first PASS line** (the one with the flag).
 
-#### ขั้นที่ 9 — หา flag
+#### Step 9 — Find the flag
 
-**ทำอะไร:** ในบรรทัด PASS แรก มองหาข้อความที่อยู่หลัง `flag =` รูปแบบ `FLAG{...}`
+**What to do:** In the first PASS line, look for the text after `flag =`, in the form `FLAG{...}`.
 
-**แปลว่า:** เราเข้าหน้า admin ได้สำเร็จโดยไม่รู้ secret เลย
+**Means:** we reached the admin page without knowing the secret at all.
 
-#### ขั้นที่ 10 — ตอบคำถาม a
+#### Step 10 — Answer question a
 
-**ทำอะไร:** เติมคำในช่องว่าง (คำใบ้: อ่านขั้นที่ 7)
+**What to do:** Fill in the blanks (hint: read Step 7).
 
-> สคริปต์ (รู้ / ไม่รู้) ค่าของ secret สิ่งที่มันมีตอนเริ่มคือ คุกกี้ธรรมดาหนึ่งชุด และ ________ ของ secret (เลือกคำ: `ค่า` / `ความยาว`)
+> The script (knows / does not know) the value of the secret. At the start it has one ordinary cookie and the ________ of the secret. (Choose: `value` / `length`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 10):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 10):** write the full sentence.
 
-#### ขั้นที่ 11 — ตอบคำถาม b
+#### Step 11 — Answer question b
 
-**ทำอะไร:** เติมคำในช่องว่าง สคริปต์ไม่ได้เดา secret ถูก แต่สร้าง `sig` ใหม่ด้วยวิธีเขียนต่อในขั้นที่ 7
+**What to do:** Fill in the blanks. The script did not guess the secret. It created a new `sig` with the extension method in Step 7.
 
-> ในขั้นที่ 5 เซิร์ฟเวอร์ไม่ยอมรับ เพราะ `sig` ไม่ตรงกับ `data` ที่แก้ แต่ครั้งนี้ยอมรับ เพราะ `sig` ที่สคริปต์สร้าง ________ กับ `data` ใหม่ (เลือกคำ: `ตรงกัน` / `ไม่ตรงกัน`)
+> In Step 5 the server rejected the cookie because the `sig` did not match the edited `data`. This time it accepts because the `sig` the script made ________ the new `data`. (Choose: `matches` / `does not match`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 11):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 11):** write the full sentence.
 
-### A3 — ดูว่า HMAC ป้องกันได้ (20 points)
+### A3 — See that HMAC stops it (20 marks)
 
-#### ขั้นที่ 12 — ดูผลของเว็บที่ใช้ HMAC
+#### Step 12 — See the result for the website that uses HMAC
 
-**ทำอะไร:** กลับไปดู**บรรทัด PASS ที่สอง** จากขั้นที่ 8 ไม่ต้องพิมพ์คำสั่งใหม่
+**What to do:** Go back and look at the **second PASS line** from Step 8. You do not need to type a new command.
 
-**แปลว่า:** สคริปต์เดิมทุกอย่าง แต่เว็บที่ใช้ HMAC ตอบ `403` คือไม่ยอมรับ และไม่ให้ flag
+**Means:** it is the same script, but the website that uses HMAC answered `403`, which means it did not accept the cookie and gave no flag.
 
-**✍️ ลงใบตอบ (ขั้นที่ 12):** คัดลอกบรรทัด PASS ที่สอง
+**✍️ Write in the answer sheet (Step 12):** copy the second PASS line.
 
-#### ขั้นที่ 13 — หาบรรทัดที่ต่างกัน
+#### Step 13 — Find the lines that differ
 
-**ทำอะไร:** ดูโค้ดส่วนที่สร้าง `sig` ของทั้งสองไฟล์
+**What to do:** Look at the code that creates `sig` in both files.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose exec vulnerable grep -A1 "def make_cookie" vulnerable_app.py fixed_app.py
 ```
 
-**ควรเห็น:**
+**You should see:**
 
 ```
 vulnerable_app.py:def make_cookie(data: bytes) -> dict:
@@ -347,61 +347,61 @@ fixed_app.py:def make_cookie(data: bytes) -> dict:
 fixed_app.py-    sig = hmac_module.new(MAC_SECRET.encode(), data, hashlib.sha256).hexdigest()
 ```
 
-**แปลว่า:** บรรทัดที่มี `sig =` คือบรรทัดที่สร้างลายเซ็น ไฟล์ vulnerable ใช้ SHA-256 ธรรมดา ส่วนไฟล์ fixed ใช้ HMAC (สังเกตคำว่า `hmac`) เครื่องหมาย `--` เป็นแค่เส้นคั่นระหว่างสองไฟล์
+**Means:** the line that contains `sig =` is the line that creates the signature. The vulnerable file uses plain SHA-256, and the fixed file uses HMAC (notice the word `hmac`). The `--` is only a separator between the two files.
 
-**✍️ ลงใบตอบ (ขั้นที่ 13):** คัดลอกบรรทัด `sig =` ทั้งสองบรรทัด
+**✍️ Write in the answer sheet (Step 13):** copy both `sig =` lines.
 
-#### ขั้นที่ 14 — ตอบคำถาม a
+#### Step 14 — Answer question a
 
-**ทำอะไร:** ดูสองบรรทัดจากขั้นที่ 13 แล้วเติมคำ (คำใบ้: บรรทัดไหนมีคำว่า `hmac`)
+**What to do:** Look at the two lines from Step 13 and fill in the blanks (hint: which line contains the word `hmac`).
 
-> ไฟล์ vulnerable สร้าง `sig` ด้วย ________ ส่วนไฟล์ fixed สร้าง `sig` ด้วย ________ (เลือกคำ: `SHA-256 ธรรมดา` / `HMAC`)
+> The vulnerable file makes `sig` with ________ and the fixed file makes `sig` with ________. (Choose: `plain SHA-256` / `HMAC`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 14):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 14):** write the full sentence.
 
-#### ขั้นที่ 15 — ทำไม HMAC จึงป้องกันได้ (ตอบคำถาม b)
+#### Step 15 — Why does HMAC stop it? (question b)
 
-**ทำอะไร:** อ่านแล้วตอบ
+**What to do:** Read, then answer.
 
 ![HMAC hashes twice. First the key and message go through an inner hash. Then the key and that inner result go through an outer hash, which gives the tag. The attacker only sees the final tag, and cannot carry on from it to sign a longer message.](img/w3-hmac-twice.svg)
 
-HMAC ทำ hash **สองรอบ** และผสม secret เข้าไปทั้งสองรอบ รอบแรกเรียกว่า inner รอบสองเรียกว่า outer เราเห็นแค่ผลของรอบสุดท้าย (ในภาพคือ Tag) ส่วนรอบแรกอยู่ในเซิร์ฟเวอร์ เราไม่เห็นเลย ถ้าจะเขียนต่อข้อความให้ยาวขึ้น ต้องเขียนต่อจากรอบแรก ซึ่งเราไม่เห็น
+HMAC hashes **twice** and mixes the secret into both rounds. The first round is called the inner hash and the second round is called the outer hash. We only see the result of the last round (the Tag in the picture). The first round stays inside the server and we never see it. To extend a message you must continue from the first round, which we cannot see.
 
-> เติมคำ แล้วเขียนต่ออีก 1 ประโยคด้วยคำของตัวเอง: `sig` ที่เราเห็นเป็นผลของรอบ ________ แต่การเขียนต่อข้อความต้องใช้ผลของรอบ ________ ซึ่งเราไม่เห็น (เลือกคำ: `แรก` / `สุดท้าย`)
+> Fill in the blanks, then add 1 more sentence in your own words: the `sig` we see is the result of the ________ round, but extending the message needs the result of the ________ round, which we cannot see. (Choose: `first` / `last`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 15):** เขียนคำตอบ
+**✍️ Write in the answer sheet (Step 15):** write your answer.
 
-#### ขั้นที่ 16 — สิ่งที่ HMAC ยังไม่ได้แก้ (ตอบคำถาม c)
+#### Step 16 — What HMAC does not fix (question c)
 
-**ทำอะไร:** อ่านแล้วตอบ
+**What to do:** Read, then answer.
 
-ทั้งสองไฟล์ตรวจลายเซ็นด้วย `if sig != expected` คำสั่ง `!=` เทียบทีละตัว พอเจอตัวแรกที่ต่างก็หยุดทันที เวลาที่ใช้จึงอาจบอกเป็นนัยได้ว่าถูกไปกี่ตัวแล้ว ส่วน `hmac.compare_digest()` ใช้เวลาเท่ากันเสมอ คำสั่ง `==` ก็มีปัญหาแบบเดียวกับ `!=`
+Both files check the signature with `if sig != expected`. The `!=` operator compares one character at a time and stops at the first difference, so the time it takes can hint at how many characters were right. `hmac.compare_digest()` always takes the same time. The `==` operator has the same problem as `!=`.
 
-> เติมคำ: ควรตรวจลายเซ็นด้วย ________ เพราะใช้เวลา ________ จึงไม่บอกใบ้ว่าถูกไปกี่ตัว (เลือกคำ: `!=` / `hmac.compare_digest()` และ `เท่ากันเสมอ` / `ไม่เท่ากัน`)
+> Fill in the blanks: you should check the signature with ________ because it takes ________ time, so it does not hint at how many characters were right. (Choose: `!=` / `hmac.compare_digest()` and `always the same` / `different`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 16):** เขียนคำตอบ
+**✍️ Write in the answer sheet (Step 16):** write your answer.
 
-#### ขั้นที่ 17 — ปิด lab
+#### Step 17 — Shut down the lab
 
-**ทำอะไร:** ทำหลังจากคัดลอกผลครบแล้ว
+**What to do:** Do this after you have copied all your results.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose down
 ```
 
-**ควรเห็น:** บรรทัดลงท้ายว่า `Removed`
+**You should see:** a line ending in `Removed`.
 
-#### ขั้นที่ 18 — เช็กก่อนไปต่อ
+#### Step 18 — Check before you go on
 
-**ทำอะไร:** ดูว่าในใบตอบมีครบไหม
+**What to do:** See whether your answer sheet has everything:
 
-- ขั้นที่ 1, 3, 5, 6 (A1)
-- ขั้นที่ 8, 10, 11 (A2)
-- ขั้นที่ 12, 13, 14, 15, 16 (A3)
+- Steps 1, 3, 5, 6 (A1)
+- Steps 8, 10, 11 (A2)
+- Steps 12, 13, 14, 15, 16 (A3)
 
-จากนั้นไปทำส่วนของแบบตัวเอง: เลขคี่ทำ Part 2 เลขคู่ทำ Part 3 และ Part 4
+Then do your own form: odd IDs do Part 2; even IDs do Parts 3 and 4.
 
 ---
 
@@ -412,37 +412,37 @@ docker compose down
 
 ---
 
-## Part 2 — Conventional form (40 points; only if Conventional is your assigned form)
+## Part 2 — Conventional form (40 marks; only if Conventional is your assigned form)
 
-ตอบข้อละ 2–3 ประโยค ภาษาไทยได้ ส่วนนี้ให้**ตอบด้วยตัวเอง** ไม่ใช้ AI ตอบ เลขข้อมาจากคลังข้อสอบเดิม จึงข้ามเลขบ้าง
+Answer each in 2–3 sentences. You may answer in Thai. In this part you must **answer yourself** and not use AI. The question numbers come from the original question bank, so some numbers are skipped.
 
-**Q1 (10). A cookie with no secret.** เซิร์ฟเวอร์เก็บคุกกี้เป็น `cookie = username || SHA-3(username)` คือชื่อผู้ใช้ ตามด้วย hash ของชื่อนั้น
+**Q1 (10). A cookie with no secret.** The server stores the cookie as `cookie = username || SHA-3(username)`, that is, the username followed by a hash of that username.
 
-ตอบให้ครบสองอย่างนี้:
+Answer both of these:
 
-- ถ้าคนร้ายเปลี่ยน `bob` เป็น `admin` แล้วคำนวณ hash ใหม่เอง เซิร์ฟเวอร์จะรู้ไหม เพราะอะไร
-- การออกแบบนี้ขาดอะไรไป (คำใบ้: สิ่งที่มีแต่เซิร์ฟเวอร์รู้)
+- If an attacker changes `bob` to `admin` and works out the new hash by themselves, will the server notice? Why?
+- What is missing from this design? (Hint: something that only the server knows)
 
-**Q3 (10). Replay.** ระบบส่ง `tag = MAC(k, message)` โดยไม่มี counter, timestamp หรือ nonce คนร้ายแอบบันทึกข้อความ "Transfer 1000 THB" พร้อม tag ไว้ แล้วส่งชุดเดิมซ้ำอีกครั้งในภายหลัง
+**Q3 (10). Replay.** A system sends `tag = MAC(k, message)` with no counter, timestamp or nonce. An attacker secretly records the message "Transfer 1000 THB" with its tag, then sends exactly the same message and tag again later.
 
-ตอบให้ครบสองอย่างนี้:
+Answer both of these:
 
-- ทำไมเซิร์ฟเวอร์ยังยอมรับ (คำใบ้: ข้อความและ tag ถูกแก้ไหม)
-- ถ้าจะป้องกัน ควรเพิ่มอะไร เลือกมา 1 อย่าง
+- Why does the server still accept it? (Hint: were the message and the tag changed?)
+- To prevent this, what should be added? Pick one.
 
-**Q5 (10). Secret in front is not enough.** นักพัฒนาใช้ `MAC = SHA-256(key || message)` และ `message = "user=bob"`
+**Q5 (10). Secret in front is not enough.** A developer uses `MAC = SHA-256(key || message)` with `message = "user=bob"`.
 
-ตอบให้ครบสองอย่างนี้ (ไม่ต้องลงรายละเอียดลึก):
+Answer both of these (no need for deep detail):
 
-- คนร้ายที่ไม่รู้ key ทำอะไรได้ (คำใบ้: สิ่งที่เห็นในขั้นที่ 8)
-- ทำไม HMAC จึงไม่มีปัญหานี้ (คำใบ้: ขั้นที่ 15)
+- What can an attacker who does not know the key do? (Hint: what you saw in Step 8)
+- Why does HMAC not have this problem? (Hint: Step 15)
 
-**Q6 (10). Design a safe cookie.** ออกแบบคุกกี้ที่ปลอดภัย ตอบเป็นข้อ ๆ สั้น ๆ ได้:
+**Q6 (10). Design a safe cookie.** Design a safe cookie. Short points are fine:
 
-- เก็บอะไรในคุกกี้บ้าง (คำใบ้: ชื่อผู้ใช้ สิทธิ์ และเวลาหมดอายุ)
-- สร้าง tag ด้วยอะไร (คำใบ้: ขั้นที่ 14) และ key ควรเป็นแบบไหน (คำใบ้: มีแต่เซิร์ฟเวอร์รู้ และเดายาก)
-- ตรวจ tag ด้วยคำสั่งอะไร (คำใบ้: ขั้นที่ 16)
-- ป้องกันการส่งซ้ำอย่างไร (คำใบ้: Q3)
+- What goes into the cookie? (Hint: the username, the role, and an expiry time)
+- What do you use to create the tag? (Hint: Step 14) And what kind of key should it be? (Hint: known only to the server, and hard to guess)
+- What do you use to check the tag? (Hint: Step 16)
+- How do you prevent replay? (Hint: Q3)
 
 ### Going further (optional — no marks)
 
@@ -493,20 +493,20 @@ Your job: find it.
 >
 > — end of AI answer —
 
-คำตอบของ AI ด้านบนเป็นภาษาอังกฤษ ไม่ต้องแปลทุกคำ ทำตามนี้ทีละขั้น:
+The AI's answer above is in English, so you do not need to translate every word. Follow these steps one by one:
 
-ในงานนี้ให้หา **2 จุด**
+In this task, find **2 problems**.
 
-**P3-1 อ่านคร่าว ๆ:** มีทั้งหมดสี่ย่อหน้า ขึ้นต้นด้วย Design, Verification, Replay prevention และ Why this is safer
+**P3-1 Skim it:** there are four paragraphs. They start with Design, Verification, Replay prevention and Why this is safer.
 
-**P3-2 หาปัญหาแรก:** อ่านย่อหน้า *Verification* แล้วมองหาเครื่องหมายที่ใช้เทียบ tag ลองนึกถึงขั้นที่ 16 ใน Part A
+**P3-2 Find the first problem:** read the *Verification* paragraph and look for the operator used to compare the tag. Think back to Step 16 in Part A.
 
-**P3-3 หาปัญหาที่สอง:** อ่านย่อหน้า *Replay prevention* แล้วถามตัวเองว่า เซิร์ฟเวอร์เอา `issued_at` ไปตรวจว่าคุกกี้เก่าเกินไปหรือเปล่าไหม ถ้าคนร้ายส่งคุกกี้เดิมซ้ำ จะถูกจับได้ไหม
+**P3-3 Find the second problem:** read the *Replay prevention* paragraph and ask yourself: does the server use `issued_at` to check whether the cookie is too old? If an attacker sends the same cookie again, will it be caught?
 
-ส่วน HMAC ในคำตอบนี้ถูกต้องแล้ว ไม่ต้องไปหาที่ผิดตรงนั้น
+The HMAC in this answer is correct, so do not look for a mistake there.
 
-1. **Find what's wrong or risky.** คัดลอกประโยคที่มีปัญหาทั้ง **2 จุด** แล้วเขียนสั้น ๆ ว่าแต่ละจุดผิดตรงไหน
-2. **Write the corrected version yourself.** แก้เฉพาะ 2 จุดนั้น ไม่ต้องเขียนใหม่ทั้งหมด บอกว่าควรใช้คำสั่งอะไรเทียบ tag และเซิร์ฟเวอร์ควรตรวจอะไรเพิ่ม แล้วเขียน 2 ประโยคว่า ทำไมคำตอบนี้ดูถูกต้องถ้าตรวจแค่ว่า tag ตรงกัน แต่ยังถูกโจมตีได้
+1. **Find what's wrong or risky.** Copy the sentences that have a problem, for **both of the 2 problems**, and write briefly what is wrong with each.
+2. **Write the corrected version yourself.** Fix only those 2 problems. You do not need to rewrite everything. Say what should be used to compare the tag and what else the server should check, then write 2 sentences on why this answer looks correct if you only check that the tag matches, yet can still be attacked.
 
 > Disclose any other AI use in the Part 1 table. This task counts toward the **Audit the AI** row.
 
@@ -514,27 +514,27 @@ Your job: find it.
 
 ## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
-**A. Explain in Plain English (EiPE, 10).** เพื่อนนักพัฒนาบอกว่า *"เราเอา secret ไว้ข้างหน้าข้อความก่อนทำ hash ไม่มีใครแก้ข้อความได้หรอก"*
+**A. Explain in Plain English (EiPE, 10).** A developer friend says *"We put the secret in front of the message before hashing it, so nobody can change the message."*
 
-อธิบายให้เพื่อนฟัง 2–4 ประโยค **ไม่ใช้ศัพท์ยาก** (ใช้คำว่า hash ได้) โดยตอบให้ครบสองอย่างนี้ (คำใบ้: อ่านขั้นที่ 7 แล้วใช้คำพูดของตัวเอง):
+Explain to your friend in 2–4 sentences, **without difficult words** (you may use the word hash). Answer both of these (hint: read Step 7 and use your own words):
 
-- คนร้ายทำอะไรได้
-- ทำไมการเอา secret ไว้ข้างหน้าจึงป้องกันไม่ได้ อธิบายด้วยแนวคิดที่ว่า "hash อ่านข้อมูลทีละก้อนและจำว่าอ่านถึงไหนแล้ว"
+- What can an attacker do?
+- Why does putting the secret in front not protect the message? Explain with the idea that "a hash reads the data one block at a time and remembers how far it has read".
 
-**B. Prompt Problem (10).** ใช้ AI ตัวไหนก็ได้ แล้วทำตามนี้:
+**B. Prompt Problem (10).** Use any AI you like and follow these steps:
 
-1. เขียน prompt **หนึ่งอัน** ถาม AI ว่า *ทำไม HMAC ป้องกันการโจมตีนี้ได้ แต่ `SHA256(key||message)` ป้องกันไม่ได้* ขอให้ AI อธิบายแบบง่าย ๆ
-2. คัดลอกคำตอบของ AI ลงใบตอบ
-3. ตรวจคำตอบของ AI กับสิ่งที่เรียนมาทีละข้อ:
+1. Write **one** prompt that asks the AI *why HMAC stops this attack but `SHA256(key||message)` does not*. Ask the AI to explain it simply.
+2. Copy the AI's answer into your answer sheet.
+3. Check the AI's answer against what you learned, one point at a time:
 
 - Does it explain that HMAC hashes **twice** with the key mixed in (an *inner* and an *outer* hash)?
 - Does it say the real problem is *how the secret is used*, not that SHA-256 is "broken"?
 - Does it make anything up (a wrong RFC number — HMAC is RFC 2104 — or a claim that SHA-3 has this
   same weakness; it does not)?
 
-4. เขียนวิจารณ์ 3–5 ประโยค ว่าข้อไหนผ่าน ข้อไหนไม่ผ่าน
+4. Write a critique of 3–5 sentences saying which points passed and which did not.
 
-ส่ง **prompt + คำตอบของ AI + คำวิจารณ์ของตัวเอง**
+Submit the **prompt + the AI's answer + your own critique**.
 
 ---
 
@@ -542,9 +542,9 @@ Your job: find it.
 
 An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
-1. "ในขั้นที่ 5 เซิร์ฟเวอร์ไม่ยอมรับคุกกี้ที่เราแก้เอง แต่ในขั้นที่ 8 กลับยอมรับคุกกี้จากสคริปต์ ต่างกันตรงไหน"
-2. "สคริปต์รู้แค่ว่า secret ยาวกี่ตัว ถ้าอาจารย์เปลี่ยนให้ secret ยาวขึ้นโดยไม่บอกสคริปต์ คิดว่าจะเกิดอะไรขึ้น"
-3. "ชี้บรรทัด `sig =` ที่ต่างกันของสองไฟล์ แล้วบอกว่าบรรทัดนั้นหยุดการปลอมได้อย่างไร"
+1. "In Step 5 the server rejected the cookie we edited ourselves, but in Step 8 it accepted the cookie from the script. What is the difference?"
+2. "The script only knows how long the secret is. If the instructor makes the secret longer without telling the script, what do you think will happen?"
+3. "Point to the `sig =` lines that differ in the two files, and say how that line stops the forgery."
 
 ---
 
@@ -563,7 +563,7 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 ## Evidence & Integrity (required)
 
-- ใส่ชื่อ รหัสนักศึกษา และวันที่ในใบตอบ และคัดลอกคำสั่งกับผลจากเครื่อง**ของตัวเอง** ค่า flag เหมือนเพื่อนได้ สัปดาห์นี้ไม่มี flag เฉพาะคน แต่ห้ามเอาผลของเพื่อนมาส่งเป็นของตัวเอง
-- **อธิบายด้วยคำของตัวเอง** (ให้คะแนนจากเหตุผล): ทำไมการปลอมจึงได้ผลกับ `:8092` และทำไมเว็บที่ใช้ HMAC บน `:8093` จึงไม่ยอมรับ
+- Put your name, student ID and the date in the answer sheet, and copy the commands and results from **your own** computer. The flag may be the same as your friends'. There is no per-student flag this week, but you must not submit a friend's results as your own.
+- **Explain in your own words** (marks are given for the reasoning): why the forgery works on `:8092`, and why the website that uses HMAC on `:8093` does not accept it.
 
-**กำหนดส่งและการส่งช้า:** ส่งภายใน 23:59 น. (เวลาไทย) ของ **อาทิตย์ 22 พ.ย.** ส่งช้าหักวันละ 10% ของคะแนนใบงานนี้ (ไม่เต็มวันนับเป็นหนึ่งวัน) จนเหลือ 0 การอัปโหลดหรือเปลี่ยนไฟล์หลังกำหนดส่งนับว่าส่งช้าทั้งชิ้น ส่งงานร่วม 60 คะแนน และแบบของตัวเอง**หนึ่งแบบ**เท่านั้น ทำทั้งสองแบบไม่ได้คะแนนเพิ่ม Viva ใช้ตรวจความเข้าใจ ไม่มีคะแนนแยก
+**Deadline and late work:** submit by 23:59 (Thai time) on **Sunday 22 Nov**. Late work loses 10% of this worksheet's marks per day (a part day counts as a day), down to 0. Uploading or replacing a file after the deadline counts as late for the whole submission. Submit the common 60 marks and **one** form of your own only; doing both forms gives no extra marks. The viva checks your understanding and has no separate marks.
