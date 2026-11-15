@@ -1,4 +1,4 @@
-# Fixed topology: true end-to-end encryption (server-cannot-read).
+# Fixed topology: client-side encryption with an honest key relay.
 #
 # Run with:
 #   docker compose -f docker-compose.fixed.yml up --build
@@ -10,9 +10,9 @@
 #     week13-server | SERVER SAW: <base64 gibberish, NOT the plaintext>
 # and bob decrypts client-side:
 #     week13-bob    | BOB DECRYPTED: meet at pier 39 at midnight
-# The plaintext never reaches the server. "SERVER SAW: meet at pier 39 at
-# midnight" NEVER appears in this topology -- that absence is the evidence the
-# E2EE actually protected the message from the provider.
+# The plaintext does not reach this honest relay. "SERVER SAW: meet at pier 39
+# at midnight" does not appear in this run. A malicious relay could substitute
+# its own public key; this demonstration does not authenticate key ownership.
 #
 # No private key is shipped: bob's RSA keypair is generated at container
 # startup and never written to disk.

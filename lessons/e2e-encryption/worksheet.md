@@ -1,273 +1,392 @@
-# Worksheet 13 — End-to-End Encryption: TLS Is Not Enough
+# Worksheet 13 — End-to-End Encryption: HTTPS is not enough
 
 > **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
-> **Aligned to:** CWE-311 (Missing Encryption of Sensitive Data), CWE-319 (Cleartext Transmission
-> of Sensitive Information — here, cleartext handling of sensitive data on the relay, even with
-> encrypted transport)
-> **Kind:** Hybrid — a runnable TLS-only-vs-E2EE demo (Part 2a) alongside conceptual content that
-> stays theoretical this week (the root-of-trust / key-distribution problem, Part 2c).
+> **Aligned to:** CWE-311 (Missing Encryption of Sensitive Data), CWE-532 (Sensitive Information in a Log File), CWE-312 (Cleartext Storage of Sensitive Information)
+> **Kind:** Docker lab แบบทำตามทีละขั้น ไม่ต้องเขียนโปรแกรม และไม่ต้องคำนวณเลข
 
-> **Ethics note:** Only run and observe the local containers this lab spins up (`server.py`,
-> `alice.py`, `bob.py`). The lesson is about reading a *provider's own logs* to see what it could
-> store. Reading, intercepting, or logging other people's messages on systems you don't own is
-> illegal. Keep everything inside this lab environment.
+> **Ethics note:** ทำเฉพาะกับ container ในเครื่องของตัวเองที่ lab นี้เปิดขึ้นมา (server จำลอง, Alice และ Bob) บทเรียนคือ "ผู้ให้บริการอ่านข้อความของผู้ใช้ได้หรือไม่" การอ่านหรือเก็บข้อความของคนอื่นในระบบที่ไม่ใช่ของเราและไม่ได้รับอนุญาตเป็นเรื่องผิดกฎหมาย
 
-## 100-minute class and assigned worksheet version
+## อ่านก่อนเริ่ม
 
-**In class:** 10 min retrieval quiz + 10 min brief explanation + 60 min practice/analysis + 15 min debrief + 5 min evidence capture = 100 min.
+**วันนี้จะทำอะไร:** แอปแชตเกือบทุกแอปใช้ HTTPS ข้อความจึงถูกเข้ารหัสระหว่างทาง แต่เมื่อข้อความไปถึง **server ของผู้ให้บริการ** server ถอดรหัสออกมา เก็บ และเขียนลง log ได้ ผู้ให้บริการจึงอ่านข้อความทุกอันได้ เราจะดู server จำลองที่ทำแบบนั้น แล้วดู **การเข้ารหัสแบบ end-to-end (E2EE)** ที่ Alice เข้ารหัสข้อความ**บนเครื่องของเธอเอง** ด้วยกุญแจสาธารณะของ Bob เพื่อให้ server เห็นแต่ข้อมูลที่อ่านไม่ออก สิ่งที่ต้องจำ: **HTTPS ปกป้องระหว่างทาง ไม่ได้ปกป้องจากผู้ให้บริการ**
 
-**Shared core — every student:** Run the provider-visible and client-encrypted scenarios; compare plaintext/ciphertext server logs and recipient output; explain that the demo does not authenticate the server-relayed recipient public key.
+**ทุกขั้นเขียนแบบเดียวกัน:**
 
-**Preparation and extensions:** Prepare images and read the trust-boundary diagram. Complete the full protocol/ratchet essays or AIR-Sec critique/EiPE/Prompt outside the core block as needed.
+| หัวข้อ | ความหมาย |
+|---|---|
+| **ทำอะไร** | บอกว่าขั้นนี้จะทำอะไร |
+| **พิมพ์** | คัดลอกทั้งบรรทัดไปวางใน Terminal แล้วกด Enter |
+| **ควรเห็น** | หน้าจอควรขึ้นประมาณนี้ (ผลมีบรรทัดอื่นของ Docker ปนอยู่ด้วย ดูเฉพาะบรรทัดที่ใบงานบอก) |
+| **แปลว่า** | ผลที่เห็นหมายความว่าอะไร |
+| **ลงใบตอบ** | สิ่งที่ต้องคัดลอกหรือเขียนลงใบตอบ |
 
-**Assessment:** everyone completes the shared core (60 points) plus **one assigned version** (40 points): Conventional written analysis, or AIR-Sec Audit-the-AI 20 + EiPE 10 + Prompt Problem 10. Both versions total 100. All questions remain available; complete the assigned version's full questions, using out-of-class time for extended responses. The other version is ungraded reference practice, not an additional requirement. Viva/micro-demo questions are formative checks of the submitted explanation, with no separate points or automatic pass/fail score gate.
+**คะแนน**
 
-**Evidence:** record reproducible observations or reasoning and your name/student ID. Where the local target prints a shared placeholder flag, record it as observed; a personalized flag or live CTFd account is not a prerequisite. Follow SUBMISSION.md for the announced hand-in channel.
+- ทุกคนทำ **Part A (60 คะแนน)** ซึ่งเหมือนกันทั้งสองแบบ
+- จากนั้นทำ **เฉพาะแบบของตัวเอง (40 คะแนน)** ดูจากเลขตัวสุดท้ายของรหัสนักศึกษา: **เลขคี่ = Conventional (Part 2)**, **เลขคู่ = AIR-Sec (Parts 3–4)** (เลข 0 นับเป็นเลขคู่) แล้วเขียนแบบของตัวเองในช่อง Group
+- ตอบเป็นภาษาไทยหรืออังกฤษก็ได้ ตอบสั้น ๆ ให้ชัดก็พอ
+- **ใช้ใบตอบ:** ใน Classroom → Week 13 เปิดไฟล์ตามแบบของตัวเอง (`Wk13_Answer_Sheet_Conventional_odd_ID` หรือ `Wk13_Answer_Sheet_AIR-Sec_even_ID`) กด Open with → Google Docs พิมพ์ลงกรอบสีเทา แล้วกด File → Download → PDF
+- ส่งไฟล์เดียว ตั้งชื่อตามรหัสนักศึกษา เช่น `Wk13_66990000.pdf` (ไม่ต้องใส่เครื่องหมาย `<` `>`) ที่ `learn.zcr.ai/submit` โดยใช้รหัสส่งงานของ Week 13 ที่ได้ทางอีเมล KMITL ภายใน **อาทิตย์ 31 ม.ค. 2027 23:59 น.**
+- ข้อที่เขียนว่า *optional* ไม่มีคะแนน ไม่ต้องทำก็ได้
 
-## Part 0 — Student Information
-| Name | Student ID | Date | Group |
-|---|---|---|---|
+| Part A | คะแนน | ขั้นที่ลงใบตอบ |
+|---|---:|---|
+| A1 — server อ่านข้อความได้ (HTTPS อย่างเดียว) | 20 | ขั้นที่ 2, 3 |
+| A2 — เข้ารหัสที่เครื่อง Alice (E2EE) server อ่านไม่ได้ | 20 | ขั้นที่ 5, 6 |
+| A3 — ความต่างอยู่ตรงไหน และ lab ยังไม่พิสูจน์อะไร | 20 | ขั้นที่ 7, 8, 9, 10 |
 
-*Disclose any AI assistance used anywhere in this worksheet here (tool + what you asked it).*
+**คำศัพท์ที่ต้องรู้**
 
----
+| คำ | ความหมายแบบง่าย |
+|---|---|
+| Terminal | หน้าต่างสำหรับพิมพ์คำสั่ง |
+| Docker / container | โปรแกรมที่เปิด "เครื่องจำลอง" เล็ก ๆ ในเครื่องของเรา ทำพังก็ลบแล้วเริ่มใหม่ได้ |
+| server (ผู้ให้บริการ) | เครื่องกลางของแอปแชต รับข้อความจากผู้ส่ง เก็บ แล้วส่งต่อผู้รับ |
+| plaintext / ciphertext | ข้อความที่อ่านออก / ข้อความที่เข้ารหัสแล้วอ่านไม่ออก |
+| HTTPS (TLS) | เข้ารหัสการเชื่อมต่อระหว่างเรากับ server แต่ server เป็นปลายทางของการเชื่อมต่อนั้น จึงเห็นข้อความ |
+| E2EE (end-to-end) | ผู้ส่งเข้ารหัสข้อความบนเครื่องตัวเอง เฉพาะผู้รับถอดรหัสได้ server เห็นแต่ ciphertext |
+| กุญแจสาธารณะ | ของ Bob แจกให้ใครก็ได้ ใช้ล็อกข้อความถึง Bob มีแต่ Bob ที่เปิดได้ด้วยกุญแจส่วนตัว |
+| log | บันทึกสิ่งที่โปรแกรมทำ ที่ผู้ดูแลระบบอ่านได้ |
 
-## Part 1 — Conventional Arm: Essay Questions
+**คำถามที่มักสงสัย**
 
-Answer each in your own words (roughly 150–250 words per answer — enough to show you understand
-the mechanism, not so much that you're padding). This is a normal written/essay task — **no
-AI-resilience layer applies to this part; answer it yourself.** These five questions are the
-conventional-arm assessment for {{ slot_label }}.
+- *ต้องเก่งคณิตศาสตร์ไหม?* ไม่ต้อง
+- *ต้องเขียนโปรแกรมไหม?* ไม่ต้อง คัดลอกคำสั่งไปวางได้เลย
+- *ถ้าทำผิด เครื่องจะพังไหม?* ไม่พัง ทุกอย่างอยู่ใน container ถ้าสับสนให้พิมพ์สองคำสั่งในขั้นที่ 11 แล้วเริ่มใหม่
+- *ไม่เข้าใจทุกบรรทัดที่ขึ้นจอ ได้ไหม?* ได้ ดูเฉพาะบรรทัดที่ใบงานบอก
+- *บรรทัด base64 ยาวมาก ต้องคัดลอกทั้งหมดไหม?* ไม่ต้อง คัดลอก**ประมาณ 60 ตัวแรก**พอ แล้วเติม `...`
+- *ตัวอักษร base64 ของเราไม่เหมือนเพื่อน ผิดไหม?* ไม่ผิด กุญแจสุ่มใหม่ทุกครั้ง แต่ข้อความที่อ่านออกใน log ของ Bob ต้องเหมือนกัน
+- *วางคำสั่งใน Terminal ยังไง?* คัดลอกคำสั่งจากใบงาน แล้ว Windows: กด Ctrl+V หรือคลิกขวา · Mac: กด Cmd+V จากนั้นกด Enter
+- *คัดลอกผลจาก Terminal ยังไง?* ลากเมาส์คลุมข้อความก่อน แล้ว Windows: กด Ctrl+Shift+C · Mac: กด Cmd+C หรือจะ screenshot ก็ได้
 
-**Q1. Why TLS is not enough.** Explain why using TLS/HTTPS everywhere still does **not** stop the
-server operator from reading your messages. Cover the role of servers (they terminate TLS and hold
-plaintext), middleboxes / TLS termination, and why end-to-end encryption is necessary *despite*
-TLS being nearly universal.
+**ถ้าเจอข้อความแบบนี้**
 
-**Q2. The root-of-trust problem.** Public-key crypto lets Alice encrypt to Bob's public key — but
-how does Alice *know* a given public key is really Bob's and not an impostor's? Explain the
-chicken-and-egg problem of public-key distribution, why cryptography alone cannot fully solve
-*trust*, and give **two** concrete examples of a root of trust (e.g. a certificate authority, a
-key server, a manually verified fingerprint / QR safety number, a preinstalled root store).
+| ข้อความบนจอ | สาเหตุ | วิธีแก้ |
+|---|---|---|
+| มีคำว่า `Cannot connect to the Docker daemon` หรือ `error during connect` | ยังไม่ได้เปิด Docker | เปิด Docker Desktop รอจนขึ้น Engine running |
+| `no configuration file provided: not found` หรือ `open docker-compose...yml: no such file` | Terminal ไม่ได้อยู่ในโฟลเดอร์ lab | ทำเตรียมขั้นที่ 4 อีกครั้ง |
+| ใน log ของ Bob ยังไม่มีบรรทัด `BOB RECEIVED` / `BOB DECRYPTED` | Bob ยังรอข้อความอยู่ | รอ 5–10 วินาที แล้วพิมพ์คำสั่ง `logs bob` อีกครั้ง |
+| ผลของโหมดเก่าปนมา | ยังไม่ได้ปิดโหมดก่อนหน้า | พิมพ์สองคำสั่งในขั้นที่ 11 แล้วเริ่มใหม่ |
 
-**Q3. Why encrypted email failed.** PGP and S/MIME have existed for decades yet never reached mass
-adoption for everyday email. Explain the technical limits (key discovery — how do you get someone's
-public key; metadata leakage — what stays visible even when the body is encrypted) and the
-usability problems. Then give **your own opinion**: if you were to redesign email for E2EE today,
-what would you change and why?
-
-**Q4. How Signal improves on PGP.** Explain how the Signal protocol addresses PGP's weaknesses.
-Cover **TOFU** (trust on first use), the **X3DH** handshake, and the **Double Ratchet** (which
-provides *forward secrecy* — a key compromise today does not expose past messages — and
-*post-compromise security* — the session heals after a compromise). Explain why these properties
-work better for *real, non-expert users* than PGP's "manage your own long-term keyring" model.
-
-**Q5. Open problems in E2EE.** Pick **one** of: (a) group-messaging fan-out, (b) multi-device key
-sync, or (c) the limits of TOFU and how *Key Transparency* aims to fix them. State what the problem
-is, why it is genuinely hard, and the **security-vs-usability trade-off** it forces on designers.
-
----
-
-## Part 2 — Shared Lab Core and Assigned AIR-Sec Tasks
-
-AI is a power tool you must **distrust** — several parts below are graded on your *critique*, not
-on how well you can prompt an AI. Full run instructions: [`README.md`](README.md).
-
-### Part 2a — Shared lab steps + evidence artifact (required for both versions)
-
-**Setup.** `server.py` is the provider and is **byte-for-byte the same in both modes** — it always
-logs `SERVER SAW: <payload>`. What changes is what `alice.py` chooses to send. There is no host
-port; you read the container logs.
-
-1. Run **vulnerable mode** (TLS-only provider that can read everything):
-   ```bash
-   cd {{ labpath }}
-   docker compose -f docker-compose.vulnerable.yml up --build
-   ```
-   Capture the full log output. Your required evidence line is:
-   ```
-   SERVER SAW: meet at pier 39 at midnight
-   ```
-   plus `BOB RECEIVED: meet at pier 39 at midnight`. **The `SERVER SAW: ...` plaintext line is your
-   attributable artifact for this HYBRID week, in place of a CTF flag.** The message
-   text is fixed for every student (`SECRET_MESSAGE` is a lab constant, not per-student), so what
-   makes your submission *yours* is not the string — it's the same attributed mechanism as
-   every other week: include your name/student ID and a reproducible capture or annotated transcript from your own run, as described in Evidence & Integrity. Note in one line: *who*
-   could read the secret in this mode, and *why the fact that the connection could be HTTPS doesn't
-   change that answer*.
-2. Tear down: `Ctrl-C`, then `docker compose -f docker-compose.vulnerable.yml down`.
-3. Run **fixed mode** (true end-to-end encryption):
-   ```bash
-   docker compose -f docker-compose.fixed.yml up --build
-   ```
-   Capture the full log output. Your required evidence is **both** of:
-   - a `SERVER SAW:` line that is now **long base64 gibberish**, NOT the plaintext, and
-   - `BOB DECRYPTED: meet at pier 39 at midnight` (bob still recovers the secret client-side).
-
-   Then confirm the plaintext is **absent** from the server's log explicitly:
-   ```bash
-   docker compose -f docker-compose.fixed.yml logs server | grep -c "meet at pier 39 at midnight"
-   ```
-   and record that it prints `0` (run the same grep against the vulnerable-mode server log to see
-   it print `1`, if you like the contrast).
-4. Tear down: `Ctrl-C`, then `docker compose -f docker-compose.fixed.yml down`.
-
-**Submit:** both captured logs (with your name/student ID and reproducible attribution), your one-line note from step 1, the
-fixed-mode base64 `SERVER SAW:` line, the `BOB DECRYPTED` line, and the `grep -c` output from
-step 3.
+ลองแล้วยังไม่ได้ ให้ถามเพื่อนหรืออาจารย์ได้เลย
 
 ---
 
-## 🤖 Audit the AI (Part 2b — required)
+## ก่อนเริ่ม: เตรียมเครื่อง (ทำที่บ้าน ทำครั้งเดียว)
+
+ถ้าเคยทำ Week 2–6 หรือ 10–12 มาแล้ว มี Docker และไฟล์ ZIP อยู่แล้ว เริ่มที่**เตรียมขั้นที่ 4** ได้เลย แต่ ZIP ต้องมีโฟลเดอร์ `week13-e2e-encryption` ถ้าไม่เจอให้โหลดใหม่ตามเตรียมขั้นที่ 2
+
+#### เตรียมขั้นที่ 1 — เปิด Docker Desktop
+
+**ทำอะไร:** ถ้ายังไม่มี ให้ติดตั้งจาก <https://www.docker.com/products/docker-desktop/> แล้วเปิดโปรแกรมทิ้งไว้
+
+**ควรเห็น:** ในหน้าต่าง Docker Desktop ขึ้นว่า **Engine running**
+
+#### เตรียมขั้นที่ 2 — โหลดไฟล์ lab
+
+**ทำอะไร:** เปิด <https://github.com/nutthakorn7/security-cryptography> กดปุ่มสีเขียว **Code** แล้วเลือก **Download ZIP** ไม่ต้องมีบัญชี GitHub และไม่ต้อง fork
+
+#### เตรียมขั้นที่ 3 — แตกไฟล์ ZIP
+
+**ทำอะไร:** Windows: คลิกขวาที่ไฟล์ ZIP เลือก **Extract All** · Mac: ดับเบิลคลิกไฟล์ ZIP
+
+**ควรเห็น:** โฟลเดอร์ชื่อ `security-cryptography-master` บางเครื่องจะมีโฟลเดอร์ชื่อเดียวกันซ้อนสองชั้น ให้เปิดเข้าไปจนเห็นโฟลเดอร์ `labs`
+
+#### เตรียมขั้นที่ 4 — เปิด Terminal ในโฟลเดอร์ lab
+
+**ทำอะไร:** ในโฟลเดอร์ `security-cryptography-master` เข้าไปที่ `labs` แล้วเข้า `week13-e2e-encryption`
+
+- **Windows:** เปิดโฟลเดอร์ `week13-e2e-encryption` ใน File Explorer คลิกขวาตรงที่ว่าง เลือก **Open in Terminal** (ถ้าไม่มีเมนูนี้ ให้กด Shift ค้างแล้วคลิกขวา เลือก **Open PowerShell window here**)
+- **Mac:** เปิดแอป Terminal พิมพ์ `cd` เว้นวรรคหนึ่งครั้ง ลากโฟลเดอร์ `week13-e2e-encryption` มาวางในหน้าต่าง แล้วกด Enter
+
+เช็กว่าอยู่ถูกที่ด้วยคำสั่งนี้:
+
+```bash
+ls
+```
+
+**ควรเห็น:** มีชื่อ `alice.py` และ `docker-compose.vulnerable.yml` อยู่ในรายการ
+
+#### เตรียมขั้นที่ 5 — สร้างภาพ (image) ของ lab
+
+**พิมพ์:**
+
+```bash
+docker compose -f docker-compose.vulnerable.yml build
+```
+
+**ควรเห็น:** บรรทัดลงท้ายว่า `Built` หรือ `Building ... done` ครั้งแรกต้องต่ออินเทอร์เน็ตและอาจรอหลายนาที ระหว่างนั้นอย่าปิดหน้าต่าง
+
+---
+
+## Part A — The lab (both forms, 60 points)
+
+มีตัวละครสามตัว (เป็นโปรแกรมใน Docker) ทำตามลำดับ A1 → A2 → A3 ต่อเนื่องกัน:
+
+| ตัวละคร | ทำอะไร |
+|---|---|
+| **Alice** | ผู้ส่ง ส่งข้อความลับ `meet at pier 39 at midnight` ไปให้ Bob ผ่าน server |
+| **Server** | ผู้ให้บริการ รับข้อความ เก็บ และเขียนสิ่งที่ได้รับลง log ว่า `SERVER SAW: ...` โค้ดของ server **เหมือนกันทุกโหมด** |
+| **Bob** | ผู้รับ ดึงข้อความจาก server |
+
+> **ถ้าใช้ Docker ไม่ได้จริง ๆ:** บอกอาจารย์ แล้วคัดลอกบรรทัดตัวอย่างในใบงานมาใส่ใบตอบ เขียนกำกับว่า "จากตัวอย่างในใบงาน" ส่วนขั้นที่ 3, 6, 8, 9 และ 10 ตอบจากการอ่านใบงานได้
+
+### A1 — server อ่านข้อความได้ (HTTPS อย่างเดียว) (20 points)
+
+#### ขั้นที่ 1 — อ่าน: โหมดแรกไม่มี E2EE
+
+**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+
+โหมดแรกนี้ Alice ส่ง**ข้อความที่อ่านออก**ไปให้ server (เหมือนแอปที่ใช้ HTTPS ระหว่างทาง) server รับ เก็บ และเขียนลง log เหมือนที่ผู้ให้บริการจริงทำได้ จึงเห็นข้อความทุกอัน ไม่ว่าการเชื่อมต่อระหว่างทางจะเข้ารหัสหรือไม่
+
+#### ขั้นที่ 2 — รันโหมด HTTPS อย่างเดียว แล้วดูว่า server เห็นอะไร
+
+**ทำอะไร:** เปิด server, Alice และ Bob ให้ Alice ส่งข้อความ แล้วดู log ของ server และของ Bob
+
+**พิมพ์** ทีละบรรทัด:
+
+```bash
+docker compose -f docker-compose.vulnerable.yml up -d --build
+docker compose -f docker-compose.vulnerable.yml logs server
+docker compose -f docker-compose.vulnerable.yml logs bob
+```
+
+**ควรเห็น:** คำสั่งแรกขึ้น `Started` สามบรรทัด ให้หาสองบรรทัดนี้ใน log (log ของ server มีบรรทัดอื่นปนอยู่ด้วย)
+
+```
+week13-server  | SERVER SAW: meet at pier 39 at midnight
+week13-bob  | BOB RECEIVED: meet at pier 39 at midnight
+```
+
+**แปลว่า:** server เห็นข้อความ**ที่อ่านออก** (`SERVER SAW: meet at pier 39 at midnight`) Bob ก็ได้รับข้อความเดียวกัน ผู้ให้บริการ (และคนที่เข้าถึง log ของ server) อ่านความลับได้
+
+**✍️ ลงใบตอบ (ขั้นที่ 2):** คัดลอกสองบรรทัดข้างบนจากหน้าจอของตัวเอง
+
+#### ขั้นที่ 3 — สรุปด้วยคำของตัวเอง
+
+**ทำอะไร:** เติมคำในช่องว่าง
+
+> ในโหมดนี้ ________ อ่านความลับได้ (เลือกคำ: `server` / `แค่ Bob`) และต่อให้การเชื่อมต่อใช้ HTTPS ก็ไม่เปลี่ยนคำตอบนี้ เพราะ server เป็น ________ ของการเชื่อมต่อนั้น (เลือกคำ: `ปลายทาง` / `คนกลาง`)
+
+**✍️ ลงใบตอบ (ขั้นที่ 3):** เขียนประโยคนี้ให้ครบ
+
+### A2 — เข้ารหัสที่เครื่อง Alice (E2EE) server อ่านไม่ได้ (20 points)
+
+#### ขั้นที่ 4 — อ่าน: โหมด E2EE
+
+**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+
+โหมดที่สอง Bob สร้างคู่กุญแจ (กุญแจสาธารณะกับกุญแจส่วนตัว) แล้ว**ส่งกุญแจสาธารณะให้ server แจก** Alice ดึงกุญแจสาธารณะของ Bob มา แล้ว**เข้ารหัสข้อความบนเครื่องของเธอเอง** ก่อนส่ง server เห็นแต่ข้อมูลที่เข้ารหัสแล้ว (ciphertext) ส่วน Bob ใช้กุญแจส่วนตัวที่ไม่เคยออกจากเครื่องของเขา ถอดรหัสข้อความได้ **โค้ดของ server ไม่ได้เปลี่ยนเลย** เปลี่ยนแค่สิ่งที่ Alice ส่ง
+
+#### ขั้นที่ 5 — รันโหมด E2EE แล้วดูว่า server เห็นอะไร
+
+**ทำอะไร:** เปิดโหมดใหม่ แล้วดู log ของ server และของ Bob
+
+**พิมพ์** ทีละบรรทัด (ถ้ายังมีโหมดแรกค้างอยู่ ให้ทำต่อได้เลย Docker จะสลับให้):
+
+```bash
+docker compose -f docker-compose.fixed.yml up -d --build
+docker compose -f docker-compose.fixed.yml logs server
+docker compose -f docker-compose.fixed.yml logs bob
+```
+
+**ควรเห็น:** ในผลมีบรรทัด `SERVER SAW:` ที่ตามด้วยตัวอักษรยาวมาก (base64 อ่านไม่ออก) และบรรทัดของ Bob ที่อ่านออก (ตัวอักษร base64 ของเราจะไม่เหมือนตัวอย่าง)
+
+```
+week13-server  | SERVER SAW: eyJlbmNfa2V5IjogIlFsUWxzL1dkbEcxT0RFUDNkVVN5YllHb2xsTVR3aVNtamg0Qm...
+week13-bob  | BOB DECRYPTED: meet at pier 39 at midnight
+```
+
+**แปลว่า:** server เห็นแต่ข้อมูลอ่านไม่ออก (ไม่มี `meet at pier 39` ใน `SERVER SAW:`) แต่ Bob ถอดรหัสแล้วได้ข้อความเดิมครบ
+
+**✍️ ลงใบตอบ (ขั้นที่ 5):** คัดลอกสองบรรทัดข้างบนจากหน้าจอของตัวเอง (บรรทัด `SERVER SAW:` คัดลอกประมาณ 60 ตัวอักษรแรกแล้วเติม `...`)
+
+#### ขั้นที่ 6 — ตอบคำถามสองข้อ
+
+**ทำอะไร:** เติมคำในช่องว่างทั้งสองข้อ (คำใบ้: ขั้นที่ 4 และผลในขั้นที่ 5)
+
+> a) ข้อความถูกเข้ารหัสที่ ________ (เลือกคำ: `เครื่องของ Alice` / `server`) ก่อนส่ง
+>
+> b) ใน log ของ server ไม่มี ________ (เลือกคำ: `ข้อความที่อ่านออก` / `ข้อความที่เข้ารหัส`) แต่ Bob ยังอ่านข้อความได้ เพราะมี ________ (เลือกคำ: `กุญแจส่วนตัว` / `กุญแจสาธารณะ`) ที่ไม่เคยออกจากเครื่องของเขา
+
+**✍️ ลงใบตอบ (ขั้นที่ 6):** เขียนทั้งสองประโยคให้ครบ
+
+### A3 — ความต่างอยู่ตรงไหน และ lab ยังไม่พิสูจน์อะไร (20 points)
+
+#### ขั้นที่ 7 — หาบรรทัดที่ต่างกันในโค้ดของ Alice
+
+**ทำอะไร:** ดูสองบรรทัดที่ Alice เลือกว่าจะส่งอะไรให้ server
+
+**พิมพ์:**
+
+```bash
+docker compose -f docker-compose.fixed.yml run --rm --entrypoint grep alice -n "payload = " alice.py
+```
+
+**ควรเห็น:** สองบรรทัด (เลขบรรทัดอาจต่างเล็กน้อย)
+
+```
+72:        payload = hybrid_encrypt(bob_public_key, SECRET_MESSAGE.encode())
+76:        payload = SECRET_MESSAGE
+```
+
+**แปลว่า:** บรรทัดแรก (โหมด E2EE) Alice **เข้ารหัสด้วยกุญแจสาธารณะของ Bob ก่อน** แล้วส่ง บรรทัดที่สอง (โหมดแรก) ส่ง**ข้อความที่อ่านออก**ตรง ๆ ความต่างอยู่ที่ฝั่ง Alice ไม่ใช่ที่ server
+
+**✍️ ลงใบตอบ (ขั้นที่ 7):** คัดลอกสองบรรทัดที่ขึ้นบนจอ
+
+#### ขั้นที่ 8 — สรุปด้วยคำของตัวเอง
+
+**ทำอะไร:** ดูผลขั้นที่ 7 แล้วเติมคำ
+
+> โค้ดของ server ________ (เลือกคำ: `เหมือนกัน` / `ต่างกัน`) ในสองโหมด สิ่งที่ต่างคือ Alice ส่ง ________ (เลือกคำ: `ข้อความที่เข้ารหัสแล้ว` / `ข้อความที่อ่านออก`) ในโหมด E2EE
+
+**✍️ ลงใบตอบ (ขั้นที่ 8):** เขียนประโยคนี้ให้ครบ
+
+#### ขั้นที่ 9 — lab นี้ยังไม่พิสูจน์อะไร
+
+**ทำอะไร:** อ่านแล้วเติมคำ
+
+ใน lab นี้ Alice **เชื่อ**กุญแจสาธารณะที่ server ส่งมาให้ว่าเป็นของ Bob จริง ถ้า server ไม่ซื่อสัตย์ มันแอบเปลี่ยนเป็นกุญแจของตัวเองได้ Alice ก็จะเข้ารหัสให้ **server** อ่านได้ โดยไม่รู้ตัว (เหมือนใบรับรองปลอมใน Week 12) lab นี้จึงพิสูจน์แค่ว่า **server ที่ซื่อสัตย์** อ่านข้อความไม่ได้ ไม่ได้พิสูจน์ว่ากุญแจที่ได้มาเป็นของ Bob จริง
+
+> ถ้า server เปลี่ยนกุญแจสาธารณะของ Bob เป็นของตัวเอง ข้อความของ Alice จะถูก ________ อ่านได้ (เลือกคำ: `server` / `ไม่มีใคร`) ปัญหานี้ชื่อว่าการยืนยัน ________ ของกุญแจ (เลือกคำ: `เจ้าของ` / `ความเร็ว`)
+
+**✍️ ลงใบตอบ (ขั้นที่ 9):** เขียนประโยคนี้ให้ครบ
+
+#### ขั้นที่ 10 — ป้องกันอย่างไร
+
+**ทำอะไร:** อ่านแล้วตอบ 1–2 ประโยค
+
+แอปจริง เช่น Signal ให้ผู้ใช้เปรียบเทียบ **"เลขความปลอดภัย" (safety number)** หรือสแกน QR ของกันและกัน โดยไม่ผ่าน server เพื่อยืนยันว่ากุญแจเป็นของคนที่ถูกต้อง
+
+> ทำไมการเปรียบเทียบ safety number นอก server จึงช่วยจับ server ที่เปลี่ยนกุญแจได้ (คำใบ้: ขั้นที่ 9)
+
+**✍️ ลงใบตอบ (ขั้นที่ 10):** เขียนคำตอบ
+
+#### ขั้นที่ 11 — ปิด lab และเช็กใบตอบ
+
+**ทำอะไร:** ทำหลังจากคัดลอกผลครบแล้ว (สองคำสั่งนี้ลบ container ที่ค้างอยู่)
+
+**พิมพ์** ทีละบรรทัด:
+
+```bash
+docker compose -f docker-compose.vulnerable.yml down
+docker compose -f docker-compose.fixed.yml down
+```
+
+**ควรเห็น:** บรรทัดลงท้ายว่า `Removed` จากนั้นดูว่าในใบตอบมีครบ: ขั้นที่ 2, 3 (A1), ขั้นที่ 5, 6 (A2), ขั้นที่ 7, 8, 9, 10 (A3) แล้วไปทำส่วนของแบบตัวเอง: เลขคี่ทำ Part 2 เลขคู่ทำ Part 3 และ Part 4
+
+---
+
+## Part 1 — Student Information
+
+| Name | Student ID | Date | Group (your form) | AI tools used (which, for what) |
+|---|---|---|---|---|
+| | | | | |
+
+---
+
+## Part 2 — Conventional form (40 points; only if Conventional is your assigned form)
+
+ตอบข้อละ 2–3 ประโยค ภาษาไทยได้ ส่วนนี้ให้**ตอบด้วยตัวเอง** ไม่ใช้ AI ตอบ
+
+**Q1 (10). HTTPS ยังไม่พอ.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+
+- ในขั้นที่ 2 การเชื่อมต่ออาจใช้ HTTPS ทำไม server ยังอ่านข้อความได้ (คำใบ้: ขั้นที่ 1 และ 3)
+- HTTPS ปกป้องข้อความจากใคร และไม่ปกป้องจากใคร
+- นอกจาก log ผู้ให้บริการอ่านข้อความได้จากที่ไหนอีก (เช่น ฐานข้อมูลของ server) และ server ทำอะไรกับข้อความที่ได้รับบ้าง
+
+**Q2 (10). E2EE ต่างอย่างไร.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+
+- Alice ทำอะไรก่อนส่งข้อความในโหมด E2EE และใช้กุญแจของใคร (คำใบ้: ขั้นที่ 4 และ 7)
+- ทำไม server ที่เก็บและเขียน log ข้อความ ก็ยังอ่านไม่ได้ (คำใบ้: ขั้นที่ 5)
+- ทำไม Bob ยังอ่านได้ (กุญแจส่วนตัวอยู่ที่ไหน)
+
+**Q3 (10). กุญแจเป็นของ Bob จริงไหม.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+
+- ใน lab Alice ได้กุญแจสาธารณะของ Bob จากไหน (คำใบ้: ขั้นที่ 9)
+- ถ้า server ไม่ซื่อสัตย์ จะทำอะไรกับกุญแจนั้นได้ และผลคืออะไร
+- ยกตัวอย่างวิธีป้องกันหนึ่งอย่าง (เช่น safety number หรือ QR ที่เปรียบเทียบนอก server) (คำใบ้: ขั้นที่ 10)
+
+**Q4 (10). Signal ดีกว่า PGP ตรงไหน.** ตอบให้ครบสองอย่างนี้ (ข้อละ 2–3 ประโยค): PGP ใช้งานยากสำหรับคนทั่วไปเพราะอะไร (เช่น หากุญแจของอีกฝ่ายยาก ต้องจัดการกุญแจเอง) และแอปแบบ Signal ช่วยผู้ใช้ทั่วไปอย่างไร (จัดการกุญแจให้อัตโนมัติ ตรวจกุญแจด้วย safety number และเปลี่ยนกุญแจต่อเนื่องเพื่อให้ข้อความเก่าปลอดภัยแม้กุญแจใหม่รั่ว)
+
+### Going further (optional — no marks)
+
+- **Q5 — ทำไมอีเมลเข้ารหัสไม่แพร่หลาย.** ข้อจำกัดของ PGP/S/MIME (การหากุญแจ ข้อมูลรอบข้างที่ยังเห็นได้) และถ้าออกแบบอีเมลใหม่จะเปลี่ยนอะไร
+- **Q6 — ปัญหาเปิดของ E2EE.** เลือกหนึ่งอย่าง: การส่งข้อความกลุ่ม, การซิงก์กุญแจหลายเครื่อง, หรือ Key Transparency พร้อมข้อดีข้อเสียระหว่างความปลอดภัยกับการใช้งาน
+- **Q7 — Double Ratchet.** forward secrecy และ post-compromise recovery คืออะไร และมีข้อจำกัดอะไร (เช่น ถ้าเครื่องปลายทางถูกยึดอยู่)
+
+---
+
+## Part 3 — AIR-Sec Arm: Audit the AI (AIR-Sec version only, 20 points)
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
-You asked an AI assistant: *"Write me a secure chat backend so nobody can read my users' messages."*
-Below is what it produced. It *looks* secure — it mentions encryption, it uses `https`, it even
-talks about protecting messages — but it is exactly the **vulnerable mode** of this lab dressed up
-in reassuring language. Your job: find the flaw.
+AI เขียน "แชตหลังบ้านที่ปลอดภัย" ให้ ดูน่าเชื่อถือ แต่เป็น**โหมดแรกของ lab นี้**
 
-> **AI's answer — "a secure chat backend":**
+> **AI's answer:**
 >
 > ```python
-> # Secure chat server. All traffic is encrypted with TLS (https), so
-> # messages are safe from eavesdroppers on the network.
-> @app.post("/send")                       # served over https:// via our TLS proxy
+> @app.post("/send")                       # served over https://
 > def send():
 >     msg = request.json["message"]        # plaintext message from the sender
->     db.execute(
->         "INSERT INTO messages (sender, recipient, body) VALUES (?, ?, ?)",
->         (request.json["from"], request.json["to"], msg),
->     )
+>     db.execute("INSERT INTO messages (sender, recipient, body) VALUES (?, ?, ?)",
+>                (request.json["from"], request.json["to"], msg))
 >     log.info("stored message from %s: %s", request.json["from"], msg)
 >     return {"ok": True}
->
-> @app.get("/inbox/<user>")                # also over https://
-> def inbox(user):
->     rows = db.execute("SELECT sender, body FROM messages WHERE recipient=?", (user,))
->     return {"messages": [dict(sender=r[0], body=r[1]) for r in rows]}
 > ```
 >
-> "This backend is secure: every request and response travels over **HTTPS/TLS**, so the messages
-> are encrypted and no attacker on the network can read them. Messages are safely stored in the
-> database and delivered only to the intended recipient's inbox. Because we use industry-standard
-> TLS, this is end-to-end encrypted and privacy-preserving."
+> "Secure: every request travels over HTTPS/TLS. Because we use industry-standard TLS, this is end-to-end encrypted."
 >
 > — end of AI answer —
 
-1. **Find what's wrong.** Quote the exact line(s). (Hint: the TLS claim in the transport layer may
-   even be true — don't waste your critique arguing about `https`. Look at what the **server
-   itself** does with `msg`: what does it `INSERT` into the database, and what does it write to
-   `log.info`? Ask who, besides the network, can read the message here.)
-2. **Explain the false claim.** In 2–3 sentences: why is the sentence *"Because we use
-   industry-standard TLS, this is end-to-end encrypted"* **wrong**? Name the two different
-   guarantees the AI has conflated (transport encryption vs. end-to-end encryption), and state
-   precisely who can still read every message in the AI's design. Connect this to the **vulnerable
-   mode** you ran in Part 2a — it is the same flaw.
-3. **Produce the corrected design yourself.** Describe (code sketch or clear prose) how you would
-   change this so the *server operator* cannot read the messages, mirroring the lab's fixed mode:
-   where does encryption/decryption move to, whose key encrypts the message, and what does the
-   server end up storing instead of plaintext? State the single most important change in one
-   sentence (hint: it is **not** "add more TLS" — it is *move the encryption boundary to the
-   endpoints*).
+1. **Find what's wrong (10).** คัดลอกบรรทัดที่ผิด และอธิบาย 2–3 ประโยคว่าใครอ่านข้อความได้ทั้งที่ใช้ HTTPS (คำใบ้: ขั้นที่ 2)
+2. **Fix it (10).** ประโยค "ใช้ TLS จึงเป็น end-to-end" ผิดเพราะอะไร และแก้ให้ผู้ให้บริการอ่านไม่ได้อย่างไร (คำใบ้: ขั้นที่ 7)
 
-> Disclose any AI use (beyond this provided artifact) in the Part 0 table. This task counts toward
-> the **Audit the AI** row of the grading rubric.
+> Disclose any other AI use in the Part 1 table. This task counts toward the **Audit the AI** row.
 
 ---
 
-## 🧠 Comprehension & Prompt (Parts 2c–2d — required)
+## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
-**Part 2c — Explain in Plain English (EiPE).** A non-technical friend says: *"WhatsApp already uses
-HTTPS — the little lock icon — so my messages are already private. Why does 'end-to-end encrypted'
-even matter?"* Answer them in **4–6 sentences, in genuinely plain language** (no "TLS handshake,"
-"asymmetric," "RSA," "public key" dropped without first explaining what you mean in ordinary
-words). Cover:
-- What the "lock icon" / HTTPS actually protects (the message while it's *travelling* between their
-  phone and WhatsApp's computers) — and, crucially, what it does **not** protect (the message once
-  it *arrives* at WhatsApp's computers, where it would sit readable if that were all they did).
-- What **end-to-end** encryption adds: the message is scrambled on the sender's phone in a way that
-  **only the recipient's phone can unscramble**, so even WhatsApp's own servers only ever hold
-  gibberish — connect this to the two `SERVER SAW:` lines you captured (plaintext vs. base64).
-- Why this matters in practice: name one concrete thing that becomes impossible for the provider
-  when messages are E2EE (e.g. handing readable messages to whoever asks, scanning them for ads,
-  or leaking them in a breach).
+**A. Explain in Plain English (EiPE, 10).** เพื่อนถามว่า *"แชตของฉันใช้ HTTPS ข้อความก็ส่วนตัวแล้ว ทำไมต้อง end-to-end?"* อธิบาย 4–6 ประโยค **ไม่ใช้ศัพท์ยาก**: HTTPS ปกป้องอะไรและไม่ปกป้องอะไร, E2EE เพิ่มอะไร, และความเสี่ยงที่ยังเหลือ (เครื่องที่ถูกยึด)
 
-**Part 2d — Prompt Problem.** Ask an AI assistant a single prompt along the lines of: *"Explain the
-difference between using HTTPS/TLS for a chat app and making it end-to-end encrypted."* Paste its
-full response, then critique it. At minimum, check whether the AI's answer:
-- Correctly locates *where the plaintext exists* in each case — TLS: readable on the server after
-  the connection terminates; E2EE: only ever plaintext on the two endpoints, ciphertext on the
-  server. An answer that just says "E2EE is more secure" without saying *who is newly excluded from
-  reading* has dodged the question.
-- Names the **threat model difference**: TLS defends against a *network eavesdropper*; E2EE
-  additionally defends against the *provider itself* (and anyone who compromises or subpoenas it).
-- Gets the **trust bootstrap** right (ties to Q2): E2EE only helps if you have the *right* public
-  key for the recipient — an answer that hand-waves "the app just encrypts to the recipient"
-  without noting that the app/provider distributing those keys must itself be trusted (or verified
-  out-of-band, e.g. safety numbers) has hidden the hard part.
-- Doesn't **hallucinate** a mechanism (e.g. claiming "HTTPS is already end-to-end," inventing a
-  made-up protocol name, or asserting TLS "encrypts data at rest on the server" — it does not).
+**B. Prompt Problem (10).** ใช้ AI ตัวไหนก็ได้ แล้วทำตามนี้:
 
-**Submit:** your exact prompt, the AI's full response, and a bullet-by-bullet critique quoting the
-specific sentence(s) that are correct, hand-waved, or wrong.
+1. เขียน prompt **หนึ่งอัน** ขอให้ AI อธิบายความต่างระหว่างแชตแบบ HTTPS กับ end-to-end
+2. คัดลอกคำตอบของ AI ลงใบตอบ
+3. ตรวจ: (ก) บอกถูกไหมว่า plaintext อยู่ที่ไหนในแต่ละแบบ (ข) บอกภัยที่กัน: HTTPS กันคนดักทาง E2EE กันผู้ให้บริการด้วย (ค) พูดอะไรผิดหรือแต่งเรื่องไหม (เช่น "HTTPS คือ end-to-end อยู่แล้ว")
+4. ในตารางของใบตอบ ติ๊ก **ผ่าน / ไม่ผ่าน** ทีละข้อพร้อมเหตุผล 1 ประโยค แล้วจบด้วย 1 ประโยคว่า จะเชื่อคำตอบของ AI นี้ไหม เพราะอะไร
+
+ส่ง **prompt + คำตอบของ AI + ตารางตรวจพร้อมเหตุผลของตัวเอง**
 
 ---
 
-## 🎤 Formative Viva Spot-Check (Part 2e — no separate points)
+## 🎤 Viva spot-check (formative/authenticity check; no separate points)
 
-Be ready to answer these live, in your own words, with no notes:
+An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
-1. In the fixed-mode logs, `server.py` is running the *exact same code* as in vulnerable mode — it
-   still calls `print(f"SERVER SAW: {payload}")` on whatever it receives. So why does the plaintext
-   `meet at pier 39 at midnight` appear in the server log in one mode but not the other? Where did
-   the difference actually come from?
-2. In fixed mode, bob generates his RSA keypair *inside the container at startup* and only ever
-   publishes the **public** half. Walk me through what alice does with that public key, and explain
-   why the server — which relayed the public key and stored the ciphertext — still cannot decrypt
-   the message.
-3. A classmate says: "Fixed mode proves alice was really talking to bob and nobody tampered with
-   anything." Are they right? What does the lab actually prove, and what does it **not** prove —
-   and which essay question (Q2) is about the gap?
+1. "ในขั้นที่ 5 โค้ดของ server เหมือนเดิมทุกอย่าง ทำไมข้อความอ่านออกใน log ของโหมดแรก แต่ไม่ใช่โหมดที่สอง ความต่างมาจากไหน"
+2. "Alice ใช้กุญแจอะไรเข้ารหัส และทำไม server ที่แจกกุญแจนั้นยังถอดรหัสไม่ได้"
+3. "เพื่อนบอกว่า lab นี้พิสูจน์ว่า Alice คุยกับ Bob จริง ๆ จริงไหม lab พิสูจน์อะไรและไม่พิสูจน์อะไร"
 
 ---
 
-## Grading rubric (100)
+## Grading rubric — assigned version totals 100
 
 | Criterion | Conventional | AIR-Sec |
 |---|---:|---:|
-| Shared practical core: complete the assigned run or coding steps | 20 | 20 |
-| Shared control and limitations: compare the secure control and explain what it does and does not show | 20 | 20 |
-| Shared reproducible evidence and reasoning: attributable observations, commands/results and explanation | 20 | 20 |
-| Assigned Conventional written questions | 40 | — |
-| Assigned AIR-Sec Audit-the-AI | — | 20 |
-| Assigned AIR-Sec Explain-in-Plain-English | — | 10 |
-| Assigned AIR-Sec Prompt Problem | — | 10 |
+| A1 — server อ่านข้อความได้ (HTTPS อย่างเดียว) | 20 | 20 |
+| A2 — E2EE server อ่านไม่ได้ | 20 | 20 |
+| A3 — ความต่างและข้อจำกัด + reasoning | 20 | 20 |
+| Conventional written questions (Q1–Q4) | 40 | — |
+| AIR-Sec Audit the AI | — | 20 |
+| AIR-Sec Explain in Plain English (EiPE) | — | 10 |
+| AIR-Sec Prompt Problem | — | 10 |
 | **Total for the assigned version** | **100** | **100** |
-
-**Deadline and late work:** hand in by 23:59 Thai time (ICT) on the Sunday before the next week's
-class (KOSEN rule); the exact date is in your codes email and in the week's Classroom post.
-Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
-Uploading or replacing a file after the deadline makes the whole hand-in late.
-
-Viva/micro-demo checks are formative: no separate points and no automatic score gate. The 60 shared points apply to both versions; do not add the unassigned version's 40 points.
-
-See the instructor answer key *(instructor use only, not in this file)* for model answers to all 5
-essay questions, the exact planted flaw in the Audit-the-AI snippet, and the detailed lab/viva
-grading notes.
-
----
 
 ## Evidence & Integrity (required)
 
-- **Attribution and reproducibility (both versions):** put your name/student ID on the submitted work and provide your own commands, observations and explanation. A screenshot or annotated transcript is acceptable; shared placeholder output is not per-student proof by itself.
-- **Optional terminal-stamp example:** `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'`. This is one way to label a capture, not a separate requirement, point allocation or live-personalization prerequisite.
-- **Personalized/attributable artifact:** the `SERVER SAW: meet at pier 39 at midnight` line from
-  Part 2a vulnerable mode, submitted **together with** your attributed screenshot or annotated transcript — the
-  attribution is what makes it yours, not the message text. Submitting someone else's captured
-  log without your own attribution is a violation.
-- **Explain in your own words** *(graded on your reasoning, not copied text)*:
-  1. In vulnerable mode, **who** could read the secret and **why** — and why "but it's over HTTPS"
-     would not have saved you.
-  2. In fixed mode, **why the server could not read the message** even though it stored and logged
-     it — and what the lab still does **not** prove (tie this to the root-of-trust problem, Q2).
+- ใส่ชื่อ รหัสนักศึกษา และวันที่ในใบตอบ และคัดลอกคำสั่งกับผลจากเครื่อง**ของตัวเอง** ข้อความลับเหมือนกันทุกคน (เป็นค่าคงที่ของ lab) สิ่งที่ทำให้งานเป็นของเรา คือผลที่คัดลอกจากเครื่องของเราเอง ตัวอักษร base64 สุ่มไม่เหมือนเพื่อนเป็นเรื่องปกติ ห้ามเอาผลของเพื่อนมาส่งเป็นของตัวเอง
+- **อธิบายด้วยคำของตัวเอง** (ให้คะแนนจากเหตุผล): ข้อที่ให้เติมคำจากคลังคำ (ขั้นที่ 3, 6, 8, 9) ใช้คำที่ให้ไว้ได้ ส่วนคำตอบสั้น ๆ ของขั้นที่ 10 และข้อเขียนของฟอร์มตัวเองต้องเขียนด้วยคำของตัวเอง (ทำไม server อ่านข้อความได้ทั้งที่ใช้ HTTPS ทำไม E2EE กันได้ และ lab ยังไม่พิสูจน์อะไร) ไม่ต้องเขียนเพิ่มนอกจากนี้
+
+**กำหนดส่งและการส่งช้า:** ส่งภายใน 23:59 น. (เวลาไทย) ของ **อาทิตย์ 31 ม.ค. 2027** (กฎ KOSEN: ก่อนคาบถัดไป) ส่งช้าหักวันละ 10% ของคะแนนใบงานนี้ (ไม่เต็มวันนับเป็นหนึ่งวัน) จนเหลือ 0 การอัปโหลดหรือเปลี่ยนไฟล์หลังกำหนดส่งนับว่าส่งช้าทั้งชิ้น ส่งงานร่วม 60 คะแนน และแบบของตัวเอง**หนึ่งแบบ**เท่านั้น ทำทั้งสองแบบไม่ได้คะแนนเพิ่ม Viva ใช้ตรวจความเข้าใจ ไม่มีคะแนนแยก
