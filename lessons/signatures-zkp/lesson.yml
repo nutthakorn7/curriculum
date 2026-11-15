@@ -1,6 +1,6 @@
 slug: signatures-zkp
-title: "Digital Signatures & Zero-Knowledge Proofs"
-kind: HYBRID
+title: "Digital Signatures: the twin signature that pays the bank twice"
+kind: LAB
 duration_min: 180
 tags: [digital-signatures, ecdsa, malleability, zero-knowledge-proofs]
 cwe: [CWE-347, CWE-345]

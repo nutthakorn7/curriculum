@@ -1,277 +1,440 @@
-# Worksheet 11 — Digital Signatures & Zero-Knowledge Proofs (100-minute core + preparation/extensions)
+# Worksheet 11 — Digital Signatures: the "twin" signature that pays the bank twice
 
 > **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
-> **Topic source:** `Week10_Signatures Questions.docx` (KOSEN68) — 5 essay questions, all ported
-> below as this week's written task (Part 1).
-> **Signature game:** "Double-Spend the Bank" (ECDSA `(r, n−s)` malleability against a bank that
-> deduplicates transactions by signature hash — an illustrative bank-accounting double-processing bug).
+> **Kind:** Docker lab แบบทำตามทีละขั้น ไม่ต้องเขียนโปรแกรม และไม่ต้องคำนวณเลข (ส่วน Schnorr/ZKP อ่านเป็นคำอธิบาย)
 
-> **Ethics note:** Attack only the two local containers this lab spins up
-> (`vulnerable_app.py` / `fixed_app.py`, ports 8102/8103). Forging or replaying transactions
-> against real payment systems, exchanges, or blockchains you don't own is illegal. Keep your
-> `FLAG_SIG` inside this lab environment.
+> **Ethics note:** ทำเฉพาะกับธนาคารจำลอง 2 ตัวในเครื่องของตัวเองที่ lab นี้เปิดขึ้นมา (พอร์ต 8102 และ 8103) การส่งลายเซ็นปลอมหรือส่งซ้ำไปยังระบบจ่ายเงิน กระดานเทรด หรือบล็อกเชนจริงที่ไม่ใช่ของเราและไม่ได้รับอนุญาตเป็นเรื่องผิดกฎหมาย เก็บ flag ไว้ใน lab นี้เท่านั้น
 
-## 100-minute class and assigned worksheet version
+## อ่านก่อนเริ่ม
 
-**In class:** 10 min retrieval quiz + 10 min brief explanation + 70 min guided practice + 10 min evidence review/exit = 100 min.
+**วันนี้จะทำอะไร:** ลายเซ็นดิจิทัล ECDSA คือตัวเลขสองตัว `(r, s)` มีเรื่องแปลกคือ ถ้า `(r, s)` ใช้ได้ ก็จะมี **"ลายเซ็นแฝด" `(r, n−s)`** ที่ใช้ได้เหมือนกัน กับข้อความเดิมและกุญแจเดิม ธนาคารจำลองแห่งหนึ่งใช้ **hash ของลายเซ็น** เป็นเลขประจำรายการ จึงมองลายเซ็นแฝดเป็น "รายการใหม่" ทั้งที่เจ้าของอนุญาตถอนเงิน**ครั้งเดียว** เราจะถอนซ้ำด้วยลายเซ็นแฝด แล้วดูว่าธนาคารอีกตัวที่รับลายเซ็นเฉพาะแบบเดียวป้องกันได้อย่างไร สิ่งที่ต้องจำ: **ลายเซ็นที่ถูกต้อง ไม่ได้แปลว่าเป็นรายการเดียวกันเสมอ**
 
-**Shared core — every student:** Obtain a fresh signature in class; compute its twin and transaction identifiers; submit the original/twin to the vulnerable bank; verify a legitimate fixed-bank withdrawal succeeds and its high-S twin fails; explain the control's limits.
+**ทุกขั้นเขียนแบบเดียวกัน:**
 
-**Preparation and extensions:** Before class, prepare images/dependencies and read the topology only. Do not collect live signatures before class or reuse signatures across a restart. Complete the long signature/ZKP analysis and the assigned version-specific work outside the core block.
+| หัวข้อ | ความหมาย |
+|---|---|
+| **ทำอะไร** | บอกว่าขั้นนี้จะทำอะไร |
+| **พิมพ์** | คัดลอกทั้งบรรทัดไปวางใน Terminal แล้วกด Enter |
+| **ควรเห็น** | หน้าจอควรขึ้นประมาณนี้ (ตัวเลขลายเซ็นของเราจะไม่เหมือนตัวอย่าง เป็นเรื่องปกติ) |
+| **แปลว่า** | ผลที่เห็นหมายความว่าอะไร |
+| **ลงใบตอบ** | สิ่งที่ต้องคัดลอกหรือเขียนลงใบตอบ |
 
-**70-minute practice:** fresh signature 10; twin calculation 15; two vulnerable withdrawals 15; fixed positive/negative controls 15; reasoning 15. Start the manual vulnerable withdrawals against fresh state before any automated exploit. Each bank has its own key: obtain a separate signature from the fixed bank. A restart invalidates previously captured signatures.
+**คะแนน**
 
+- ทุกคนทำ **Part A (60 คะแนน)** ซึ่งเหมือนกันทั้งสองแบบ
+- จากนั้นทำ **เฉพาะแบบของตัวเอง (40 คะแนน)** ดูจากเลขตัวสุดท้ายของรหัสนักศึกษา: **เลขคี่ = Conventional (Part 2)**, **เลขคู่ = AIR-Sec (Parts 3–4)** (เลข 0 นับเป็นเลขคู่) แล้วเขียนแบบของตัวเองในช่อง Group
+- ตอบเป็นภาษาไทยหรืออังกฤษก็ได้ ตอบสั้น ๆ ให้ชัดก็พอ
+- **ใช้ใบตอบ:** ใน Classroom → Week 11 เปิดไฟล์ตามแบบของตัวเอง (`Wk11_Answer_Sheet_Conventional_odd_ID` หรือ `Wk11_Answer_Sheet_AIR-Sec_even_ID`) กด Open with → Google Docs พิมพ์ลงกรอบสีเทา แล้วกด File → Download → PDF
+- ส่งไฟล์เดียว ตั้งชื่อตามรหัสนักศึกษา เช่น `Wk11_66990000.pdf` (ไม่ต้องใส่เครื่องหมาย `<` `>`) ที่ `learn.zcr.ai/submit` โดยใช้รหัสส่งงานของ Week 11 ที่ได้ทางอีเมล KMITL ภายใน **อาทิตย์ 17 ม.ค. 2027 23:59 น.**
+- ข้อที่เขียนว่า *optional* ไม่มีคะแนน ไม่ต้องทำก็ได้
 
-**Assessment:** everyone completes the shared core (60 points) plus **one assigned version** (40 points): Conventional written analysis, or AIR-Sec Audit-the-AI 20 + EiPE 10 + Prompt Problem 10. Both versions total 100. All questions remain available; complete the assigned version's full questions, using out-of-class time for extended responses. The other version is ungraded reference practice, not an additional requirement. Viva/micro-demo questions are formative checks of the submitted explanation, with no separate points or automatic pass/fail score gate.
+| Part A | คะแนน | ขั้นที่ลงใบตอบ |
+|---|---:|---|
+| A1 — ลายเซ็นกับลายเซ็นแฝด | 20 | ขั้นที่ 2, 3 |
+| A2 — ถอนเงินซ้ำที่ธนาคาร vulnerable | 20 | ขั้นที่ 5, 6 |
+| A3 — ธนาคาร fixed ไม่ยอมรับลายเซ็นแฝด | 20 | ขั้นที่ 7, 8, 9, 10 |
 
-**Evidence:** record reproducible observations or reasoning and your name/student ID. Where the local target prints a shared placeholder flag, record it as observed; a personalized flag or live CTFd account is not a prerequisite. Follow SUBMISSION.md for the announced hand-in channel.
+**คำศัพท์ที่ต้องรู้**
 
-## Part 0 — Student Information
-| Name | Student ID | Date | Group | AI tools used (declare) |
+| คำ | ความหมายแบบง่าย |
+|---|---|
+| Terminal | หน้าต่างสำหรับพิมพ์คำสั่ง |
+| Docker / container | โปรแกรมที่เปิด "เครื่องจำลอง" เล็ก ๆ ในเครื่องของเรา ทำพังก็ลบแล้วเริ่มใหม่ได้ |
+| ลายเซ็นดิจิทัล | ตัวเลขที่พิสูจน์ว่าข้อความนี้เซ็นด้วยกุญแจส่วนตัวของเจ้าของ ใครมีกุญแจสาธารณะก็ตรวจได้ |
+| ECDSA | วิธีเซ็นแบบหนึ่ง ลายเซ็นคือตัวเลขสองตัว `(r, s)` |
+| ลายเซ็นแฝด (twin) | `(r, n−s)` ลายเซ็นที่ใช้ได้เหมือน `(r, s)` กับข้อความและกุญแจเดิม แต่เป็นตัวเลขคนละชุด |
+| low-S / high-S | `s` อยู่ครึ่งล่าง (low) หรือครึ่งบน (high) ของช่วงตัวเลข ในคู่แฝดจะมีแค่หนึ่งตัวที่เป็น low-S |
+| txid | เลขประจำรายการ ที่ธนาคารใช้กันการประมวลผลซ้ำ |
+| replay | ส่งรายการเดิมซ้ำทุกตัวอักษร |
+| malleability | ลายเซ็นถูกแก้เป็นอีกรูปหนึ่งได้ โดยยังใช้ได้และไม่ต้องมีกุญแจ |
+| flag | ข้อความรางวัล รูปแบบ `FLAG{...}` เป็นหลักฐานว่าทำสำเร็จ |
+
+**คำถามที่มักสงสัย**
+
+- *ต้องเก่งคณิตศาสตร์ไหม?* ไม่ต้อง สคริปต์คำนวณลายเซ็นแฝดให้เอง
+- *ต้องเขียนโปรแกรมไหม?* ไม่ต้อง คัดลอกคำสั่งไปวางได้เลย (ยกเว้นงาน Prompt ของแบบ AIR-Sec)
+- *ถ้าทำผิด เครื่องจะพังไหม?* ไม่พัง ทุกอย่างอยู่ใน container ถ้าสับสนให้พิมพ์ `docker compose down` แล้วเริ่มใหม่จากเตรียมขั้นที่ 5 (ยอดถอนของธนาคารจะกลับเป็น 0)
+- *ไม่เข้าใจทุกตัวเลขที่ขึ้นจอ ได้ไหม?* ได้ ดูเฉพาะบรรทัดที่ใบงานบอก
+- *ตัวเลขลายเซ็นของเราไม่เหมือนเพื่อน ผิดไหม?* ไม่ผิด ลายเซ็นสุ่มใหม่ทุกครั้ง แต่รหัสสถานะ (200 / 403 / 409), ยอดรวม และ flag ต้องเหมือนกัน และต้องคัดลอกจากเครื่องของตัวเองเสมอ
+- *วางคำสั่งใน Terminal ยังไง?* คัดลอกคำสั่งจากใบงาน แล้ว Windows: กด Ctrl+V หรือคลิกขวา · Mac: กด Cmd+V จากนั้นกด Enter
+- *คัดลอกผลจาก Terminal ยังไง?* ลากเมาส์คลุมข้อความก่อน แล้ว Windows: กด Ctrl+Shift+C · Mac: กด Cmd+C หรือจะ screenshot ก็ได้
+
+**ถ้าเจอข้อความแบบนี้**
+
+| ข้อความบนจอ | สาเหตุ | วิธีแก้ |
+|---|---|---|
+| มีคำว่า `Cannot connect to the Docker daemon` หรือ `error during connect` | ยังไม่ได้เปิด Docker | เปิด Docker Desktop รอจนขึ้น Engine running |
+| `no configuration file provided: not found` | Terminal ไม่ได้อยู่ในโฟลเดอร์ lab | ทำเตรียมขั้นที่ 4 อีกครั้ง |
+| `service "vulnerable" is not running` | ยังไม่ได้เปิด lab | ทำเตรียมขั้นที่ 5 และ 6 |
+| `Cannot reach the ... bank` | lab ยังเปิดไม่เสร็จ | รอสักครู่ แล้วทำเตรียมขั้นที่ 6 อีกครั้ง |
+| `No signature saved yet` | ยังไม่ได้พิมพ์คำสั่ง `sign` | พิมพ์คำสั่ง `sign` ของธนาคารนั้นก่อน |
+| `bad signature` | ธนาคารถูกเปิดใหม่ แต่ลายเซ็นที่เก็บไว้เป็นของกุญแจเก่า | พิมพ์คำสั่ง `sign` ใหม่ |
+| `can't open file '/lab/bank.py'` | ZIP ที่โหลดไว้เก่า ไม่มีไฟล์ `bank.py` | โหลด ZIP ใหม่ตามเตรียมขั้นที่ 2 |
+
+ลองแล้วยังไม่ได้ ให้ถามเพื่อนหรืออาจารย์ได้เลย
+
+---
+
+## ก่อนเริ่ม: เตรียมเครื่อง (ทำที่บ้าน ทำครั้งเดียว)
+
+ถ้าเคยทำ Week 2–6 หรือ 10 มาแล้ว มี Docker และไฟล์ ZIP อยู่แล้ว เริ่มที่**เตรียมขั้นที่ 4** ได้เลย แต่ ZIP ต้องเป็นฉบับใหม่ที่มีไฟล์ `bank.py` ในโฟลเดอร์ `week11-signatures-zkp` ถ้าไม่เจอให้โหลดใหม่ตามเตรียมขั้นที่ 2
+
+**ถ้าปิดเครื่องไปแล้วกลับมาทำต่อ:** ทำเตรียมขั้นที่ 1, 4, 5, 6 ใหม่
+
+#### เตรียมขั้นที่ 1 — เปิด Docker Desktop
+
+**ทำอะไร:** ถ้ายังไม่มี ให้ติดตั้งจาก <https://www.docker.com/products/docker-desktop/> แล้วเปิดโปรแกรมทิ้งไว้
+
+**ควรเห็น:** ในหน้าต่าง Docker Desktop ขึ้นว่า **Engine running**
+
+#### เตรียมขั้นที่ 2 — โหลดไฟล์ lab
+
+**ทำอะไร:** เปิด <https://github.com/nutthakorn7/security-cryptography> กดปุ่มสีเขียว **Code** แล้วเลือก **Download ZIP**
+
+ไม่ต้องมีบัญชี GitHub และไม่ต้อง fork
+
+#### เตรียมขั้นที่ 3 — แตกไฟล์ ZIP
+
+**ทำอะไร:** Windows: คลิกขวาที่ไฟล์ ZIP เลือก **Extract All** · Mac: ดับเบิลคลิกไฟล์ ZIP วางไว้ในที่ที่หาง่าย เช่น Desktop
+
+**ควรเห็น:** โฟลเดอร์ชื่อ `security-cryptography-master` บางเครื่องจะมีโฟลเดอร์ชื่อเดียวกันซ้อนสองชั้น ให้เปิดเข้าไปจนเห็นโฟลเดอร์ `labs`
+
+#### เตรียมขั้นที่ 4 — เปิด Terminal ในโฟลเดอร์ lab
+
+**ทำอะไร:** ในโฟลเดอร์ `security-cryptography-master` เข้าไปที่ `labs` แล้วเข้า `week11-signatures-zkp`
+
+- **Windows:** เปิดโฟลเดอร์ `week11-signatures-zkp` ใน File Explorer คลิกขวาตรงที่ว่าง เลือก **Open in Terminal** (ถ้าไม่มีเมนูนี้ ให้กด Shift ค้างแล้วคลิกขวา เลือก **Open PowerShell window here**)
+- **Mac:** เปิดแอป Terminal พิมพ์ `cd` เว้นวรรคหนึ่งครั้ง ลากโฟลเดอร์ `week11-signatures-zkp` มาวางในหน้าต่าง แล้วกด Enter
+
+เช็กว่าอยู่ถูกที่ด้วยคำสั่งนี้:
+
+```bash
+ls
+```
+
+**ควรเห็น:** มีชื่อ `docker-compose.yml` และ `bank.py` อยู่ในรายการ
+
+#### เตรียมขั้นที่ 5 — เปิด lab
+
+**พิมพ์:**
+
+```bash
+docker compose up -d
+```
+
+**ควรเห็น:** บรรทัดลงท้ายว่า `Started` สองบรรทัด (ถ้าเปิดอยู่แล้วอาจเห็น `Running`) **ทุกครั้งที่เปิด lab ต้องต่ออินเทอร์เน็ต** เพราะ container ติดตั้งแพ็กเกจใหม่ทุกครั้งที่เริ่ม ครั้งแรกอาจรอหลายนาที ระหว่างนั้นอย่าปิดหน้าต่าง
+
+#### เตรียมขั้นที่ 6 — เช็กว่า lab พร้อม
+
+**พิมพ์** (Mac):
+
+```bash
+docker compose logs | grep "Running on"
+```
+
+**พิมพ์** (Windows):
+
+```powershell
+docker compose logs | findstr /C:"Running on"
+```
+
+**ควรเห็น:** ให้หาสองบรรทัดนี้ ต้องมี**ครบทั้งสองบรรทัด**
+
+```
+vulnerable-1  |  * Running on http://127.0.0.1:8102
+fixed-1       |  * Running on http://127.0.0.1:8103
+```
+
+ถ้ายังไม่ครบ ให้รอสักครู่แล้วพิมพ์คำสั่งนี้อีกครั้ง ถ้ารอเกิน 2 นาทีให้พิมพ์ `docker compose ps -a` แล้ว screenshot ส่งอาจารย์
+
+---
+
+## Part A — The lab (both forms, 60 points)
+
+มีธนาคารจำลองสองตัว อนุญาตถอนเงิน 100 ครั้งเดียว ใช้ลายเซ็นข้อความเดียวกัน ต่างกันแค่วิธีกันรายการซ้ำ ทำทุกขั้นกับ lab ที่เปิดใหม่ครั้งเดียวต่อเนื่อง (อย่าเปิดใหม่คั่นกลาง เพราะลายเซ็นและยอดถอนจะถูกรีเซ็ต):
+
+| ธนาคาร | พอร์ต | กันรายการซ้ำด้วย | ลายเซ็นแฝด `(r, n−s)` |
+|---|---|---|---|
+| `vuln` (vulnerable_app.py) | `:8102` | hash ของลายเซ็น | **ผ่าน** ถอนซ้ำได้ |
+| `fixed` (fixed_app.py) | `:8103` | hash ของลายเซ็น และ**ปฏิเสธลายเซ็นแบบ high-S** | **ไม่ผ่าน** (403) |
+
+> **ถ้าใช้ Docker ไม่ได้จริง ๆ:** บอกอาจารย์ แล้วเปิด **<https://learn.zcr.ai/sim/ecdsa-malleability>** (ตัวจำลอง ไม่ใช่ธนาคารจริง) กดปุ่มในหน้านั้น แล้ว screenshot ผลมาแทนขั้นที่ 5 และ 7 ส่วนขั้นที่ 2 และ 9 ให้คัดลอกตัวอย่างในใบงานมา แล้วเขียนกำกับว่า "จากตัวอย่างในใบงาน" ขั้นที่เหลือตอบจากการอ่านใบงานได้
+
+### A1 — ลายเซ็นกับลายเซ็นแฝด (20 points)
+
+#### ขั้นที่ 1 — อ่าน: ลายเซ็นแฝดคืออะไร
+
+**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+
+เจ้าของบัญชีเซ็นข้อความ `withdraw 100 to attacker` หนึ่งครั้ง ได้ลายเซ็น `(r, s)` ที่ธนาคารตรวจได้ว่าถูกต้อง ในคณิตศาสตร์ของ ECDSA ตัวเลข `(r, n−s)` (ลบ `s` ออกจากค่าคงที่ `n`) **ก็ผ่านการตรวจเหมือนกัน** โดยไม่ต้องมีกุญแจ เรียกว่า**ลายเซ็นแฝด** มันเป็นตัวเลขคนละชุด แต่ยืนยันข้อความเดิมจากคนเดิม ธนาคารที่ใช้ hash ของลายเซ็นเป็นเลขรายการ (txid) จะเห็นสองลายเซ็นนี้เป็นสองรายการ
+
+#### ขั้นที่ 2 — ขอลายเซ็นและดูลายเซ็นแฝด
+
+**ทำอะไร:** ให้สคริปต์ขอลายเซ็นจากธนาคาร vulnerable และคำนวณลายเซ็นแฝดให้ (ไม่ต้องคำนวณเอง)
+
+**พิมพ์:**
+
+```bash
+docker compose exec vulnerable python bank.py vuln sign
+```
+
+**ควรเห็น:** สี่บรรทัด ตัวเลขและคำว่า low-S / high-S ของเราอาจต่างจากตัวอย่าง
+
+```
+bank: vuln (port 8102)   message: withdraw 100 to attacker
+signature (r, s)   : s = 7998957137... (77 digits)   high-S
+twin (r, n-s)      : n-s = 3580251786... (77 digits)   low-S
+txid of (r, s) = 417a2e19   txid of the twin = e66a7f5b   (different)
+```
+
+**แปลว่า:** ได้ลายเซ็น `(r, s)` และลายเซ็นแฝด `(r, n−s)` เลขรายการ (txid) ของสองอันนี้**ต่างกัน** และมีแค่ **หนึ่งใน**สองอันที่เป็น low-S
+
+**✍️ ลงใบตอบ (ขั้นที่ 2):** คัดลอกสามบรรทัดหลัง (`signature`, `twin`, `txid`) จากหน้าจอของตัวเอง
+
+#### ขั้นที่ 3 — สรุปด้วยคำของตัวเอง
+
+**ทำอะไร:** เติมคำในช่องว่าง
+
+> เลขรายการ (txid) ของลายเซ็นกับลายเซ็นแฝด ________ (เลือกคำ: `เหมือนกัน` / `ต่างกัน`) และในสองลายเซ็นนี้มี low-S อยู่ ________ อัน (เลือกคำ: `1` / `2`)
+
+**✍️ ลงใบตอบ (ขั้นที่ 3):** เขียนประโยคนี้ให้ครบ
+
+### A2 — ถอนเงินซ้ำที่ธนาคาร vulnerable (20 points)
+
+#### ขั้นที่ 4 — อ่าน: ธนาคารกันรายการซ้ำอย่างไร
+
+**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+
+ธนาคาร vulnerable จำ txid ของทุกรายการที่ทำไปแล้ว ถ้าส่ง**ลายเซ็นเดิมซ้ำ** txid เหมือนเดิม ธนาคารตอบ `409 replay` และไม่จ่ายซ้ำ แต่ลายเซ็นแฝดมี txid **ใหม่** ธนาคารจึงนึกว่าเป็นรายการใหม่ ทั้งที่เจ้าของอนุญาตถอนแค่ครั้งเดียว (100) ถ้าถอนได้เกิน 100 ธนาคารจะตอบ flag
+
+#### ขั้นที่ 5 — ถอนด้วยลายเซ็น ส่งซ้ำ แล้วถอนด้วยลายเซ็นแฝด
+
+**ทำอะไร:** ถอนด้วยลายเซ็นเดิม แล้วส่งลายเซ็นเดิมซ้ำอีกครั้ง แล้วส่งลายเซ็นแฝด
+
+**พิมพ์** ทีละบรรทัด (ต่อจากขั้นที่ 2 โดยไม่เปิด lab ใหม่ และห้ามข้ามบรรทัดแรก):
+
+```bash
+docker compose exec vulnerable python bank.py vuln pay original
+docker compose exec vulnerable python bank.py vuln pay original
+docker compose exec vulnerable python bank.py vuln pay twin
+```
+
+**ควรเห็น:** ครั้งละสองบรรทัด ให้ดูบรรทัด `answer:` (ตัวเลข txid ของเราต่างจากตัวอย่าง)
+
+```
+answer: HTTP 200 {"amount":100,"status":"processed","total_withdrawn":100,"txid":"417a2e19..."}
+answer: HTTP 409 {"error":"replay: txid already processed","txid":"417a2e19..."}
+answer: HTTP 200 {"amount":100,"double_spend_detected":true,"flag":"FLAG{ecdsa_malleable_double_spend}","status":"processed","total_withdrawn":200,"txid":"e66a7f5b..."}
+```
+
+**แปลว่า:** ครั้งแรกถอนได้ 100 ส่งลายเซ็นเดิมซ้ำถูกจับได้ (`409`) แต่**ลายเซ็นแฝดผ่าน** ธนาคารจ่ายอีก 100 ยอดรวมเป็น **200** ทั้งที่เจ้าของอนุญาตครั้งเดียว และธนาคารตอบ `double_spend_detected` พร้อม flag
+
+**✍️ ลงใบตอบ (ขั้นที่ 5):** คัดลอกสามบรรทัด `answer:` จากหน้าจอของตัวเอง
+
+#### ขั้นที่ 6 — ตอบคำถามสองข้อ
+
+**ทำอะไร:** เติมคำในช่องว่างทั้งสองข้อ (คำใบ้: ขั้นที่ 4 และผลในขั้นที่ 5)
+
+> a) ธนาคาร vulnerable มองลายเซ็นแฝดเป็นรายการ ________ (เลือกคำ: `เดิม` / `ใหม่`) เพราะเลขรายการมาจาก ________ (เลือกคำ: `ลายเซ็น` / `ข้อความ`)
+>
+> b) ยอดถอนรวมหลังส่งลายเซ็นแฝดคือ ________ ทั้งที่เจ้าของอนุญาต 100 (เลือกคำ: `100` / `200`)
+
+**✍️ ลงใบตอบ (ขั้นที่ 6):** เขียนทั้งสองประโยคให้ครบ
+
+### A3 — ธนาคาร fixed ไม่ยอมรับลายเซ็นแฝด (20 points)
+
+#### ขั้นที่ 7 — ลองกับธนาคาร fixed
+
+**ทำอะไร:** ขอลายเซ็นจากธนาคาร fixed (ธนาคารนี้มีกุญแจของตัวเอง จึงต้องขอใหม่) ถอนด้วยลายเซ็นนั้น แล้วลองลายเซ็นแฝด
+
+**พิมพ์** ทีละบรรทัด:
+
+```bash
+docker compose exec vulnerable python bank.py fixed sign
+docker compose exec vulnerable python bank.py fixed pay original
+docker compose exec vulnerable python bank.py fixed pay twin
+```
+
+**ควรเห็น:** ให้ดูบรรทัด `answer:` ของสองคำสั่งหลัง (ลายเซ็นจากธนาคาร fixed เป็น low-S เสมอ)
+
+```
+answer: HTTP 200 {"amount":100,"status":"processed","total_withdrawn":100,"txid":"d807dd34..."}
+answer: HTTP 403 {"error":"non-canonical signature: s must be <= n/2 (BIP-62 low-S)"}
+```
+
+**แปลว่า:** ธนาคาร fixed ยอมให้ถอนด้วยลายเซ็นแบบ low-S ตามปกติ (ยอดรวม 100 และไม่มี flag) แต่**ปฏิเสธลายเซ็นแฝด** ซึ่งเป็น high-S (`403`) จึงถอนซ้ำไม่ได้
+
+**✍️ ลงใบตอบ (ขั้นที่ 7):** คัดลอกสองบรรทัด `answer:` จากหน้าจอของตัวเอง
+
+#### ขั้นที่ 8 — สรุปด้วยคำของตัวเอง
+
+**ทำอะไร:** ดูผลขั้นที่ 7 แล้วเติมคำ
+
+> ธนาคาร fixed ตอบ ________ (เลือกคำ: `200` / `403`) ให้ลายเซ็นแฝด เพราะรับเฉพาะลายเซ็นแบบ ________ (เลือกคำ: `low-S` / `high-S`)
+
+**✍️ ลงใบตอบ (ขั้นที่ 8):** เขียนประโยคนี้ให้ครบ
+
+#### ขั้นที่ 9 — หาบรรทัดที่ต่างกันในโค้ด
+
+**ทำอะไร:** หาว่าโค้ดของธนาคารตัวไหนมีการตรวจ low-S
+
+**พิมพ์:**
+
+```bash
+docker compose exec vulnerable grep -n "is_low_s" vulnerable_app.py fixed_app.py
+```
+
+**ควรเห็น:** มีผลเฉพาะไฟล์ `fixed_app.py` (บรรทัดที่ 48 เป็นฟังก์ชัน และบรรทัดที่ 106 เป็นจุดที่ใช้ตรวจ) ไม่มีผลจากไฟล์ `vulnerable_app.py`
+
+```
+fixed_app.py:48:def is_low_s(s: int) -> bool:
+fixed_app.py:106:    if not is_low_s(s):
+```
+
+**แปลว่า:** ความต่างอยู่ที่การตรวจ `is_low_s` เพียงบรรทัดเดียว ธนาคาร vulnerable ไม่ตรวจ จึงรับลายเซ็นแฝดแบบ high-S ได้
+
+**✍️ ลงใบตอบ (ขั้นที่ 9):** คัดลอกสองบรรทัดที่ขึ้นบนจอ
+
+#### ขั้นที่ 10 — การตรวจ low-S แก้ได้แค่ไหน
+
+**ทำอะไร:** อ่านแล้วตอบ 1–2 ประโยค
+
+ธนาคาร fixed หยุด**คู่แฝดนี้**ได้ แต่ธนาคารก็ยัง**กันรายการซ้ำด้วย hash ของลายเซ็น** อยู่ ถ้ามีคนขอเซ็นข้อความเดิมอีกครั้ง ก็จะได้ลายเซ็น low-S ใบใหม่ที่ต่างออกไป (ไม่บังคับ ลองดูได้: พิมพ์ `fixed sign` อีกครั้ง แล้ว `fixed pay original` ธนาคาร fixed จะนับว่าเป็นรายการใหม่ ยอดรวม 200)
+
+> ทำไมการตรวจ low-S จึงหยุดการถอนซ้ำด้วยลายเซ็นแฝดได้ และเลขรายการที่เหมาะสมกว่า hash ของลายเซ็นควรมาจากอะไร (คำใบ้: ขั้นที่ 6 และ 9)
+
+**✍️ ลงใบตอบ (ขั้นที่ 10):** เขียนคำตอบ
+
+#### ขั้นที่ 11 — ปิด lab และเช็กใบตอบ
+
+**ทำอะไร:** ทำหลังจากคัดลอกผลครบแล้ว
+
+**พิมพ์:**
+
+```bash
+docker compose down
+```
+
+**ควรเห็น:** บรรทัดลงท้ายว่า `Removed` จากนั้นดูว่าในใบตอบมีครบ: ขั้นที่ 2, 3 (A1), ขั้นที่ 5, 6 (A2), ขั้นที่ 7, 8, 9, 10 (A3) แล้วไปทำส่วนของแบบตัวเอง: เลขคี่ทำ Part 2 เลขคู่ทำ Part 3 และ Part 4
+
+---
+
+## Part 1 — Student Information
+
+| Name | Student ID | Date | Group (your form) | AI tools used (which, for what) |
 |---|---|---|---|---|
+| | | | | |
 
 ---
 
-## Part 1 — Conventional Arm: Written Questions (ported from KOSEN68, Q1–Q5)
+## Part 2 — Conventional form (40 points; only if Conventional is your assigned form)
 
-Answer each in your own words (4–8 sentences, more where the question asks for a design or a
-comparison). **This is a normal written/essay task — no AI-resilience layer applies to this
-part; answer it yourself.**
+ตอบข้อละ 2–3 ประโยค ภาษาไทยได้ ส่วนนี้ให้**ตอบด้วยตัวเอง** ไม่ใช้ AI ตอบ
 
-**Q1. Signatures vs. MACs.** Compare digital signatures and MACs on: (a) what key each uses to
-*create* an authenticator and what key each uses to *verify* it, (b) *who* is able to verify, and
-(c) typical use cases for each. Then answer directly: **why are digital signatures suitable for
-public systems (PKI) while MACs are not?**
+**Q1 (10). ลายเซ็นดิจิทัลกับ MAC.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
 
-**Q2. Schnorr Proofs and the Fiat–Shamir Connection.** Starting from the **Schnorr identification protocol**, explain: (a) how Peggy demonstrates knowledge of a secret without revealing it; (b) how replacing the verifier's random challenge with a hash binding the commitment, public statement and message yields a Schnorr-type non-interactive construction under stated assumptions; and (c) distinguish this specific proof-of-knowledge connection from a blanket claim that every digital signature, including ECDSA, is a zero-knowledge proof. See [RFC 8235](https://www.rfc-editor.org/rfc/rfc8235.html).
+- ใช้กุญแจอะไรสร้างลายเซ็น และใช้กุญแจอะไรตรวจ เทียบกับ MAC (MAC ใช้กุญแจดอกเดียวกันทั้งสองฝั่ง)
+- ใครตรวจลายเซ็นได้บ้าง เทียบกับ MAC
+- ทำไมระบบสาธารณะ (เช่นใบรับรองบนเว็บ) ใช้ลายเซ็นดิจิทัลได้ แต่ใช้ MAC ไม่ได้
 
-**Q3. RSA vs. ECDSA vs. EdDSA (Ed25519).** Compare the three on: (a) the hardness assumption each
-relies on, (b) how easy each is to implement *correctly*, and (c) known pitfalls (e.g. RSA
-padding choices; ECDSA's catastrophic dependence on a unique, unpredictable nonce `k`). Then:
-**why is EdDSA (Ed25519) generally recommended for modern systems?**
+**Q2 (10). ถอนเงินซ้ำ.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
 
-**Q4. Substitution Attacks.** Explain how a signature can still verify **True** even when the
-*public key* or the *message* is changed out from under a verifier (e.g. duplicate-signature key
-selection / a maliciously chosen key that validates an existing signature on a *different*
-message). Why do these attacks surprise developers who assume "verifies True" means "this exact
-signer signed this exact message"? Why is this class of attack **not fully covered by the
-EUF-CMA** security model?
+- ลายเซ็นแฝด `(r, n−s)` คืออะไร และทำไมธนาคาร vulnerable ยอมรับ (คำใบ้: ขั้นที่ 1)
+- ทำไมส่งลายเซ็นเดิมซ้ำจึงถูกจับ (`409`) แต่ลายเซ็นแฝดผ่าน (คำใบ้: ขั้นที่ 4 และ 5)
+- เจ้าของอนุญาตถอนกี่ครั้ง และธนาคารจ่ายไปกี่ครั้ง (ดูยอดรวมในขั้นที่ 5)
 
-**Q5. Signature Malleability.** (a) Define signature malleability in simple terms. (b) Explain how
-a changed transaction identifier could confuse exchange withdrawal tracking; distinguish **MtGox**'s historical claim from Decker and Wattenhofer's measured evidence rather than assuming that malleability caused the collapse ([paper](https://arxiv.org/abs/1403.6676)). (c) Explain why **SUF-CMA** (strong
-existential unforgeability) is a *stronger* guarantee than **EUF-CMA**, and which one malleability
-violates. (d) How should a protocol designer build a system *assuming* signatures are malleable
-(name at least two concrete defenses)?
+**Q3 (10). การแก้และสิ่งที่ยังเหลือ.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
 
----
+- ธนาคาร fixed แก้ด้วยอะไร และทำไมลายเซ็นแฝดจึงถูกปฏิเสธ (คำใบ้: ขั้นที่ 7 และ 9)
+- ถ้ากันรายการซ้ำด้วย hash ของลายเซ็นต่อไป ยังมีช่องโหว่อะไรเหลือ (คำใบ้: ขั้นที่ 10)
+- เลขรายการที่ดีกว่าควรมาจากอะไร
 
-## Part 2 — Shared Practical Core + Defense (in the 100-minute session)
+**Q4 (10). พิสูจน์ว่ารู้ความลับ โดยไม่บอกความลับ (Schnorr).** ตอบให้ครบสองอย่างนี้ (ข้อละ 2–3 ประโยค): Peggy พิสูจน์ให้ Victor เชื่อว่าเธอรู้กุญแจส่วนตัวได้อย่างไร โดย**ไม่ส่งกุญแจ** (เล่าด้วยคำ: ส่งค่าเริ่มต้น, ได้คำท้าสุ่มใหม่, ตอบกลับ) และทำไมคนที่ดักฟังและบันทึกการสนทนา จึงเอาไปเข้าระบบแทน Peggy ไม่ได้
 
-**Learning goals:** exploit ECDSA malleability to double-spend against a bank that dedups by
-signature hash, then verify low-S rejects the particular high-S twin and explain the remaining transaction-identity limitation — the *practical* twin of Part 1's Q5.
-**Prerequisites:** Docker; `ecdsa` + `requests` (either on the host, or run `exploit.py` in a
-throwaway container on the compose network, as the README shows).
+### Going further (optional — no marks)
 
-**Environment setup**
-```bash
-cd {{ labpath }}
-docker compose up -d        # vulnerable_app.py on :8102, fixed_app.py on :8103
-curl localhost:8102/        # confirm it's up
-```
-
-**Task 0 — Preparation: read the design (outside the live run).** *Goal:* see the vulnerable design decision. *Steps:* read
-`vulnerable_app.py`'s `txid_of` and `withdraw` functions; identify the exact line that decides a
-transaction's identity and confirm it hashes the *signature* (`sha256(str(r)+str(s))`), not the
-`(message, pubkey)`. *Deliverable:* quote the line and state, in one sentence, why that choice is
-what makes malleability exploitable here.
-
-**Task 1 — Shared core: obtain a fresh signature in class (10 min).** *Goal:* get a real `(r, s)`. *Steps:*
-`curl localhost:8102/sign`; record `sig_r`, `sig_s`, and the fixed `message`. Also
-`curl localhost:8102/pubkey`. *Deliverable:* the `(r, s)` pair and the pubkey hex.
-
-```sim
-ecdsa-malleability
-```
-
-**Task 2 — Shared core: do the malleation by hand (15 min).** *Goal:* understand the math, not just run a
-script. *Steps:* with `n = 0xFFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFE BAAEDCE6 AF48A03B BFD25E8C
-D0364141` (the SECP256k1 group order), compute `s' = n − s` for your captured `s` (Python:
-`n = ecdsa.SECP256k1.order`). Compute both `txid = sha256(str(r)+str(s))` and
-`txid' = sha256(str(r)+str(s'))` and confirm they differ. State which of `s`, `s'` is **low-S**
-(`≤ n//2`) — exactly one is. *Deliverable:* your `s'`, the two txids, and which one is low-S.
-
-**Task 3 — Shared core: demonstrate double processing (15 min).** *Goal:* process one authorization twice.
-*Steps:* do the double-spend **by hand with `curl` first**, so its JSON response is your own
-from-scratch proof — the bank's `_total_withdrawn` is global, in-memory state that never resets
-between requests, so this must be the *first* withdrawal attempt against a freshly started
-container (do not run `exploit.py` yet). Use the fresh `(r, s)` captured in Task 1 and the matching twin calculated in Task 2, without restarting the bank or obtaining a different pair between those tasks. If the bank restarted, repeat Tasks 1–2. Submit both signatures in order:
-```bash
-curl -s -X POST localhost:8102/withdraw -H 'Content-Type: application/json' \
-  -d '{"message":"withdraw 100 to attacker","sig_r":"<r>","sig_s":"<s>"}'
-curl -s -X POST localhost:8102/withdraw -H 'Content-Type: application/json' \
-  -d '{"message":"withdraw 100 to attacker","sig_r":"<r>","sig_s":"<n-s>"}'
-```
-**Extension after the manual controls in Task 4:** run `python exploit.py` (or the container form in the README) as an automated confirmation of the same attack. Its own totals will now start above 100 since the bank's state
-persists across requests — that's expected, not a bug; if you run `exploit.py` first instead,
-the by-hand reproduction can no longer land on `total_withdrawn:200` (a repeat of the *same*
-signature gets `409 replay`, and even a *fresh* one lands on 300/400 because the counter never
-reset), so keep this order.
-*Deliverable:* the flag + your two `curl` commands and the second one's JSON response (must show
-`double_spend_detected` and `total_withdrawn:200`).
-
-**Task 4 — Shared core: fixed positive/negative controls (15 min).** *Goal:* prove the fix works, not
-just claim it. *Steps:* use a fresh fixed-bank run and obtain its own low-S signature from `curl localhost:8103/sign` (the two banks have different keys). Submit that low-S signature once to `:8103/withdraw` and confirm a successful legitimate withdrawal; submit its high-S twin `(r, n-s)` and confirm `403` with no flag. Capture both responses. Do not submit the vulnerable bank's signature to the fixed bank. Read `fixed_app.py`'s `is_low_s` and the guard in `withdraw`; identify the added check. The optional automated replay follows these manual controls, not the other way round.
-*Deliverable:* the rejection evidence (`403` + body) + the one-line difference between the two
-`withdraw` functions, in words.
-
-**Task 5 — Shared core reasoning (15 min); full written analysis is an extension.** *Goal:* connect the exploit to the theory.
-*Steps:* answer in your own words: (a) Why are `(r, s)` and `(r, n−s)` *both* valid signatures for
-the same message and key — what step of ECDSA verification is unchanged when you negate `s` mod
-`n`? (b) Why does deduplicating by **signature hash** let the twin through, while deduplicating by
-**`(message, pubkey)`** would not? (c) Why does the low-S rule (`s ≤ n//2`) accept exactly one member of this **particular twin pair**? Why does that not imply a unique signature for the message/key when fresh ECDSA nonces can create other valid low-S signatures, and why is an application transaction ID still needed? *Deliverable:* 3 short
-paragraphs, one per sub-question.
+- **Q5 — RSA, ECDSA, EdDSA.** เทียบทั้งสามแบบเรื่องปัญหายากที่ใช้ ความง่ายในการเขียนให้ถูก และจุดเสี่ยง (เช่นความเสี่ยงของ nonce `k` ใน ECDSA) แล้วบอกว่าทำไมระบบใหม่นิยม EdDSA (Ed25519)
+- **Q6 — Substitution attacks.** ลายเซ็นยังตรวจผ่าน แม้กุญแจสาธารณะหรือข้อความถูกเปลี่ยนไปได้อย่างไร
+- **Q7 — Malleability ในประวัติศาสตร์.** MtGox กับหลักฐานของ Decker และ Wattenhofer ([paper](https://arxiv.org/abs/1403.6676)) และ SUF-CMA ต่างจาก EUF-CMA อย่างไร พร้อมวิธีป้องกันอย่างน้อยสองอย่าง
+- **Q8 — Fiat–Shamir.** แทนคำท้าสุ่มด้วย hash แล้วได้การพิสูจน์แบบไม่ต้องโต้ตอบ (ใช้กับ Schnorr ไม่ใช่กับลายเซ็นทุกแบบ)
+- **Extension — ทำไม `(r, n−s)` จึงใช้ได้ (สำหรับคนที่อยากรู้).** เมื่อตรวจลายเซ็น ECDSA การเปลี่ยน `s` เป็น `n−s` ทำให้จุดบนเส้นโค้งที่คำนวณได้เป็นจุดตรงข้าม ซึ่งมีพิกัด x เท่าเดิม และ `r` เก็บแค่พิกัด x จึงยังตรงกัน
 
 ---
 
-## Evidence & Integrity (required)
-
-- **Attribution and reproducibility (both versions):** put your name/student ID on the submitted work and provide your own commands, observations and explanation. A screenshot or annotated transcript is acceptable; shared placeholder output is not per-student proof by itself.
-- **Optional terminal-stamp example:** `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'`. This is one way to label a capture, not a separate requirement, point allocation or live-personalization prerequisite.
-- **Observed flag (shared placeholder unless per-student seeding is announced):** ____________________
-  Attach your own execution evidence; personalization is not a prerequisite for full marks.
-- **Explain in your own words** *(graded on your reasoning, not copied text):*
-  1. What did you do, and **why did the double-spend work** (why did the bank see one
-     authorization as two transactions)?
-  2. **Why does the low-S fix actually stop it** — and what could still break a bank that used
-     low-S but *also* still dedups by signature hash? (Hint: is low-S the *only* source of
-     ECDSA/transaction malleability, or could other encodings — e.g. non-canonical DER,
-     `scriptSig` mutations in the real Bitcoin case — still change the txid? What extra fix from
-     Q5(d) closes that?)
-
----
-
-## 🤖 Assigned AIR-Sec Audit the AI
+## Part 3 — AIR-Sec Arm: Audit the AI (AIR-Sec version only, 20 points)
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
-Below is an AI assistant's answer to a developer who asked: *"Write me a function to verify an
-incoming transaction and make sure I never process the same one twice."* It looks professional and
-uses correct terminology, but it has **at least one subtly serious flaw** — the *same* flaw this
-week's lab exploits.
+AI เขียนฟังก์ชัน "กันไม่ให้ประมวลผลรายการซ้ำ" ให้นักพัฒนา ดูมืออาชีพ แต่มี**ข้อผิดพลาดเดียวกับที่ lab นี้โจมตี**
 
 > **AI's answer:**
 >
-> "Here's a robust pattern. Each transaction carries a message and an ECDSA signature `(r, s)`.
-> To prevent processing a transaction twice, compute a unique transaction id from the signature
-> and keep a set of ids you've already seen:
->
 > ```python
-> import hashlib
 > seen = set()
 >
 > def process(tx):
->     # tx = {"message": bytes, "pubkey": VerifyingKey, "r": int, "s": int}
 >     sig = encode_sig(tx["r"], tx["s"])
 >     if not tx["pubkey"].verify(sig, tx["message"]):
->         raise ValueError("bad signature")          # reject forgeries
+>         raise ValueError("bad signature")
 >     txid = hashlib.sha256(f'{tx["r"]}:{tx["s"]}'.encode()).hexdigest()
 >     if txid in seen:
->         raise ValueError("duplicate transaction")   # idempotency: never process twice
+>         raise ValueError("duplicate transaction")
 >     seen.add(txid)
->     apply_transaction(tx)                            # move the money
->     return txid
+>     apply_transaction(tx)
 > ```
 >
-> This is safe: the signature is cryptographically verified before anything happens, so no
-> attacker can inject a transaction they didn't sign. And because the txid is derived from the
-> signature itself, replaying the exact same request is caught by the `seen` set — you get
-> idempotency for free. Deriving the id from the signature is actually *better* than hashing the
-> message, because two different legitimate transactions could in theory share a message but will
-> always have different signatures."
+> "Safe: the signature is verified first, and the txid comes from the signature, so you get idempotency for free. This is better than hashing the message."
 >
 > — end of AI answer —
 
-1. **Find what's wrong or risky in it.** Quote the exact sentence(s). (Hint: the signature
-   *verification* is fine, and catching an *exact* replay is fine — don't waste your critique
-   there. Look at the claim that deriving the txid *from the signature* gives idempotency, and at
-   the final sentence arguing it is "better than hashing the message." What can an attacker who
-   holds one valid `(r, s)` do to the *signature bytes* without invalidating the signature?)
-2. **Produce the correct, verified version yourself.** Rewrite the two flawed parts (the txid
-   derivation and the "better than hashing the message" justification). Your fix must (a) reject
-   or canonicalize non-low-S signatures **and/or** (b) derive the txid from `(message, pubkey)`
-   (or a chosen application-level nonce) rather than from the signature bytes. Explain in 2–3
-   sentences why the AI's version processes the *same authorization twice* even though every
-   signature it accepts is genuinely valid.
+1. **Find what's wrong (10).** คัดลอกบรรทัดหรือประโยคที่ผิด และเขียน 1–2 ประโยคว่าทำไมผิด (คำใบ้: ขั้นที่ 5)
+2. **Fix it (10).** ควรสร้าง txid จากอะไรแทน (เช่น ข้อความกับกุญแจสาธารณะ หรือเลขลำดับ**ในข้อความที่เซ็น**) และทำไมโค้ดเดิมจึงประมวลผลรายการ**เดียวกันสองครั้ง** ทั้งที่ทุกลายเซ็นถูกต้อง
 
-> Disclose your AI use (if any, beyond this provided artifact) in the Part 0 table. This task
-> counts toward the **Audit the AI** row of the grading rubric.
+> Disclose any other AI use in the Part 1 table. This task counts toward the **Audit the AI** row.
 
 ---
 
-## 🧠 Assigned AIR-Sec Comprehension & Prompt
+## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
-**A. Explain in Plain English (EiPE) — Zero-Knowledge Proof.** Explain to a junior developer who
-has never heard the term "zero-knowledge proof": **how can you prove you know a password (or a
-private key) without ever sending it, and without the verifier learning it?** In 3–5 sentences,
-describe the *idea* of the Schnorr protocol in plain language — a commitment, a challenge, and a
-response — and why an eavesdropper (or the verifier) who sees the exchange still cannot log in as
-you afterward. Avoid just restating jargon ("it's zero-knowledge because it reveals zero
-knowledge") — explain the *mechanism*: you answer a fresh unpredictable challenge in a way only
-the secret-holder could, and a different challenge next time means a recording is useless. Then, in
-one sentence, connect it to Part 1 Q2: *why is a signature basically this same proof, but with the
-challenge replaced by a hash so no live verifier is needed?*
+**A. Explain in Plain English (EiPE, 10).** เพื่อนถามว่า *"พิสูจน์ว่ารู้รหัสผ่านโดยไม่ส่งรหัสผ่านได้อย่างไร?"* อธิบาย 3–5 ประโยค **ไม่ใช้ศัพท์ยาก** (ส่งค่าเริ่มต้น, ได้คำท้าสุ่ม, ตอบกลับ, ทำไมบันทึกไว้ใช้ไม่ได้)
 
-**B. Prompt Problem.** Write a **single prompt** that asks an AI to explain *why ECDSA signatures
-are malleable (the `(r, n−s)` twin) while EdDSA/Ed25519 signatures are not*. Run it, then critique
-the AI's answer:
-- Does it correctly explain that ECDSA verification depends on `s` only through a value that is
-  unchanged when `s → n − s` (so both are valid), i.e. malleability is inherent to the *scheme*,
-  not a bug?
-- Does it correctly state that **Ed25519 fixes this by construction** — the signature encoding is
-  deterministic and the verification equation pins down a unique canonical `S` (via `S < L`
-  checks in RFC 8032), so there is no valid twin?
-- Does it **hallucinate** anything — e.g. claim EdDSA is "immune because it's newer," confuse
-  malleability with a nonce-reuse attack (a *different*, key-recovery bug), or invent a wrong
-  curve order / wrong BIP number for the low-S rule (it's **BIP-62 / BIP-146**)?
+**B. Prompt Problem (10).** ใช้ AI ตัวไหนก็ได้ แล้วทำตามนี้:
 
-Submit the **final prompt + the AI's answer + your critique** (3–5 sentences covering the three
-bullet points above).
+1. เขียน prompt **หนึ่งอัน** ขอให้ AI อธิบายว่าทำไมลายเซ็น ECDSA ถึง "แฝด" `(r, n−s)` ได้ แต่ EdDSA (Ed25519) ไม่
+2. คัดลอกคำตอบของ AI ลงใบตอบ
+3. ตรวจ: (ก) บอกไหมว่า `(r, n−s)` ก็ใช้ได้กับข้อความและกุญแจเดิม (ข) บอกไหมว่า EdDSA ตรวจให้ `S` อยู่ในรูปมาตรฐาน (RFC 8032) แทนที่จะบอกว่า "ไม่โดนเพราะใหม่กว่า" (ค) พูดอะไรผิดหรือแต่งเรื่องไหม (เช่น สับสนกับการใช้ nonce ซ้ำ หรือเลข BIP ผิด ที่ถูกคือ BIP-62 / BIP-146)
+4. ในตารางของใบตอบ ติ๊ก **ผ่าน / ไม่ผ่าน** ทีละข้อพร้อมเหตุผล 1 ประโยค แล้วจบด้วย 1 ประโยคว่า จะเชื่อคำตอบของ AI นี้ไหม เพราะอะไร
+
+ส่ง **prompt + คำตอบของ AI + ตารางตรวจพร้อมเหตุผลของตัวเอง**
 
 ---
 
-## 🎤 Formative viva spot-check (no separate points; questions retained)
+## 🎤 Viva spot-check (formative/authenticity check; no separate points)
 
 An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
-1. "Here is your captured `s`. Without a script, tell me how you'd compute the malleated twin, and
-   which of the two — `s` or `n − s` — the *fixed* bank would accept, and why exactly one of them
-   passes the `s ≤ n/2` check."
-2. "The vulnerable bank *does* reject an exact replay of the same `(r, s)` with `409`. So why does
-   the `(r, n − s)` twin get through when it's 'the same transaction'? Point to the one line that
-   decides transaction identity and explain what it hashes."
-3. "Explain the Schnorr identification / Fiat–Shamir connection and distinguish it from a blanket zero-knowledge guarantee for every signature scheme — what is the 'secret' being proven, and where did the interactive *challenge* from the
-   Schnorr protocol go when it became a signature?"
+1. "ในขั้นที่ 5 ส่งลายเซ็นเดิมซ้ำถูกจับ (`409`) แต่ลายเซ็นแฝดผ่าน ทำไม และธนาคารใช้อะไรเป็นเลขรายการ"
+2. "ในขั้นที่ 7 ทำไมธนาคาร fixed จึงปฏิเสธลายเซ็นแฝด และทำไมในสองลายเซ็นมี low-S อยู่แค่หนึ่งอัน"
+3. "การตรวจ low-S เพียงอย่างเดียวพอไหมที่จะกันการจ่ายซ้ำ ถ้าไม่ ควรเพิ่มอะไร"
 
 ---
 
-## Grading rubric (100)
+## Grading rubric — assigned version totals 100
 
 | Criterion | Conventional | AIR-Sec |
 |---|---:|---:|
-| Shared practical core: complete the assigned run or coding steps | 20 | 20 |
-| Shared control and limitations: compare the secure control and explain what it does and does not show | 20 | 20 |
-| Shared reproducible evidence and reasoning: attributable observations, commands/results and explanation | 20 | 20 |
-| Assigned Conventional written questions | 40 | — |
-| Assigned AIR-Sec Audit-the-AI | — | 20 |
-| Assigned AIR-Sec Explain-in-Plain-English | — | 10 |
-| Assigned AIR-Sec Prompt Problem | — | 10 |
+| A1 — ลายเซ็นกับลายเซ็นแฝด | 20 | 20 |
+| A2 — ถอนซ้ำที่ธนาคาร vulnerable | 20 | 20 |
+| A3 — ธนาคาร fixed + reasoning | 20 | 20 |
+| Conventional written questions (Q1–Q4) | 40 | — |
+| AIR-Sec Audit the AI | — | 20 |
+| AIR-Sec Explain in Plain English (EiPE) | — | 10 |
+| AIR-Sec Prompt Problem | — | 10 |
 | **Total for the assigned version** | **100** | **100** |
 
-**Deadline and late work:** hand in by 23:59 Thai time (ICT) on the Sunday before the next week's
-class (KOSEN rule); the exact date is in your codes email and in the week's Classroom post.
-Late work loses 10% of this worksheet's score for each day late (a part day counts as a day), down to 0.
-Uploading or replacing a file after the deadline makes the whole hand-in late.
+## Evidence & Integrity (required)
 
-Viva/micro-demo checks are formative: no separate points and no automatic score gate. The 60 shared points apply to both versions; do not add the unassigned version's 40 points.
+- ใส่ชื่อ รหัสนักศึกษา และวันที่ในใบตอบ และคัดลอกคำสั่งกับผลจากเครื่อง**ของตัวเอง** ตัวเลขลายเซ็นสุ่มไม่เหมือนเพื่อนเป็นเรื่องปกติ flag เหมือนเพื่อนได้ สัปดาห์นี้ไม่มี flag เฉพาะคน และห้ามเอาผลของเพื่อนมาส่งเป็นของตัวเอง
+- **อธิบายด้วยคำของตัวเอง** (ให้คะแนนจากเหตุผล): ข้อที่ให้เติมคำจากคลังคำ (ขั้นที่ 3, 6, 8) ใช้คำที่ให้ไว้ได้ ส่วนคำตอบสั้น ๆ ของขั้นที่ 10 และข้อเขียนของฟอร์มตัวเองต้องเขียนด้วยคำของตัวเอง (ทำไมลายเซ็นแฝดจึงถอนซ้ำได้ และการตรวจ low-S แก้ได้แค่ไหน) ไม่ต้องเขียนเพิ่มนอกจากนี้
 
-Viva checks provide formative feedback and clarification within the published criteria; they carry no extra points or automatic score gate.
+**กำหนดส่งและการส่งช้า:** ส่งภายใน 23:59 น. (เวลาไทย) ของ **อาทิตย์ 17 ม.ค. 2027** (กฎ KOSEN: ก่อนคาบถัดไป) ส่งช้าหักวันละ 10% ของคะแนนใบงานนี้ (ไม่เต็มวันนับเป็นหนึ่งวัน) จนเหลือ 0 การอัปโหลดหรือเปลี่ยนไฟล์หลังกำหนดส่งนับว่าส่งช้าทั้งชิ้น ส่งงานร่วม 60 คะแนน และแบบของตัวเอง**หนึ่งแบบ**เท่านั้น ทำทั้งสองแบบไม่ได้คะแนนเพิ่ม Viva ใช้ตรวจความเข้าใจ ไม่มีคะแนนแยก

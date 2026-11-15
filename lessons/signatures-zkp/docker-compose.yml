@@ -3,8 +3,7 @@ services:
     image: python:3.12-slim
     working_dir: /lab
     ports:
-      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
-      - "127.0.0.1:8102:8102"
+      - "8102:8102"
     volumes:
       - ./:/lab
     # Per-student flag: python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env
@@ -14,13 +13,17 @@ services:
       bash -c "pip install --no-cache-dir -r requirements.txt &&
                echo '--- vulnerable bank (dedup by signature hash) on :8102 ---' &&
                python vulnerable_app.py"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8102/', timeout=2)"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
 
   fixed:
     image: python:3.12-slim
     working_dir: /lab
     ports:
-      # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
-      - "127.0.0.1:8103:8103"
+      - "8103:8103"
     volumes:
       - ./:/lab
     environment:
@@ -29,3 +32,8 @@ services:
       bash -c "pip install --no-cache-dir -r requirements.txt &&
                echo '--- fixed bank (low-S / BIP-62) on :8103 ---' &&
                python fixed_app.py"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8103/', timeout=2)"]
+      interval: 2s
+      timeout: 3s
+      retries: 30

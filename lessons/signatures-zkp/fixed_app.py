@@ -1,18 +1,16 @@
 """FIXED -- Week 11 Signatures/ZKP lab. Same endpoints as vulnerable_app.py, but the bank
 enforces LOW-S normalization (BIP-62 style) before it will process a withdrawal.
 
-The vulnerability was ECDSA malleability: for a valid (r, s) the twin (r, n - s) is also a
-valid signature for the same message+key but hashes to a different txid, so a bank that
-deduplicates by signature-hash double-processes one authorization. The canonical MtGox-era fix
-(Bitcoin BIP-62 / BIP-146) is to reject any signature whose s is in the UPPER half of the
-range: a signature is only valid if s <= n // 2. Because n is odd, exactly ONE of {s, n - s}
-is <= n // 2 -- so a message+key has exactly ONE canonical (low-S) signature. The malleated
-high-S twin is now rejected at verification time; there is no second txid to double-process.
+The vulnerability is ECDSA twin malleability: (r,s) and (r,n-s) verify for the same
+message/key but hash to different transaction IDs. Low-S accepts one member of that
+particular pair and rejects its high-S twin. It does NOT make signatures unique for a
+message/key: fresh signing nonces can create other valid low-S signatures.
 
-Defense-in-depth note (see the answer key): the complementary PROTOCOL-level fix is to
-deduplicate by (message, pubkey) instead of by signature bytes, which recognizes the malleated
-submission as the same logical transaction regardless of s. This app uses low-S as the primary,
-signature-level fix because it names the vulnerability directly and matches the real BIP-62 fix.
+This deliberately narrow reference control preserves signature-hash deduplication so
+students can discuss its limitations. A real payment protocol also needs authenticated,
+application-level transaction identity/idempotency (for example a signed unique sequence
+number); low-S alone is not a complete double-withdrawal defense. This toy bank is not a
+reproduction of Bitcoin consensus or evidence of the cause of MtGox's losses.
 
 RULE (repo policy): the keypair is generated fresh at container startup, in memory -- no private
 key is shipped in the repo.
@@ -86,13 +84,19 @@ def pubkey():
 @app.route("/withdraw", methods=["POST"])
 def withdraw():
     global _total_withdrawn
-    body = request.get_json(silent=True) or {}
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        return jsonify({"error": "JSON object required"}), 400
     message = body.get("message", "")
+    if not isinstance(message, str):
+        return jsonify({"error": "message must be a string"}), 400
     try:
         r = int(body.get("sig_r"))
         s = int(body.get("sig_s"))
     except (TypeError, ValueError):
         return jsonify({"error": "sig_r/sig_s must be integers"}), 400
+    if not (1 <= r < N and 1 <= s < N):
+        return jsonify({"error": "sig_r/sig_s out of range"}), 400
 
     if message.encode() != WITHDRAW_MSG:
         return jsonify({"error": "unknown message; this bank only authorizes the fixed withdraw"}), 400
@@ -116,8 +120,9 @@ def withdraw():
         _total_withdrawn += AMOUNT
         total = _total_withdrawn
 
-    # With low-S enforced, a message+key has exactly ONE acceptable signature, so total can never
-    # exceed the authorized amount via malleability -> the flag branch is unreachable here.
+    # The high-S twin is rejected above. Other fresh valid low-S signatures can still
+    # pass this deliberately retained signature-hash deduplication; this is not a
+    # complete application-level idempotency fix (see the worksheet limitation task).
     if total > AUTHORIZED_TOTAL:
         return jsonify({
             "status": "processed", "txid": txid, "amount": AMOUNT,

@@ -85,13 +85,19 @@ def pubkey():
 @app.route("/withdraw", methods=["POST"])
 def withdraw():
     global _total_withdrawn
-    body = request.get_json(silent=True) or {}
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        return jsonify({"error": "JSON object required"}), 400
     message = body.get("message", "")
+    if not isinstance(message, str):
+        return jsonify({"error": "message must be a string"}), 400
     try:
         r = int(body.get("sig_r"))
         s = int(body.get("sig_s"))
     except (TypeError, ValueError):
         return jsonify({"error": "sig_r/sig_s must be integers"}), 400
+    if not (1 <= r < N and 1 <= s < N):
+        return jsonify({"error": "sig_r/sig_s out of range"}), 400
 
     # Only the one fixed withdrawal is authorizable here.
     if message.encode() != WITHDRAW_MSG:
