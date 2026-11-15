@@ -15,16 +15,17 @@ she is protected depends on ONE environment variable:
          reads it in the clear. Encryption worked -- to the wrong endpoint.
 
   VERIFY=1              ->  FIXED client.
-      ctx = ssl.create_default_context()           (check_hostname=True,
-                                                     CERT_REQUIRED by default)
-      ctx.load_verify_locations(ca.crt)            (trust ONLY the demo CA)
+      ctx = ssl.create_default_context(cafile=ca_path)
+                                                  (check_hostname=True,
+                                                   CERT_REQUIRED; demo CA only)
       -> The impostor cert is self-signed, so the chain to the demo CA does not
          exist. Alice's TLS stack raises ssl.SSLCertVerificationError during the
          handshake. She catches it, prints "CERT VERIFICATION FAILED -
          ABORTING", exits nonzero, and sends NOTHING.
 
-The secret is fixed for the whole class; it is the leak *event* (captured in
-the MITM's log with your identity proof) that is your attributable evidence.
+The secret is fixed for the whole class. Capture the leak event and control
+results with your own commands and explanation; use normal name/student ID.
+An identity stamp is optional context, not a separate universal requirement.
 """
 import os
 import socket
@@ -115,14 +116,13 @@ def main() -> None:
             sys.exit(1)
 
         with tls_sock:
-            # Under CERT_NONE the parsed dict from getpeercert() is empty (the
-            # stack never validated the cert), so note that the handshake was
-            # accepted WITHOUT any identity check -- which is the whole bug.
-            print(
-                "ALICE: TLS handshake succeeded WITHOUT verifying the server "
-                "cert -- sending secret to whoever answered",
-                flush=True,
-            )
+            # Report the actual trust mode, including a successful fixed-mode
+            # connection to the legitimate peer used by the positive control.
+            if VERIFY:
+                status = "with verified certificate and hostname"
+            else:
+                status = "WITHOUT verifying the server cert"
+            print(f"ALICE: TLS handshake succeeded {status} -- sending secret", flush=True)
             tls_sock.sendall(SECRET_MESSAGE.encode())
             print(f"ALICE: sent encrypted message ({SECRET_MESSAGE!r})", flush=True)
     finally:
