@@ -1,8 +1,8 @@
 slug: e2e-encryption
-title: "End-to-End Encryption: TLS Is Not Enough (the Server Still Reads Your Messages)"
-kind: HYBRID
+title: "End-to-End Encryption: HTTPS is not enough"
+kind: LAB
 duration_min: 180
 tags: [e2ee, tls, hybrid-encryption, key-distribution]
-cwe: [CWE-311, CWE-319]
+cwe: [CWE-311, CWE-532, CWE-312]
 prereqs: [secure-transport, hybrid-encryption]
 flag_keys: []

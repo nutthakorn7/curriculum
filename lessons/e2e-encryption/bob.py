@@ -16,7 +16,7 @@ FIXED (E2E=1):
     publishes the PUBLIC key via POST /pubkey, then waits for and fetches the
     ciphertext and decrypts it CLIENT-SIDE with his private key:
         BOB DECRYPTED: meet at pier 39 at midnight
-    The server only ever saw base64 ciphertext -- it could not read this.
+    In this run the honest relay saw base64 ciphertext and had no decrypt key.
 
 Both modes use two layers of waiting: (1) connection retry until the server
 is listening, and (2) application-level polling of GET /fetch until a message

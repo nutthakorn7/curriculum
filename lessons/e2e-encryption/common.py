@@ -14,8 +14,8 @@ between the two modes is *what alice puts in that payload*:
 - FIXED (E2E=1): bob publishes an RSA public key; alice fetches it and
   encrypts the secret CLIENT-SIDE (AES-256-GCM for the message, RSA-OAEP to
   wrap the AES key -- "hybrid" encryption) before sending. The server stores
-  and logs only base64 ciphertext; bob decrypts client-side. The server never
-  sees the plaintext (server-cannot-read = true end-to-end encryption).
+  and logs only base64 ciphertext; bob decrypts client-side. This run assumes
+  the server relays Bob's real public key. Key substitution is not prevented.
 
 This module provides the crypto helpers shared by all three services so the
 AES-GCM / hybrid-wrap logic lives in exactly one place. There is NO real TLS
@@ -71,9 +71,9 @@ def public_key_from_b64(b64_pem: str):
 
 # ---------------------------------------------------------------------------
 # Hybrid encryption: AES-256-GCM for the message body, RSA-OAEP to wrap the
-# random AES key. This is exactly how real E2EE messengers structure a
-# message -- a fresh symmetric key per message, wrapped to the recipient's
-# public key. The output is a small JSON object, base64-encoded so it is a
+# random AES key. This is a teaching example of hybrid encryption, not a
+# production messaging protocol: it has no authenticated key distribution,
+# forward secrecy, or ratchet. The output is a small JSON object, base64-encoded so it is a
 # single opaque string the server can store and log without understanding it.
 # ---------------------------------------------------------------------------
 

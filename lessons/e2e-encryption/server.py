@@ -21,9 +21,9 @@ decided ENTIRELY by what alice chose to send:
   - vulnerable mode: alice sends raw plaintext  -> "SERVER SAW: meet at pier 39 at midnight"
   - fixed (E2EE) mode: alice sends ciphertext    -> "SERVER SAW: <base64 gibberish>"
 
-Same server, same log statement -- yet in E2EE mode the server structurally
-cannot see the plaintext. That is end-to-end encryption: the guarantee comes
-from the *clients*, not from trusting the server.
+Same server, same log statement -- yet in the fixed run this honest relay sees
+only ciphertext. A malicious server could replace the public key it returns
+to Alice, so this lab does not establish authenticated key distribution.
 
 Runs single-process (app.run, not a multi-worker WSGI server) so the
 module-level in-memory store is shared across /pubkey and /fetch requests.
