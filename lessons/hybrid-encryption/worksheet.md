@@ -1,179 +1,179 @@
 # Worksheet 10 — Hybrid Encryption: lock the key with RSA, lock the messages with AES-GCM
 
 > **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
-> **Kind:** Docker lab แบบทำตามทีละขั้น ไม่ต้องเขียนโปรแกรม และไม่ต้องคำนวณเลข (ส่วน AIR-Sec มีงานเขียนสคริปต์สั้น ๆ ใน Part 3)
+> **Kind:** Docker lab, step by step. No programming and no maths (the AIR-Sec form has a short scripting task in Part 3).
 
-> **Ethics note:** ทำเฉพาะกับโค้ดเดโมใน container ในเครื่องของตัวเองที่ lab นี้เปิดขึ้นมา ไม่มีเซิร์ฟเวอร์จริงและไม่มีพอร์ตที่เปิดออกนอกเครื่อง การใช้ nonce ซ้ำกับระบบจริงที่ไม่ใช่ของเราและไม่ได้รับอนุญาตเป็นเรื่องผิดกฎหมาย
+> **Ethics note:** Only work on the demo code in the container on your own computer that this lab starts. There is no real server and no port is opened to the outside of your computer. Reusing a nonce on a real system that is not yours, without permission, is illegal.
 
-## อ่านก่อนเริ่ม
+## Read this first
 
-**วันนี้จะทำอะไร:** RSA เข้ารหัสไฟล์ใหญ่ ๆ ไม่ไหว (ช้า และข้อมูลยาวได้จำกัด) ระบบจริงจึงใช้ **hybrid encryption**: Bob สร้าง**กุญแจ AES หนึ่งดอก** ล็อกกุญแจนั้นด้วย**กุญแจสาธารณะของ Alice** ส่งไปครั้งเดียว แล้วใช้กุญแจ AES เข้ารหัสทุกข้อความด้วย AES-GCM ซึ่งใช้ **nonce** (เลขใช้ครั้งเดียว) ต่อหนึ่งข้อความ วันนี้เราจะเห็น Bob ส่งข้อความหา Alice จริง ๆ แล้วดูว่าถ้า Bob ใช้ **nonce ซ้ำ** คนดักฟัง (Eve) อ่านข้อความลับได้โดยไม่มีกุญแจเลย สิ่งที่ต้องจำ: **กุญแจแข็งแรงแค่ไหน ก็ไม่ช่วย ถ้า nonce ซ้ำ**
+**What you will do today:** RSA cannot encrypt big files well (it is slow, and it can only take short data). So real systems use **hybrid encryption**: Bob makes **one AES key**, locks that key with **Alice's public key**, and sends it once. Then he encrypts every message with the AES key using AES-GCM, which uses a **nonce** (a number used once) for each message. Today you will watch Bob send messages to Alice, and then see what happens if Bob **reuses a nonce**: a listener (Eve) can read the secret message without any key. Remember this: **however strong the key is, it does not help if the nonce is reused.**
 
-**ทุกขั้นเขียนแบบเดียวกัน:**
+**Every step is written the same way:**
 
-| หัวข้อ | ความหมาย |
+| Heading | Meaning |
 |---|---|
-| **ทำอะไร** | บอกว่าขั้นนี้จะทำอะไร |
-| **พิมพ์** | คัดลอกทั้งบรรทัดไปวางใน Terminal แล้วกด Enter |
-| **ควรเห็น** | หน้าจอควรขึ้นประมาณนี้ (ตัวเลขฐานสิบหกของ nonce จะไม่เหมือนตัวอย่าง เป็นเรื่องปกติ) |
-| **แปลว่า** | ผลที่เห็นหมายความว่าอะไร |
-| **ลงใบตอบ** | สิ่งที่ต้องคัดลอกหรือเขียนลงใบตอบ |
+| **What to do** | Says what this step does |
+| **Type** | Copy the whole line, paste it into the Terminal, and press Enter |
+| **You should see** | The screen should look roughly like this (the hex numbers of the nonce will be different from the example, and that is normal) |
+| **Means** | What the result means |
+| **Write in the answer sheet** | What to copy or write in your answer sheet |
 
-**คะแนน**
+**Marks**
 
-- ทุกคนทำ **Part A (60 คะแนน)** ซึ่งเหมือนกันทั้งสองแบบ
-- จากนั้นทำ **เฉพาะแบบของตัวเอง (40 คะแนน)** ดูจากเลขตัวสุดท้ายของรหัสนักศึกษา: **เลขคี่ = Conventional (Part 2)**, **เลขคู่ = AIR-Sec (Parts 3–4)** (เลข 0 นับเป็นเลขคู่) แล้วเขียนแบบของตัวเองในช่อง Group
-- ตอบเป็นภาษาไทยหรืออังกฤษก็ได้ ตอบสั้น ๆ ให้ชัดก็พอ
-- **ใช้ใบตอบ:** ใน Classroom → Week 10 เปิดไฟล์ตามแบบของตัวเอง (`Wk10_Answer_Sheet_Conventional_odd_ID` หรือ `Wk10_Answer_Sheet_AIR-Sec_even_ID`) กด Open with → Google Docs พิมพ์ลงกรอบสีเทา แล้วกด File → Download → PDF
-- ส่งไฟล์เดียว ตั้งชื่อตามรหัสนักศึกษา เช่น `Wk10_66990000.pdf` (ไม่ต้องใส่เครื่องหมาย `<` `>`) ที่ `learn.zcr.ai/submit` โดยใช้รหัสส่งงานของ Week 10 ที่ได้ทางอีเมล KMITL ภายในกำหนดส่งที่ระบุในอีเมลและโพสต์ใน Classroom
-- ข้อที่เขียนว่า *optional* ไม่มีคะแนน ไม่ต้องทำก็ได้
+- Everyone does **Part A (60 marks)**, which is the same for both forms.
+- Then do **only your own form (40 marks)**. Look at the last digit of your student ID: **odd = Conventional (Part 2)**, **even = AIR-Sec (Parts 3–4)** (0 counts as even). Write your form in the Group box.
+- You may answer in English or Thai. Short and clear is enough.
+- **Answer sheet:** in Classroom → Week 10, open the file for your form (`Wk10_Answer_Sheet_Conventional_odd_ID` or `Wk10_Answer_Sheet_AIR-Sec_even_ID`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
+- Submit one file named with your student ID, for example `Wk10_66990000.pdf` (do not type the `<` `>` signs), at `learn.zcr.ai/submit` with your Week 10 submission code from your KMITL email, by the deadline in the email and in the Classroom post.
+- Items marked *optional* have no marks. You can skip them.
 
-| Part A | คะแนน | ขั้นที่ลงใบตอบ |
+| Part A | Marks | Steps to write in the answer sheet |
 |---|---:|---|
-| A1 — Bob ส่งข้อความหา Alice (nonce ใหม่ทุกครั้ง) | 20 | ขั้นที่ 2, 3 |
-| A2 — Bob ใช้ nonce ซ้ำ แล้ว Eve อ่านข้อความลับ | 20 | ขั้นที่ 5, 6 |
-| A3 — nonce ใหม่ทุกครั้ง Eve อ่านไม่ออก | 20 | ขั้นที่ 7, 8, 9, 10 |
+| A1 — Bob sends messages to Alice (a new nonce every time) | 20 | Steps 2, 3 |
+| A2 — Bob reuses a nonce, and Eve reads the secret | 20 | Steps 5, 6 |
+| A3 — With a new nonce every time, Eve cannot read | 20 | Steps 7, 8, 9, 10 |
 
-**คำศัพท์ที่ต้องรู้**
+**Words you need to know**
 
-| คำ | ความหมายแบบง่าย |
+| Word | Simple meaning |
 |---|---|
-| Terminal | หน้าต่างสำหรับพิมพ์คำสั่ง |
-| Docker / container | โปรแกรมที่เปิด "เครื่องจำลอง" เล็ก ๆ ในเครื่องของเรา ทำพังก็ลบแล้วเริ่มใหม่ได้ |
-| กุญแจสาธารณะ / กุญแจส่วนตัว | คู่กุญแจของ Alice: **ใครก็ล็อกด้วยกุญแจสาธารณะได้ แต่มีแค่ Alice ที่เปิดด้วยกุญแจส่วนตัวได้** |
-| RSA | วิธีเข้ารหัสแบบกุญแจคู่ ช้า และใส่ข้อมูลได้สั้น จึงใช้ล็อก**กุญแจ AES** เท่านั้น |
-| กุญแจ session | กุญแจ AES ที่ Bob สร้างขึ้นใหม่ทุกครั้งที่เริ่มคุย ใช้เข้ารหัสข้อความจริง |
-| AES-GCM | วิธีเข้ารหัสข้อความที่เร็ว และมี tag ไว้ตรวจว่าถูกแก้หรือไม่ (รู้จากสัปดาห์ที่ 4 และ 6) |
-| nonce | เลขที่ใช้คู่กับกุญแจเมื่อเข้ารหัสแต่ละข้อความ **ต้องไม่ซ้ำ** กับข้อความอื่นที่ใช้กุญแจเดิม ส่งไปกับข้อความได้ ไม่ต้องเป็นความลับ |
-| Eve | คนดักฟังที่เห็นทุกอย่างที่วิ่งบนเครือข่าย แต่ไม่รู้กุญแจใดเลย |
-| flag | ข้อความรางวัล รูปแบบ `FLAG{...}` เป็นหลักฐานว่าทำสำเร็จ |
+| Terminal | A window where you type commands |
+| Docker / container | A program that starts a small "pretend computer" on your computer. If you break it, delete it and start again |
+| public key / private key | Alice's key pair: **anyone can lock with the public key, but only Alice can open with the private key** |
+| RSA | A public-key way to encrypt. It is slow and takes only short data, so it is used only to lock the **AES key** |
+| session key | The AES key that Bob makes new each time they start talking. It encrypts the real messages |
+| AES-GCM | A fast way to encrypt messages that adds a tag to check whether the data was changed (learned in Weeks 4 and 6) |
+| nonce | A number used together with the key when encrypting each message. It **must not repeat** with other messages under the same key. It can travel with the message and does not have to be secret |
+| Eve | A listener who sees everything that travels on the network, but knows no key |
+| flag | A prize message in the form `FLAG{...}`, which is proof that you succeeded |
 
-**คำถามที่มักสงสัย**
+**Questions people often ask**
 
-- *ต้องเก่งคณิตศาสตร์ไหม?* ไม่ต้อง วันนี้ไม่มีการคำนวณ
-- *ต้องเขียนโปรแกรมไหม?* ไม่ต้อง คัดลอกคำสั่งไปวางได้เลย (ยกเว้นงาน Audit ของแบบ AIR-Sec)
-- *ถ้าทำผิด เครื่องจะพังไหม?* ไม่พัง ทุกอย่างอยู่ใน container ถ้าสับสนให้พิมพ์ `docker compose down` แล้วเริ่มใหม่จากเตรียมขั้นที่ 5
-- *ไม่เข้าใจทุกตัวอักษรที่ขึ้นจอ ได้ไหม?* ได้ ดูเฉพาะบรรทัดที่ใบงานบอก
-- *เลข nonce ของเราไม่เหมือนเพื่อน ผิดไหม?* ไม่ผิด กุญแจและ nonce สุ่มใหม่ทุกครั้งที่รัน แต่ข้อความ ผลลัพธ์ YES/NO และบรรทัด RESULT ต้องเหมือนกัน และต้องคัดลอกจากเครื่องของตัวเองเสมอ
-- *วางคำสั่งใน Terminal ยังไง?* คัดลอกคำสั่งจากใบงาน แล้ว Windows: กด Ctrl+V หรือคลิกขวา · Mac: กด Cmd+V จากนั้นกด Enter
-- *คัดลอกผลจาก Terminal ยังไง?* ลากเมาส์คลุมข้อความก่อน แล้ว Windows: กด Ctrl+Shift+C · Mac: กด Cmd+C หรือจะ screenshot ก็ได้
+- *Do I need to be good at maths?* No. There is no calculation today.
+- *Do I need to write programs?* No. Copy the commands and paste them (except for the Audit task of the AIR-Sec form).
+- *If I make a mistake, will my computer break?* No. Everything is inside a container. If you get confused, type `docker compose down` and start again from Prep step 5.
+- *Can I skip understanding every character on the screen?* Yes. Only look at the lines the worksheet tells you to.
+- *My nonce numbers are not the same as my friend's. Is that wrong?* No. The keys and nonces are random every time you run it. But the messages, the YES/NO results and the RESULT lines must be the same, and you must always copy from your own computer.
+- *How do I paste a command into the Terminal?* Copy the command from the worksheet, then Windows: press Ctrl+V or right-click · Mac: press Cmd+V, then press Enter.
+- *How do I copy results from the Terminal?* Select the text with the mouse first, then Windows: press Ctrl+Shift+C · Mac: press Cmd+C. Or take a screenshot.
 
-**ถ้าเจอข้อความแบบนี้**
+**If you see a message like this**
 
-| ข้อความบนจอ | สาเหตุ | วิธีแก้ |
+| Message on screen | Cause | Fix |
 |---|---|---|
-| มีคำว่า `Cannot connect to the Docker daemon` หรือ `error during connect` | ยังไม่ได้เปิด Docker | เปิด Docker Desktop รอจนขึ้น Engine running |
-| `no configuration file provided: not found` | Terminal ไม่ได้อยู่ในโฟลเดอร์ lab | ทำเตรียมขั้นที่ 4 อีกครั้ง |
-| `service "lab" is not running` | ยังไม่ได้เปิด lab | ทำเตรียมขั้นที่ 5 และ 6 |
-| `ModuleNotFoundError: No module named 'cryptography'` | lab ยังติดตั้งแพ็กเกจไม่เสร็จ | รอสักครู่ แล้วทำเตรียมขั้นที่ 6 อีกครั้ง |
-| `can't open file '/lab/demo.py'` | ZIP ที่โหลดไว้เก่า ไม่มีไฟล์ `demo.py` | โหลด ZIP ใหม่ตามเตรียมขั้นที่ 2 |
-| บรรทัดแรกที่ขึ้นเป็นข้อความอธิบายยาว ๆ (`Week 10 helper: ...`) | พิมพ์คำสั่งผิดหรือตกคำ | คัดลอกคำสั่งจากใบงานใหม่ทั้งบรรทัด |
+| `Cannot connect to the Docker daemon` or `error during connect` | Docker is not open | Open Docker Desktop and wait until it says Engine running |
+| `no configuration file provided: not found` | The Terminal is not in the lab folder | Repeat Prep step 4 |
+| `service "lab" is not running` | The lab is not started | Do Prep steps 5 and 6 |
+| `ModuleNotFoundError: No module named 'cryptography'` | The lab has not finished installing packages | Wait a moment, then repeat Prep step 6 |
+| `can't open file '/lab/demo.py'` | The ZIP you downloaded is old and has no `demo.py` | Download a new ZIP as in Prep step 2 |
+| The first thing on screen is a long explanation (`Week 10 helper: ...`) | You typed the command wrong or left a word out | Copy the command from the worksheet again, the whole line |
 
-ลองแล้วยังไม่ได้ ให้ถามเพื่อนหรืออาจารย์ได้เลย
+If you still cannot do it, ask a friend or your instructor.
 
 ---
 
-## ก่อนเริ่ม: เตรียมเครื่อง (ทำที่บ้าน ทำครั้งเดียว)
+## Before you start: set up your computer (at home, once)
 
-ถ้าเคยทำ Week 2–6 มาแล้ว มี Docker และไฟล์ ZIP อยู่แล้ว เริ่มที่**เตรียมขั้นที่ 4** ได้เลย แต่ ZIP ต้องเป็นฉบับใหม่ที่มีโฟลเดอร์ `week10-hybrid-encryption` และไฟล์ `demo.py` ถ้าไม่เจอให้โหลดใหม่ตามเตรียมขั้นที่ 2
+If you already did Weeks 2–6, you have Docker and the ZIP file. Start at **Prep step 4**. But the ZIP must be a recent one that has the folder `week10-hybrid-encryption` and the file `demo.py`. If you cannot find them, download the ZIP again as in Prep step 2.
 
-**ถ้าปิดเครื่องไปแล้วกลับมาทำต่อ:** ทำเตรียมขั้นที่ 1, 4, 5, 6 ใหม่
+**If you turned your computer off and came back:** repeat Prep steps 1, 4, 5 and 6.
 
-#### เตรียมขั้นที่ 1 — เปิด Docker Desktop
+#### Prep step 1 — Open Docker Desktop
 
-**ทำอะไร:** ถ้ายังไม่มี ให้ติดตั้งจาก <https://www.docker.com/products/docker-desktop/> แล้วเปิดโปรแกรมทิ้งไว้
+**What to do:** If you do not have it yet, install it from <https://www.docker.com/products/docker-desktop/> and leave the program open.
 
-**ควรเห็น:** ในหน้าต่าง Docker Desktop ขึ้นว่า **Engine running**
+**You should see:** the Docker Desktop window says **Engine running**.
 
-#### เตรียมขั้นที่ 2 — โหลดไฟล์ lab
+#### Prep step 2 — Download the lab files
 
-**ทำอะไร:** เปิด <https://github.com/nutthakorn7/security-cryptography> กดปุ่มสีเขียว **Code** แล้วเลือก **Download ZIP**
+**What to do:** Open <https://github.com/nutthakorn7/security-cryptography>, click the green **Code** button, and choose **Download ZIP**.
 
-ไม่ต้องมีบัญชี GitHub และไม่ต้อง fork
+You do not need a GitHub account and you do not need to fork.
 
-#### เตรียมขั้นที่ 3 — แตกไฟล์ ZIP
+#### Prep step 3 — Unzip the ZIP file
 
-**ทำอะไร:** Windows: คลิกขวาที่ไฟล์ ZIP เลือก **Extract All** · Mac: ดับเบิลคลิกไฟล์ ZIP วางไว้ในที่ที่หาง่าย เช่น Desktop
+**What to do:** Windows: right-click the ZIP file and choose **Extract All** · Mac: double-click the ZIP file. Put it somewhere easy to find, such as the Desktop.
 
-**ควรเห็น:** โฟลเดอร์ชื่อ `security-cryptography-master` บางเครื่องจะมีโฟลเดอร์ชื่อเดียวกันซ้อนสองชั้น ให้เปิดเข้าไปจนเห็นโฟลเดอร์ `labs`
+**You should see:** a folder called `security-cryptography-master`. Some computers make a folder with the same name inside it; open it until you can see the `labs` folder.
 
-#### เตรียมขั้นที่ 4 — เปิด Terminal ในโฟลเดอร์ lab
+#### Prep step 4 — Open a Terminal inside the lab folder
 
-**ทำอะไร:** ในโฟลเดอร์ `security-cryptography-master` เข้าไปที่ `labs` แล้วเข้า `week10-hybrid-encryption`
+**What to do:** Open the `labs` folder inside `security-cryptography-master`, then open `week10-hybrid-encryption`.
 
-- **Windows:** เปิดโฟลเดอร์ `week10-hybrid-encryption` ใน File Explorer คลิกขวาตรงที่ว่าง เลือก **Open in Terminal** (ถ้าไม่มีเมนูนี้ ให้กด Shift ค้างแล้วคลิกขวา เลือก **Open PowerShell window here**)
-- **Mac:** เปิดแอป Terminal พิมพ์ `cd` เว้นวรรคหนึ่งครั้ง ลากโฟลเดอร์ `week10-hybrid-encryption` มาวางในหน้าต่าง แล้วกด Enter
+- **Windows:** open the `week10-hybrid-encryption` folder in File Explorer, right-click an empty spot, and choose **Open in Terminal** (if you do not see it, hold Shift, right-click, and choose **Open PowerShell window here**)
+- **Mac:** open the Terminal app, type `cd` and one space, drag the `week10-hybrid-encryption` folder into the window, then press Enter
 
-เช็กว่าอยู่ถูกที่ด้วยคำสั่งนี้:
+Check that you are in the right place with this command:
 
 ```bash
 ls
 ```
 
-**ควรเห็น:** มีชื่อ `docker-compose.yml` และ `demo.py` อยู่ในรายการ
+**You should see:** `docker-compose.yml` and `demo.py` in the list.
 
-#### เตรียมขั้นที่ 5 — เปิด lab
+#### Prep step 5 — Start the lab
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose up -d
 ```
 
-**ควรเห็น:** บรรทัดลงท้ายว่า `Started` (ถ้าเปิดอยู่แล้วอาจเห็น `Running`) **ทุกครั้งที่เปิด lab ต้องต่ออินเทอร์เน็ต** เพราะ container ติดตั้งแพ็กเกจใหม่ทุกครั้งที่เริ่ม ครั้งแรกอาจรอหลายนาที ระหว่างนั้นอย่าปิดหน้าต่าง
+**You should see:** a line ending in `Started` (if the lab was already running you may see `Running`). **You need the internet every time you start this lab**, because the container installs packages each time it starts. The first time it may take several minutes. Do not close the window while you wait.
 
-#### เตรียมขั้นที่ 6 — เช็กว่า lab พร้อม
+#### Prep step 6 — Check that the lab is ready
 
-**พิมพ์** (Mac):
+**Type** (Mac):
 
 ```bash
 docker compose logs | grep "lab ready"
 ```
 
-**พิมพ์** (Windows):
+**Type** (Windows):
 
 ```powershell
 docker compose logs | findstr /C:"lab ready"
 ```
 
-**ควรเห็น:** บรรทัดที่มีคำว่า `week 10 lab ready` ถ้าไม่ขึ้นอะไรเลย ให้รอสักครู่แล้วพิมพ์คำสั่งนี้อีกครั้ง ถ้ารอเกิน 2 นาทีให้พิมพ์ `docker compose ps -a` แล้ว screenshot ส่งอาจารย์
+**You should see:** a line that contains `week 10 lab ready`. If you see nothing, wait a moment and type the command again. If it still fails after 2 minutes, type `docker compose ps -a`, take a screenshot, and send it to your instructor.
 
 ---
 
 ## Part A — The lab (both forms, 60 points)
 
-Bob ส่งข้อความสองข้อความหา Alice ในการคุยครั้งเดียว (หนึ่ง session) สคริปต์ `demo.py` ทำได้สองแบบ ต่างกันแค่การเลือก nonce:
+Bob sends two messages to Alice in one conversation (one session). The script `demo.py` can run in two ways. They differ only in how the nonce is chosen:
 
-| แบบ | nonce | ผลกับ Eve |
+| Way | Nonce | What Eve can do |
 |---|---|---|
-| `good` | **ใหม่ทุกข้อความ** | Eve อ่านไม่ออก |
-| `reuse` | **ซ้ำ** ทั้งสองข้อความ | Eve อ่านข้อความลับได้โดยไม่มีกุญแจ |
+| `good` | **a new nonce for every message** | Eve cannot read the message |
+| `reuse` | **the same nonce** for both messages | Eve reads the secret message without the key |
 
-> **ถ้าใช้ Docker ไม่ได้จริง ๆ:** บอกอาจารย์ แล้วทำตามตัวอย่างผลที่ใบงานให้ไว้ในแต่ละขั้น เขียนกำกับว่า "จากตัวอย่างในใบงาน" ส่วนขั้นที่ 6, 8 และ 10 ตอบจากการอ่านใบงานได้
+> **If you really cannot use Docker:** tell your instructor, then follow the example results given in each step and write "from the worksheet example" next to them. Steps 6, 8 and 10 can be answered by reading the worksheet.
 
-### A1 — Bob ส่งข้อความหา Alice (nonce ใหม่ทุกครั้ง) (20 points)
+### A1 — Bob sends messages to Alice (a new nonce every time) (20 points)
 
-#### ขั้นที่ 1 — อ่าน: ใครถืออะไร
+#### Step 1 — Read: who holds what?
 
-**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+**What to do:** Just read. You do not need to type anything.
 
-| ใคร | ถืออะไร | ทำอะไร |
+| Who | Holds what | Does what |
 |---|---|---|
-| **Alice** | กุญแจสาธารณะ (แจกให้ทุกคน) และกุญแจส่วนตัว (เก็บไว้คนเดียว) | เปิดกุญแจ session ด้วยกุญแจส่วนตัว แล้วเปิดข้อความ |
-| **Bob** | กุญแจ AES ที่สุ่มสร้างเอง (กุญแจ session) | ล็อกกุญแจ session ด้วย**กุญแจสาธารณะของ Alice** ส่งครั้งเดียว แล้วเข้ารหัสแต่ละข้อความด้วยกุญแจ session กับ nonce |
-| **Eve** | ไม่มีกุญแจเลย | เห็นแค่ของที่วิ่งบนเครือข่าย: กุญแจที่ถูกล็อก, nonce และข้อความที่เข้ารหัส |
+| **Alice** | A public key (given to everyone) and a private key (kept by her alone) | Opens the session key with her private key, then opens the messages |
+| **Bob** | An AES key that he makes at random (the session key) | Locks the session key with **Alice's public key** and sends it once, then encrypts each message with the session key and a nonce |
+| **Eve** | No keys at all | Sees only what travels on the network: the locked key, the nonces and the encrypted messages |
 
-#### ขั้นที่ 2 — ดู Bob ส่งสองข้อความ (nonce ใหม่ทุกครั้ง)
+#### Step 2 — Watch Bob send two messages (a new nonce every time)
 
-**ทำอะไร:** ให้สคริปต์จำลอง Bob ส่งข้อความหา Alice แล้ว Alice เปิดอ่าน
+**What to do:** Let the script play Bob sending two messages to Alice, and Alice opening them.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose exec lab python demo.py good
 ```
 
-**ควรเห็น:** หลายบรรทัด ให้ดู**สี่บรรทัดนี้** (เลข nonce ของเราจะต่างจากตัวอย่าง)
+**You should see:** several lines. Find **these four lines** (your nonce numbers will be different from the example)
 
 ```
 Bob made ONE session key (AES-256) and locked it with Alice's public key: 256 bytes, sent once.
@@ -182,38 +182,38 @@ message 2: nonce 83d9bf4841c7fb276580aab7  ciphertext 33 bytes + 16-byte tag
 nonces equal? NO (a new nonce for every message)
 ```
 
-**แปลว่า:** กุญแจ session ถูกล็อกด้วย RSA และส่งครั้งเดียว ส่วนข้อความเข้ารหัสด้วย AES-GCM ทีละข้อความ แต่ละข้อความมี nonce ของตัวเอง **ไม่ซ้ำกัน** (`NO`) Alice เปิดอ่านได้ครบทั้งสองข้อความ (ดูบรรทัด `message 1 ->` และ `message 2 ->` ในผลเต็ม)
+**Means:** The session key was locked with RSA and sent once. The messages are encrypted with AES-GCM one by one, and each message has its own nonce, which are **not the same** (`NO`). Alice can open both messages (see the lines `message 1 ->` and `message 2 ->` in the full output).
 
-**✍️ ลงใบตอบ (ขั้นที่ 2):** คัดลอกสี่บรรทัดข้างบนจากหน้าจอของตัวเอง
+**✍️ Write in the answer sheet (Step 2):** copy the four lines above from your own screen.
 
-#### ขั้นที่ 3 — สรุปด้วยคำของตัวเอง
+#### Step 3 — Summarise in your own words
 
-**ทำอะไร:** เติมคำในช่องว่าง
+**What to do:** Fill in the blanks.
 
-> Bob ล็อกกุญแจ session ด้วยกุญแจ ________ ของ Alice และ Alice เปิดด้วยกุญแจ ________ ของตัวเอง (เลือกคำ: `สาธารณะ` / `ส่วนตัว`) ส่วนตัวข้อความจริงเข้ารหัสด้วย ________ (เลือกคำ: `RSA` / `AES`)
+> Bob locks the session key with Alice's ________ key, and Alice opens it with her own ________ key. (Choose: `public` / `private`) The messages themselves are encrypted with ________. (Choose: `RSA` / `AES`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 3):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 3):** write the full sentence.
 
-### A2 — Bob ใช้ nonce ซ้ำ แล้ว Eve อ่านข้อความลับ (20 points)
+### A2 — Bob reuses a nonce, and Eve reads the secret (20 points)
 
-#### ขั้นที่ 4 — อ่าน: Eve ทำอะไรได้
+#### Step 4 — Read: what can Eve do?
 
-**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+**What to do:** Just read. You do not need to type anything.
 
-AES-GCM ใช้กุญแจกับ nonce สร้าง "แถบสุ่ม" มาปิดข้อความ ถ้า nonce **ซ้ำ** แถบสุ่มก็**ซ้ำ** ข้อความสองข้อความจึงถูกปิดด้วยแถบเดียวกัน Eve ไม่ต้องรู้กุญแจ แค่เอาข้อความที่เข้ารหัสสองอันมาเทียบกัน แล้วถ้าเธอรู้ข้อความแรกอยู่แล้ว (เช่นคำทักทายที่ Bob ใช้ทุกครั้ง) เธอก็ได้ข้อความที่สองออกมา สคริปต์ทำขั้นตอนนี้ให้เอง ไม่ต้องคำนวณ
+AES-GCM uses the key and the nonce to make a "random strip" that covers the message. If the nonce is **the same**, the strip is **the same**. So two messages are covered by the same strip. Eve does not need the key. She only compares the two encrypted messages. If she already knows the first message (for example the greeting that Bob sends every time), she gets the second message out. The script does this step for her, so you do not calculate anything.
 
-#### ขั้นที่ 5 — ให้ Bob ใช้ nonce ซ้ำ แล้วให้ Eve ลอง
+#### Step 5 — Let Bob reuse the nonce, then let Eve try
 
-**ทำอะไร:** รันแบบ `reuse` ให้เห็นว่า nonce ซ้ำแต่ Alice ยังอ่านได้ปกติ แล้วให้ Eve ลองอ่านข้อความที่สอง
+**What to do:** Run the `reuse` way to see that the nonce is the same but Alice can still read everything as normal, then let Eve try to read the second message.
 
-**พิมพ์** ทีละบรรทัด:
+**Type** one line at a time:
 
 ```bash
 docker compose exec lab python demo.py reuse
 docker compose exec lab python demo.py attack reuse
 ```
 
-**ควรเห็น:** คำสั่งแรกขึ้นหลายบรรทัด ให้ดูสองบรรทัด `message 1:` และ `message 2:` กับบรรทัด `nonces equal?` คำสั่งที่สองขึ้นผลของ Eve
+**You should see:** the first command prints several lines. Look at the two lines `message 1:` and `message 2:` and the line `nonces equal?`. The second command prints Eve's result.
 
 ```
 message 1: nonce a3236abaf2924d9ec5591526  ciphertext 35 bytes + 16-byte tag
@@ -223,33 +223,33 @@ Eve's reading of message 2: Secret: FLAG{same_nonce_leaks_it}
 RESULT: Eve read message 2 WITHOUT the key.
 ```
 
-**แปลว่า:** สอง nonce **เหมือนกันทุกตัว** (`YES`) Alice ยังเปิดอ่านได้ปกติ จึงไม่มีอะไรบอกว่ามีปัญหา แต่ Eve อ่านข้อความที่สองซึ่งมี flag ได้ **โดยไม่มีกุญแจ** บรรทัด `Eve's reading` เหมือนกันทุกเครื่อง
+**Means:** The two nonces are **exactly the same** (`YES`). Alice can still open the messages as normal, so nothing tells her there is a problem. But Eve reads the second message, which holds the flag, **without the key**. The line `Eve's reading` is the same on every computer.
 
-**✍️ ลงใบตอบ (ขั้นที่ 5):** คัดลอกห้าบรรทัดข้างบนจากหน้าจอของตัวเอง
+**✍️ Write in the answer sheet (Step 5):** copy the five lines above from your own screen.
 
-#### ขั้นที่ 6 — ตอบคำถามสองข้อ
+#### Step 6 — Answer the two questions
 
-**ทำอะไร:** เติมคำในช่องว่างทั้งสองข้อ (คำใบ้: ขั้นที่ 4 และบรรทัดในขั้นที่ 5)
+**What to do:** Fill in the blanks in both items (hint: Step 4 and the lines in Step 5).
 
-> a) Eve (รู้ / ไม่รู้) กุญแจ แต่ก็อ่านข้อความที่สองได้ เพราะ Bob ใช้ ________ ซ้ำ (เลือกคำ: `nonce` / `กุญแจ`)
+> a) Eve (knows / does not know) the key, but she can still read the second message, because Bob used the same ________ twice. (Choose: `nonce` / `key`)
 >
-> b) Eve ต้องรู้ข้อความแรกก่อน (เช่นคำทักทายที่ Bob ใช้ทุกครั้ง) จึงอ่านข้อความที่สองได้ (เลือกคำ: `จริง` / `ไม่จริง`)
+> b) Eve has to know the first message first (for example the greeting that Bob sends every time) to read the second message. (Choose: `true` / `false`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 6):** เขียนทั้งสองประโยคให้ครบ
+**✍️ Write in the answer sheet (Step 6):** write both sentences in full.
 
-### A3 — nonce ใหม่ทุกครั้ง Eve อ่านไม่ออก (20 points)
+### A3 — With a new nonce every time, Eve cannot read (20 points)
 
-#### ขั้นที่ 7 — ให้ Eve ลองกับแบบ nonce ใหม่
+#### Step 7 — Let Eve try the "new nonce" session
 
-**ทำอะไร:** ให้ Eve ใช้วิธีเดิมกับ session แบบ `good` (nonce ใหม่ทุกข้อความ)
+**What to do:** Let Eve use the same method on the `good` session (a new nonce for every message).
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose exec lab python demo.py attack good
 ```
 
-**ควรเห็น:** สามบรรทัดนี้ (ตัวอักษรแปลก ๆ ในบรรทัด `Eve's reading` จะต่างจากตัวอย่างทุกครั้ง)
+**You should see:** these three lines (the strange characters in the line `Eve's reading` will be different every time)
 
 ```
 nonces equal? NO
@@ -257,60 +257,60 @@ Eve's reading of message 2: ?T(??J?m??w?o???J??p??q????W Ulk?
 RESULT: Eve got nothing readable.
 ```
 
-**แปลว่า:** nonce ต่างกัน แถบสุ่มจึงต่างกัน วิธีเดิมของ Eve ได้แต่ตัวอักษรมั่ว ๆ
+**Means:** The nonces are different, so the random strips are different, and Eve's method only gives mixed-up characters.
 
-**✍️ ลงใบตอบ (ขั้นที่ 7):** คัดลอกสามบรรทัดข้างบนจากหน้าจอของตัวเอง
+**✍️ Write in the answer sheet (Step 7):** copy the three lines above from your own screen.
 
-#### ขั้นที่ 8 — สรุปด้วยคำของตัวเอง
+#### Step 8 — Summarise in your own words
 
-**ทำอะไร:** ดูผลขั้นที่ 5 กับขั้นที่ 7 แล้วเติมคำ
+**What to do:** Look at the results of Step 5 and Step 7, then fill in the blanks.
 
-> เมื่อ nonce **ต่างกัน** Eve อ่านข้อความ ________ (เลือกคำ: `ออก` / `ไม่ออก`) และเมื่อ nonce **ซ้ำ** Eve อ่านข้อความ ________ (เลือกคำ: `ออก` / `ไม่ออก`)
+> When the nonce is **different**, Eve reads the message ________. (Choose: `easily` / `not at all`) When the nonce is **reused**, Eve reads the message ________. (Choose: `easily` / `not at all`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 8):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 8):** write the full sentence.
 
-#### ขั้นที่ 9 — หาบรรทัดที่ต่างกันในโค้ด
+#### Step 9 — Find the lines that differ in the code
 
-**ทำอะไร:** ดูสองบรรทัดในโค้ดที่เลือก nonce
+**What to do:** Look at the two lines of code that choose the nonce.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose exec lab grep -n "nonces = " demo.py
 ```
 
-**ควรเห็น:**
+**You should see:**
 
 ```
 40:        nonces = [os.urandom(12)] * 2                              # the SAME nonce for both messages
 42:        nonces = [os.urandom(12), os.urandom(12)]                  # a NEW nonce for each message
 ```
 
-**แปลว่า:** บรรทัดแรกสุ่มเลขหนึ่งตัวแล้วใช้ซ้ำสองครั้ง (`* 2`) บรรทัดที่สองสุ่มเลขใหม่สองตัว ความต่างเล็กนิดเดียวในโค้ด แต่ผลต่างกันมาก
+**Means:** The first line makes one random number and uses it twice (`* 2`). The second line makes two new random numbers. A tiny difference in the code makes a huge difference in the result.
 
-**✍️ ลงใบตอบ (ขั้นที่ 9):** คัดลอกสองบรรทัดที่ขึ้นบนจอ
+**✍️ Write in the answer sheet (Step 9):** copy the two lines that show on your screen.
 
-#### ขั้นที่ 10 — ทำไม nonce ซ้ำจึงอันตราย
+#### Step 10 — Why is a repeated nonce dangerous?
 
-**ทำอะไร:** อ่านแล้วตอบ 1–2 ประโยค
+**What to do:** Read, then answer in 1–2 sentences.
 
-nonce **ไม่ต้องเป็นความลับ** (ส่งไปกับข้อความได้) แต่ **ต้องไม่ซ้ำ** กับข้อความอื่นที่ใช้กุญแจเดิม RSA ที่ล็อกกุญแจ session แข็งแรงแค่ไหน ก็ไม่ช่วยถ้า nonce ซ้ำ
+A nonce does **not have to be secret** (it can travel with the message), but it **must never repeat** with other messages under the same key. However strong the RSA that locks the session key is, it does not help if the nonce is reused.
 
-> ทำไม Eve จึงอ่านข้อความที่สองได้ทั้งที่ไม่รู้กุญแจ และ Bob ควรทำอย่างไรเพื่อไม่ให้เกิดเรื่องนี้ (คำใบ้: ขั้นที่ 5 และ 9)
+> Why can Eve read the second message even though she does not know the key, and what should Bob do so that this does not happen? (hint: Step 5 and Step 9)
 
-**✍️ ลงใบตอบ (ขั้นที่ 10):** เขียนคำตอบ
+**✍️ Write in the answer sheet (Step 10):** write your answer.
 
-#### ขั้นที่ 11 — ปิด lab และเช็กใบตอบ
+#### Step 11 — Shut down the lab and check your answer sheet
 
-**ทำอะไร:** ทำหลังจากคัดลอกผลครบแล้ว
+**What to do:** Do this after you have copied all the results.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose down
 ```
 
-**ควรเห็น:** บรรทัดลงท้ายว่า `Removed` จากนั้นดูว่าในใบตอบมีครบ: ขั้นที่ 2, 3 (A1), ขั้นที่ 5, 6 (A2), ขั้นที่ 7, 8, 9, 10 (A3) แล้วไปทำส่วนของแบบตัวเอง: เลขคี่ทำ Part 2 เลขคู่ทำ Part 3 และ Part 4
+**You should see:** a line ending in `Removed`. Then check that your answer sheet has everything: Steps 2, 3 (A1), Steps 5, 6 (A2), Steps 7, 8, 9, 10 (A3). Then do the part for your own form: odd IDs do Part 2, even IDs do Part 3 and Part 4.
 
 ---
 
@@ -324,44 +324,44 @@ docker compose down
 
 ## Part 2 — Conventional form (40 points; only if Conventional is your assigned form)
 
-ตอบข้อละ 2–3 ประโยค ภาษาไทยได้ ส่วนนี้ให้**ตอบด้วยตัวเอง** ไม่ใช้ AI ตอบ
+Answer each item in 2–3 sentences. You may answer in English or Thai. In this part **answer by yourself**, without using AI to answer.
 
-**Q1 (10). ทำไมไม่ใช้ RSA กับไฟล์ใหญ่.** RSA ล็อกวิดีโอหรือ PDF ทั้งไฟล์ไม่ได้ดี
+**Q1 (10). Why not use RSA for big files?** RSA cannot lock a whole video or PDF file well.
 
-ตอบให้ครบสองอย่างนี้ (ข้อละ 1–2 ประโยค):
+Answer both of these (1–2 sentences each):
 
-- ทำไมการเข้ารหัสแบบกุญแจคู่ (เช่น RSA) จึงไม่เหมาะกับไฟล์ใหญ่ (คำใบ้: เรื่อง**ความเร็ว**และ**ความยาวข้อมูลที่ใส่ได้**)
-- ระบบจริงแก้เรื่องนี้อย่างไร และใช้ RSA ทำอะไรแทน (คำใบ้: ตารางในขั้นที่ 1)
+- Why is public-key encryption (such as RSA) not good for big files? (hint: think about **speed** and **how much data it can take**)
+- How do real systems solve this, and what do they use RSA for instead? (hint: the table in Step 1)
 
-**Q2 (10). Bob ส่งข้อความหา Alice.** เล่าขั้นตอนของ hybrid encryption ตั้งแต่ต้นจนจบ
+**Q2 (10). Bob sends messages to Alice.** Tell the steps of hybrid encryption from the beginning to the end.
 
-ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+Answer all three of these (1–2 sentences each):
 
-- Bob สร้างกุญแจอะไร และส่งอะไรไปหา Alice ครั้งเดียว
-- อะไรถูกเข้ารหัสด้วยกุญแจไหน (คำใบ้: ผลในขั้นที่ 2)
-- Alice เปิดอ่านข้อความได้อย่างไร
+- What key does Bob make, and what does he send to Alice once?
+- What is encrypted with which key? (hint: the result of Step 2)
+- How does Alice open the messages?
 
-**Q3 (10). ทำไมมีแต่ Alice อ่านได้.** Alice แจกกุญแจสาธารณะให้ทุกคน
+**Q3 (10). Why only Alice can read.** Alice gives her public key to everyone.
 
-ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+Answer all three of these (1–2 sentences each):
 
-- ทำไม Bob (หรือใครก็ได้) ล็อกข้อความถึง Alice ด้วยกุญแจสาธารณะได้
-- ทำไมมีแต่ Alice ที่เปิดอ่านได้ (คำใบ้: ขั้นที่ 3)
-- Eve ที่ดักฟังอยู่เห็นอะไรบ้าง และทำไมยังอ่านข้อความไม่ได้
+- Why can Bob (or anyone) lock a message for Alice with her public key?
+- Why can only Alice open it? (hint: Step 3)
+- What does Eve, who is listening, see, and why can she still not read the message?
 
-**Q4 (10). nonce ซ้ำ.** ในแล็บ Eve อ่านข้อความลับได้โดยไม่รู้กุญแจ
+**Q4 (10). The repeated nonce.** In the lab, Eve read the secret message without knowing the key.
 
-ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+Answer all three of these (1–2 sentences each):
 
-- Bob ทำอะไรผิด (คำใบ้: ขั้นที่ 5 และ 9)
-- nonce ต้องเป็นความลับไหม และต้องมีคุณสมบัติอะไร
-- การล็อกกุญแจ session ด้วย RSA ช่วยกันปัญหานี้ได้ไหม เพราะอะไร (คำใบ้: ขั้นที่ 10)
+- What did Bob do wrong? (hint: Step 5 and Step 9)
+- Does a nonce have to be secret, and what property must it have?
+- Does locking the session key with RSA help against this problem? Why? (hint: Step 10)
 
 ### Going further (optional — no marks)
 
-- **Q5 — Key exchange.** การแลกเปลี่ยนกุญแจแบบ Diffie-Hellman สร้างความลับร่วมกันได้อย่างไร และทำไม Eve ที่เห็นค่าสาธารณะทั้งสองก็ยังรู้ความลับไม่ได้ (รู้จากสัปดาห์ที่ 5)
-- **Q6 — ECIES.** ECIES เป็น hybrid encryption ที่ใช้ Diffie-Hellman แบบเส้นโค้งวงรี อธิบายว่า Alice กับ Bob เข้ารหัสและถอดรหัสโดยไม่ต้องส่งกุญแจ AES ตรง ๆ ได้อย่างไร
-- **Extension — ทำไม nonce ซ้ำจึงอ่านได้ (สำหรับคนที่อยากรู้).** แถบสุ่ม (keystream) ที่ปิดข้อความ: ข้อความที่เข้ารหัส = ข้อความ ⊕ แถบสุ่ม ถ้าแถบสุ่มซ้ำ ข้อความที่เข้ารหัสสองอันมา ⊕ กัน แถบสุ่มจะหายไป เหลือ ข้อความ 1 ⊕ ข้อความ 2 แล้ว ⊕ กับข้อความแรกที่รู้ ก็ได้ข้อความที่สอง
+- **Q5 — Key exchange.** How does Diffie-Hellman key exchange create a shared secret, and why can Eve, who sees both public values, still not work out the secret? (learned in Week 5)
+- **Q6 — ECIES.** ECIES is hybrid encryption that uses elliptic-curve Diffie-Hellman. Explain how Alice and Bob can encrypt and decrypt without sending the AES key directly.
+- **Extension — why a repeated nonce can be read (for those who are curious).** The random strip (keystream) covers the message: encrypted message = message ⊕ strip. If the strip repeats, then when you ⊕ the two encrypted messages together, the strip disappears and you are left with message 1 ⊕ message 2. If you then ⊕ that with the known first message, you get the second message.
 
 ---
 
@@ -369,11 +369,11 @@ docker compose down
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
-เพื่อนให้ AI เขียนโค้ด hybrid encryption ไว้ที่ `audit_the_ai/broken_hybrid_encrypt.py` รันแล้วได้ผลถูก ดูรอบคอบ แต่มีข้อผิดพลาดหนึ่งจุดที่คล้ายกับที่เราเห็นใน Part A แต่ซ่อนอยู่ในโค้ดอีกแบบ (RSA-OAEP, กุญแจ AES และการตรวจ tag ถูกต้องแล้ว) รันใน container เดิมได้ เช่น `docker compose exec lab python audit_the_ai/broken_hybrid_encrypt.py` รายละเอียดเพิ่มอยู่ที่ `audit_the_ai/README.md`
+A friend asked an AI to write hybrid encryption code, which is in `audit_the_ai/broken_hybrid_encrypt.py`. It runs and gives the right result, and it looks careful, but it has one mistake that is similar to what we saw in Part A but hides in the code in a different way (the RSA-OAEP, the AES key and the tag check are correct). You can run it in the same container, for example `docker compose exec lab python audit_the_ai/broken_hybrid_encrypt.py`. More details are in `audit_the_ai/README.md`.
 
-1. **Find what's wrong (7).** คัดลอกบรรทัดที่ผิด และเขียน 1–2 ประโยคว่าทำไมผิด
-2. **Prove it (7).** เขียนสคริปต์สั้น ๆ ส่งสองข้อความใน session เดียว แล้วแสดงว่าคนที่เห็นแต่ข้อความที่เข้ารหัสทำอะไรได้ (ใส่สคริปต์และผลลัพธ์)
-3. **Fix it (6).** ส่ง `fixed_hybrid_encrypt.py` (แก้น้อยที่สุด) และเขียน 1–2 ประโยคว่าทำไมส่วน RSA/OAEP ไม่ต้องแก้
+1. **Find what's wrong (7).** Copy the wrong line and write 1–2 sentences on why it is wrong.
+2. **Prove it (7).** Write a short script that sends two messages in one session, and show what someone who sees only the encrypted messages can do (include the script and the result).
+3. **Fix it (6).** Hand in `fixed_hybrid_encrypt.py` (the smallest change) and write 1–2 sentences on why the RSA/OAEP part does not need a fix.
 
 > Disclose any other AI use in the Part 1 table. This task counts toward the **Audit the AI** row.
 
@@ -381,16 +381,16 @@ AI is a power tool you must **distrust** — you are graded on your *critique*, 
 
 ## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
-**A. Explain in Plain English (EiPE, 10).** เพื่อนที่ไม่เคยเรียนเข้ารหัสถามว่า *"ทำไมไม่ใช้ RSA เข้ารหัสทุกอย่างเลย ทำไมต้องเอา AES มาผสม?"* อธิบาย 3–5 ประโยค **ไม่ใช้ศัพท์ยาก** (คำใบ้: ตารางในขั้นที่ 1)
+**A. Explain in Plain English (EiPE, 10).** A friend who has never studied encryption asks: *"Why not encrypt everything with RSA? Why mix in AES?"* Explain in 3–5 sentences, **without difficult words** (hint: the table in Step 1).
 
-**B. Prompt Problem (10).** ใช้ AI ตัวไหนก็ได้ แล้วทำตามนี้:
+**B. Prompt Problem (10).** Use any AI you like and do this:
 
-1. เขียน prompt **หนึ่งอัน** ขอให้ AI เขียน hybrid encryption (Bob ส่งหลายข้อความหา Alice) ใน Python
-2. คัดลอกคำตอบของ AI ลงใบตอบ
-3. ตรวจ: (ก) ใช้ AEAD (AES-GCM หรือ ChaCha20-Poly1305) ไหม (ข) **nonce ใหม่ทุกข้อความไหม** (ค) AI พูดอะไรผิดหรือแต่งเรื่องไหม (เช่น "nonce ซ้ำได้ ถ้ากุญแจแข็งแรง")
-4. ในตารางของใบตอบ ติ๊ก **ผ่าน / ไม่ผ่าน** ทีละข้อพร้อมเหตุผล 1 ประโยค แล้วจบด้วย 1 ประโยคว่า จะเชื่อคำตอบของ AI นี้ไหม เพราะอะไร
+1. Write **one** prompt asking the AI to write hybrid encryption in Python (Bob sends many messages to Alice).
+2. Copy the AI's answer into your answer sheet.
+3. Check: (a) does it use an AEAD (AES-GCM or ChaCha20-Poly1305)? (b) does it use a **new nonce for every message**? (c) does the AI say anything wrong or make anything up (for example "a nonce can repeat if the key is strong")?
+4. In the table in your answer sheet, tick **pass / fail** for each item with a one-sentence reason, then finish with one sentence saying whether you would trust this AI's answer, and why.
 
-ส่ง **prompt + คำตอบของ AI + ตารางตรวจพร้อมเหตุผลของตัวเอง**
+Submit **your prompt + the AI's answer + your check table with your own reasons**.
 
 ---
 
@@ -398,9 +398,9 @@ AI is a power tool you must **distrust** — you are graded on your *critique*, 
 
 An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
-1. "ในขั้นที่ 5 Bob ใช้ nonce ซ้ำ ทำไม Alice ไม่รู้เลยว่ามีปัญหา แต่ Eve อ่านข้อความลับได้"
-2. "ในขั้นที่ 7 nonce ต่างกัน Eve ได้อะไร และทำไม"
-3. "ถ้า Bob ส่งข้อความเดียวต่อหนึ่ง session แล้วทิ้งกุญแจ โค้ดแบบ `reuse` ยังอันตรายอยู่ไหม แล้วทำไมยังเป็นนิสัยที่ไม่ดี"
+1. "In Step 5 Bob reused the nonce. Why did Alice not notice any problem, while Eve could read the secret message?"
+2. "In Step 7 the nonces were different. What did Eve get, and why?"
+3. "If Bob sent only one message per session and then threw the key away, would the `reuse` code still be dangerous? Why is it still a bad habit?"
 
 ---
 
@@ -408,9 +408,9 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 | Criterion | Conventional | AIR-Sec |
 |---|---:|---:|
-| A1 — hybrid flow, nonce ใหม่ทุกครั้ง | 20 | 20 |
-| A2 — nonce ซ้ำ Eve อ่านข้อความลับ | 20 | 20 |
-| A3 — nonce ใหม่ Eve อ่านไม่ออก + reasoning | 20 | 20 |
+| A1 — hybrid flow, a new nonce every time | 20 | 20 |
+| A2 — repeated nonce, Eve reads the secret | 20 | 20 |
+| A3 — new nonce, Eve cannot read + reasoning | 20 | 20 |
 | Conventional written questions (Q1–Q4) | 40 | — |
 | AIR-Sec Audit the AI | — | 20 |
 | AIR-Sec Explain in Plain English (EiPE) | — | 10 |
@@ -419,7 +419,7 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 ## Evidence & Integrity (required)
 
-- ใส่ชื่อ รหัสนักศึกษา และวันที่ในใบตอบ และคัดลอกคำสั่งกับผลจากเครื่อง**ของตัวเอง** ค่า nonce สุ่มไม่เหมือนเพื่อนเป็นเรื่องปกติ สัปดาห์นี้ไม่มี flag เฉพาะคน และห้ามเอาผลของเพื่อนมาส่งเป็นของตัวเอง
-- **อธิบายด้วยคำของตัวเอง** (ให้คะแนนจากเหตุผล): ข้อที่ให้เติมคำจากคลังคำ (ขั้นที่ 3, 6, 8) ใช้คำที่ให้ไว้ได้ ส่วนคำตอบสั้น ๆ ของขั้นที่ 10 และข้อเขียนของฟอร์มตัวเองต้องเขียนด้วยคำของตัวเอง (ทำไมเมื่อ nonce ซ้ำ Eve อ่านข้อความลับได้ทั้งที่ไม่รู้กุญแจ) ไม่ต้องเขียนเพิ่มนอกจากนี้
+- Put your name, student ID and date in the answer sheet, and copy the commands and results from **your own** computer. It is normal that your random nonce values are not the same as a friend's. This week there is no personal flag. Do not submit a friend's results as your own.
+- **Explain in your own words** (marks are given for the reasoning): for the fill-in-the-blank items that give you a word bank (Steps 3, 6, 8) you may use the words given. The short answer in Step 10 and the written part of your own form must be in your own words (why Eve can read the secret message when the nonce is reused even though she does not know the key). You do not need to write anything more than that.
 
-**กำหนดส่งและการส่งช้า:** ส่งภายใน 23:59 น. (เวลาไทย) ของวันอาทิตย์ก่อนคาบถัดไป (กฎ KOSEN) วันที่แน่นอนอยู่ในอีเมลรหัสส่งงานและโพสต์ของสัปดาห์นี้ใน Classroom ส่งช้าหักวันละ 10% ของคะแนนใบงานนี้ (ไม่เต็มวันนับเป็นหนึ่งวัน) จนเหลือ 0 การอัปโหลดหรือเปลี่ยนไฟล์หลังกำหนดส่งนับว่าส่งช้าทั้งชิ้น ส่งงานร่วม 60 คะแนน และแบบของตัวเอง**หนึ่งแบบ**เท่านั้น ทำทั้งสองแบบไม่ได้คะแนนเพิ่ม Viva ใช้ตรวจความเข้าใจ ไม่มีคะแนนแยก
+**Deadline and late submission:** Submit by 23:59 (Thai time) on the Sunday before the next class (KOSEN rule). The exact date is in the submission-code email and in this week's Classroom post. A late submission loses 10% of this worksheet's marks for each day late (a part day counts as a day), down to 0. Uploading or replacing a file after the deadline counts the whole submission as late. Submit the common 60 marks and **one** form of your own only; doing both forms gives no extra marks. The viva is used to check understanding and has no separate marks.
