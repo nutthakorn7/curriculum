@@ -6,6 +6,10 @@ services:
     working_dir: /lab
     volumes:
       - ./:/lab
+    environment:
+      # Sanity-check only (Task 0/environment setup). Task 6 has you export
+      # your own real key with `openssl rand -hex 32` — never reuse this one.
+      - ENC_KEY_HEX=000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
     command: >
       sh -c "python vulnerable_crypto.py &&
                echo '--- secure reference; student TODO is in migrate.py ---' &&

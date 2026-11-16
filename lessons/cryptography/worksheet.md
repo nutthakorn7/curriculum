@@ -143,7 +143,7 @@ List the crypto-related findings (file:line + rule), say which of this week's fo
 {% if course_code == '02005094' %}**Supplied reference versus student code:** `solution_skeleton.py` is a complete reference despite its legacy filename. Your required authored change is the rehash-on-login TODO in `migrate.py`. Add a wrong-password/no-migration case and a subsequent successful login to your evidence; do not claim that merely running the reference implements the migration. This week is software misuse review, not a repeat of the cryptography course's cracking/mode-attack lab.
 
 {% else %}{% endif %}## Part 4 — Reflection
-1. Map each of the four mistakes to its CWE and to OWASP A04, in one line each.
+1. Map each of the four mistakes to its CWE and OWASP category, in one line each: weak password hashing, ECB encryption and the random reset token are all **A04 Cryptographic Failures**; the hardcoded key is **A07 Authentication Failures** (see the "Aligned to" line at the top of this sheet).
 2. Name a real-world breach caused by weak password hashing or hardcoded keys, and which fix here would have prevented it.
 3. Which of the four mistakes did no tool flag, and what would you add to code review or CI so it is caught next time?
 
