@@ -23,9 +23,9 @@
 **Marks**
 
 - Everyone does **Part A (60 marks)**, which is the same for both forms.
-- Then do **only your own form (40 marks)**. Look at the last digit of your student ID: **odd = Conventional (Part 2)**, **even = AIR-Sec (Parts 3–4)**. Write your form in the Group box.
+- Then do **only your own form (40 marks)**. Look at the last digit of your student ID: **odd = AIR-Sec (Parts 3–4)**, **even = Conventional (Part 2)**. Write your form in the Group box.
 - You may answer in English or Thai. Short and clear is enough.
-- **Answer sheet:** in Classroom → Week 03, open the file for your form (`Wk03_Answer_Sheet_Conventional_odd_ID` or `Wk03_Answer_Sheet_AIR-Sec_even_ID`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
+- **Answer sheet:** in Classroom → Week 03, open the file for your form (`Wk03_Answer_Sheet_Conventional` or `Wk03_Answer_Sheet_AIR-Sec`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
 - Submit one file named with your student ID, for example `Wk03_66990000.pdf` (do not type the `<` `>` signs), at `learn.zcr.ai/submit` with your Week 3 submission code from your KMITL email, by **Sunday 22 Nov, 23:59**.
 - Items marked *optional* have no marks. You can skip them.
 
@@ -401,7 +401,7 @@ docker compose down
 - Steps 8, 10, 11 (A2)
 - Steps 12, 13, 14, 15, 16 (A3)
 
-Then do your own form: odd IDs do Part 2; even IDs do Parts 3 and 4.
+Then do your own form: odd IDs do Parts 3 and 4; even IDs do Part 2.
 
 ---
 

@@ -24,7 +24,7 @@
 - Everyone does **Part A (60 marks)**, which is the same for both forms.
 - Then do **only your own form (40 marks)**. Look at the last digit of your student ID: **odd = Conventional (Part 2)**, **even = AIR-Sec (Parts 3–4)** (0 counts as even). Write your form in the Group box.
 - You may answer in English or Thai. Short and clear is enough.
-- **Answer sheet:** in Classroom → Week 10, open the file for your form (`Wk10_Answer_Sheet_Conventional_odd_ID` or `Wk10_Answer_Sheet_AIR-Sec_even_ID`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
+- **Answer sheet:** in Classroom → Week 10, open the file for your form (`Wk10_Answer_Sheet_Conventional` or `Wk10_Answer_Sheet_AIR-Sec`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
 - Submit one file named with your student ID, for example `Wk10_66990000.pdf` (do not type the `<` `>` signs), at `learn.zcr.ai/submit` with your Week 10 submission code from your KMITL email, by the deadline in the email and in the Classroom post.
 - Items marked *optional* have no marks. You can skip them.
 

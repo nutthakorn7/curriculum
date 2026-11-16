@@ -23,9 +23,9 @@
 **Marks**
 
 - Everyone does **Part A (60 marks)**, which is the same for both forms.
-- Then do **only your own form (40 marks)**. Look at the last digit of your student ID: **odd = Conventional (Part 2)**, **even = AIR-Sec (Parts 3–4)** (0 counts as even). Write your form in the Group box.
+- Then do **only your own form (40 marks)**. Look at the last digit of your student ID: **odd = AIR-Sec (Parts 3–4)**, **even = Conventional (Part 2)** (0 counts as even). Write your form in the Group box.
 - You may answer in English or Thai. Short and clear is enough.
-- **Answer sheet:** in Classroom → Week 05, open the file for your form (`Wk05_Answer_Sheet_Conventional_odd_ID` or `Wk05_Answer_Sheet_AIR-Sec_even_ID`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
+- **Answer sheet:** in Classroom → Week 05, open the file for your form (`Wk05_Answer_Sheet_Conventional` or `Wk05_Answer_Sheet_AIR-Sec`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
 - Submit one file named with your student ID, for example `Wk05_66990000.pdf` (do not type the `<` `>` signs), at `learn.zcr.ai/submit` with your Week 5 submission code from your KMITL email, by **Sunday 6 Dec, 23:59**.
 - Items marked *optional* have no marks. You can skip them.
 
@@ -291,7 +291,7 @@ return hmac.compare_digest(expected, tag)                            # check the
 
 #### Step 13 — Check before you go on
 
-Check that your answer sheet has everything: Steps 2, 3 (A1), Steps 6, 7, 8 (A2), Steps 10, 11, 12 (A3). Then do your own form: odd IDs do Part 2; even IDs do Parts 3 and 4.
+Check that your answer sheet has everything: Steps 2, 3 (A1), Steps 6, 7, 8 (A2), Steps 10, 11, 12 (A3). Then do your own form: odd IDs do Parts 3 and 4; even IDs do Part 2.
 
 ---
 
