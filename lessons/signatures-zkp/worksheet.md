@@ -1,184 +1,184 @@
 # Worksheet 11 — Digital Signatures: the "twin" signature that pays the bank twice
 
 > **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
-> **Kind:** Docker lab แบบทำตามทีละขั้น ไม่ต้องเขียนโปรแกรม และไม่ต้องคำนวณเลข (ส่วน Schnorr/ZKP อ่านเป็นคำอธิบาย)
+> **Kind:** Docker lab, step by step. No programming and no maths (the Schnorr/ZKP part is read as an explanation).
 
-> **Ethics note:** ทำเฉพาะกับธนาคารจำลอง 2 ตัวในเครื่องของตัวเองที่ lab นี้เปิดขึ้นมา (พอร์ต 8102 และ 8103) การส่งลายเซ็นปลอมหรือส่งซ้ำไปยังระบบจ่ายเงิน กระดานเทรด หรือบล็อกเชนจริงที่ไม่ใช่ของเราและไม่ได้รับอนุญาตเป็นเรื่องผิดกฎหมาย เก็บ flag ไว้ใน lab นี้เท่านั้น
+> **Ethics note:** Only work on the 2 pretend banks on your own computer that this lab starts (ports 8102 and 8103). Sending forged or repeated signatures to a real payment system, trading board or blockchain that is not yours, without permission, is illegal. Keep the flag inside this lab only.
 
-## อ่านก่อนเริ่ม
+## Read this first
 
-**วันนี้จะทำอะไร:** ลายเซ็นดิจิทัล ECDSA คือตัวเลขสองตัว `(r, s)` มีเรื่องแปลกคือ ถ้า `(r, s)` ใช้ได้ ก็จะมี **"ลายเซ็นแฝด" `(r, n−s)`** ที่ใช้ได้เหมือนกัน กับข้อความเดิมและกุญแจเดิม ธนาคารจำลองแห่งหนึ่งใช้ **hash ของลายเซ็น** เป็นเลขประจำรายการ จึงมองลายเซ็นแฝดเป็น "รายการใหม่" ทั้งที่เจ้าของอนุญาตถอนเงิน**ครั้งเดียว** เราจะถอนซ้ำด้วยลายเซ็นแฝด แล้วดูว่าธนาคารอีกตัวที่รับลายเซ็นเฉพาะแบบเดียวป้องกันได้อย่างไร สิ่งที่ต้องจำ: **ลายเซ็นที่ถูกต้อง ไม่ได้แปลว่าเป็นรายการเดียวกันเสมอ**
+**What you will do today:** An ECDSA digital signature is two numbers `(r, s)`. Strangely, if `(r, s)` is valid, then there is a **"twin signature" `(r, n−s)`** that is valid in the same way, for the same message and the same key. A pretend bank uses the **hash of the signature** as the transaction number, so it sees the twin as a "new transaction", even though the owner allowed the withdrawal only **once**. You will withdraw again with the twin signature, and then see how the other bank, which accepts only one form of signature, stops it. Remember this: **a valid signature does not always mean the same transaction.**
 
-**ทุกขั้นเขียนแบบเดียวกัน:**
+**Every step is written the same way:**
 
-| หัวข้อ | ความหมาย |
+| Heading | Meaning |
 |---|---|
-| **ทำอะไร** | บอกว่าขั้นนี้จะทำอะไร |
-| **พิมพ์** | คัดลอกทั้งบรรทัดไปวางใน Terminal แล้วกด Enter |
-| **ควรเห็น** | หน้าจอควรขึ้นประมาณนี้ (ตัวเลขลายเซ็นของเราจะไม่เหมือนตัวอย่าง เป็นเรื่องปกติ) |
-| **แปลว่า** | ผลที่เห็นหมายความว่าอะไร |
-| **ลงใบตอบ** | สิ่งที่ต้องคัดลอกหรือเขียนลงใบตอบ |
+| **What to do** | Says what this step does |
+| **Type** | Copy the whole line, paste it into the Terminal, and press Enter |
+| **You should see** | The screen should look roughly like this (the signature numbers will be different from the example, and that is normal) |
+| **Means** | What the result means |
+| **Write in the answer sheet** | What to copy or write in your answer sheet |
 
-**คะแนน**
+**Marks**
 
-- ทุกคนทำ **Part A (60 คะแนน)** ซึ่งเหมือนกันทั้งสองแบบ
-- จากนั้นทำ **เฉพาะแบบของตัวเอง (40 คะแนน)** ดูจากเลขตัวสุดท้ายของรหัสนักศึกษา: **เลขคี่ = Conventional (Part 2)**, **เลขคู่ = AIR-Sec (Parts 3–4)** (เลข 0 นับเป็นเลขคู่) แล้วเขียนแบบของตัวเองในช่อง Group
-- ตอบเป็นภาษาไทยหรืออังกฤษก็ได้ ตอบสั้น ๆ ให้ชัดก็พอ
-- **ใช้ใบตอบ:** ใน Classroom → Week 11 เปิดไฟล์ตามแบบของตัวเอง (`Wk11_Answer_Sheet_Conventional_odd_ID` หรือ `Wk11_Answer_Sheet_AIR-Sec_even_ID`) กด Open with → Google Docs พิมพ์ลงกรอบสีเทา แล้วกด File → Download → PDF
-- ส่งไฟล์เดียว ตั้งชื่อตามรหัสนักศึกษา เช่น `Wk11_66990000.pdf` (ไม่ต้องใส่เครื่องหมาย `<` `>`) ที่ `learn.zcr.ai/submit` โดยใช้รหัสส่งงานของ Week 11 ที่ได้ทางอีเมล KMITL ภายใน **อาทิตย์ 17 ม.ค. 2027 23:59 น.**
-- ข้อที่เขียนว่า *optional* ไม่มีคะแนน ไม่ต้องทำก็ได้
+- Everyone does **Part A (60 marks)**, which is the same for both forms.
+- Then do **only your own form (40 marks)**. Look at the last digit of your student ID: **odd = Conventional (Part 2)**, **even = AIR-Sec (Parts 3–4)** (0 counts as even). Write your form in the Group box.
+- You may answer in English or Thai. Short and clear is enough.
+- **Answer sheet:** in Classroom → Week 11, open the file for your form (`Wk11_Answer_Sheet_Conventional_odd_ID` or `Wk11_Answer_Sheet_AIR-Sec_even_ID`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
+- Submit one file named with your student ID, for example `Wk11_66990000.pdf` (do not type the `<` `>` signs), at `learn.zcr.ai/submit` with your Week 11 submission code from your KMITL email, by **Sunday 17 Jan 2027, 23:59**.
+- Items marked *optional* have no marks. You can skip them.
 
-| Part A | คะแนน | ขั้นที่ลงใบตอบ |
+| Part A | Marks | Steps to write in the answer sheet |
 |---|---:|---|
-| A1 — ลายเซ็นกับลายเซ็นแฝด | 20 | ขั้นที่ 2, 3 |
-| A2 — ถอนเงินซ้ำที่ธนาคาร vulnerable | 20 | ขั้นที่ 5, 6 |
-| A3 — ธนาคาร fixed ไม่ยอมรับลายเซ็นแฝด | 20 | ขั้นที่ 7, 8, 9, 10 |
+| A1 — A signature and its twin | 20 | Steps 2, 3 |
+| A2 — Withdrawing twice at the vulnerable bank | 20 | Steps 5, 6 |
+| A3 — The fixed bank refuses the twin signature | 20 | Steps 7, 8, 9, 10 |
 
-**คำศัพท์ที่ต้องรู้**
+**Words you need to know**
 
-| คำ | ความหมายแบบง่าย |
+| Word | Simple meaning |
 |---|---|
-| Terminal | หน้าต่างสำหรับพิมพ์คำสั่ง |
-| Docker / container | โปรแกรมที่เปิด "เครื่องจำลอง" เล็ก ๆ ในเครื่องของเรา ทำพังก็ลบแล้วเริ่มใหม่ได้ |
-| ลายเซ็นดิจิทัล | ตัวเลขที่พิสูจน์ว่าข้อความนี้เซ็นด้วยกุญแจส่วนตัวของเจ้าของ ใครมีกุญแจสาธารณะก็ตรวจได้ |
-| ECDSA | วิธีเซ็นแบบหนึ่ง ลายเซ็นคือตัวเลขสองตัว `(r, s)` |
-| ลายเซ็นแฝด (twin) | `(r, n−s)` ลายเซ็นที่ใช้ได้เหมือน `(r, s)` กับข้อความและกุญแจเดิม แต่เป็นตัวเลขคนละชุด |
-| low-S / high-S | `s` อยู่ครึ่งล่าง (low) หรือครึ่งบน (high) ของช่วงตัวเลข ในคู่แฝดจะมีแค่หนึ่งตัวที่เป็น low-S |
-| txid | เลขประจำรายการ ที่ธนาคารใช้กันการประมวลผลซ้ำ |
-| replay | ส่งรายการเดิมซ้ำทุกตัวอักษร |
-| malleability | ลายเซ็นถูกแก้เป็นอีกรูปหนึ่งได้ โดยยังใช้ได้และไม่ต้องมีกุญแจ |
-| flag | ข้อความรางวัล รูปแบบ `FLAG{...}` เป็นหลักฐานว่าทำสำเร็จ |
+| Terminal | A window where you type commands |
+| Docker / container | A program that starts a small "pretend computer" on your computer. If you break it, delete it and start again |
+| digital signature | A number that proves that this message was signed with the owner's private key. Anyone who has the public key can check it |
+| ECDSA | One way to sign. The signature is two numbers `(r, s)` |
+| twin signature | `(r, n−s)`: a signature that is valid in the same way as `(r, s)` for the same message and key, but is a different set of numbers |
+| low-S / high-S | `s` is in the lower half (low) or the upper half (high) of the range of numbers. In a pair of twins, only one of them is low-S |
+| txid | The transaction number, which the bank uses to stop a transaction being processed twice |
+| replay | Sending the very same transaction again, character for character |
+| malleability | The signature can be changed into another form that is still valid, without needing a key |
+| flag | A prize message in the form `FLAG{...}`, which is proof that you succeeded |
 
-**คำถามที่มักสงสัย**
+**Questions people often ask**
 
-- *ต้องเก่งคณิตศาสตร์ไหม?* ไม่ต้อง สคริปต์คำนวณลายเซ็นแฝดให้เอง
-- *ต้องเขียนโปรแกรมไหม?* ไม่ต้อง คัดลอกคำสั่งไปวางได้เลย (ยกเว้นงาน Prompt ของแบบ AIR-Sec)
-- *ถ้าทำผิด เครื่องจะพังไหม?* ไม่พัง ทุกอย่างอยู่ใน container ถ้าสับสนให้พิมพ์ `docker compose down` แล้วเริ่มใหม่จากเตรียมขั้นที่ 5 (ยอดถอนของธนาคารจะกลับเป็น 0)
-- *ไม่เข้าใจทุกตัวเลขที่ขึ้นจอ ได้ไหม?* ได้ ดูเฉพาะบรรทัดที่ใบงานบอก
-- *ตัวเลขลายเซ็นของเราไม่เหมือนเพื่อน ผิดไหม?* ไม่ผิด ลายเซ็นสุ่มใหม่ทุกครั้ง แต่รหัสสถานะ (200 / 403 / 409), ยอดรวม และ flag ต้องเหมือนกัน และต้องคัดลอกจากเครื่องของตัวเองเสมอ
-- *วางคำสั่งใน Terminal ยังไง?* คัดลอกคำสั่งจากใบงาน แล้ว Windows: กด Ctrl+V หรือคลิกขวา · Mac: กด Cmd+V จากนั้นกด Enter
-- *คัดลอกผลจาก Terminal ยังไง?* ลากเมาส์คลุมข้อความก่อน แล้ว Windows: กด Ctrl+Shift+C · Mac: กด Cmd+C หรือจะ screenshot ก็ได้
+- *Do I need to be good at maths?* No. The script works out the twin signature for you.
+- *Do I need to write programs?* No. Copy the commands and paste them (except for the Prompt task of the AIR-Sec form).
+- *If I make a mistake, will my computer break?* No. Everything is inside containers. If you get confused, type `docker compose down` and start again from Prep step 5 (the banks' withdrawn totals go back to 0).
+- *Can I skip understanding every number on the screen?* Yes. Only look at the lines the worksheet tells you to.
+- *My signature numbers are not the same as my friend's. Is that wrong?* No. The signatures are random every time. But the status codes (200 / 403 / 409), the totals and the flag must be the same, and you must always copy from your own computer.
+- *How do I paste a command into the Terminal?* Copy the command from the worksheet, then Windows: press Ctrl+V or right-click · Mac: press Cmd+V, then press Enter.
+- *How do I copy results from the Terminal?* Select the text with the mouse first, then Windows: press Ctrl+Shift+C · Mac: press Cmd+C. Or take a screenshot.
 
-**ถ้าเจอข้อความแบบนี้**
+**If you see a message like this**
 
-| ข้อความบนจอ | สาเหตุ | วิธีแก้ |
+| Message on screen | Cause | Fix |
 |---|---|---|
-| มีคำว่า `Cannot connect to the Docker daemon` หรือ `error during connect` | ยังไม่ได้เปิด Docker | เปิด Docker Desktop รอจนขึ้น Engine running |
-| `no configuration file provided: not found` | Terminal ไม่ได้อยู่ในโฟลเดอร์ lab | ทำเตรียมขั้นที่ 4 อีกครั้ง |
-| `service "vulnerable" is not running` | ยังไม่ได้เปิด lab | ทำเตรียมขั้นที่ 5 และ 6 |
-| `Cannot reach the ... bank` | lab ยังเปิดไม่เสร็จ | รอสักครู่ แล้วทำเตรียมขั้นที่ 6 อีกครั้ง |
-| `No signature saved yet` | ยังไม่ได้พิมพ์คำสั่ง `sign` | พิมพ์คำสั่ง `sign` ของธนาคารนั้นก่อน |
-| `bad signature` | ธนาคารถูกเปิดใหม่ แต่ลายเซ็นที่เก็บไว้เป็นของกุญแจเก่า | พิมพ์คำสั่ง `sign` ใหม่ |
-| `can't open file '/lab/bank.py'` | ZIP ที่โหลดไว้เก่า ไม่มีไฟล์ `bank.py` | โหลด ZIP ใหม่ตามเตรียมขั้นที่ 2 |
+| `Cannot connect to the Docker daemon` or `error during connect` | Docker is not open | Open Docker Desktop and wait until it says Engine running |
+| `no configuration file provided: not found` | The Terminal is not in the lab folder | Repeat Prep step 4 |
+| `service "vulnerable" is not running` | The lab is not started | Do Prep steps 5 and 6 |
+| `Cannot reach the ... bank` | The lab has not finished starting | Wait a moment, then repeat Prep step 6 |
+| `No signature saved yet` | You have not typed the `sign` command yet | Type the `sign` command of that bank first |
+| `bad signature` | The bank was started again, but the saved signature belongs to the old key | Type the `sign` command again |
+| `can't open file '/lab/bank.py'` | The ZIP you downloaded is old and has no `bank.py` | Download a new ZIP as in Prep step 2 |
 
-ลองแล้วยังไม่ได้ ให้ถามเพื่อนหรืออาจารย์ได้เลย
+If you still cannot do it, ask a friend or your instructor.
 
 ---
 
-## ก่อนเริ่ม: เตรียมเครื่อง (ทำที่บ้าน ทำครั้งเดียว)
+## Before you start: set up your computer (at home, once)
 
-ถ้าเคยทำ Week 2–6 หรือ 10 มาแล้ว มี Docker และไฟล์ ZIP อยู่แล้ว เริ่มที่**เตรียมขั้นที่ 4** ได้เลย แต่ ZIP ต้องเป็นฉบับใหม่ที่มีไฟล์ `bank.py` ในโฟลเดอร์ `week11-signatures-zkp` ถ้าไม่เจอให้โหลดใหม่ตามเตรียมขั้นที่ 2
+If you already did Weeks 2–6 or 10, you have Docker and the ZIP file. Start at **Prep step 4**. But the ZIP must be a recent one that has the file `bank.py` in the folder `week11-signatures-zkp`. If you cannot find it, download the ZIP again as in Prep step 2.
 
-**ถ้าปิดเครื่องไปแล้วกลับมาทำต่อ:** ทำเตรียมขั้นที่ 1, 4, 5, 6 ใหม่
+**If you turned your computer off and came back:** repeat Prep steps 1, 4, 5 and 6.
 
-#### เตรียมขั้นที่ 1 — เปิด Docker Desktop
+#### Prep step 1 — Open Docker Desktop
 
-**ทำอะไร:** ถ้ายังไม่มี ให้ติดตั้งจาก <https://www.docker.com/products/docker-desktop/> แล้วเปิดโปรแกรมทิ้งไว้
+**What to do:** If you do not have it yet, install it from <https://www.docker.com/products/docker-desktop/> and leave the program open.
 
-**ควรเห็น:** ในหน้าต่าง Docker Desktop ขึ้นว่า **Engine running**
+**You should see:** the Docker Desktop window says **Engine running**.
 
-#### เตรียมขั้นที่ 2 — โหลดไฟล์ lab
+#### Prep step 2 — Download the lab files
 
-**ทำอะไร:** เปิด <https://github.com/nutthakorn7/security-cryptography> กดปุ่มสีเขียว **Code** แล้วเลือก **Download ZIP**
+**What to do:** Open <https://github.com/nutthakorn7/security-cryptography>, click the green **Code** button, and choose **Download ZIP**.
 
-ไม่ต้องมีบัญชี GitHub และไม่ต้อง fork
+You do not need a GitHub account and you do not need to fork.
 
-#### เตรียมขั้นที่ 3 — แตกไฟล์ ZIP
+#### Prep step 3 — Unzip the ZIP file
 
-**ทำอะไร:** Windows: คลิกขวาที่ไฟล์ ZIP เลือก **Extract All** · Mac: ดับเบิลคลิกไฟล์ ZIP วางไว้ในที่ที่หาง่าย เช่น Desktop
+**What to do:** Windows: right-click the ZIP file and choose **Extract All** · Mac: double-click the ZIP file. Put it somewhere easy to find, such as the Desktop.
 
-**ควรเห็น:** โฟลเดอร์ชื่อ `security-cryptography-master` บางเครื่องจะมีโฟลเดอร์ชื่อเดียวกันซ้อนสองชั้น ให้เปิดเข้าไปจนเห็นโฟลเดอร์ `labs`
+**You should see:** a folder called `security-cryptography-master`. Some computers make a folder with the same name inside it; open it until you can see the `labs` folder.
 
-#### เตรียมขั้นที่ 4 — เปิด Terminal ในโฟลเดอร์ lab
+#### Prep step 4 — Open a Terminal inside the lab folder
 
-**ทำอะไร:** ในโฟลเดอร์ `security-cryptography-master` เข้าไปที่ `labs` แล้วเข้า `week11-signatures-zkp`
+**What to do:** Open the `labs` folder inside `security-cryptography-master`, then open `week11-signatures-zkp`.
 
-- **Windows:** เปิดโฟลเดอร์ `week11-signatures-zkp` ใน File Explorer คลิกขวาตรงที่ว่าง เลือก **Open in Terminal** (ถ้าไม่มีเมนูนี้ ให้กด Shift ค้างแล้วคลิกขวา เลือก **Open PowerShell window here**)
-- **Mac:** เปิดแอป Terminal พิมพ์ `cd` เว้นวรรคหนึ่งครั้ง ลากโฟลเดอร์ `week11-signatures-zkp` มาวางในหน้าต่าง แล้วกด Enter
+- **Windows:** open the `week11-signatures-zkp` folder in File Explorer, right-click an empty spot, and choose **Open in Terminal** (if you do not see it, hold Shift, right-click, and choose **Open PowerShell window here**)
+- **Mac:** open the Terminal app, type `cd` and one space, drag the `week11-signatures-zkp` folder into the window, then press Enter
 
-เช็กว่าอยู่ถูกที่ด้วยคำสั่งนี้:
+Check that you are in the right place with this command:
 
 ```bash
 ls
 ```
 
-**ควรเห็น:** มีชื่อ `docker-compose.yml` และ `bank.py` อยู่ในรายการ
+**You should see:** `docker-compose.yml` and `bank.py` in the list.
 
-#### เตรียมขั้นที่ 5 — เปิด lab
+#### Prep step 5 — Start the lab
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose up -d
 ```
 
-**ควรเห็น:** บรรทัดลงท้ายว่า `Started` สองบรรทัด (ถ้าเปิดอยู่แล้วอาจเห็น `Running`) **ทุกครั้งที่เปิด lab ต้องต่ออินเทอร์เน็ต** เพราะ container ติดตั้งแพ็กเกจใหม่ทุกครั้งที่เริ่ม ครั้งแรกอาจรอหลายนาที ระหว่างนั้นอย่าปิดหน้าต่าง
+**You should see:** two lines ending in `Started` (if the lab was already running you may see `Running`). **You need the internet every time you start this lab**, because the containers install packages each time they start. The first time it may take several minutes. Do not close the window while you wait.
 
-#### เตรียมขั้นที่ 6 — เช็กว่า lab พร้อม
+#### Prep step 6 — Check that the lab is ready
 
-**พิมพ์** (Mac):
+**Type** (Mac):
 
 ```bash
 docker compose logs | grep "Running on"
 ```
 
-**พิมพ์** (Windows):
+**Type** (Windows):
 
 ```powershell
 docker compose logs | findstr /C:"Running on"
 ```
 
-**ควรเห็น:** ให้หาสองบรรทัดนี้ ต้องมี**ครบทั้งสองบรรทัด**
+**You should see:** find these two lines. You must see **both of them**
 
 ```
 vulnerable-1  |  * Running on http://127.0.0.1:8102
 fixed-1       |  * Running on http://127.0.0.1:8103
 ```
 
-ถ้ายังไม่ครบ ให้รอสักครู่แล้วพิมพ์คำสั่งนี้อีกครั้ง ถ้ารอเกิน 2 นาทีให้พิมพ์ `docker compose ps -a` แล้ว screenshot ส่งอาจารย์
+If you do not see both, wait a moment and type the command again. If it still fails after 2 minutes, type `docker compose ps -a`, take a screenshot, and send it to your instructor.
 
 ---
 
 ## Part A — The lab (both forms, 60 points)
 
-มีธนาคารจำลองสองตัว อนุญาตถอนเงิน 100 ครั้งเดียว ใช้ลายเซ็นข้อความเดียวกัน ต่างกันแค่วิธีกันรายการซ้ำ ทำทุกขั้นกับ lab ที่เปิดใหม่ครั้งเดียวต่อเนื่อง (อย่าเปิดใหม่คั่นกลาง เพราะลายเซ็นและยอดถอนจะถูกรีเซ็ต):
+There are two pretend banks. They allow one withdrawal of 100, use the signature of the same message, and differ only in how they stop repeated transactions. Do all the steps with a lab that you start once, without a break (do not start it again in the middle, because the signatures and the withdrawn totals would be reset):
 
-| ธนาคาร | พอร์ต | กันรายการซ้ำด้วย | ลายเซ็นแฝด `(r, n−s)` |
+| Bank | Port | Stops repeats with | Twin signature `(r, n−s)` |
 |---|---|---|---|
-| `vuln` (vulnerable_app.py) | `:8102` | hash ของลายเซ็น | **ผ่าน** ถอนซ้ำได้ |
-| `fixed` (fixed_app.py) | `:8103` | hash ของลายเซ็น และ**ปฏิเสธลายเซ็นแบบ high-S** | **ไม่ผ่าน** (403) |
+| `vuln` (vulnerable_app.py) | `:8102` | the hash of the signature | **accepted**: pays again |
+| `fixed` (fixed_app.py) | `:8103` | the hash of the signature, and **refuses high-S signatures** | **refused** (403) |
 
-> **ถ้าใช้ Docker ไม่ได้จริง ๆ:** บอกอาจารย์ แล้วเปิด **<https://learn.zcr.ai/sim/ecdsa-malleability>** (ตัวจำลอง ไม่ใช่ธนาคารจริง) กดปุ่มในหน้านั้น แล้ว screenshot ผลมาแทนขั้นที่ 5 และ 7 ส่วนขั้นที่ 2 และ 9 ให้คัดลอกตัวอย่างในใบงานมา แล้วเขียนกำกับว่า "จากตัวอย่างในใบงาน" ขั้นที่เหลือตอบจากการอ่านใบงานได้
+> **If you really cannot use Docker:** tell your instructor, then open **<https://learn.zcr.ai/sim/ecdsa-malleability>** (a simulator, not a real bank), press the buttons on that page, and take a screenshot of the result instead of Steps 5 and 7. For Steps 2 and 9, copy the examples in the worksheet and write "from the worksheet example" next to them. You can answer the other steps by reading the worksheet.
 
-### A1 — ลายเซ็นกับลายเซ็นแฝด (20 points)
+### A1 — A signature and its twin (20 points)
 
-#### ขั้นที่ 1 — อ่าน: ลายเซ็นแฝดคืออะไร
+#### Step 1 — Read: what is a twin signature?
 
-**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+**What to do:** Just read. You do not need to type anything.
 
-เจ้าของบัญชีเซ็นข้อความ `withdraw 100 to attacker` หนึ่งครั้ง ได้ลายเซ็น `(r, s)` ที่ธนาคารตรวจได้ว่าถูกต้อง ในคณิตศาสตร์ของ ECDSA ตัวเลข `(r, n−s)` (ลบ `s` ออกจากค่าคงที่ `n`) **ก็ผ่านการตรวจเหมือนกัน** โดยไม่ต้องมีกุญแจ เรียกว่า**ลายเซ็นแฝด** มันเป็นตัวเลขคนละชุด แต่ยืนยันข้อความเดิมจากคนเดิม ธนาคารที่ใช้ hash ของลายเซ็นเป็นเลขรายการ (txid) จะเห็นสองลายเซ็นนี้เป็นสองรายการ
+The account owner signs the message `withdraw 100 to attacker` once. The signature `(r, s)` is checked by the bank and is valid. In the maths of ECDSA, the numbers `(r, n−s)` (take `s` away from the constant `n`) **also pass the check**, without needing any key. This is called the **twin signature**. It is a different set of numbers, but it confirms the same message from the same person. A bank that uses the hash of the signature as the transaction number (the txid) sees these two signatures as two different transactions.
 
-#### ขั้นที่ 2 — ขอลายเซ็นและดูลายเซ็นแฝด
+#### Step 2 — Ask for a signature and look at its twin
 
-**ทำอะไร:** ให้สคริปต์ขอลายเซ็นจากธนาคาร vulnerable และคำนวณลายเซ็นแฝดให้ (ไม่ต้องคำนวณเอง)
+**What to do:** Let the script ask the vulnerable bank for a signature and work out the twin signature for you (you do not calculate anything).
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose exec vulnerable python bank.py vuln sign
 ```
 
-**ควรเห็น:** สี่บรรทัด ตัวเลขและคำว่า low-S / high-S ของเราอาจต่างจากตัวอย่าง
+**You should see:** four lines. Your numbers, and the words low-S / high-S, may be different from the example
 
 ```
 bank: vuln (port 8102)   message: withdraw 100 to attacker
@@ -187,31 +187,31 @@ twin (r, n-s)      : n-s = 3580251786... (77 digits)   low-S
 txid of (r, s) = 417a2e19   txid of the twin = e66a7f5b   (different)
 ```
 
-**แปลว่า:** ได้ลายเซ็น `(r, s)` และลายเซ็นแฝด `(r, n−s)` เลขรายการ (txid) ของสองอันนี้**ต่างกัน** และมีแค่ **หนึ่งใน**สองอันที่เป็น low-S
+**Means:** You got the signature `(r, s)` and the twin signature `(r, n−s)`. The transaction numbers (txid) of the two are **different**, and only **one of** the two is low-S.
 
-**✍️ ลงใบตอบ (ขั้นที่ 2):** คัดลอกสามบรรทัดหลัง (`signature`, `twin`, `txid`) จากหน้าจอของตัวเอง
+**✍️ Write in the answer sheet (Step 2):** copy the last three lines (`signature`, `twin`, `txid`) from your own screen.
 
-#### ขั้นที่ 3 — สรุปด้วยคำของตัวเอง
+#### Step 3 — Summarise in your own words
 
-**ทำอะไร:** เติมคำในช่องว่าง
+**What to do:** Fill in the blanks.
 
-> เลขรายการ (txid) ของลายเซ็นกับลายเซ็นแฝด ________ (เลือกคำ: `เหมือนกัน` / `ต่างกัน`) และในสองลายเซ็นนี้มี low-S อยู่ ________ อัน (เลือกคำ: `1` / `2`)
+> The txid of the signature and the txid of the twin are ________. (Choose: `the same` / `different`) Of the two signatures, ________ is low-S. (Choose a number: `1` / `2`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 3):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 3):** write the full sentence.
 
-### A2 — ถอนเงินซ้ำที่ธนาคาร vulnerable (20 points)
+### A2 — Withdrawing twice at the vulnerable bank (20 points)
 
-#### ขั้นที่ 4 — อ่าน: ธนาคารกันรายการซ้ำอย่างไร
+#### Step 4 — Read: how does the bank stop repeats?
 
-**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+**What to do:** Just read. You do not need to type anything.
 
-ธนาคาร vulnerable จำ txid ของทุกรายการที่ทำไปแล้ว ถ้าส่ง**ลายเซ็นเดิมซ้ำ** txid เหมือนเดิม ธนาคารตอบ `409 replay` และไม่จ่ายซ้ำ แต่ลายเซ็นแฝดมี txid **ใหม่** ธนาคารจึงนึกว่าเป็นรายการใหม่ ทั้งที่เจ้าของอนุญาตถอนแค่ครั้งเดียว (100) ถ้าถอนได้เกิน 100 ธนาคารจะตอบ flag
+The vulnerable bank remembers the txid of every transaction it has done. If you send **the same signature again**, the txid is the same, so the bank answers `409 replay` and does not pay twice. But the twin signature has a **new** txid, so the bank thinks it is a new transaction, even though the owner allowed only one withdrawal (100). If more than 100 is withdrawn, the bank shows a flag.
 
-#### ขั้นที่ 5 — ถอนด้วยลายเซ็น ส่งซ้ำ แล้วถอนด้วยลายเซ็นแฝด
+#### Step 5 — Withdraw with the signature, send it again, then withdraw with the twin
 
-**ทำอะไร:** ถอนด้วยลายเซ็นเดิม แล้วส่งลายเซ็นเดิมซ้ำอีกครั้ง แล้วส่งลายเซ็นแฝด
+**What to do:** Withdraw with the original signature, then send the original signature again, then send the twin signature.
 
-**พิมพ์** ทีละบรรทัด (ต่อจากขั้นที่ 2 โดยไม่เปิด lab ใหม่ และห้ามข้ามบรรทัดแรก):
+**Type** one line at a time (straight after Step 2, without starting the lab again, and do not skip the first line):
 
 ```bash
 docker compose exec vulnerable python bank.py vuln pay original
@@ -219,7 +219,7 @@ docker compose exec vulnerable python bank.py vuln pay original
 docker compose exec vulnerable python bank.py vuln pay twin
 ```
 
-**ควรเห็น:** ครั้งละสองบรรทัด ให้ดูบรรทัด `answer:` (ตัวเลข txid ของเราต่างจากตัวอย่าง)
+**You should see:** two lines each time. Look at the `answer:` line (your txid numbers will be different from the example)
 
 ```
 answer: HTTP 200 {"amount":100,"status":"processed","total_withdrawn":100,"txid":"417a2e19..."}
@@ -227,27 +227,27 @@ answer: HTTP 409 {"error":"replay: txid already processed","txid":"417a2e19..."}
 answer: HTTP 200 {"amount":100,"double_spend_detected":true,"flag":"FLAG{ecdsa_malleable_double_spend}","status":"processed","total_withdrawn":200,"txid":"e66a7f5b..."}
 ```
 
-**แปลว่า:** ครั้งแรกถอนได้ 100 ส่งลายเซ็นเดิมซ้ำถูกจับได้ (`409`) แต่**ลายเซ็นแฝดผ่าน** ธนาคารจ่ายอีก 100 ยอดรวมเป็น **200** ทั้งที่เจ้าของอนุญาตครั้งเดียว และธนาคารตอบ `double_spend_detected` พร้อม flag
+**Means:** The first time, 100 is withdrawn. Sending the same signature again is caught (`409`). But **the twin signature passes**: the bank pays another 100, the total becomes **200** although the owner allowed it once, and the bank answers `double_spend_detected` with a flag.
 
-**✍️ ลงใบตอบ (ขั้นที่ 5):** คัดลอกสามบรรทัด `answer:` จากหน้าจอของตัวเอง
+**✍️ Write in the answer sheet (Step 5):** copy the three `answer:` lines from your own screen.
 
-#### ขั้นที่ 6 — ตอบคำถามสองข้อ
+#### Step 6 — Answer the two questions
 
-**ทำอะไร:** เติมคำในช่องว่างทั้งสองข้อ (คำใบ้: ขั้นที่ 4 และผลในขั้นที่ 5)
+**What to do:** Fill in the blanks in both items (hint: Step 4 and the result in Step 5).
 
-> a) ธนาคาร vulnerable มองลายเซ็นแฝดเป็นรายการ ________ (เลือกคำ: `เดิม` / `ใหม่`) เพราะเลขรายการมาจาก ________ (เลือกคำ: `ลายเซ็น` / `ข้อความ`)
+> a) The vulnerable bank sees the twin signature as a ________ transaction (Choose: `old` / `new`) because the transaction number comes from the ________ (Choose: `signature` / `message`).
 >
-> b) ยอดถอนรวมหลังส่งลายเซ็นแฝดคือ ________ ทั้งที่เจ้าของอนุญาต 100 (เลือกคำ: `100` / `200`)
+> b) The total withdrawn after sending the twin signature is ________ although the owner allowed 100. (Choose: `100` / `200`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 6):** เขียนทั้งสองประโยคให้ครบ
+**✍️ Write in the answer sheet (Step 6):** write both sentences in full.
 
-### A3 — ธนาคาร fixed ไม่ยอมรับลายเซ็นแฝด (20 points)
+### A3 — The fixed bank refuses the twin signature (20 points)
 
-#### ขั้นที่ 7 — ลองกับธนาคาร fixed
+#### Step 7 — Try the fixed bank
 
-**ทำอะไร:** ขอลายเซ็นจากธนาคาร fixed (ธนาคารนี้มีกุญแจของตัวเอง จึงต้องขอใหม่) ถอนด้วยลายเซ็นนั้น แล้วลองลายเซ็นแฝด
+**What to do:** Ask the fixed bank for a signature (this bank has its own key, so you must ask again), withdraw with that signature, and then try the twin signature.
 
-**พิมพ์** ทีละบรรทัด:
+**Type** one line at a time:
 
 ```bash
 docker compose exec vulnerable python bank.py fixed sign
@@ -255,67 +255,67 @@ docker compose exec vulnerable python bank.py fixed pay original
 docker compose exec vulnerable python bank.py fixed pay twin
 ```
 
-**ควรเห็น:** ให้ดูบรรทัด `answer:` ของสองคำสั่งหลัง (ลายเซ็นจากธนาคาร fixed เป็น low-S เสมอ)
+**You should see:** look at the `answer:` line of the last two commands (a signature from the fixed bank is always low-S)
 
 ```
 answer: HTTP 200 {"amount":100,"status":"processed","total_withdrawn":100,"txid":"d807dd34..."}
 answer: HTTP 403 {"error":"non-canonical signature: s must be <= n/2 (BIP-62 low-S)"}
 ```
 
-**แปลว่า:** ธนาคาร fixed ยอมให้ถอนด้วยลายเซ็นแบบ low-S ตามปกติ (ยอดรวม 100 และไม่มี flag) แต่**ปฏิเสธลายเซ็นแฝด** ซึ่งเป็น high-S (`403`) จึงถอนซ้ำไม่ได้
+**Means:** The fixed bank lets the normal low-S signature withdraw (the total is 100 and there is no flag), but it **refuses the twin signature**, which is high-S (`403`), so it cannot be used to withdraw again.
 
-**✍️ ลงใบตอบ (ขั้นที่ 7):** คัดลอกสองบรรทัด `answer:` จากหน้าจอของตัวเอง
+**✍️ Write in the answer sheet (Step 7):** copy the two `answer:` lines from your own screen.
 
-#### ขั้นที่ 8 — สรุปด้วยคำของตัวเอง
+#### Step 8 — Summarise in your own words
 
-**ทำอะไร:** ดูผลขั้นที่ 7 แล้วเติมคำ
+**What to do:** Look at the result of Step 7, then fill in the blanks.
 
-> ธนาคาร fixed ตอบ ________ (เลือกคำ: `200` / `403`) ให้ลายเซ็นแฝด เพราะรับเฉพาะลายเซ็นแบบ ________ (เลือกคำ: `low-S` / `high-S`)
+> The fixed bank answers ________ to the twin signature (Choose: `200` / `403`) because it accepts only signatures that are ________. (Choose: `low-S` / `high-S`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 8):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 8):** write the full sentence.
 
-#### ขั้นที่ 9 — หาบรรทัดที่ต่างกันในโค้ด
+#### Step 9 — Find the lines that differ in the code
 
-**ทำอะไร:** หาว่าโค้ดของธนาคารตัวไหนมีการตรวจ low-S
+**What to do:** Find which bank's code checks for low-S.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose exec vulnerable grep -n "is_low_s" vulnerable_app.py fixed_app.py
 ```
 
-**ควรเห็น:** มีผลเฉพาะไฟล์ `fixed_app.py` (บรรทัดที่ 48 เป็นฟังก์ชัน และบรรทัดที่ 106 เป็นจุดที่ใช้ตรวจ) ไม่มีผลจากไฟล์ `vulnerable_app.py`
+**You should see:** a match only in the file `fixed_app.py` (line 48 is the function and line 106 is where it is used to check). There is no match from the file `vulnerable_app.py`
 
 ```
 fixed_app.py:48:def is_low_s(s: int) -> bool:
 fixed_app.py:106:    if not is_low_s(s):
 ```
 
-**แปลว่า:** ความต่างอยู่ที่การตรวจ `is_low_s` เพียงบรรทัดเดียว ธนาคาร vulnerable ไม่ตรวจ จึงรับลายเซ็นแฝดแบบ high-S ได้
+**Means:** The difference is the single `is_low_s` check. The vulnerable bank does not check it, so it accepts the high-S twin signature.
 
-**✍️ ลงใบตอบ (ขั้นที่ 9):** คัดลอกสองบรรทัดที่ขึ้นบนจอ
+**✍️ Write in the answer sheet (Step 9):** copy the two lines that show on your screen.
 
-#### ขั้นที่ 10 — การตรวจ low-S แก้ได้แค่ไหน
+#### Step 10 — How far does the low-S check go?
 
-**ทำอะไร:** อ่านแล้วตอบ 1–2 ประโยค
+**What to do:** Read, then answer in 1–2 sentences.
 
-ธนาคาร fixed หยุด**คู่แฝดนี้**ได้ แต่ธนาคารก็ยัง**กันรายการซ้ำด้วย hash ของลายเซ็น** อยู่ ถ้ามีคนขอเซ็นข้อความเดิมอีกครั้ง ก็จะได้ลายเซ็น low-S ใบใหม่ที่ต่างออกไป (ไม่บังคับ ลองดูได้: พิมพ์ `fixed sign` อีกครั้ง แล้ว `fixed pay original` ธนาคาร fixed จะนับว่าเป็นรายการใหม่ ยอดรวม 200)
+The fixed bank stops **this twin**, but it **still stops repeats with the hash of the signature**. If someone gets the same message signed again, they get a new, different low-S signature. (Optional, you can try it: type `fixed sign` again, then `fixed pay original`. The fixed bank counts it as a new transaction and the total becomes 200.)
 
-> ทำไมการตรวจ low-S จึงหยุดการถอนซ้ำด้วยลายเซ็นแฝดได้ และเลขรายการที่เหมาะสมกว่า hash ของลายเซ็นควรมาจากอะไร (คำใบ้: ขั้นที่ 6 และ 9)
+> Why does the low-S check stop the repeated withdrawal with the twin signature, and what should a better transaction number come from, instead of the hash of the signature? (hint: Step 6 and Step 9)
 
-**✍️ ลงใบตอบ (ขั้นที่ 10):** เขียนคำตอบ
+**✍️ Write in the answer sheet (Step 10):** write your answer.
 
-#### ขั้นที่ 11 — ปิด lab และเช็กใบตอบ
+#### Step 11 — Shut down the lab and check your answer sheet
 
-**ทำอะไร:** ทำหลังจากคัดลอกผลครบแล้ว
+**What to do:** Do this after you have copied all the results.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose down
 ```
 
-**ควรเห็น:** บรรทัดลงท้ายว่า `Removed` จากนั้นดูว่าในใบตอบมีครบ: ขั้นที่ 2, 3 (A1), ขั้นที่ 5, 6 (A2), ขั้นที่ 7, 8, 9, 10 (A3) แล้วไปทำส่วนของแบบตัวเอง: เลขคี่ทำ Part 2 เลขคู่ทำ Part 3 และ Part 4
+**You should see:** a line ending in `Removed`. Then check that your answer sheet has everything: Steps 2, 3 (A1), Steps 5, 6 (A2), Steps 7, 8, 9, 10 (A3). Then do the part for your own form: odd IDs do Part 2, even IDs do Part 3 and Part 4.
 
 ---
 
@@ -329,35 +329,35 @@ docker compose down
 
 ## Part 2 — Conventional form (40 points; only if Conventional is your assigned form)
 
-ตอบข้อละ 2–3 ประโยค ภาษาไทยได้ ส่วนนี้ให้**ตอบด้วยตัวเอง** ไม่ใช้ AI ตอบ
+Answer each item in 2–3 sentences. You may answer in English or Thai. In this part **answer by yourself**, without using AI to answer.
 
-**Q1 (10). ลายเซ็นดิจิทัลกับ MAC.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+**Q1 (10). Digital signature and MAC.** Answer all three of these (1–2 sentences each):
 
-- ใช้กุญแจอะไรสร้างลายเซ็น และใช้กุญแจอะไรตรวจ เทียบกับ MAC (MAC ใช้กุญแจดอกเดียวกันทั้งสองฝั่ง)
-- ใครตรวจลายเซ็นได้บ้าง เทียบกับ MAC
-- ทำไมระบบสาธารณะ (เช่นใบรับรองบนเว็บ) ใช้ลายเซ็นดิจิทัลได้ แต่ใช้ MAC ไม่ได้
+- Which key makes the signature and which key checks it, compared with a MAC (a MAC uses the same key on both sides)?
+- Who can check a signature, compared with a MAC?
+- Why can a public system (for example a certificate on a website) use digital signatures but not a MAC?
 
-**Q2 (10). ถอนเงินซ้ำ.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+**Q2 (10). The repeated withdrawal.** Answer all three of these (1–2 sentences each):
 
-- ลายเซ็นแฝด `(r, n−s)` คืออะไร และทำไมธนาคาร vulnerable ยอมรับ (คำใบ้: ขั้นที่ 1)
-- ทำไมส่งลายเซ็นเดิมซ้ำจึงถูกจับ (`409`) แต่ลายเซ็นแฝดผ่าน (คำใบ้: ขั้นที่ 4 และ 5)
-- เจ้าของอนุญาตถอนกี่ครั้ง และธนาคารจ่ายไปกี่ครั้ง (ดูยอดรวมในขั้นที่ 5)
+- What is the twin signature `(r, n−s)`, and why does the vulnerable bank accept it? (hint: Step 1)
+- Why is the same signature sent again caught (`409`) but the twin signature passes? (hint: Step 4 and 5)
+- How many times did the owner allow a withdrawal, and how many times did the bank pay? (look at the total in Step 5)
 
-**Q3 (10). การแก้และสิ่งที่ยังเหลือ.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+**Q3 (10). The fix, and what is still left.** Answer all three of these (1–2 sentences each):
 
-- ธนาคาร fixed แก้ด้วยอะไร และทำไมลายเซ็นแฝดจึงถูกปฏิเสธ (คำใบ้: ขั้นที่ 7 และ 9)
-- ถ้ากันรายการซ้ำด้วย hash ของลายเซ็นต่อไป ยังมีช่องโหว่อะไรเหลือ (คำใบ้: ขั้นที่ 10)
-- เลขรายการที่ดีกว่าควรมาจากอะไร
+- What does the fixed bank use to fix it, and why is the twin signature refused? (hint: Step 7 and 9)
+- If the bank still stops repeats with the hash of the signature, what weakness is left? (hint: Step 10)
+- What should a better transaction number come from?
 
-**Q4 (10). พิสูจน์ว่ารู้ความลับ โดยไม่บอกความลับ (Schnorr).** ตอบให้ครบสองอย่างนี้ (ข้อละ 2–3 ประโยค): Peggy พิสูจน์ให้ Victor เชื่อว่าเธอรู้กุญแจส่วนตัวได้อย่างไร โดย**ไม่ส่งกุญแจ** (เล่าด้วยคำ: ส่งค่าเริ่มต้น, ได้คำท้าสุ่มใหม่, ตอบกลับ) และทำไมคนที่ดักฟังและบันทึกการสนทนา จึงเอาไปเข้าระบบแทน Peggy ไม่ได้
+**Q4 (10). Proving you know a secret without telling it (Schnorr).** Answer both of these (2–3 sentences each): How does Peggy prove to Victor that she knows a private key, **without sending the key**? (tell it in words: she sends a starting value, gets a new random challenge, and sends back an answer) And why can someone who listened and recorded the conversation not use it to log in as Peggy?
 
 ### Going further (optional — no marks)
 
-- **Q5 — RSA, ECDSA, EdDSA.** เทียบทั้งสามแบบเรื่องปัญหายากที่ใช้ ความง่ายในการเขียนให้ถูก และจุดเสี่ยง (เช่นความเสี่ยงของ nonce `k` ใน ECDSA) แล้วบอกว่าทำไมระบบใหม่นิยม EdDSA (Ed25519)
-- **Q6 — Substitution attacks.** ลายเซ็นยังตรวจผ่าน แม้กุญแจสาธารณะหรือข้อความถูกเปลี่ยนไปได้อย่างไร
-- **Q7 — Malleability ในประวัติศาสตร์.** MtGox กับหลักฐานของ Decker และ Wattenhofer ([paper](https://arxiv.org/abs/1403.6676)) และ SUF-CMA ต่างจาก EUF-CMA อย่างไร พร้อมวิธีป้องกันอย่างน้อยสองอย่าง
-- **Q8 — Fiat–Shamir.** แทนคำท้าสุ่มด้วย hash แล้วได้การพิสูจน์แบบไม่ต้องโต้ตอบ (ใช้กับ Schnorr ไม่ใช่กับลายเซ็นทุกแบบ)
-- **Extension — ทำไม `(r, n−s)` จึงใช้ได้ (สำหรับคนที่อยากรู้).** เมื่อตรวจลายเซ็น ECDSA การเปลี่ยน `s` เป็น `n−s` ทำให้จุดบนเส้นโค้งที่คำนวณได้เป็นจุดตรงข้าม ซึ่งมีพิกัด x เท่าเดิม และ `r` เก็บแค่พิกัด x จึงยังตรงกัน
+- **Q5 — RSA, ECDSA, EdDSA.** Compare the three on the hard problem they use, how easy they are to write correctly, and where the risks are (for example the risk of the nonce `k` in ECDSA), and say why new systems prefer EdDSA (Ed25519).
+- **Q6 — Substitution attacks.** How can a signature still verify even though the public key or the message has been swapped?
+- **Q7 — Malleability in history.** MtGox and the evidence of Decker and Wattenhofer ([paper](https://arxiv.org/abs/1403.6676)), and how SUF-CMA differs from EUF-CMA, with at least two ways to defend against it.
+- **Q8 — Fiat–Shamir.** Replace the random challenge with a hash and you get a proof that needs no interaction (this works for Schnorr, not for every kind of signature).
+- **Extension — why `(r, n−s)` is valid (for those who are curious).** When an ECDSA signature is checked, changing `s` to `n−s` makes the point that is computed on the curve become the opposite point, which has the same x-coordinate, and `r` stores only the x-coordinate, so it still matches.
 
 ---
 
@@ -365,7 +365,7 @@ docker compose down
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
-AI เขียนฟังก์ชัน "กันไม่ให้ประมวลผลรายการซ้ำ" ให้นักพัฒนา ดูมืออาชีพ แต่มี**ข้อผิดพลาดเดียวกับที่ lab นี้โจมตี**
+An AI wrote a function that "stops the same transaction being processed twice" for a developer. It looks professional, but it has **the same mistake that this lab attacks**.
 
 > **AI's answer:**
 >
@@ -387,8 +387,8 @@ AI เขียนฟังก์ชัน "กันไม่ให้ประ
 >
 > — end of AI answer —
 
-1. **Find what's wrong (10).** คัดลอกบรรทัดหรือประโยคที่ผิด และเขียน 1–2 ประโยคว่าทำไมผิด (คำใบ้: ขั้นที่ 5)
-2. **Fix it (10).** ควรสร้าง txid จากอะไรแทน (เช่น ข้อความกับกุญแจสาธารณะ หรือเลขลำดับ**ในข้อความที่เซ็น**) และทำไมโค้ดเดิมจึงประมวลผลรายการ**เดียวกันสองครั้ง** ทั้งที่ทุกลายเซ็นถูกต้อง
+1. **Find what's wrong (10).** Copy the wrong line or sentence and write 1–2 sentences on why it is wrong (hint: Step 5)
+2. **Fix it (10).** What should the txid be made from instead (for example the message together with the public key, or a sequence number **inside the signed message**), and why does the original code process **the same transaction twice** even though every signature is valid?
 
 > Disclose any other AI use in the Part 1 table. This task counts toward the **Audit the AI** row.
 
@@ -396,16 +396,16 @@ AI เขียนฟังก์ชัน "กันไม่ให้ประ
 
 ## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
-**A. Explain in Plain English (EiPE, 10).** เพื่อนถามว่า *"พิสูจน์ว่ารู้รหัสผ่านโดยไม่ส่งรหัสผ่านได้อย่างไร?"* อธิบาย 3–5 ประโยค **ไม่ใช้ศัพท์ยาก** (ส่งค่าเริ่มต้น, ได้คำท้าสุ่ม, ตอบกลับ, ทำไมบันทึกไว้ใช้ไม่ได้)
+**A. Explain in Plain English (EiPE, 10).** A friend asks: *"How can you prove that you know a password without sending the password?"* Explain in 3–5 sentences, **without difficult words** (sending a starting value, getting a random challenge, sending back an answer, why a recording cannot be used again).
 
-**B. Prompt Problem (10).** ใช้ AI ตัวไหนก็ได้ แล้วทำตามนี้:
+**B. Prompt Problem (10).** Use any AI you like and do this:
 
-1. เขียน prompt **หนึ่งอัน** ขอให้ AI อธิบายว่าทำไมลายเซ็น ECDSA ถึง "แฝด" `(r, n−s)` ได้ แต่ EdDSA (Ed25519) ไม่
-2. คัดลอกคำตอบของ AI ลงใบตอบ
-3. ตรวจ: (ก) บอกไหมว่า `(r, n−s)` ก็ใช้ได้กับข้อความและกุญแจเดิม (ข) บอกไหมว่า EdDSA ตรวจให้ `S` อยู่ในรูปมาตรฐาน (RFC 8032) แทนที่จะบอกว่า "ไม่โดนเพราะใหม่กว่า" (ค) พูดอะไรผิดหรือแต่งเรื่องไหม (เช่น สับสนกับการใช้ nonce ซ้ำ หรือเลข BIP ผิด ที่ถูกคือ BIP-62 / BIP-146)
-4. ในตารางของใบตอบ ติ๊ก **ผ่าน / ไม่ผ่าน** ทีละข้อพร้อมเหตุผล 1 ประโยค แล้วจบด้วย 1 ประโยคว่า จะเชื่อคำตอบของ AI นี้ไหม เพราะอะไร
+1. Write **one** prompt asking the AI to explain why an ECDSA signature can have a "twin" `(r, n−s)`, but EdDSA (Ed25519) cannot.
+2. Copy the AI's answer into your answer sheet.
+3. Check: (a) does it say that `(r, n−s)` is also valid for the same message and key? (b) does it say that EdDSA checks that `S` is in the standard form (RFC 8032), instead of saying "it is not affected because it is newer"? (c) does it say anything wrong or make anything up (for example mixing this up with reusing a nonce, or a wrong BIP number; the right ones are BIP-62 / BIP-146)?
+4. In the table in your answer sheet, tick **pass / fail** for each item with a one-sentence reason, then finish with one sentence saying whether you would trust this AI's answer, and why.
 
-ส่ง **prompt + คำตอบของ AI + ตารางตรวจพร้อมเหตุผลของตัวเอง**
+Submit **your prompt + the AI's answer + your check table with your own reasons**.
 
 ---
 
@@ -413,9 +413,9 @@ AI เขียนฟังก์ชัน "กันไม่ให้ประ
 
 An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
-1. "ในขั้นที่ 5 ส่งลายเซ็นเดิมซ้ำถูกจับ (`409`) แต่ลายเซ็นแฝดผ่าน ทำไม และธนาคารใช้อะไรเป็นเลขรายการ"
-2. "ในขั้นที่ 7 ทำไมธนาคาร fixed จึงปฏิเสธลายเซ็นแฝด และทำไมในสองลายเซ็นมี low-S อยู่แค่หนึ่งอัน"
-3. "การตรวจ low-S เพียงอย่างเดียวพอไหมที่จะกันการจ่ายซ้ำ ถ้าไม่ ควรเพิ่มอะไร"
+1. "In Step 5, sending the same signature again was caught (`409`) but the twin signature passed. Why, and what does the bank use as the transaction number?"
+2. "In Step 7, why did the fixed bank refuse the twin signature, and why is only one of the two signatures low-S?"
+3. "Is the low-S check alone enough to stop paying twice? If not, what should be added?"
 
 ---
 
@@ -423,9 +423,9 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 | Criterion | Conventional | AIR-Sec |
 |---|---:|---:|
-| A1 — ลายเซ็นกับลายเซ็นแฝด | 20 | 20 |
-| A2 — ถอนซ้ำที่ธนาคาร vulnerable | 20 | 20 |
-| A3 — ธนาคาร fixed + reasoning | 20 | 20 |
+| A1 — a signature and its twin | 20 | 20 |
+| A2 — repeated withdrawal at the vulnerable bank | 20 | 20 |
+| A3 — fixed bank + reasoning | 20 | 20 |
 | Conventional written questions (Q1–Q4) | 40 | — |
 | AIR-Sec Audit the AI | — | 20 |
 | AIR-Sec Explain in Plain English (EiPE) | — | 10 |
@@ -434,7 +434,7 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 ## Evidence & Integrity (required)
 
-- ใส่ชื่อ รหัสนักศึกษา และวันที่ในใบตอบ และคัดลอกคำสั่งกับผลจากเครื่อง**ของตัวเอง** ตัวเลขลายเซ็นสุ่มไม่เหมือนเพื่อนเป็นเรื่องปกติ flag เหมือนเพื่อนได้ สัปดาห์นี้ไม่มี flag เฉพาะคน และห้ามเอาผลของเพื่อนมาส่งเป็นของตัวเอง
-- **อธิบายด้วยคำของตัวเอง** (ให้คะแนนจากเหตุผล): ข้อที่ให้เติมคำจากคลังคำ (ขั้นที่ 3, 6, 8) ใช้คำที่ให้ไว้ได้ ส่วนคำตอบสั้น ๆ ของขั้นที่ 10 และข้อเขียนของฟอร์มตัวเองต้องเขียนด้วยคำของตัวเอง (ทำไมลายเซ็นแฝดจึงถอนซ้ำได้ และการตรวจ low-S แก้ได้แค่ไหน) ไม่ต้องเขียนเพิ่มนอกจากนี้
+- Put your name, student ID and date in the answer sheet, and copy the commands and results from **your own** computer. It is normal that your random signature numbers are not the same as a friend's. Your flag may be the same as a friend's. This week there is no personal flag. Do not submit a friend's results as your own.
+- **Explain in your own words** (marks are given for the reasoning): for the fill-in-the-blank items that give you a word bank (Steps 3, 6, 8) you may use the words given. The short answer in Step 10 and the written part of your own form must be in your own words (why the twin signature can be used to withdraw again, and how far the low-S check goes). You do not need to write anything more than that.
 
-**กำหนดส่งและการส่งช้า:** ส่งภายใน 23:59 น. (เวลาไทย) ของ **อาทิตย์ 17 ม.ค. 2027** (กฎ KOSEN: ก่อนคาบถัดไป) ส่งช้าหักวันละ 10% ของคะแนนใบงานนี้ (ไม่เต็มวันนับเป็นหนึ่งวัน) จนเหลือ 0 การอัปโหลดหรือเปลี่ยนไฟล์หลังกำหนดส่งนับว่าส่งช้าทั้งชิ้น ส่งงานร่วม 60 คะแนน และแบบของตัวเอง**หนึ่งแบบ**เท่านั้น ทำทั้งสองแบบไม่ได้คะแนนเพิ่ม Viva ใช้ตรวจความเข้าใจ ไม่มีคะแนนแยก
+**Deadline and late submission:** Submit by 23:59 (Thai time) on **Sunday 17 Jan 2027** (KOSEN rule: before the next class). A late submission loses 10% of this worksheet's marks for each day late (a part day counts as a day), down to 0. Uploading or replacing a file after the deadline counts the whole submission as late. Submit the common 60 marks and **one** form of your own only; doing both forms gives no extra marks. The viva is used to check understanding and has no separate marks.
