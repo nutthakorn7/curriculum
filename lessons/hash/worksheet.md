@@ -16,7 +16,7 @@
   **odd = Conventional (Part 2)**, **even = AIR-Sec (Parts 3–4)**. Write your form in the Group field.
 - You may answer in Thai or English. Short, clear answers are fine.
 - **Use the answer sheet.** In Classroom → Week 02, open the file for your form
-  (`Wk02_Answer_Sheet_Conventional_odd_ID` or `Wk02_Answer_Sheet_AIR-Sec_even_ID`), type your
+  (`Wk02_Answer_Sheet_Conventional` or `Wk02_Answer_Sheet_AIR-Sec`), type your
   answers in the grey boxes, paste your screenshots, then File → Download → PDF.
 - Hand in one PDF, `Wk02_<StudentID>.pdf`, at `learn.zcr.ai/submit` by **Sun 15 Nov 23:59** (ICT).
 - The core tasks are short and everyone can finish them in class. The questions marked
