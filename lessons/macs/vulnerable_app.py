@@ -9,6 +9,7 @@ See exploit.py for the forgery. Compare with fixed_app.py (proper HMAC) on :8093
 """
 import hashlib
 import os
+import re
 
 from flask import Flask, request, make_response, jsonify
 
@@ -45,6 +46,10 @@ def index():
 @app.route("/login")
 def login():
     user = request.args.get("user", "guest")
+    # Keep username text from injecting an admin field. The intended exercise is
+    # still the secret-prefix SHA-256 length-extension flaw, not delimiter injection.
+    if re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", user) is None:
+        return jsonify({"error": "invalid username"}), 400
     # data is transported hex-encoded because a forged extension contains raw padding bytes
     # (0x80, length bytes) that are not valid cookie-safe text.
     data = f"user={user}&admin=false".encode()
