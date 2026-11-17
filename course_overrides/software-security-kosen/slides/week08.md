@@ -15,10 +15,10 @@ Weeks 1–6
 
 ## Format and time
 
-- **150-minute slot:** administration10 + working/checking130 + collection10
-- **Ten questions ×10 raw =100:** five Basic and five Technical
-- Suggested pace: 12 minutes per question120 + checking10 =130 working minutes
-- Course contribution: **8%**, split Basic4 + Technical4
+- **150-minute slot:** administration 10 + working/checking 130 + collection 10
+- **Ten questions ×10 raw = 100:** five Basic and five Technical
+- Suggested pace: 12 minutes per question (120 minutes) + 10 minutes checking = 130 working minutes
+- Course contribution: **8%**, split Basic 4 + Technical 4
 
 <!-- Administration is not additional task time. Use the current sitting variant and its matching key; the public specimen is practice material. -->
 
@@ -38,7 +38,7 @@ Read the provided scenario/code and explain mechanisms, corrections, legitimate 
 - Answer the ten questions on the issued current paper
 - Use the permitted aids announced for the sitting
 - State assumptions and scope; accept equivalent technically sound designs
-- Reserve the final10 working minutes to check all answers
+- Reserve the final 10 working minutes to check all answers
 
 <!-- No new closed/open-book or AI rule is invented here; publish the sitting's permitted aids before release. -->
 
@@ -46,8 +46,8 @@ Read the provided scenario/code and explain mechanisms, corrections, legitimate 
 
 ## Collection and next session
 
-Stop task work when the130-minute working window ends; follow the proctor's collection instructions.
+Stop task work when the 130-minute working window ends; follow the proctor's collection instructions.
 
-Week9 is the individual four-station practical, with its own150-minute slot.
+Week 9 is the individual four-station practical, with its own 150-minute slot.
 
 [Current specimen and scope](../labs/week08-midterm-written/exam.md)
