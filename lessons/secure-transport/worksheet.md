@@ -2,198 +2,198 @@
 
 > **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
 > **Aligned to:** RFC 9846 (TLS 1.3), RFC 5280 (X.509), RFC 9525 (hostname verification) · CWE-295 (Improper Certificate Validation), CWE-300 (Channel Accessible by Non-Endpoint)
-> **Kind:** Docker lab แบบทำตามทีละขั้น ไม่ต้องคำนวณเลข มีงานแก้โค้ดสั้น ๆ **3 บรรทัด** ที่มีตัวอย่างให้ดู
+> **Kind:** Docker lab, step by step. No maths. There is a short code fix of **3 lines**, and an example of the right lines is given
 
-> **Ethics note:** ทำเฉพาะกับ container ในเครื่องของตัวเองที่ lab นี้เปิดขึ้นมา (Alice, Bob และผู้แอบอ้าง "Eve" ที่เป็นโค้ดจำลอง) การดักฟังหรือแอบอ้างเซิร์ฟเวอร์ในเครือข่ายจริงที่ไม่ใช่ของเราและไม่ได้รับอนุญาตเป็นเรื่องผิดกฎหมาย
+> **Ethics note:** Only work on the containers on your own computer that this lab starts (Alice, Bob and the pretend impostor "Eve", who is simulated code). Listening in on, or pretending to be, a server on a real network that is not yours and that you have no permission to test is illegal.
 
-## อ่านก่อนเริ่ม
+## Read this first
 
-**วันนี้จะทำอะไร:** Alice ส่งความลับถึง Bob ผ่าน TLS (การเชื่อมต่อที่เข้ารหัส) แต่คนที่อยู่กลางทาง (Eve) เอา**ใบรับรองปลอมที่อ้างว่าเป็น "bob"** มาให้ Alice ถ้า Alice **ไม่ตรวจใบรับรอง** เธอจะคุยกับ Eve อย่างเข้ารหัสสมบูรณ์แบบ และ Eve อ่านความลับได้ เราจะดู Alice ทั้งแบบไม่ตรวจและแบบตรวจ แล้ว**แก้โค้ดของ Alice เอง** สิ่งที่ต้องจำ: **เข้ารหัสแล้ว ไม่ได้แปลว่าคุยกับคนที่ถูกต้อง**
+**What you will do today:** Alice sends a secret to Bob over TLS (an encrypted connection), but someone in the middle (Eve) hands Alice a **fake certificate that claims to be "bob"**. If Alice **does not check the certificate**, she talks to Eve with perfect encryption, and Eve can read the secret. You will see Alice both without checking and with checking, and then **fix Alice's code yourself**. Remember this: **encrypted does not mean you are talking to the right person**.
 
-**ทุกขั้นเขียนแบบเดียวกัน:**
+**Every step is written the same way:**
 
-| หัวข้อ | ความหมาย |
+| Heading | Meaning |
 |---|---|
-| **ทำอะไร** | บอกว่าขั้นนี้จะทำอะไร |
-| **พิมพ์** | คัดลอกทั้งบรรทัดไปวางใน Terminal แล้วกด Enter |
-| **ควรเห็น** | หน้าจอควรขึ้นประมาณนี้ (มีบรรทัดอื่นของ Docker ปนอยู่ด้วย ดูเฉพาะบรรทัดที่ใบงานบอก) |
-| **แปลว่า** | ผลที่เห็นหมายความว่าอะไร |
-| **ลงใบตอบ** | สิ่งที่ต้องคัดลอกหรือเขียนลงใบตอบ |
+| **What to do** | Says what this step does |
+| **Type** | Copy the whole line, paste it into the Terminal, and press Enter |
+| **You should see** | The screen should look roughly like this (other Docker lines are mixed in; only look at the lines the worksheet tells you to) |
+| **Means** | What the result means |
+| **Write in the answer sheet** | What to copy or write in your answer sheet |
 
-**คะแนน**
+**Marks**
 
-- ทุกคนทำ **Part A (60 คะแนน)** ซึ่งเหมือนกันทั้งสองแบบ
-- จากนั้นทำ **เฉพาะแบบของตัวเอง (40 คะแนน)** ดูจากเลขตัวสุดท้ายของรหัสนักศึกษา: **เลขคี่ = Conventional (Part 2)**, **เลขคู่ = AIR-Sec (Parts 3–4)** (เลข 0 นับเป็นเลขคู่) แล้วเขียนแบบของตัวเองในช่อง Group
-- ตอบเป็นภาษาไทยหรืออังกฤษก็ได้ ตอบสั้น ๆ ให้ชัดก็พอ
-- **ใช้ใบตอบ:** ใน Classroom → Week 12 เปิดไฟล์ตามแบบของตัวเอง (`Wk12_Answer_Sheet_Conventional` หรือ `Wk12_Answer_Sheet_AIR-Sec`) กด Open with → Google Docs พิมพ์ลงกรอบสีเทา แล้วกด File → Download → PDF
-- ส่งไฟล์เดียว ตั้งชื่อตามรหัสนักศึกษา เช่น `Wk12_66990000.pdf` (ไม่ต้องใส่เครื่องหมาย `<` `>`) ที่ `learn.zcr.ai/submit` โดยใช้รหัสส่งงานของ Week 12 ที่ได้ทางอีเมล KMITL ภายใน **อาทิตย์ 24 ม.ค. 2027 23:59 น.**
-- **สัปดาห์นี้ต้องแนบลิงก์ commit ของ `alice_student.py` ใน GitHub ด้วย** (ไม่มีคะแนนแยก) ดูวิธีทำในหัวข้อ W12 ของ `SUBMISSION.md` และเตรียม fork ไว้ก่อนวันเรียน
-- ข้อที่เขียนว่า *optional* ไม่มีคะแนน ไม่ต้องทำก็ได้
+- Everyone does **Part A (60 marks)**, which is the same for both forms.
+- Then do **only your own form (40 marks)**. Look at the last digit of your student ID: **odd = Conventional (Part 2)**, **even = AIR-Sec (Parts 3–4)** (0 counts as even). Write your form in the Group box.
+- You may answer in English or Thai. Short and clear is enough.
+- **Answer sheet:** in Classroom → Week 12, open the file for your form (`Wk12_Answer_Sheet_Conventional` or `Wk12_Answer_Sheet_AIR-Sec`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
+- Submit one file named with your student ID, for example `Wk12_66990000.pdf` (do not type the `<` `>` signs), at `learn.zcr.ai/submit` with your Week 12 submission code from your KMITL email, by **Sunday 24 Jan 2027, 23:59**.
+- **This week you must also attach the commit link of `alice_student.py` on GitHub** (no separate marks). See the W12 section of `SUBMISSION.md` for how, and prepare your fork before class.
+- Items marked *optional* have no marks. You can skip them.
 
-| Part A | คะแนน | ขั้นที่ลงใบตอบ |
+| Part A | Marks | Steps to write in the answer sheet |
 |---|---:|---|
-| A1 — Alice ไม่ตรวจใบรับรอง Eve อ่านความลับ | 20 | ขั้นที่ 2, 3 |
-| A2 — Alice ตรวจใบรับรอง Eve อ่านไม่ได้ | 20 | ขั้นที่ 5, 6 |
-| A3 — แก้โค้ดของ Alice เอง และทดสอบ | 20 | ขั้นที่ 7, 8, 9, 10 |
+| A1 — Alice does not check the certificate, so Eve reads the secret | 20 | Steps 2, 3 |
+| A2 — Alice checks the certificate, so Eve cannot read it | 20 | Steps 5, 6 |
+| A3 — Fix Alice's code yourself, and test it | 20 | Steps 7, 8, 9, 10 |
 
-**คำศัพท์ที่ต้องรู้**
+**Words you need to know**
 
-| คำ | ความหมายแบบง่าย |
+| Word | Simple meaning |
 |---|---|
-| Terminal | หน้าต่างสำหรับพิมพ์คำสั่ง |
-| Docker / container | โปรแกรมที่เปิด "เครื่องจำลอง" เล็ก ๆ ในเครื่องของเรา ทำพังก็ลบแล้วเริ่มใหม่ได้ |
-| TLS | วิธีเข้ารหัสการเชื่อมต่อ (เหมือนที่เว็บ https ใช้) |
-| ใบรับรอง (certificate) | เอกสารของเซิร์ฟเวอร์ที่บอกว่า "ฉันคือ bob" |
-| CA (Certificate Authority) | ผู้ออกใบรับรองที่คอมพิวเตอร์ของเรา**เชื่ออยู่แล้ว** เซ็นรับรองว่าใบรับรองนี้เป็นของ bob จริง |
-| self-signed | ใบรับรองที่เซ็นรับรองตัวเอง ไม่มี CA ที่เราเชื่อมาเซ็นให้ ใครก็ทำได้ |
-| MITM (man in the middle) | คนที่อยู่กลางทางและแอบอ้างเป็นปลายทาง (ในใบงานนี้ คือ Eve) |
-| ตรวจใบรับรอง (verify) | ตรวจว่า ใบรับรองถูกเซ็นโดย CA ที่เราเชื่อ และชื่อในใบรับรองตรงกับที่เราเรียก |
-| flag | ข้อความรางวัล (สัปดาห์นี้ไม่มี flag แต่มีข้อความลับ `the vault code is 7731`) |
+| Terminal | A window where you type commands |
+| Docker / container | A program that starts a small "pretend computer" on your computer. If you break it, delete it and start again |
+| TLS | A way to encrypt a connection (the same as the https websites use) |
+| certificate | A document from a server that says "I am bob" |
+| CA (Certificate Authority) | An issuer that our computer **already trusts**. It signs to say that this certificate really belongs to bob |
+| self-signed | A certificate that signs itself. No CA that we trust has signed it. Anyone can make one |
+| MITM (man in the middle) | Someone in the middle of the path who pretends to be the destination (in this worksheet, Eve) |
+| verify a certificate | Check that the certificate was signed by a CA we trust, and that the name in it matches the name we called |
+| flag | A prize message (this week there is no flag, but there is a secret message `the vault code is 7731`) |
 
-**คำถามที่มักสงสัย**
+**Questions people often ask**
 
-- *ต้องเก่งคณิตศาสตร์ไหม?* ไม่ต้อง
-- *ต้องเขียนโปรแกรมไหม?* ต้องแก้โค้ดแค่ **3 บรรทัด** และใบงานมีตัวอย่างบรรทัดที่ถูกให้ดู (ขั้นที่ 7)
-- *ถ้าทำผิด เครื่องจะพังไหม?* ไม่พัง ทุกอย่างอยู่ใน container ถ้าสับสนให้พิมพ์สามคำสั่งในขั้นที่ 11 แล้วเริ่มใหม่
-- *ไม่เข้าใจทุกบรรทัดที่ขึ้นจอ ได้ไหม?* ได้ ดูเฉพาะบรรทัดที่ใบงานบอก
-- *ชื่อ container และเลขในบรรทัดของเราไม่เหมือนตัวอย่าง ผิดไหม?* ไม่ผิด ข้อความลับและบรรทัดสำคัญ (`MITM INTERCEPTED`, `CERT VERIFICATION FAILED`) ต้องเหมือนกัน
-- *วางคำสั่งใน Terminal ยังไง?* คัดลอกคำสั่งจากใบงาน แล้ว Windows: กด Ctrl+V หรือคลิกขวา · Mac: กด Cmd+V จากนั้นกด Enter
-- *คัดลอกผลจาก Terminal ยังไง?* ลากเมาส์คลุมข้อความก่อน แล้ว Windows: กด Ctrl+Shift+C · Mac: กด Cmd+C หรือจะ screenshot ก็ได้
+- *Do I need to be good at maths?* No.
+- *Do I need to write programs?* You only fix **3 lines** of code, and the worksheet shows you the right lines (Step 7).
+- *If I make a mistake, will my computer break?* No. Everything is inside containers. If you get confused, type the three commands in Step 11 and start again.
+- *Can I skip understanding every line on the screen?* Yes. Only look at the lines the worksheet tells you to.
+- *The container names and numbers on my screen are not the same as the example. Is that wrong?* No. The secret message and the important lines (`MITM INTERCEPTED`, `CERT VERIFICATION FAILED`) must be the same.
+- *How do I paste a command into the Terminal?* Copy the command from the worksheet, then Windows: press Ctrl+V or right-click · Mac: press Cmd+V, then press Enter.
+- *How do I copy results from the Terminal?* Select the text with the mouse first, then Windows: press Ctrl+Shift+C · Mac: press Cmd+C. Or take a screenshot.
 
-**ถ้าเจอข้อความแบบนี้**
+**If you see a message like this**
 
-| ข้อความบนจอ | สาเหตุ | วิธีแก้ |
+| Message on screen | Cause | Fix |
 |---|---|---|
-| มีคำว่า `Cannot connect to the Docker daemon` หรือ `error during connect` | ยังไม่ได้เปิด Docker | เปิด Docker Desktop รอจนขึ้น Engine running |
-| `no configuration file provided: not found` หรือ `open docker-compose...yml: no such file` | Terminal ไม่ได้อยู่ในโฟลเดอร์ lab | ทำเตรียมขั้นที่ 4 อีกครั้ง |
-| `NotImplementedError: TODO: build_client_context()` | ยังไม่ได้แก้ `alice_student.py` หรือยังไม่ได้บันทึกไฟล์ | ทำขั้นที่ 8 แล้วกดบันทึก (Save) |
-| `IndentationError` หรือ `SyntaxError` | บรรทัดที่พิมพ์เยื้องไม่ตรง | ทุกบรรทัดต้องเยื้อง **4 ช่องว่าง** เท่ากับบรรทัดอื่นในฟังก์ชัน |
-| ผลยังเป็นแบบเก่า ทั้งที่แก้ไฟล์แล้ว | ไม่ได้ใส่ `--build` ในคำสั่ง | คัดลอกคำสั่งในขั้นที่ 9 ใหม่ทั้งบรรทัด (มีคำว่า `--build`) |
-| `network ... has active endpoints` ตอน `down` | ยังมี container ค้าง | พิมพ์คำสั่งในขั้นที่ 11 อีกครั้ง |
+| It has `Cannot connect to the Docker daemon` or `error during connect` | Docker is not open | Open Docker Desktop and wait until it says Engine running |
+| `no configuration file provided: not found` or `open docker-compose...yml: no such file` | The Terminal is not in the lab folder | Repeat Prep step 4 |
+| `NotImplementedError: TODO: build_client_context()` | You have not fixed `alice_student.py` yet, or you did not save the file | Do Step 8, then Save |
+| `IndentationError` or `SyntaxError` | The lines you typed are not indented correctly | Every line must be indented **4 spaces**, the same as the other lines in the function |
+| The result is still the old one even though you changed the file | You did not put `--build` in the command | Copy the command in Step 9 again, the whole line (it has `--build`) |
+| `network ... has active endpoints` when you run `down` | A container is still left over | Type the commands in Step 11 again |
 
-ลองแล้วยังไม่ได้ ให้ถามเพื่อนหรืออาจารย์ได้เลย
+If you still cannot do it, ask a friend or your instructor.
 
 ---
 
-## ก่อนเริ่ม: เตรียมเครื่อง (ทำที่บ้าน ทำครั้งเดียว)
+## Before you start: set up your computer (at home, once)
 
-ถ้าเคยทำ Week 2–6 หรือ 10–11 มาแล้ว มี Docker และไฟล์ ZIP อยู่แล้ว เริ่มที่**เตรียมขั้นที่ 4** ได้เลย แต่ ZIP ต้องมีโฟลเดอร์ `week12-secure-transport` ถ้าไม่เจอให้โหลดใหม่ตามเตรียมขั้นที่ 2 และสัปดาห์นี้ต้องใช้ **GitHub fork** ของตัวเอง (ดูวิธีใน `SUBMISSION.md` หัวข้อ W12)
+If you already did Weeks 2–6 or 10–11, you have Docker and the ZIP file. Start at **Prep step 4**. But the ZIP must have the folder `week12-secure-transport`. If you cannot find it, download the ZIP again as in Prep step 2. This week you also need your own **GitHub fork** (see the W12 section of `SUBMISSION.md`)
 
-#### เตรียมขั้นที่ 1 — เปิด Docker Desktop
+#### Prep step 1 — Open Docker Desktop
 
-**ทำอะไร:** ถ้ายังไม่มี ให้ติดตั้งจาก <https://www.docker.com/products/docker-desktop/> แล้วเปิดโปรแกรมทิ้งไว้
+**What to do:** If you do not have it yet, install it from <https://www.docker.com/products/docker-desktop/> and leave the program open.
 
-**ควรเห็น:** ในหน้าต่าง Docker Desktop ขึ้นว่า **Engine running**
+**You should see:** In the Docker Desktop window it says **Engine running**
 
-#### เตรียมขั้นที่ 2 — โหลดไฟล์ lab
+#### Prep step 2 — Download the lab files
 
-**ทำอะไร:** เปิด <https://github.com/nutthakorn7/security-cryptography> กดปุ่มสีเขียว **Code** แล้วเลือก **Download ZIP** (หรือใช้ `git clone` ของ fork ตัวเองถ้าทำเป็น)
+**What to do:** Open <https://github.com/nutthakorn7/security-cryptography>, click the green **Code** button, and choose **Download ZIP** (or use `git clone` of your own fork if you know how)
 
-#### เตรียมขั้นที่ 3 — แตกไฟล์ ZIP
+#### Prep step 3 — Unzip the ZIP file
 
-**ทำอะไร:** Windows: คลิกขวาที่ไฟล์ ZIP เลือก **Extract All** · Mac: ดับเบิลคลิกไฟล์ ZIP
+**What to do:** Windows: right-click the ZIP file and choose **Extract All** · Mac: double-click the ZIP file
 
-**ควรเห็น:** โฟลเดอร์ชื่อ `security-cryptography-master` บางเครื่องจะมีโฟลเดอร์ชื่อเดียวกันซ้อนสองชั้น ให้เปิดเข้าไปจนเห็นโฟลเดอร์ `labs`
+**You should see:** A folder called `security-cryptography-master`. On some computers there is a folder with the same name inside it. Open it until you can see the `labs` folder
 
-#### เตรียมขั้นที่ 4 — เปิด Terminal ในโฟลเดอร์ lab
+#### Prep step 4 — Open a Terminal inside the lab folder
 
-**ทำอะไร:** ในโฟลเดอร์ `security-cryptography-master` เข้าไปที่ `labs` แล้วเข้า `week12-secure-transport`
+**What to do:** In the folder `security-cryptography-master`, go into `labs`, then go into `week12-secure-transport`
 
-- **Windows:** เปิดโฟลเดอร์ `week12-secure-transport` ใน File Explorer คลิกขวาตรงที่ว่าง เลือก **Open in Terminal** (ถ้าไม่มีเมนูนี้ ให้กด Shift ค้างแล้วคลิกขวา เลือก **Open PowerShell window here**)
-- **Mac:** เปิดแอป Terminal พิมพ์ `cd` เว้นวรรคหนึ่งครั้ง ลากโฟลเดอร์ `week12-secure-transport` มาวางในหน้าต่าง แล้วกด Enter
+- **Windows:** Open the folder `week12-secure-transport` in File Explorer, right-click an empty spot, and choose **Open in Terminal** (if you do not see this menu, hold Shift, right-click, and choose **Open PowerShell window here**)
+- **Mac:** Open the Terminal app, type `cd` and one space, drag the folder `week12-secure-transport` into the window, then press Enter
 
-เช็กว่าอยู่ถูกที่ด้วยคำสั่งนี้:
+Check that you are in the right place with this command:
 
 ```bash
 ls
 ```
 
-**ควรเห็น:** มีชื่อ `alice_student.py` และ `docker-compose.vulnerable.yml` อยู่ในรายการ
+**You should see:** The names `alice_student.py` and `docker-compose.vulnerable.yml` are in the list
 
-#### เตรียมขั้นที่ 5 — สร้างภาพ (image) ของ lab
+#### Prep step 5 — Build the lab image
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose -f docker-compose.vulnerable.yml build
 ```
 
-**ควรเห็น:** บรรทัดลงท้ายว่า `Built` หรือ `Building ... done` ครั้งแรกต้องต่ออินเทอร์เน็ตและอาจรอหลายนาที ระหว่างนั้นอย่าปิดหน้าต่าง
+**You should see:** A line ending in `Built` or `Building ... done`. The first time it needs the internet and may take several minutes. Do not close the window while it works
 
 ---
 
 ## Part A — The lab (both forms, 60 points)
 
-มีตัวละครสามตัว (เป็นโปรแกรมใน Docker):
+There are three characters (programs in Docker):
 
-| ตัวละคร | ทำอะไร | ใบรับรอง |
+| Character | What it does | Certificate |
 |---|---|---|
-| **Alice** | ส่งความลับ `the vault code is 7731` ไปให้ "bob" | — (เธอต้องตัดสินใจว่าเชื่อใบรับรองไหม) |
-| **Bob** | เซิร์ฟเวอร์จริง | ใบรับรอง**จริง** ที่ CA เซ็นให้ |
-| **Eve (mitm)** | ดักอยู่กลางทาง แอบอ้างเป็น bob | ใบรับรอง**ปลอม** ที่เซ็นเอง แต่เขียนชื่อว่า "bob" |
+| **Alice** | Sends the secret `the vault code is 7731` to "bob" | — (she must decide whether to trust the certificate) |
+| **Bob** | The real server | The **real** certificate, signed by a CA |
+| **Eve (mitm)** | Sits in the middle and pretends to be bob | A **fake** certificate that she signed herself, but with the name "bob" written in it |
 
-Alice ถูกตั้งให้เชื่อมต่อกับ Eve (เพราะ Eve อยู่กลางทาง) โดยเข้าใจว่านั่นคือ bob ทำตามลำดับ A1 → A2 → A3 ต่อเนื่องกัน ไม่ต้องปิด lab คั่นกลาง
+Alice is set up to connect to Eve (because Eve is in the middle), believing that it is bob. Do A1 → A2 → A3 one after another, without shutting down the lab in between.
 
-> **ถ้าใช้ Docker ไม่ได้จริง ๆ:** บอกอาจารย์ แล้วคัดลอกบรรทัดตัวอย่างในใบงานมาใส่ใบตอบ เขียนกำกับว่า "จากตัวอย่างในใบงาน" ส่วนขั้นที่ 3, 6 และ 10 ตอบจากการอ่านใบงานได้ (ขั้นที่ 8 ต้องมีโค้ดที่แก้เอง)
+> **If you really cannot use Docker:** tell your instructor, then copy the example lines in the worksheet into your answer sheet and write "from the worksheet example" next to them. Steps 3, 6 and 10 can be answered by reading the worksheet (Step 8 needs code that you fixed yourself).
 
-### A1 — Alice ไม่ตรวจใบรับรอง Eve อ่านความลับ (20 points)
+### A1 — Alice does not check the certificate, so Eve reads the secret (20 points)
 
-#### ขั้นที่ 1 — อ่าน: Alice ไม่ตรวจใบรับรองหมายความว่าอะไร
+#### Step 1 — Read: what does it mean that Alice does not check the certificate?
 
-**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+**What to do:** Just read. You do not need to type anything.
 
-โหมดแรกนี้ Alice ถูกตั้งให้ **ไม่ตรวจใบรับรอง** ของฝั่งตรงข้าม (ไม่ดูว่าใครเซ็น ไม่ดูว่าชื่อตรงไหม) ดังนั้นใบรับรองปลอมของ Eve ที่เขียนว่า "bob" ก็ผ่าน ผลคือ Alice เปิดการเชื่อมต่อ TLS กับ Eve และส่งความลับไป ข้อมูลถูกเข้ารหัสจริง แต่เข้ารหัสไปให้ **Eve** ซึ่งถอดรหัสได้เพราะเป็นปลายทางของการเชื่อมต่อนั้น
+In this first mode, Alice is set up **not to check the certificate** of the other side (she does not look at who signed it, and she does not look at whether the name matches). So Eve's fake certificate that says "bob" is accepted. The result is that Alice opens a TLS connection with Eve and sends the secret. The data is really encrypted, but it is encrypted to **Eve**, who can decrypt it because she is the end of that connection.
 
-#### ขั้นที่ 2 — รัน Alice แบบไม่ตรวจ แล้วดูว่า Eve ได้อะไร
+#### Step 2 — Run Alice without checking, and see what Eve gets
 
-**ทำอะไร:** ให้ Alice ส่งความลับ แล้วดู log ของ Eve
+**What to do:** Let Alice send the secret, then look at Eve's log.
 
-**พิมพ์** ทีละบรรทัด:
+**Type** one line at a time:
 
 ```bash
 docker compose -f docker-compose.vulnerable.yml run --rm alice
 docker compose -f docker-compose.vulnerable.yml logs mitm
 ```
 
-**ควรเห็น:** คำสั่งแรกมีบรรทัดของ Alice สามบรรทัด คำสั่งที่สองมีบรรทัดของ Eve ให้หาบรรทัดสำคัญเหล่านี้
+**You should see:** The first command shows three lines from Alice. The second command shows Eve's lines. Find these important lines:
 
 ```
 ALICE: TLS handshake succeeded WITHOUT verifying the server cert -- sending secret
 week12-mitm  | MITM INTERCEPTED: the vault code is 7731
 ```
 
-**แปลว่า:** Alice บอกเองว่า TLS handshake **สำเร็จ** (การเชื่อมต่อเข้ารหัสจริง) แต่เธอ**ไม่ได้ตรวจ**ใบรับรอง Eve จึงอ่านความลับได้ (`MITM INTERCEPTED`)
+**Means:** Alice says herself that the TLS handshake **succeeded** (the connection is really encrypted), but she **did not check** the certificate. So Eve could read the secret (`MITM INTERCEPTED`).
 
-**✍️ ลงใบตอบ (ขั้นที่ 2):** คัดลอกสองบรรทัดข้างบนจากหน้าจอของตัวเอง
+**✍️ Write in the answer sheet (Step 2):** copy the two lines above from your own screen.
 
-#### ขั้นที่ 3 — สรุปด้วยคำของตัวเอง
+#### Step 3 — Summarise in your own words
 
-**ทำอะไร:** เติมคำในช่องว่าง
+**What to do:** Fill in the blanks.
 
-> TLS handshake ของ Alice ________ (เลือกคำ: `สำเร็จ` / `ล้มเหลว`) และการเชื่อมต่อถูกเข้ารหัสจริง แต่ Eve อ่านความลับได้ เพราะ Alice ไม่ได้ตรวจ ________ ของฝั่งตรงข้าม (เลือกคำ: `ใบรับรอง` / `ความเร็ว`)
+> Alice's TLS handshake ________ (Choose: `succeeded` / `failed`) and the connection is really encrypted, but Eve could read the secret because Alice did not check the ________ of the other side. (Choose: `certificate` / `speed`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 3):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 3):** write the full sentence.
 
-### A2 — Alice ตรวจใบรับรอง Eve อ่านไม่ได้ (20 points)
+### A2 — Alice checks the certificate, so Eve cannot read it (20 points)
 
-#### ขั้นที่ 4 — อ่าน: Alice แบบตรวจ
+#### Step 4 — Read: Alice with checking
 
-**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+**What to do:** Just read. You do not need to type anything.
 
-โหมดที่สอง Alice โหลด **CA ที่เราเชื่อ** (CA ของ lab) และตรวจสองอย่าง: (1) ใบรับรองถูกเซ็นโดย CA นั้นไหม (2) ชื่อในใบรับรองตรงกับ "bob" ไหม ใบรับรองปลอมของ Eve เขียนชื่อ "bob" ถูกต้อง แต่ **ไม่มี CA เซ็นรับรอง** (เซ็นเอง) จึงไม่ผ่านข้อ (1) และ Alice ตัดการเชื่อมต่อ**ก่อนส่งความลับ** ผู้โจมตีและโค้ดของ Eve ไม่ได้เปลี่ยนเลย เปลี่ยนแค่ฝั่ง Alice
+In the second mode, Alice loads the **CA that we trust** (the lab's CA) and checks two things: (1) was the certificate signed by that CA? (2) does the name in the certificate match "bob"? Eve's fake certificate has the name "bob" written correctly, but **no CA signed it** (she signed it herself), so it fails check (1) and Alice cuts the connection **before sending the secret**. The attacker and Eve's code did not change at all. Only Alice's side changed.
 
-#### ขั้นที่ 5 — รัน Alice แบบตรวจ แล้วดูว่า Eve ได้อะไร
+#### Step 5 — Run Alice with checking, and see what Eve gets
 
-**ทำอะไร:** รัน Alice แบบตรวจ แล้วดู log ของ Eve
+**What to do:** Run Alice with checking, then look at Eve's log.
 
-**พิมพ์** ทีละบรรทัด:
+**Type** one line at a time:
 
 ```bash
 docker compose -f docker-compose.fixed.yml run --rm alice
 docker compose -f docker-compose.fixed.yml logs mitm
 ```
 
-**ควรเห็น:** ให้หาสามบรรทัดนี้ (และไม่มีบรรทัด `MITM INTERCEPTED`)
+**You should see:** Find these three lines. Eve's log also still shows the `MITM INTERCEPTED` line from Step 2 higher up (that is the old connection, so ignore it). The new connection must end with `intercepted NOTHING`:
 
 ```
 CERT VERIFICATION FAILED - ABORTING
@@ -201,33 +201,33 @@ ALICE: (reason: self-signed certificate)
 week12-mitm  | MITM: handshake aborted by client, intercepted NOTHING (SSLError)
 ```
 
-**แปลว่า:** Alice ปฏิเสธใบรับรองเพราะ **self-signed** (ไม่มี CA ที่เราเชื่อเซ็นให้) แม้ชื่อจะเป็น "bob" และ Eve ได้ **ไม่ได้อะไรเลย** (`intercepted NOTHING`)
+**Means:** Alice rejected the certificate because it is **self-signed** (no CA that we trust signed it), even though the name is "bob", and Eve got **nothing at all** (`intercepted NOTHING`).
 
-**✍️ ลงใบตอบ (ขั้นที่ 5):** คัดลอกสามบรรทัดข้างบนจากหน้าจอของตัวเอง
+**✍️ Write in the answer sheet (Step 5):** copy the three lines above from your own screen.
 
-#### ขั้นที่ 6 — ตอบคำถามสองข้อ
+#### Step 6 — Answer the two questions
 
-**ทำอะไร:** เติมคำในช่องว่างทั้งสองข้อ (คำใบ้: ขั้นที่ 4 และผลในขั้นที่ 5)
+**What to do:** Fill in the blanks in both items (hint: Step 4 and the result in Step 5).
 
-> a) ใบรับรองปลอมของ Eve ถูกปฏิเสธเพราะ ________ (เลือกคำ: `ชื่อไม่ตรง` / `ไม่มี CA ที่เราเชื่อเซ็นรับรอง`)
+> a) Eve's fake certificate was rejected because ________ (Choose: `the name does not match` / `no CA that we trust signed it`)
 >
-> b) Alice ตัดการเชื่อมต่อ ________ ส่งความลับ (เลือกคำ: `ก่อน` / `หลัง`) จึงไม่มีอะไรรั่ว
+> b) Alice cut the connection ________ sending the secret (Choose: `before` / `after`), so nothing leaked.
 
-**✍️ ลงใบตอบ (ขั้นที่ 6):** เขียนทั้งสองประโยคให้ครบ
+**✍️ Write in the answer sheet (Step 6):** write both sentences in full.
 
-### A3 — แก้โค้ดของ Alice เอง และทดสอบ (20 points)
+### A3 — Fix Alice's code yourself, and test it (20 points)
 
-#### ขั้นที่ 7 — ดูโค้ดที่ถูก
+#### Step 7 — Look at the right code
 
-**ทำอะไร:** ดูบรรทัดที่ทำให้ Alice แบบตรวจทำงานถูก ในไฟล์ `alice.py`
+**What to do:** Look at the lines that make the checking Alice work correctly, in the file `alice.py`.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose -f docker-compose.fixed.yml run --rm --entrypoint grep alice -n -A4 "FIXED: trust only" alice.py
 ```
 
-**ควรเห็น:**
+**You should see:**
 
 ```
 80:        # FIXED: trust only the demo CA, verify the chain and the hostname.
@@ -237,16 +237,16 @@ docker compose -f docker-compose.fixed.yml run --rm --entrypoint grep alice -n -
 84-        # verify_mode=CERT_REQUIRED; we keep both.
 ```
 
-**แปลว่า:** สองบรรทัดที่สำคัญ (81 และ 82) บรรทัดแรกหาไฟล์ CA ของ lab บรรทัดที่สองสร้างตัวตรวจใบรับรองที่เชื่อเฉพาะ CA นั้น ตรวจทั้งสายการรับรองและชื่อ ให้อัตโนมัติ
+**Means:** The two important lines are 81 and 82. The first finds the lab's CA file. The second builds a checker that trusts only that CA. It checks the chain of signatures and the name automatically.
 
-**✍️ ลงใบตอบ (ขั้นที่ 7):** คัดลอกบรรทัด `ca_path = ...` และ `ctx = ...` ที่ขึ้นบนจอ
+**✍️ Write in the answer sheet (Step 7):** copy the lines `ca_path = ...` and `ctx = ...` that show on your screen.
 
-#### ขั้นที่ 8 — แก้ `alice_student.py` เอง (3 บรรทัด)
+#### Step 8 — Fix `alice_student.py` yourself (3 lines)
 
-**ทำอะไร:** ไฟล์ `alice_student.py` เหมือน `alice.py` ทุกอย่างยกเว้นฟังก์ชัน `build_client_context()` ที่ยังไม่เสร็จ ให้เปิดไฟล์ด้วยโปรแกรมแก้ข้อความที่มี (Notepad, TextEdit, VS Code ก็ได้) แล้วทำตามนี้
+**What to do:** The file `alice_student.py` is the same as `alice.py` in everything except the function `build_client_context()`, which is not finished. Open the file with any text editor you have (Notepad, TextEdit or VS Code) and do this:
 
-1. หาฟังก์ชัน `def build_client_context()` และบรรทัด `raise NotImplementedError(` (กับอีกสองบรรทัดที่ต่อกันจนถึงเครื่องหมาย `)`) **ลบสามบรรทัดนั้นทิ้ง**
-2. พิมพ์สามบรรทัดนี้แทน โดยเยื้องเข้าไป **4 ช่องว่าง** (เท่ากับบรรทัด `# ====== YOUR TASK` ที่อยู่ด้านบน):
+1. Find the function `def build_client_context()` and the line `raise NotImplementedError(` (and the two lines that follow it, up to the `)` sign). **Delete those three lines.**
+2. Type these three lines in their place, indented **4 spaces** (the same as the line `# ====== YOUR TASK` above them):
 
 ```python
     ca_path = wait_for_ca_cert()
@@ -254,17 +254,17 @@ docker compose -f docker-compose.fixed.yml run --rm --entrypoint grep alice -n -
     return ctx
 ```
 
-3. บันทึกไฟล์ (Save)
+3. Save the file (Save)
 
-**แปลว่า:** `wait_for_ca_cert()` ให้ที่อยู่ไฟล์ CA ของ lab ส่วน `create_default_context(cafile=...)` สร้างตัวตรวจที่เชื่อ**เฉพาะ CA นั้น** และตรวจชื่อ `bob` ให้ด้วย ไม่ต้องเขียนการตรวจเอง
+**Means:** `wait_for_ca_cert()` gives the location of the lab's CA file, and `create_default_context(cafile=...)` builds a checker that trusts **only that CA** and also checks the name `bob`. You do not need to write the checking yourself.
 
-**✍️ ลงใบตอบ (ขั้นที่ 8):** วางฟังก์ชัน `build_client_context()` ทั้งฟังก์ชันที่คุณแก้แล้ว (สามบรรทัดข้างบนกับบรรทัดหัวฟังก์ชัน)
+**✍️ Write in the answer sheet (Step 8):** paste the whole `build_client_context()` function that you fixed (the three lines above and the function heading line).
 
-#### ขั้นที่ 9 — ทดสอบสองแบบ: ผู้แอบอ้าง และ Bob ตัวจริง
+#### Step 9 — Test in two ways: the impostor, and the real Bob
 
-**ทำอะไร:** ทดสอบ Alice ที่คุณแก้ กับ Eve (ต้องปฏิเสธ) แล้วกับ Bob ตัวจริง (ต้องรับ) ถ้า Alice ปฏิเสธทุกใบรับรอง ก็ผ่านการทดสอบแรกได้เหมือนกัน จึงต้องทดสอบกับ Bob ด้วย
+**What to do:** Test the Alice you fixed against Eve (she must reject) and then against the real Bob (she must accept). If Alice rejects every certificate, she also passes the first test, so you must test with Bob too.
 
-**พิมพ์** ทีละบรรทัด (**ต้องมี `--build`** ในบรรทัดแรก เพื่อให้ Docker เอาไฟล์ที่แก้ไปใช้):
+**Type** one line at a time (**you must have `--build`** in the first line, so that Docker uses the file you changed):
 
 ```bash
 docker compose -f docker-compose.student-task.yml run --rm --build alice
@@ -272,32 +272,32 @@ docker compose -f docker-compose.student-task.yml up -d bob
 docker compose -f docker-compose.student-task.yml run --rm --no-deps -e PEER_HOST=bob alice
 ```
 
-**ควรเห็น:** คำสั่งแรกขึ้นผลปฏิเสธ คำสั่งที่สามขึ้นผลสำเร็จ ให้หาบรรทัดเหล่านี้
+**You should see:** The first command shows a rejection and the third command shows success. Find these lines:
 
 ```
 CERT VERIFICATION FAILED - ABORTING
 ALICE: TLS handshake succeeded -- sending secret
 ```
 
-**แปลว่า:** กับ Eve (ใบรับรองปลอม) Alice ปฏิเสธ กับ Bob (ใบรับรองจริงที่ CA เซ็น) Alice ยอมรับและส่งความลับ ถ้าเห็น `Traceback` แทน แปลว่าโค้ดในขั้นที่ 8 ยังไม่ถูก ดูตารางข้อความผิดพลาดด้านบน
+**Means:** With Eve (the fake certificate), Alice rejects. With Bob (the real certificate signed by the CA), Alice accepts and sends the secret. If you see `Traceback` instead, the code in Step 8 is not right yet. Look at the error table above.
 
-**✍️ ลงใบตอบ (ขั้นที่ 9):** คัดลอกสองบรรทัดข้างบนจากหน้าจอของตัวเอง
+**✍️ Write in the answer sheet (Step 9):** copy the two lines above from your own screen.
 
-#### ขั้นที่ 10 — ทำไมต้องทดสอบทั้งสองแบบ
+#### Step 10 — Why test both ways?
 
-**ทำอะไร:** อ่านแล้วตอบ 1–2 ประโยค
+**What to do:** Read, then answer in 1–2 sentences.
 
-ผลทั้งสองแบบรวมกันพิสูจน์ว่า Alice ของเรา**รับคนที่ถูกต้อง** และ**ปฏิเสธผู้แอบอ้าง** แต่ข้อจำกัดที่เหลือคือ ถ้า CA ที่เราเชื่อไปเซ็นรับรองใบรับรองปลอมให้ (เพราะถูกแฮ็กหรือไม่ซื่อสัตย์) Alice ก็จะหลงเชื่อ lab นี้ไม่ได้ทดสอบกรณีนั้น
+The two results together prove that our Alice **accepts the right person** and **rejects the impostor**. But the limit that remains is this: if the CA that we trust signs a fake certificate (because it was hacked or is dishonest), Alice will believe it. This lab does not test that case.
 
-> ทำไมต้องทดสอบทั้งกับ Eve และกับ Bob ตัวจริง และ Alice ที่ตรวจใบรับรองยังพ่ายแพ้ได้ในกรณีไหน (คำใบ้: ขั้นที่ 9)
+> Why do we need to test both against Eve and against the real Bob, and in what case can an Alice who checks certificates still lose? (hint: Step 9)
 
-**✍️ ลงใบตอบ (ขั้นที่ 10):** เขียนคำตอบ
+**✍️ Write in the answer sheet (Step 10):** write your answer.
 
-#### ขั้นที่ 11 — ปิด lab และเช็กใบตอบ
+#### Step 11 — Shut down the lab and check your answer sheet
 
-**ทำอะไร:** ทำหลังจากคัดลอกผลครบแล้ว (สามคำสั่งนี้ลบ container และใบรับรองเดโมที่ค้างอยู่)
+**What to do:** Do this after you have copied all your results (these three commands remove the containers and the demo certificates that are left over).
 
-**พิมพ์** ทีละบรรทัด:
+**Type** one line at a time:
 
 ```bash
 docker compose -f docker-compose.vulnerable.yml down -v
@@ -305,7 +305,7 @@ docker compose -f docker-compose.fixed.yml down -v
 docker compose -f docker-compose.student-task.yml down -v
 ```
 
-**ควรเห็น:** บรรทัดลงท้ายว่า `Removed` จากนั้นดูว่าในใบตอบมีครบ: ขั้นที่ 2, 3 (A1), ขั้นที่ 5, 6 (A2), ขั้นที่ 7, 8, 9, 10 (A3) แล้วไปทำส่วนของแบบตัวเอง: เลขคี่ทำ Part 2 เลขคู่ทำ Part 3 และ Part 4 และอย่าลืมแนบลิงก์ commit ของ `alice_student.py` (ดู `SUBMISSION.md` หัวข้อ W12)
+**You should see:** Lines ending in `Removed`. Then check that your answer sheet has everything: Steps 2, 3 (A1), Steps 5, 6 (A2), Steps 7, 8, 9, 10 (A3). Then do your own form: odd IDs do Part 2; even IDs do Parts 3 and 4. And do not forget to attach the commit link of `alice_student.py` (see the W12 section of `SUBMISSION.md`)
 
 ---
 
@@ -319,30 +319,30 @@ docker compose -f docker-compose.student-task.yml down -v
 
 ## Part 2 — Conventional form (40 points; only if Conventional is your assigned form)
 
-ตอบข้อละ 2–3 ประโยค ภาษาไทยได้ ส่วนนี้ให้**ตอบด้วยตัวเอง** ไม่ใช้ AI ตอบ
+Answer each item in 2–3 sentences. You may answer in English or Thai. In this part **answer by yourself**, without using AI to answer.
 
-**Q1 (10). เข้ารหัสแล้ว แต่ Eve ยังอ่านได้.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+**Q1 (10). Encrypted, but Eve can still read it.** Answer all three of these (1–2 sentences each):
 
-- Alice บอกว่า TLS handshake สำเร็จ แปลว่าการเชื่อมต่อเข้ารหัสจริงไหม (คำใบ้: ขั้นที่ 2)
-- ถ้าเข้ารหัสจริง ทำไม Eve ยังอ่านความลับได้
-- "เข้ารหัส" กับ "คุยกับคนที่ถูกต้อง" ต่างกันอย่างไร
+- Alice says the TLS handshake succeeded. Does that mean the connection is really encrypted? (hint: Step 2)
+- If it is really encrypted, why can Eve still read the secret?
+- What is the difference between "encrypting" and "talking to the right person"?
 
-**Q2 (10). ใบรับรองและ CA.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+**Q2 (10). Certificates and CAs.** Answer all three of these (1–2 sentences each):
 
-- ใบรับรองของ Eve เขียนชื่อ "bob" ถูกต้อง ทำไมใครก็ทำใบรับรองแบบนั้นได้ (คำใบ้: ขั้นที่ 4)
-- CA เซ็นรับรองเพิ่มอะไรให้ใบรับรองของ Bob ตัวจริง (เทียบกับการที่หน่วยงานที่เราเชื่อรับรองบัตรประชาชน)
-- ทำไม Alice แบบตรวจจึงปฏิเสธ Eve ตั้งแต่ก่อนส่งความลับ (คำใบ้: ขั้นที่ 5 และ 6) และตรวจอะไรบ้างสองอย่าง
+- Eve's certificate has the name "bob" written correctly. Why can anyone make a certificate like that? (hint: Step 4)
+- What does a CA add when it signs the real Bob's certificate? (compare it with a trusted authority certifying an ID card)
+- Why did the checking Alice reject Eve before sending the secret? (hint: Steps 5 and 6) And what two things does she check?
 
-**Q3 (10). TLS กันคนกลางได้อย่างไร.** อธิบายหน้าที่สามอย่างของการจับมือ TLS และบอกว่าถ้าขาดอย่างใดอย่างหนึ่ง ผู้โจมตีทำอะไรได้: (ก) แลกกุญแจ (key exchange) (ข) พิสูจน์ตัวตนเซิร์ฟเวอร์ด้วยใบรับรอง (ค) เซิร์ฟเวอร์ลงลายเซ็นยืนยัน (`CertificateVerify`) ตอบข้อละ 1–2 ประโยค
+**Q3 (10). How does TLS stop a man in the middle?** Explain the three jobs of the TLS handshake and say what an attacker can do if any one of them is missing: (a) key exchange (b) proving the server's identity with a certificate (c) the server signing to confirm (`CertificateVerify`). Answer each in 1–2 sentences.
 
-**Q4 (10). Forward secrecy.** ตอบให้ครบสองอย่างนี้ (ข้อละ 2–3 ประโยค): forward secrecy คืออะไร (ใช้คำง่าย ๆ เช่น "ถ้ากุญแจระยะยาวรั่วในอนาคต ข้อมูลที่เคยแอบบันทึกไว้ในอดีตยังปลอดภัย") และการแลกกุญแจแบบ ephemeral (EC)DHE ใน TLS 1.3 ทำให้เป็นเช่นนั้นได้อย่างไร (กุญแจชั่วคราวถูกทิ้งทุกครั้ง)
+**Q4 (10). Forward secrecy.** Answer both of these (2–3 sentences each): what is forward secrecy (use simple words, for example "if the long-term key leaks in the future, data that someone secretly recorded in the past is still safe"), and how does ephemeral (EC)DHE key exchange in TLS 1.3 make that true (the temporary keys are thrown away every time).
 
 ### Going further (optional — no marks)
 
-- **Q5 — SSL → TLS.** ทำไมตระกูล SSL จึงล้มเหลว (จุดอ่อนด้านความปลอดภัยและการออกแบบ) และ TLS 1.3 แก้อย่างไร
-- **Q6 — 0-RTT.** ข้อดีด้านความเร็วและความเสี่ยง (ข้อมูลถูกส่งซ้ำ/replay ได้) ทำไมควรใช้กับงานที่ส่งซ้ำได้อย่างปลอดภัยเท่านั้น
-- **Q7 — Web PKI.** ความเสี่ยงของ CA ที่ถูกแฮ็ก และการป้องกัน: certificate pinning, การเพิกถอน (CRL / OCSP) และ Certificate Transparency
-- **Q8 — TLS กับ Noise.** เปรียบเทียบความยืดหยุ่นและความซับซ้อน และเมื่อใดที่ Noise เหมาะกว่า
+- **Q5 — SSL → TLS.** Why did the SSL family fail (weaknesses in security and in design), and how did TLS 1.3 fix them?
+- **Q6 — 0-RTT.** The speed benefit and the risk (data can be sent again / replayed). Why should it be used only for work that is safe to repeat?
+- **Q7 — Web PKI.** The risk of a hacked CA, and the protections: certificate pinning, revocation (CRL / OCSP) and Certificate Transparency
+- **Q8 — TLS and Noise.** Compare flexibility and complexity, and say when Noise is the better choice
 
 ---
 
@@ -350,7 +350,7 @@ docker compose -f docker-compose.student-task.yml down -v
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
-AI เขียนฟังก์ชันดึง JSON จาก API ภายในผ่าน HTTPS รันผ่านและดูเรียบร้อย แต่มี**บั๊กเดียวกับ Alice แบบไม่ตรวจ**
+The AI wrote a function that fetches JSON from an internal API over HTTPS. It runs and looks tidy, but it has **the same bug as the Alice who does not check**.
 
 > **AI's answer:**
 >
@@ -374,8 +374,8 @@ AI เขียนฟังก์ชันดึง JSON จาก API ภาย
 >
 > — end of AI answer —
 
-1. **Find what's wrong (10).** คัดลอกบรรทัดที่ผิด และอธิบาย 2–3 ประโยคว่าคนกลางทางทำอะไรได้ เหมือนที่ Eve ทำ (คำใบ้: ขั้นที่ 2)
-2. **Fix it (10).** แก้อย่างไรให้ตรวจได้โดยไม่ปิดการตรวจ (คำใบ้: บอกโค้ดให้เชื่อ **CA ภายใน**) และประโยคไหนของ AI "จริงแต่หลอก"
+1. **Find what's wrong (10).** Copy the wrong line, and explain in 2–3 sentences what someone in the middle of the path can do, like what Eve did (hint: Step 2)
+2. **Fix it (10).** How can it be fixed so that it checks without turning checking off? (hint: tell the code to trust the **internal CA**) And which sentence of the AI's is "true but misleading"?
 
 > Disclose any other AI use in the Part 1 table. This task counts toward the **Audit the AI** row.
 
@@ -383,16 +383,16 @@ AI เขียนฟังก์ชันดึง JSON จาก API ภาย
 
 ## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
-**A. Explain in Plain English (EiPE, 10).** เพื่อนถามว่า *"ใบรับรองของ Eve เขียนชื่อ 'bob' ถูก ทำไมคอมพิวเตอร์ไม่เชื่อ?"* อธิบาย 3–5 ประโยค **ไม่ใช้ศัพท์ยาก** (ใครก็ทำใบรับรองได้, CA ที่เราเชื่อเซ็นรับรองเพิ่มอะไร, เปรียบกับบัตรประชาชน) และปิดด้วยหนึ่งประโยคว่าถ้า CA ไม่ซื่อสัตย์จะเกิดอะไร
+**A. Explain in Plain English (EiPE, 10).** A friend asks, *"Eve's certificate has the name 'bob' written correctly. Why does the computer not trust it?"* Explain in 3–5 sentences, **without hard words** (anyone can make a certificate, what does a CA that we trust add by signing, compare it with an ID card), and finish with one sentence on what happens if a CA is not honest.
 
-**B. Prompt Problem (10).** ใช้ AI ตัวไหนก็ได้ แล้วทำตามนี้:
+**B. Prompt Problem (10).** Use any AI, and do this:
 
-1. เขียน prompt **หนึ่งอัน** ขอ HTTPS client ใน Python ที่ใช้ CA ภายในและต้านคนกลางทางได้
-2. คัดลอกคำตอบของ AI ลงใบตอบ
-3. ตรวจ: (ก) เปิดการตรวจใบรับรองไว้และโหลด CA ภายใน หรือใช้ทางลัด `verify=False` / `CERT_NONE` (ข) แยก "เข้ารหัส" กับ "ตรวจตัวตน" หรือสรุปแค่ว่า "ใช้ HTTPS จึงปลอดภัย" (ค) พูดอะไรผิดหรือแต่งเรื่องไหม
-4. ในตารางของใบตอบ ติ๊ก **ผ่าน / ไม่ผ่าน** ทีละข้อพร้อมเหตุผล 1 ประโยค แล้วจบด้วย 1 ประโยคว่า จะเชื่อคำตอบของ AI นี้ไหม เพราะอะไร
+1. Write **one** prompt asking for an HTTPS client in Python that uses an internal CA and resists a man in the middle.
+2. Copy the AI's answer into your answer sheet.
+3. Check: (a) does it keep certificate checking on and load the internal CA, or does it use the shortcut `verify=False` / `CERT_NONE`? (b) does it separate "encrypting" from "checking identity", or does it just conclude "we use HTTPS so it is secure"? (c) does it say anything wrong or make anything up?
+4. In the table in the answer sheet, tick **pass / fail** for each item with a 1-sentence reason, and finish with 1 sentence on whether you would trust this AI's answer, and why.
 
-ส่ง **prompt + คำตอบของ AI + ตารางตรวจพร้อมเหตุผลของตัวเอง**
+Submit your **prompt + the AI's answer + the check table with your own reasons**.
 
 ---
 
@@ -400,9 +400,9 @@ AI เขียนฟังก์ชันดึง JSON จาก API ภาย
 
 An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
-1. "ในขั้นที่ 2 Alice บอกว่า TLS สำเร็จและเข้ารหัสจริง แต่ Eve อ่านความลับได้ เป็นไปได้อย่างไร"
-2. "ในขั้นที่ 5 โค้ดของ Eve เหมือนเดิมทุกอย่าง อะไรบนฝั่ง Alice ที่เปลี่ยน และ Alice ปฏิเสธตอนไหน"
-3. "ใบรับรองปลอมเขียนชื่อ bob ถูกต้อง ทำไมยังถูกปฏิเสธ และอะไรที่ใบรับรองจริงมีแต่ใบรับรองปลอมไม่มี"
+1. "In Step 2 Alice says TLS succeeded and the data is really encrypted, but Eve can read the secret. How is that possible?"
+2. "In Step 5 Eve's code is exactly the same. What changed on Alice's side, and when did Alice reject?"
+3. "The fake certificate has the name bob written correctly. Why is it still rejected, and what does the real certificate have that the fake one does not?"
 
 ---
 
@@ -410,9 +410,9 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 | Criterion | Conventional | AIR-Sec |
 |---|---:|---:|
-| A1 — Alice ไม่ตรวจ Eve อ่านความลับ | 20 | 20 |
-| A2 — Alice ตรวจ Eve อ่านไม่ได้ | 20 | 20 |
-| A3 — แก้โค้ดเอง + ทดสอบ + reasoning | 20 | 20 |
+| A1 — Alice does not check, Eve reads the secret | 20 | 20 |
+| A2 — Alice checks, Eve cannot read it | 20 | 20 |
+| A3 — Fix the code yourself + test + reasoning | 20 | 20 |
 | Conventional written questions (Q1–Q4) | 40 | — |
 | AIR-Sec Audit the AI | — | 20 |
 | AIR-Sec Explain in Plain English (EiPE) | — | 10 |
@@ -421,8 +421,8 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 ## Evidence & Integrity (required)
 
-- ใส่ชื่อ รหัสนักศึกษา และวันที่ในใบตอบ และคัดลอกคำสั่งกับผลจากเครื่อง**ของตัวเอง** ข้อความลับเหมือนกันทุกคน (เป็นค่าคงที่ของ lab) สิ่งที่ทำให้งานเป็นของเรา คือผลที่คัดลอกจากเครื่องของเราเองและโค้ดที่เราแก้เอง ห้ามเอาผลของเพื่อนมาส่งเป็นของตัวเอง
-- **ลิงก์ commit ของ `alice_student.py` ใน GitHub (บังคับ ไม่มีคะแนนแยก):** ทำตามหัวข้อ W12 ใน `SUBMISSION.md` แล้ววางลิงก์ไว้ในใบตอบ
-- **อธิบายด้วยคำของตัวเอง** (ให้คะแนนจากเหตุผล): ข้อที่ให้เติมคำจากคลังคำ (ขั้นที่ 3, 6) ใช้คำที่ให้ไว้ได้ ส่วนคำตอบสั้น ๆ ของขั้นที่ 10 และข้อเขียนของฟอร์มตัวเองต้องเขียนด้วยคำของตัวเอง (ทำไม Eve อ่านความลับได้ทั้งที่เข้ารหัสจริง และทำไมการตรวจใบรับรองกันได้) ไม่ต้องเขียนเพิ่มนอกจากนี้
+- Put your name, student ID and date in the answer sheet, and copy the commands and results from **your own** computer. The secret message is the same for everyone (it is a fixed value of the lab). What makes the work yours is the results copied from your own computer and the code you fixed yourself. Do not submit a friend's results as your own.
+- **The commit link of `alice_student.py` on GitHub (required, no separate marks):** follow the W12 section of `SUBMISSION.md`, then paste the link in the answer sheet.
+- **Explain in your own words** (marks are given for the reasoning): for the fill-in-the-blank items that give you a word bank (Steps 3, 6) you may use the words given. The short answer in Step 10 and the written part of your own form must be in your own words (why Eve can read the secret even though the connection is really encrypted, and why checking the certificate stops it). You do not need to write anything more than that.
 
-**กำหนดส่งและการส่งช้า:** ส่งภายใน 23:59 น. (เวลาไทย) ของ **อาทิตย์ 24 ม.ค. 2027** (กฎ KOSEN: ก่อนคาบถัดไป) ส่งช้าหักวันละ 10% ของคะแนนใบงานนี้ (ไม่เต็มวันนับเป็นหนึ่งวัน) จนเหลือ 0 การอัปโหลดหรือเปลี่ยนไฟล์หลังกำหนดส่งนับว่าส่งช้าทั้งชิ้น ส่งงานร่วม 60 คะแนน และแบบของตัวเอง**หนึ่งแบบ**เท่านั้น ทำทั้งสองแบบไม่ได้คะแนนเพิ่ม Viva ใช้ตรวจความเข้าใจ ไม่มีคะแนนแยก
+**Deadline and late submission:** Submit by 23:59 (Thai time) on **Sunday 24 Jan 2027** (KOSEN rule: before the next class). A late submission loses 10% of this worksheet's marks for each day late (a part day counts as a day), down to 0. Uploading or replacing a file after the deadline counts the whole submission as late. Submit the common 60 marks and **one** form of your own only; doing both forms gives no extra marks. The viva checks your understanding and has no separate marks.
