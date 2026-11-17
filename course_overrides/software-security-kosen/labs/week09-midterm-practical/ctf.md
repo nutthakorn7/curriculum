@@ -1,51 +1,99 @@
-# Midterm individual practical — current KOSEN assessment
+# Week 9 midterm practical — what you will do
 
-**02005094 · Week 9 · 150-minute slot: briefing 10 + bounded tasks 130 + submission 10.**
+**02005094 · Week 9 · individual work · 150 minutes:** 10 minutes briefing, 130 minutes on the four stations, 10 minutes to check your upload.
 
-**Raw 100 · Basic 50 / Technical 50 · course contribution 12%. Individual.** Only the four stations below are required. Course marks use the fixed rubric, independent of CTFd dynamic scores, first-blood, prizes or House XP. A flag alone does not demonstrate correction and cannot earn full academic marks.
+**Points:** four stations × 25 points = 100 points, which count as 12% of your course grade. Only the four stations below are marked. Leaderboards, "first blood", prizes and House XP give no course marks. A flag on its own cannot earn full marks: you also need your own fix, your test results and your explanation.
 
-![Four fixed stations, 130 task minutes, raw 100; flags and engagement scores do not replace evidence.](img/ctf-categories.svg)
+![Four stations: A threat model and scanner triage, 35 min, 25 points; B password migration, 35 min, 25 points; C injection fix, 30 min, 25 points; D login token and ownership, 30 min, 25 points.](img/ctf-categories.svg)
 
-The instructor supplies a preflighted local examination pack with the selected starters, data and dependency/runtime instructions. Public weekly labs are practice, not personalized examination evidence; fresh exam flags/instances are not claimed to be deployed. If a supplied hosted instance is used, its proof must come from the assigned instance, but the correction and control evidence below still applies. Never attack an external system.
+**On the day:** your instructor hands out a small exam pack with the starter files and tells you how to run them. Work only on the files in that pack, on your own machine. Never attack any other system. You do not need a CTF account, and there are no personal flags. If your instructor does give you a hosted practice server, use only the one assigned to you.
 
-## Station A — Threat model and scanner triage: 25 raw points, 35 minutes
+## Words you will see
 
-**Scope:** W1/W2.
+| Word | Meaning |
+| --- | --- |
+| **Point (raw point)** | A mark on this practical, out of 100. |
+| **Positive test** | A normal, allowed request that must still work after your fix (for example, the owner reading their own order). |
+| **Negative test** | A bad or attacking request that your fix must refuse (for example, another user reading that order). |
+| **False positive** | A scanner warning that turns out not to be a real problem. |
+| **Parameterized SQL** | Sending user input to the database as a separate value (`?`), never pasted into the SQL text. |
+| **argv list** | Running a program as a list such as `["ping", "-c", "1", host]`, so no shell reads the input. |
+| **JWT** | A signed login token. **sub** = which user, **aud** = which app it is for, **exp** = when it expires. |
+| **Pinned algorithm** | The server accepts only the one signing method it expects (here HS256), and refuses unsigned tokens. |
 
-Read the supplied browser/application/database scenario and two scanner findings. Mark the boundary and prioritize the real issue versus the false positive. Identify a tool-error output as an unsuccessful scan. Propose the specific control and one legitimate plus one negative validation case.
+## Station A — Threat model and scanner triage: 25 points, 35 minutes
 
-**Submit:** DFD/triage sheet; observed scan status; corrected code/design and both control expectations.
+**Revise:** Weeks 1 and 2.
 
-## Station B — Password record migration: 25 raw points, 35 minutes
+You get a short description of an app (browser → server → database) and some scanner results.
 
-**Scope:** W3.
+1. Draw the data flow and mark where the trust boundaries are.
+2. Decide which finding is a real problem and which is a false positive.
+3. One scan failed with a tool error. Say clearly that this scan did not succeed; it is not a clean result.
+4. Propose the fix, plus one positive test and one negative test for it.
 
-In the supplied migrate.py starter, complete the successful-login rehash update. Demonstrate wrong-password denial without a record change; successful migration to Argon2id; next correct login still succeeds. Explain why you cannot bulk-upgrade a hash without a password.
+**Hand in:** your diagram and triage notes, what the failed scan showed, your fix (code or design) and both tests.
 
-**Submit:** Student diff and three observed state/verification checks.
+## Station B — Moving old password records: 25 points, 35 minutes
 
-## Station C — Injection control: 25 raw points, 30 minutes
+**Revise:** Week 3.
 
-**Scope:** W4.
+You get a starter file, `migrate.py`. When a user logs in with the correct password, replace their old hash with an Argon2id hash. Show three results:
 
-Complete the provided parameterized SQL and validated IPv4 argv functions. Keep one ordinary lookup/IPv4 case working; reject an injection string and a shell-metacharacter host without executing a shell.
+1. A wrong password is refused, and the stored record does not change.
+2. A correct password logs in, and the record is now Argon2id.
+3. The next login with the same password still works.
 
-**Submit:** Student patch and observed positive/negative test outputs.
+Then explain in one or two sentences why you cannot upgrade every old hash at once without the users' passwords.
 
-## Station D — Authenticated object ownership: 25 raw points, 30 minutes
+**Hand in:** your change (diff) and the three results you saw.
 
-**Scope:** W6.
+## Station C — Stop injection: 25 points, 30 minutes
 
-Complete pinned JWT verification with required sub/aud/exp and a server-side order ownership decision. Demonstrate owner success, cross-user denial and malformed/unsigned token denial.
+**Revise:** Week 4.
 
-**Submit:** Student patch and observed owner/forgery/access-control tests.
+Finish the two functions in the starter: a login query that uses parameterized SQL, and a ping helper that checks the address is one real IPv4 address and returns an argv list. Show:
 
-## Fixed marking and conversion
+- a normal login and a normal IPv4 address such as `127.0.0.1` still work (positive tests);
+- an SQL injection string does not log in, and a host containing shell characters such as `;` or `|` is refused without running a shell (negative tests).
 
-Each station: **Basic 12.5** = correct observation/root cause 5 + mechanism/boundary reasoning 5 + evidence interpretation/limits 2.5; **Technical 12.5** = student-authored correction 5 + legitimate/negative controls 5 + reproducible execution evidence 2.5. Four stations give Basic 50+Technical 50=raw 100. Course contribution = Basic raw/50×6 + Technical raw/50×6 = at most 12. Partial credit follows demonstrated criteria; a flag or copied reference patch alone is insufficient.
+**Hand in:** your change and the test output you saw.
 
-## Submission
+## Station D — Check the token and who owns the object: 25 points, 30 minutes
 
-Submit one evidence bundle per student (midterm) or existing team (final): station ID, changed source/diff, exact command, observed result, legitimate positive control, negative control, mechanism and remaining limits. Upload to the assignment your instructor announces for the exam. Use the final 10 minutes to check that your upload worked; no extra task work is scheduled then.
+**Revise:** Week 6.
 
-The complete earlier challenge sheet remains archived in the course source for optional practice. Its old challenge count, hash-cracking/ECB tasks, raw totals and flag-only submission rule are superseded for this KOSEN sitting.
+Finish the starter so the server checks the JWT properly (pinned algorithm, and **sub**, **aud** and **exp** are all required), then checks on the server that the order belongs to the logged-in user. Show:
+
+- the owner can read their own order (positive test);
+- another user cannot read it (negative test);
+- a broken or unsigned token is refused (negative test).
+
+**Hand in:** your change and the test output you saw.
+
+## How each station is marked
+
+Each station has **25 points**, split in two halves:
+
+| Half | Points | What earns them |
+| --- | ---: | --- |
+| **Basic** | 12.5 | Correct finding or root cause 5 · explaining how it works and where the boundary is 5 · reading your results and stating their limits 2.5 |
+| **Technical** | 12.5 | Your own fix 5 · positive and negative tests 5 · results someone else could repeat 2.5 |
+
+Four stations give Basic 50 + Technical 50 = 100 points. Your course mark is (Basic ÷ 50 × 6) + (Technical ÷ 50 × 6), so at most 12. You get partial marks for each part you show. A flag, or a copied reference fix, is not enough on its own.
+
+## What to hand in
+
+Upload **one evidence file per student** to the assignment your instructor announces for the exam. For each station include:
+
+- the station letter (A, B, C or D)
+- the file you changed, or a diff
+- the exact command you ran
+- what you saw when you ran it
+- one positive test and one negative test
+- why the problem happened and why your fix works
+- one limit of your test (something it does not prove)
+
+Use the final 10 minutes only to check that your upload worked and can be opened. There is no extra task time.
+
+The older challenge sheet from earlier versions of this course (hash cracking, ECB, flag-only scoring) is not part of this exam.
