@@ -14,8 +14,8 @@ FIXED (PAKE=1): the client
     2. derives verifier = KDF(salt, password) LOCALLY (password never leaves)
     3. computes proof = HMAC(verifier, nonce)
     4. POST /login {username, nonce, proof}
-The password is never put into any request. The client proves it KNOWS the
-password without transmitting it.
+The password is never put into any fixed-mode login request. The client shows
+possession of the password-derived verifier without transmitting the password.
 
 HONEST SCOPE: this fixed flow demonstrates only "password never transmitted".
 It is not a full PAKE (no offline-dictionary resistance on the stored
@@ -34,7 +34,7 @@ PAKE = os.environ.get("PAKE", "").strip() == "1"
 SERVER_HOST = os.environ.get("SERVER_HOST", "server")
 SERVER_PORT = int(os.environ.get("SERVER_PORT", "8080"))
 USERNAME = os.environ.get("USERNAME", "alice")
-PASSWORD = os.environ.get("PASSWORD", "correct-horse-battery")
+PASSWORD = os.environ["PASSWORD"]
 
 BASE = f"http://{SERVER_HOST}:{SERVER_PORT}"
 CONNECT_RETRIES = 30
@@ -102,8 +102,8 @@ def run_fixed() -> None:
     #    this machine -- it is never placed in any request.
     verifier = derive_verifier(salt, PASSWORD.encode())
 
-    # 3. Prove knowledge of the password by HMAC-ing the nonce under the
-    #    verifier. Only the nonce and this proof ever go on the wire.
+    # 3. Show possession of the verifier by HMAC-ing the nonce under it.
+    #    Only the nonce and this proof go in the login request.
     proof = compute_proof(verifier, nonce)
 
     status, body = _post_json(

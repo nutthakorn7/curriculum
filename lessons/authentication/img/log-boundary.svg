@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 530" role="img"
-     aria-label="Two lanes read top to bottom, each showing a client on the left, a server in the middle, and a log reader on the right. Top lane, vulnerable mode with PAKE unset: the client sends its actual password to the server, which receives it and prints it verbatim to the server's own log, so the log reader on the right recovers the password in full and gains a standing, reusable credential. Bottom lane, fixed mode with PAKE equals 1: the server first issues the client a fresh single-use nonce, the client locally derives a verifier by hashing the salt and password together and computes a proof by keying an HMAC with that verifier over the nonce, so the password itself never leaves the client, the server then verifies and logs only the nonce and the proof, and the same log reader who succeeded in the top lane now recovers nothing usable, because the logged proof is a one-way function of a password that was never transmitted; a dashed orange warning box at the bottom flags the one gap this simplified demo does not close, that a leaked copy of the server's stored verifier would be password-equivalent here, which is exactly what a real PAKE such as SRP or OPAQUE additionally protects against.">
+     aria-label="Two lanes read top to bottom, each showing a client on the left, a server in the middle, and a log reader on the right. Top lane, vulnerable mode with PAKE unset: the client sends its actual password to the server, which receives it and prints it verbatim to the server's own log, so the log reader on the right recovers the password in full and gains a standing, reusable credential. Bottom lane, fixed mode with PAKE equals 1: the server first issues the client a fresh single-use nonce, the client locally derives a verifier by hashing the salt and password together and computes a proof by keying an HMAC with that verifier over the nonce, so the password itself never leaves the client, the server then verifies and logs only the nonce and the proof, and a captured proof cannot simply be replayed after its single-use challenge is consumed; however, a log reader who knows the salt can still test password guesses offline; a dashed orange warning box at the bottom flags the one gap this simplified demo does not close, that a leaked copy of the server's stored verifier would be password-equivalent here, while real PAKE security must distinguish transcript guessing from credential-file and full-server compromise.">
   <title>Plain password vs. challenge-response: what ends up in the server's log</title>
   <style>
     .z    { fill: none; stroke: #b9b4aa; stroke-dasharray: 6 4 }
@@ -91,11 +91,11 @@
 
   <rect class="bsafe" x="800" y="318" width="160" height="64"/>
   <text class="bl" x="880" y="344">Log reader</text>
-  <text class="bls" x="880" y="362">no password recoverable</text>
+  <text class="bls" x="880" y="362">no plaintext password</text>
 
   <text class="logline ok" x="500" y="415">SERVER SAW: nonce=327decae... proof=40e70117...</text>
 
   <rect class="warnbox" x="40" y="440" width="920" height="65"/>
   <text class="warntext" x="500" y="462">⚠ not shown here: a leaked copy of the server's stored verifier is password-equivalent in THIS simplified demo —</text>
-  <text class="warntext" x="500" y="480">a real PAKE (SRP/OPAQUE) adds offline-dictionary resistance so a leaked verifier alone isn't enough. (Worksheet Q4)</text>
+  <text class="warntext" x="500" y="480">PAKE transcript security is not immunity to server compromise; OPAQUE prevents pre-computation. (Q4)</text>
 </svg>
