@@ -6,7 +6,7 @@
 
 Name: __________________ Student ID: ______________ Date: ___________
 
-This public specimen fixes scope and workload. The instructor uses a separate prepared sitting variant. Answer only the ten questions below. Each is 10 raw points, with a suggested 12 minutes (120 minutes total), then use 10 minutes to review within the 130-minute working window. Administrative time is not additional task time. Use your own explanation and the provided sandbox/code only; permitted aids follow the published sitting notice. Precise mechanisms and tested-design reasoning matter more than memorized catalogue IDs.
+This public specimen fixes scope and workload. The real exam paper is different and is handed out at the exam. Answer only the ten questions below. Each is 10 raw points, with a suggested 12 minutes (120 minutes total), then use 10 minutes to review within the 130-minute working window. Administrative time is not additional task time. This is a paper exam: write your answers in your own words on the paper, with no computer. Permitted aids will be in the official exam notice. Precise mechanisms and tested-design reasoning matter more than memorized catalogue IDs.
 
 ![Current examination blueprint: 150-minute slot, 130 working minutes, Basic 50 Technical 50.](img/exam-blueprint.svg)
 
