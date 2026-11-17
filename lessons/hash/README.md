@@ -67,7 +67,7 @@ Both apps expose the same endpoints:
 attacks. The admin's password (`sunshine2021`) is a weak, in-wordlist password, so a *slow
 per-hash bcrypt dictionary* would still recover it — just at orders of magnitude higher cost per
 guess. bcrypt buys you **work factor**, not invincibility; pair it with a strong-password policy.
-This is exactly the cost/work-factor argument in worksheet Q3.
+This is exactly the cost/work-factor argument in worksheet Q4.
 
 ## Run it
 
