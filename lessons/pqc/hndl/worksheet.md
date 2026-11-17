@@ -1,5 +1,7 @@
 # Worksheet 15b — Harvest Now, Decrypt Later + Hybrid KEM
 
+> **Optional extension:** complete after the required Lamport core if you choose. This companion adds **0 additional points**, does not change the required W15 worksheet or course weights, and is not a prerequisite for full marks. Its questions and practice rubric are retained for feedback only; no personalized flag is required if that service is not provisioned.
+
 > **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }} (PQC), confidentiality companion**
 > **Topic:** The quantum threat to *key exchange*: harvest-now-decrypt-later, and hybrid
 > (classical + ML-KEM) key encapsulation as the deployable mitigation. (Written fresh for this
@@ -54,16 +56,18 @@ practices that make a protocol crypto-agile.
 
 **Learning goals:** *experience* harvest-now-decrypt-later by doing it, then see a hybrid KEM
 defeat the identical attack. The practical twin of Part 2's Q1–Q4.
-**Prerequisites:** Docker; Python with `requests` on the host (or the course toolbox) to run
+**Prerequisites:** Docker; Python with the packages in `requirements.txt` on the host to run
 `exploit.py`.
 
 **Environment setup**
 ```bash
 cd {{ labpath }}/hndl
 docker compose up -d          # vulnerable :8120, fixed :8121
+python -m pip install -r requirements.txt  # once in your local Python environment
 curl localhost:8120/          # confirm it's up
 curl -s localhost:8120/capture   # this is the "harvested" transcript — inspect its fields
 ```
+On Windows, use `py` instead of `python`; on Mac, use `python3`.
 
 **Task 0 — See what a passive eavesdropper gets (15 min).** *Goal:* understand the capture.
 *Steps:* read `vulnerable_app.py`'s `_make_capture` and the `/capture` route. *Deliverable:* list
@@ -102,27 +106,21 @@ given ML-KEM exists. *Deliverable:* 3 short paragraphs, one per sub-question.
 
 ---
 
-## Evidence & Integrity (required)
+## Evidence & Integrity (if you choose this optional extension)
 
-- **Identity proof:** your terminal evidence for Tasks 1–3 must show a terminal running
-  `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in the same image as the evidence**. When the evidence is a browser page, a
-  DevTools panel or a rendered response, put that terminal **beside the browser and capture the
-  whole screen** — a cropped window carries nothing that identifies you, and the lab's own
-  output is byte-identical for the whole cohort *by design*, so the stamp is the only thing
-  that makes the shot yours.
-- **Personalized flag:** ____________________
-  *Flags are unique per student (via the `FLAG_HNDL` env override — see README) — submitting
-  another student's flag is a violation.*
-- **Explain in your own words** *(graded on your reasoning, not copied text):*
+- **Attribution if you share optional results:** add your name/student ID and your own commands, observations and explanation. A screenshot or annotated transcript is enough; the shared flag alone does not identify a student. A terminal stamp is optional.
+- **Optional observed flag:** ____________________
+  This optional extension adds no points. Record your own evidence if you run it; a personalized flag is not required when the service is not provisioned.
+- **Explain in your own words** *(for feedback, not extra points):*
   1. What did you do, and **why did the decryption work** on `:8120`?
   2. **Why does the hybrid KEM stop it** on `:8121`? What exactly is the attacker missing, and why
      can't they get it from the capture?
 
 ---
 
-## 🤖 Audit the AI (required)
+## 🤖 Audit the AI (optional practice)
 
-AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's advice.
+AI is a power tool you must **distrust** — use this optional critique for feedback, not extra points.
 
 A teammate asked an AI assistant: *"Our service uses RSA-2048 for key exchange. How do we make it
 safe against future quantum computers?"* The AI replied:
@@ -150,11 +148,11 @@ safe against future quantum computers?"* The AI replied:
    migration path today. Two short paragraphs.
 
 > Disclose your AI use (if any, beyond this provided artifact) in the Part 1 table. This task
-> counts toward the **Audit the AI** row of the grading rubric.
+> is optional feedback practice; it does not add to or replace Week 15's assigned 40-point section.
 
 ---
 
-## 🧠 Comprehension & Prompt (required)
+## 🧠 Comprehension & Prompt (optional practice)
 
 **A. Explain in Plain English (EiPE).** Explain to a non-technical manager — who knows "we encrypt
 our traffic" — **why data your company sends encrypted today could still be exposed in ten years**,

@@ -3,7 +3,8 @@
 Hash-based signatures (Lamport, and by extension SPHINCS+) are one of the four PQC families:
 they rely ONLY on the (quantum-resistant) one-wayness of a hash, not on factoring/discrete-log,
 so Shor's algorithm does not break them. But a Lamport keypair is a ONE-TIME signature (OTS):
-it is provably secure if and only if the key signs exactly ONE message. This app violates that
+its standard security guarantee assumes ONE signed message. Repeating an identical deterministic
+signature reveals no new preimages, but signing different messages can. This app violates that
 rule -- it holds ONE fixed Lamport keypair and REUSES it on every /sign call (the bug).
 
 Lamport OTS over an N-bit message (this lab signs the message DIRECTLY -- no hashing of the
@@ -127,7 +128,9 @@ def pubkey():
 
 @app.route("/sign", methods=["POST"])
 def sign_endpoint():
-    body = request.get_json(silent=True) or {}
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        return jsonify({"error": "JSON object required"}), 400
     message_hex = body.get("message_hex", "")
     try:
         message = int(message_hex, 16)
@@ -148,7 +151,9 @@ def sign_endpoint():
 
 @app.route("/verify", methods=["POST"])
 def verify_endpoint():
-    body = request.get_json(silent=True) or {}
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        return jsonify({"error": "JSON object required"}), 400
     message_hex = body.get("message_hex", "")
     sig = body.get("sig")
     try:
@@ -160,7 +165,9 @@ def verify_endpoint():
 
 @app.route("/admin", methods=["POST"])
 def admin():
-    body = request.get_json(silent=True) or {}
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        return jsonify({"error": "JSON object required"}), 400
     sig = body.get("sig")
     # A valid Lamport signature on the fixed admin message == proof the caller holds the key.
     if verify(ADMIN_MESSAGE, sig):
