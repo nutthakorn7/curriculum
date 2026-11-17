@@ -3,7 +3,7 @@ services:
     image: python:3.12-slim
     working_dir: /lab
     ports:
-      - "8100:8100"
+      - "127.0.0.1:8100:8100"
     volumes:
       - ./:/lab
     # The student packet uses the shared placeholder flag. LAMPORT_SEED is only for
@@ -20,7 +20,7 @@ services:
     image: python:3.12-slim
     working_dir: /lab
     ports:
-      - "8101:8101"
+      - "127.0.0.1:8101:8101"
     volumes:
       - ./:/lab
     environment:
