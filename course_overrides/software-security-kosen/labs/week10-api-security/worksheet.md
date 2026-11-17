@@ -94,7 +94,7 @@ You should see `Week 10 INSECURE API — see attack.md` from 8080 and `Week 10 S
   curl http://localhost:8080/api/users/3/orders
   curl http://localhost:8080/api/users/2/orders
   ```
-  You should see carol's `Server rack` order plus an item `FLAG{bola_demo}`, then bob's order `[{"item":"Mouse","order_id":"B-1","total":15}]`. You never logged in. The demo flag is the same for everyone: paste it in the Task 1 box as evidence; nothing is submitted on ctf.zcr.ai.
+  You should see carol's `Server rack` order plus an item holding a demo `FLAG{...}`, then bob's order `[{"item":"Mouse","order_id":"B-1","total":15}]`. You never logged in. The demo flag is the same for everyone: paste it in the Task 1 box as evidence; nothing is submitted on ctf.zcr.ai.
 - Now try the same idea on the secure API, three ways:
   ```bash
   curl -i http://localhost:8081/api/users/3/orders
@@ -111,7 +111,7 @@ You should see `Week 10 INSECURE API — see attack.md` from 8080 and `Week 10 S
   curl -X POST http://localhost:8080/api/users -H "Content-Type: application/json" -d '{"username":"mallory","password":"x","is_admin":true,"balance":1000000}'
   curl -X POST http://localhost:8081/api/users -H "Content-Type: application/json" -d '{"username":"mallory","password":"x","is_admin":true,"balance":1000000}'
   ```
-  From 8080 you should see `"is_admin":true`, `"balance":1000000` and `"flag":"FLAG{massassign_demo}"` (demo flag, same for everyone). From 8081 you should see `"is_admin":false` and `"balance":0`: the extra fields were ignored.
+  From 8080 you should see `"is_admin":true`, `"balance":1000000` and a `"flag"` field holding a demo `FLAG{...}` (the same for everyone). From 8081 you should see `"is_admin":false` and `"balance":0`: the extra fields were ignored.
 - *Deliverable:* both responses side by side + a note mapping this to API3 (allow-list).
 
 **Task 3 — No rate limit: guess passwords (API4).**
@@ -179,7 +179,7 @@ Submit your code link: commit `student_task.py` to branch `wk10` in your own for
   cropped window carries nothing that identifies you, and the lab's own output is
   byte-identical for the whole cohort *by design*, so the stamp is the only thing that makes
   the shot yours. Generic or borrowed evidence is not accepted.
-- **Flags this week:** the local lab prints the same demo flags for everyone (`FLAG{bola_demo}` in Task 1, `FLAG{massassign_demo}` in Task 2). They are the expected evidence: paste them in those boxes with your stamped screenshots, and leave the "Personalized flag" field blank. Nothing is submitted on ctf.zcr.ai. Submit the worksheet PDF at **learn.zcr.ai/submit** (full guide: [SUBMISSION.md](../../SUBMISSION.md)).
+- **Flags this week:** the local lab prints the same demo `FLAG{...}` values for everyone (one in Task 1, one in Task 2). They are the expected evidence: paste them in those boxes with your stamped screenshots, and leave the "Personalized flag" field blank. Nothing is submitted on ctf.zcr.ai. Submit the worksheet PDF at **learn.zcr.ai/submit** (full guide: [SUBMISSION.md](../../SUBMISSION.md)).
 - **Common practical reasoning** *(graded within the common 60, not as another EiPE score):*
   1. What did you do, and **why did the vulnerability work**?
   2. **Why does your fix actually stop it** — and what could still break it?

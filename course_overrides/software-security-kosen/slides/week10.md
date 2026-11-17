@@ -258,5 +258,5 @@ Next week: Memory-safety & exploitation
 - **This week odd ID = Conventional** (Part 2 + Part 4, 40) · **even ID = AIR-Sec** (Audit-the-AI 20 + EiPE 10 + Prompt 10)
 - **Code link:** commit `student_task.py` to branch `wk10` in your fork
 - **Due:** Monday 11 January 2027, 23:59 · worksheet PDF to learn.zcr.ai/submit
-- The demo flags (`FLAG{bola_demo}`, `FLAG{massassign_demo}`) are the same for everyone: paste them as evidence; nothing goes to ctf.zcr.ai
+- The demo `FLAG{...}` values are the same for everyone: paste them as evidence; nothing goes to ctf.zcr.ai
 - `X-User-Id` is a teaching stand-in for identity, not real authentication
