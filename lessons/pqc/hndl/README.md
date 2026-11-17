@@ -9,14 +9,13 @@ crypto-agility · **Analogous CWE:** CWE-327 (Use of a Broken or Risky Cryptogra
 
 > **Companion to** the Lamport OTS lab in `../` (the parent `{{ labname }}/` directory). That lab is
 > the *signature* half of PQC; this one is the *confidentiality* half — the part the {{ slot_label }}
-> "quantum readiness" picture puts at its centre (hybrid mode, harvest-now-decrypt-later). Run
-> either or both.
+> "quantum readiness" picture puts at its centre (hybrid mode, harvest-now-decrypt-later). Complete the Lamport core first; this companion is optional.
 
 ## This week — what to do
 
 1. **Before class** — Docker Desktop working; skim {{ ref('key-exchanges') }} (Key Exchanges) and {{ ref('secure-transport') }} (TLS) —
    this lab is the "what happens to those key exchanges under quantum" sequel.
-2. **Lecture (part of the 120-min PQC block)** — why Shor breaks RSA/ECC key exchange outright;
+2. **Optional concept extension outside the 100-minute Week 15 core** — why Shor breaks RSA/ECC key exchange outright;
    "harvest now, decrypt later" and why it makes migration urgent *today*; ML-KEM (Kyber) as the
    NIST KEM; **hybrid mode** (deploy classical + PQC together so breaking one is not enough);
    crypto-agility as the real engineering lesson.
@@ -44,12 +43,14 @@ crypto-agility · **Analogous CWE:** CWE-327 (Use of a Broken or Risky Cryptogra
 
 ```bash
 cd {{ labpath }}/hndl
-docker compose up          # vulnerable :8120 · fixed :8121
+docker compose up -d       # vulnerable :8120 · fixed :8121; first run installs dependencies
+python -m pip install -r requirements.txt  # once in your local Python environment
 ```
-Then, from another shell (or the course toolbox), harvest + break:
+Wait until `http://localhost:8120/` and `http://localhost:8121/` respond. Then harvest + break:
 ```bash
 python exploit.py          # attacks :8120 (recovers the flag), then shows :8121 resists
 ```
+On Windows, use `py` instead of `python`; on Mac, use `python3`. Stop the optional stack with `docker compose down` when finished. The local flag is a shared placeholder; the downloadable packet does not contain an instructor seed script.
 
 ## The game — "Harvest Now, Decrypt Later"
 

@@ -3,27 +3,42 @@
 **Topic:** Post-quantum cryptography (PQC) — the quantum threat, the four PQC families, and
 hash-based signatures · **Kind:** LAB
 **Concepts:** Shor vs. Grover, harvest-now-decrypt-later, crypto-agility, Lamport OTS, one-time
-keys, hash-based signatures (SPHINCS+/XMSS) · **Analogous CWE:** CWE-323 (Reusing a Nonce/Key
-Pair in Encryption), CWE-347 (Improper Verification of Cryptographic Signature)
+keys, hash-based signatures (SPHINCS+/XMSS) · **Weakness:** one-time signing-key reuse.
+> **CWE precision:** CWE-323 names nonce/key-pair reuse *in encryption* and is only an analogy here; CWE-347 does not describe this lab because signature verification itself works correctly.
 
 > **Companion confidentiality lab:** [`hndl/`](hndl/) — "Harvest Now, Decrypt Later" + hybrid KEM.
 > This directory is the *signature* half of PQC; `hndl/` is the *key-exchange/confidentiality* half
 > (harvest a session, break its classical KEM later, decrypt it; watch a hybrid classical+ML-KEM
-> channel resist the same attack). Run either or both.
+> channel resist the same attack). **Lamport is the required core; HNDL is optional, adds 0 points and does not replace Lamport.**
+
+## 100-minute class and assigned worksheet version
+
+**In class:** 10 min Week 14 retrieval quiz/review + 10 min brief explanation + 70 min guided practice + 10 min evidence review/exit = 100 min. The scored Week 15 quiz opens in Week 16.
+
+**Shared core — every student:** Collect fresh Lamport signatures in class, assemble the forgery, test it, compare the one-time-enforcement control and explain the confidentiality/signature migration distinction.
+
+**Preparation and extensions:** Before class, prepare images/dependencies and read the construction only. Collect live key material in class after startup. Complete the longer analysis and the assigned version-specific work outside the core block. The HNDL companion is optional and adds no points.
+
+**70-minute practice:** collect fresh signatures 15; assemble/test the forgery 25; verify the one-time control 20; reasoning 10. Do not spend the fixed server's one signing opportunity during preparation; recreate its state for a new controlled run.
+
+
+**Assessment:** everyone completes the shared core (60 points) plus **one assigned version** (40 points): Conventional written analysis, or AIR-Sec Audit-the-AI 20 + EiPE 10 + Prompt Problem 10. Both versions total 100. All questions remain available; complete the assigned version's full questions, using out-of-class time for extended responses. The other version is ungraded reference practice, not an additional requirement. Viva/micro-demo questions are formative checks of the submitted explanation, with no separate points or automatic pass/fail score gate.
+
+**Evidence:** record reproducible observations or reasoning and your name/student ID. Where the local target prints a shared placeholder flag, record it as observed; a personalized flag or live CTFd account is not a prerequisite. Follow SUBMISSION.md for the announced hand-in channel.
 
 ## ✅ This week — what to do
 1. **Before class** — Docker Desktop working (same Docker-first setup as `software-security`);
    skim the earlier signature weeks ({{ ref('macs') }} MACs, {{ ref('key-exchanges') }} key exchange) — this week is where the
    *quantum* threat to those primitives lands.
-2. **Lecture (120 min)** — why a large-scale quantum computer breaks RSA/ECC (Shor) but only
+2. **Concept preparation and brief explanation (within the 100-minute plan)** — why a large-scale quantum computer breaks RSA/ECC (Shor) but only
    dents AES/SHA (Grover); "harvest now, decrypt later"; the four PQC families; NIST's ML-KEM
    (Kyber) and ML-DSA (Dilithium); hash-based signatures and the one-time-key discipline;
    crypto-agility as the real engineering lesson. Slides: `{{ slides }}` *(see course plan)*.
-3. **Lab (180 min)** — play the signature game below, forge an admin signature by exploiting a
+3. **Practice and assigned-version work (core in class; extensions outside class)** — play the signature game below, forge an admin signature by exploiting a
    **reused Lamport one-time key**, capture your flag, then complete **Worksheet 15**
-   (`worksheet.md`, Part 2 Conventional + Part 3 AIR-Sec incl. *Audit the AI* + *EiPE/Prompt*).
+   (`worksheet.md`, shared practical plus the assigned Conventional written questions or AIR-Sec Audit-the-AI/EiPE/Prompt).
    Kickoff: `docker compose up`.
-4. **Submit** — worksheet PDF + flag → see [SUBMISSION.md](../../SUBMISSION.md) · exploit code → GitHub.
+4. **Submit** — shared-core evidence/reasoning plus your assigned 40-point version in the worksheet PDF via [SUBMISSION.md](../../SUBMISSION.md). Include the observed flag/log artifact where applicable. Supplied exploit/reference code does not require an unchanged GitHub commit.
 
 ## Objectives
 - Explain **why quantum matters for cryptography**: Shor's algorithm breaks RSA/ECC outright,
@@ -33,7 +48,7 @@ Pair in Encryption), CWE-347 (Improper Verification of Cryptographic Signature)
 - Name the **four PQC families** (lattice, hash-based, code-based, multivariate) and what NIST's
   **ML-KEM** (Kyber, a KEM) and **ML-DSA** (Dilithium, a signature) are each *for*.
 - Explain a **hash-based signature** (Lamport → SPHINCS+) and its defining limitation: a Lamport
-  keypair is a **one-time signature (OTS)** — secure *if and only if* it signs one message.
+  keypair is a **one-time signature (OTS)** — its normal security guarantee assumes one signed message. Re-signing the same bit string deterministically reveals no additional preimages, but this toy server uses a conservative one-use policy to avoid key-state errors.
 - **Execute** the key-reuse attack: recover a full Lamport private key from two signatures under
   a reused key (a message and its complement) and forge a signature on a target message.
 - Explain why the fix is **operational, not mathematical** — refuse the second signature — and
@@ -82,14 +97,12 @@ week teaches.
 ## Run it
 ```bash
 cd {{ labpath }}
-docker compose up -d          # vulnerable_app.py on :8100, fixed_app.py on :8101
-python exploit.py             # PASS on :8100 (flag), PASS on :8101 (correctly defeated); exit 0
+docker compose up -d                                  # vulnerable_app.py on :8100, fixed_app.py on :8101
+docker compose exec vulnerable python lamport.py sign 00000000   # step-by-step helper: sign, both, forge
+docker compose exec -e FIXED_HOST=fixed vulnerable python exploit.py   # PASS on :8100 (flag), PASS on :8101 (correctly defeated); exit 0
+docker compose down
 ```
-Per-student flag: `python3 ../../instructor/seed_flags.py env <STUDENT_ID> > .env` before
-`docker compose up` (once this course's `instructor/seed_flags.py` exists — see the shared
-`software-security` template; add a `"pqc"` entry to its `CHALLENGES` list). Until then
-`FLAG_PQC` falls back to a shared placeholder that is the same for everyone. Set `LAMPORT_SEED=<anything>` to make the
-keypair deterministic for reproducible grading (unset = fresh random key each boot).
+These commands run **inside the `vulnerable` container**, so you need no Python on your own computer and no `curl`. `lamport.py` (standard library only) has three subcommands: `sign <hex>` signs a message and checks bit 0, `both <bit>` shows both secret tokens of one key position after you signed `00000000` and `ffffffff`, and `forge` builds the admin signature and submits it. Type the `exploit.py` line only once per lab start: the fixed server can sign only once. The downloaded student packet has no `instructor/seed_flags.py`: the default flag is a shared lab placeholder, and your own commands, observations and explanation are the evidence.
 
 **Verified:** `docker compose up -d` followed by `python exploit.py` was run against live
 containers on this machine. Both PASS checks printed and the script exited `0`:
@@ -103,10 +116,8 @@ on a *non-admin* message → `403`; (d) `exploit.py` exits **nonzero** when the 
 made to reuse its key (pointing `FIXED_PORT` at `:8100`), proving the pass/fail gate is real.
 
 ## Deliverable
-The captured flag + your recovered private key (or at least: for one bit position, both
-preimages and the `SHA-256` hashes that show each matches the published public key) + a short
-note explaining, in your own words, why signing `M` and `~M` reveals the *whole* key while
-signing `M` alone reveals only *half*. Full tasks: `worksheet.md`.
+Complete the shared core (60 points) and only the assigned version (40 points), as listed in the worksheet rubric. Include reproducible evidence/reasoning in your worksheet PDF. All unassigned-version questions remain available for ungraded practice.
+Lamport is the required signature core. HNDL is an optional confidentiality extension, with zero additional points and no substitution for the required core.
 
 ## References
 - NIST FIPS 203 (**ML-KEM** / Kyber), FIPS 204 (**ML-DSA** / Dilithium), FIPS 205

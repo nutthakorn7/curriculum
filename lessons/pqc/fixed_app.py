@@ -1,7 +1,7 @@
 """FIXED -- Week 15 PQC lab. Same Lamport one-time signature scheme and same endpoints as
 vulnerable_app.py, but this app ENFORCES THE ONE-TIME RULE: the keypair signs at most ONCE.
 
-Lamport OTS is provably secure only if the key signs a single message. The vulnerability in
+The normal Lamport OTS security guarantee assumes the key signs a single message. The vulnerability in
 vulnerable_app.py was signing MANY messages with ONE key, letting an attacker collect both
 preimages per bit position (from a message and its complement) and reconstruct the whole
 private key. The fix here is not a different math -- it is an operational invariant: refuse the
@@ -100,7 +100,9 @@ def pubkey():
 @app.route("/sign", methods=["POST"])
 def sign_endpoint():
     global _signed_message
-    body = request.get_json(silent=True) or {}
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        return jsonify({"error": "JSON object required"}), 400
     message_hex = body.get("message_hex", "")
     try:
         message = int(message_hex, 16)
@@ -116,9 +118,11 @@ def sign_endpoint():
 
     with _used_lock:
         # THE FIX: one-time enforcement. This key signs exactly ONCE. Any second /sign call --
-        # even for the same message -- is refused: one-time means one signature, period. (A real
-        # client that needs to retry a dropped response must re-request from a FRESH one-time key,
-        # never re-use a spent one.)
+        # even for the same message -- is refused as a conservative operational
+        # rule. Deterministically repeating the same message reveals no *new*
+        # preimages, but the simple state rule avoids accidental new-message use.
+        # A real signer can return the cached first signature for an identical
+        # retry, or use a fresh key for a new message.
         if _signed_message is not None:
             return jsonify({
                 "error": "one-time key already used",
@@ -133,7 +137,9 @@ def sign_endpoint():
 
 @app.route("/verify", methods=["POST"])
 def verify_endpoint():
-    body = request.get_json(silent=True) or {}
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        return jsonify({"error": "JSON object required"}), 400
     message_hex = body.get("message_hex", "")
     sig = body.get("sig")
     try:
@@ -145,7 +151,9 @@ def verify_endpoint():
 
 @app.route("/admin", methods=["POST"])
 def admin():
-    body = request.get_json(silent=True) or {}
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        return jsonify({"error": "JSON object required"}), 400
     sig = body.get("sig")
     if verify(ADMIN_MESSAGE, sig):
         return jsonify({"flag": FLAG_PQC})
