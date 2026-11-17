@@ -4,15 +4,18 @@ is a proper HMAC (hmac.new(key, msg, sha256)) instead of a secret-prefix hash.
 HMAC's nested construction -- H(key XOR opad || H(key XOR ipad || message)) -- means the
 *outer* hash is computed over a fixed-size (already-hashed) block, not over attacker-extendable
 data. An attacker who intercepts a valid (data, sig) pair still cannot compute a valid sig for
-data + glue_padding + extra without knowing the key: they would need to resume the OUTER hash's
-internal state, but that state depends on H(key XOR ipad || message), which they cannot compute
-without the key. Length-extension is a property of bare Merkle-Damgard hashes (see source Q5);
+data + glue_padding + extra without knowing the key. The final outer SHA-256 digest CAN be
+resumed, but that computes H(opad_key || inner_digest || glue_padding || extra), not a valid
+HMAC: HMAC's outer input must end with exactly one fixed-size inner digest. The attacker also
+lacks the inner digest/state needed to extend the message and then recompute a valid outer tag.
+Length-extension is a property of bare Merkle-Damgard hashes (see source Q5);
 HMAC's construction specifically defeats it. exploit.py runs the SAME forgery attempt against
 this app on :8093 and must observe it correctly REJECTED (403, no flag).
 """
 import hashlib
 import hmac as hmac_module
 import os
+import re
 
 from flask import Flask, request, make_response, jsonify
 
@@ -45,6 +48,9 @@ def index():
 @app.route("/login")
 def login():
     user = request.args.get("user", "guest")
+    # This validates the field format; HMAC separately prevents length extension.
+    if re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", user) is None:
+        return jsonify({"error": "invalid username"}), 400
     data = f"user={user}&admin=false".encode()
     cookie = make_cookie(data)
     resp = make_response(f"logged in as {user}\n")
