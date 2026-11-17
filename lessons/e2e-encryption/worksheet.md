@@ -2,148 +2,148 @@
 
 > **Course:** Cryptography and Network Security (KOSEN69) · **{{ slot_label }}**
 > **Aligned to:** CWE-311 (Missing Encryption of Sensitive Data), CWE-532 (Sensitive Information in a Log File), CWE-312 (Cleartext Storage of Sensitive Information)
-> **Kind:** Docker lab แบบทำตามทีละขั้น ไม่ต้องเขียนโปรแกรม และไม่ต้องคำนวณเลข
+> **Kind:** Docker lab, step by step. No programming and no maths.
 
-> **Ethics note:** ทำเฉพาะกับ container ในเครื่องของตัวเองที่ lab นี้เปิดขึ้นมา (server จำลอง, Alice และ Bob) บทเรียนคือ "ผู้ให้บริการอ่านข้อความของผู้ใช้ได้หรือไม่" การอ่านหรือเก็บข้อความของคนอื่นในระบบที่ไม่ใช่ของเราและไม่ได้รับอนุญาตเป็นเรื่องผิดกฎหมาย
+> **Ethics note:** Only work on the containers on your own computer that this lab starts (a pretend server, Alice and Bob). The lesson is "can the service provider read its users' messages?" Reading or storing other people's messages on a system that is not yours and without permission is illegal.
 
-## อ่านก่อนเริ่ม
+## Read this first
 
-**วันนี้จะทำอะไร:** แอปแชตเกือบทุกแอปใช้ HTTPS ข้อความจึงถูกเข้ารหัสระหว่างทาง แต่เมื่อข้อความไปถึง **server ของผู้ให้บริการ** server ถอดรหัสออกมา เก็บ และเขียนลง log ได้ ผู้ให้บริการจึงอ่านข้อความทุกอันได้ เราจะดู server จำลองที่ทำแบบนั้น แล้วดู **การเข้ารหัสแบบ end-to-end (E2EE)** ที่ Alice เข้ารหัสข้อความ**บนเครื่องของเธอเอง** ด้วยกุญแจสาธารณะของ Bob เพื่อให้ server เห็นแต่ข้อมูลที่อ่านไม่ออก สิ่งที่ต้องจำ: **HTTPS ปกป้องระหว่างทาง ไม่ได้ปกป้องจากผู้ให้บริการ**
+**What you will do today:** Almost every chat app uses HTTPS, so messages are encrypted on the way. But when a message reaches the **provider's server**, the server decrypts it, stores it, and can write it to a log. So the provider can read every message. We will look at a pretend server that does exactly this, and then at **end-to-end encryption (E2EE)**, where Alice encrypts the message **on her own computer** with Bob's public key, so the server sees only data it cannot read. Remember this: **HTTPS protects the message on the way, not from the provider.**
 
-**ทุกขั้นเขียนแบบเดียวกัน:**
+**Every step is written the same way:**
 
-| หัวข้อ | ความหมาย |
+| Heading | Meaning |
 |---|---|
-| **ทำอะไร** | บอกว่าขั้นนี้จะทำอะไร |
-| **พิมพ์** | คัดลอกทั้งบรรทัดไปวางใน Terminal แล้วกด Enter |
-| **ควรเห็น** | หน้าจอควรขึ้นประมาณนี้ (ผลมีบรรทัดอื่นของ Docker ปนอยู่ด้วย ดูเฉพาะบรรทัดที่ใบงานบอก) |
-| **แปลว่า** | ผลที่เห็นหมายความว่าอะไร |
-| **ลงใบตอบ** | สิ่งที่ต้องคัดลอกหรือเขียนลงใบตอบ |
+| **What to do** | Says what this step does |
+| **Type** | Copy the whole line, paste it into the Terminal, and press Enter |
+| **You should see** | The screen should look roughly like this (the output has other Docker lines mixed in; only look at the lines the worksheet tells you to) |
+| **Means** | What the result means |
+| **Write in the answer sheet** | What to copy or write in your answer sheet |
 
-**คะแนน**
+**Marks**
 
-- ทุกคนทำ **Part A (60 คะแนน)** ซึ่งเหมือนกันทั้งสองแบบ
-- จากนั้นทำ **เฉพาะแบบของตัวเอง (40 คะแนน)** ดูจากเลขตัวสุดท้ายของรหัสนักศึกษา: **เลขคี่ = AIR-Sec (Parts 3–4)**, **เลขคู่ = Conventional (Part 2)** (เลข 0 นับเป็นเลขคู่) แล้วเขียนแบบของตัวเองในช่อง Group
-- ตอบเป็นภาษาไทยหรืออังกฤษก็ได้ ตอบสั้น ๆ ให้ชัดก็พอ
-- **ใช้ใบตอบ:** ใน Classroom → Week 13 เปิดไฟล์ตามแบบของตัวเอง (`Wk13_Answer_Sheet_Conventional` หรือ `Wk13_Answer_Sheet_AIR-Sec`) กด Open with → Google Docs พิมพ์ลงกรอบสีเทา แล้วกด File → Download → PDF
-- ส่งไฟล์เดียว ตั้งชื่อตามรหัสนักศึกษา เช่น `Wk13_66990000.pdf` (ไม่ต้องใส่เครื่องหมาย `<` `>`) ที่ `learn.zcr.ai/submit` โดยใช้รหัสส่งงานของ Week 13 ที่ได้ทางอีเมล KMITL ภายใน **อาทิตย์ 31 ม.ค. 2027 23:59 น.**
-- ข้อที่เขียนว่า *optional* ไม่มีคะแนน ไม่ต้องทำก็ได้
+- Everyone does **Part A (60 marks)**, which is the same for both forms.
+- Then do **only your own form (40 marks)**. Look at the last digit of your student ID: **odd = AIR-Sec (Parts 3–4)**, **even = Conventional (Part 2)** (0 counts as even). Write your form in the Group box.
+- You may answer in English or Thai. Short and clear is enough.
+- **Answer sheet:** in Classroom → Week 13, open the file for your form (`Wk13_Answer_Sheet_Conventional` or `Wk13_Answer_Sheet_AIR-Sec`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
+- Submit one file named with your student ID, for example `Wk13_66990000.pdf` (do not type the `<` `>` signs), at `learn.zcr.ai/submit` with your Week 13 submission code from your KMITL email, by **Sunday 31 Jan 2027, 23:59**.
+- Items marked *optional* have no marks. You can skip them.
 
-| Part A | คะแนน | ขั้นที่ลงใบตอบ |
+| Part A | Marks | Steps to write in the answer sheet |
 |---|---:|---|
-| A1 — server อ่านข้อความได้ (HTTPS อย่างเดียว) | 20 | ขั้นที่ 2, 3 |
-| A2 — เข้ารหัสที่เครื่อง Alice (E2EE) server อ่านไม่ได้ | 20 | ขั้นที่ 5, 6 |
-| A3 — ความต่างอยู่ตรงไหน และ lab ยังไม่พิสูจน์อะไร | 20 | ขั้นที่ 7, 8, 9, 10 |
+| A1 — the server can read the message (HTTPS only) | 20 | Steps 2, 3 |
+| A2 — encrypted on Alice's computer (E2EE), the server cannot read | 20 | Steps 5, 6 |
+| A3 — where the difference is, and what the lab does not prove | 20 | Steps 7, 8, 9, 10 |
 
-**คำศัพท์ที่ต้องรู้**
+**Words you need to know**
 
-| คำ | ความหมายแบบง่าย |
+| Word | Simple meaning |
 |---|---|
-| Terminal | หน้าต่างสำหรับพิมพ์คำสั่ง |
-| Docker / container | โปรแกรมที่เปิด "เครื่องจำลอง" เล็ก ๆ ในเครื่องของเรา ทำพังก็ลบแล้วเริ่มใหม่ได้ |
-| server (ผู้ให้บริการ) | เครื่องกลางของแอปแชต รับข้อความจากผู้ส่ง เก็บ แล้วส่งต่อผู้รับ |
-| plaintext / ciphertext | ข้อความที่อ่านออก / ข้อความที่เข้ารหัสแล้วอ่านไม่ออก |
-| HTTPS (TLS) | เข้ารหัสการเชื่อมต่อระหว่างเรากับ server แต่ server เป็นปลายทางของการเชื่อมต่อนั้น จึงเห็นข้อความ |
-| E2EE (end-to-end) | ผู้ส่งเข้ารหัสข้อความบนเครื่องตัวเอง เฉพาะผู้รับถอดรหัสได้ server เห็นแต่ ciphertext |
-| กุญแจสาธารณะ | ของ Bob แจกให้ใครก็ได้ ใช้ล็อกข้อความถึง Bob มีแต่ Bob ที่เปิดได้ด้วยกุญแจส่วนตัว |
-| log | บันทึกสิ่งที่โปรแกรมทำ ที่ผู้ดูแลระบบอ่านได้ |
+| Terminal | A window where you type commands |
+| Docker / container | A program that starts a small "pretend computer" on your computer. If you break it, delete it and start again |
+| server (the provider) | The middle computer of a chat app. It receives a message from the sender, stores it, and passes it on to the receiver |
+| plaintext / ciphertext | A message you can read / a message that has been encrypted and cannot be read |
+| HTTPS (TLS) | Encrypts the connection between us and the server, but the server is the end of that connection, so it sees the message |
+| E2EE (end-to-end) | The sender encrypts the message on their own computer, and only the receiver can decrypt it. The server sees only ciphertext |
+| public key | Bob's key, which he can give to anyone. It locks a message for Bob, and only Bob can open it with his private key |
+| log | A record of what a program did, which the system administrator can read |
 
-**คำถามที่มักสงสัย**
+**Questions people often ask**
 
-- *ต้องเก่งคณิตศาสตร์ไหม?* ไม่ต้อง
-- *ต้องเขียนโปรแกรมไหม?* ไม่ต้อง คัดลอกคำสั่งไปวางได้เลย
-- *ถ้าทำผิด เครื่องจะพังไหม?* ไม่พัง ทุกอย่างอยู่ใน container ถ้าสับสนให้พิมพ์สองคำสั่งในขั้นที่ 11 แล้วเริ่มใหม่
-- *ไม่เข้าใจทุกบรรทัดที่ขึ้นจอ ได้ไหม?* ได้ ดูเฉพาะบรรทัดที่ใบงานบอก
-- *บรรทัด base64 ยาวมาก ต้องคัดลอกทั้งหมดไหม?* ไม่ต้อง คัดลอก**ประมาณ 60 ตัวแรก**พอ แล้วเติม `...`
-- *ตัวอักษร base64 ของเราไม่เหมือนเพื่อน ผิดไหม?* ไม่ผิด กุญแจสุ่มใหม่ทุกครั้ง แต่ข้อความที่อ่านออกใน log ของ Bob ต้องเหมือนกัน
-- *วางคำสั่งใน Terminal ยังไง?* คัดลอกคำสั่งจากใบงาน แล้ว Windows: กด Ctrl+V หรือคลิกขวา · Mac: กด Cmd+V จากนั้นกด Enter
-- *คัดลอกผลจาก Terminal ยังไง?* ลากเมาส์คลุมข้อความก่อน แล้ว Windows: กด Ctrl+Shift+C · Mac: กด Cmd+C หรือจะ screenshot ก็ได้
+- *Do I need to be good at maths?* No.
+- *Do I need to write programs?* No. Copy the commands and paste them.
+- *If I make a mistake, will my computer break?* No. Everything is inside containers. If you get confused, type the two commands in Step 11 and start again.
+- *Can I skip understanding every line on the screen?* Yes. Only look at the lines the worksheet tells you to.
+- *The base64 line is very long. Do I have to copy all of it?* No. Copy **about the first 60 characters** and add `...`
+- *My base64 letters are not the same as my friend's. Is that wrong?* No. The keys are random every time, but the readable message in Bob's log must be the same.
+- *How do I paste a command into the Terminal?* Copy the command from the worksheet, then Windows: press Ctrl+V or right-click · Mac: press Cmd+V, then press Enter.
+- *How do I copy results from the Terminal?* Select the text with the mouse first, then Windows: press Ctrl+Shift+C · Mac: press Cmd+C. Or take a screenshot.
 
-**ถ้าเจอข้อความแบบนี้**
+**If you see a message like this**
 
-| ข้อความบนจอ | สาเหตุ | วิธีแก้ |
+| Message on screen | Cause | Fix |
 |---|---|---|
-| มีคำว่า `Cannot connect to the Docker daemon` หรือ `error during connect` | ยังไม่ได้เปิด Docker | เปิด Docker Desktop รอจนขึ้น Engine running |
-| `no configuration file provided: not found` หรือ `open docker-compose...yml: no such file` | Terminal ไม่ได้อยู่ในโฟลเดอร์ lab | ทำเตรียมขั้นที่ 4 อีกครั้ง |
-| ใน log ของ Bob ยังไม่มีบรรทัด `BOB RECEIVED` / `BOB DECRYPTED` | Bob ยังรอข้อความอยู่ | รอ 5–10 วินาที แล้วพิมพ์คำสั่ง `logs bob` อีกครั้ง |
-| ผลของโหมดเก่าปนมา | ยังไม่ได้ปิดโหมดก่อนหน้า | พิมพ์สองคำสั่งในขั้นที่ 11 แล้วเริ่มใหม่ |
+| `Cannot connect to the Docker daemon` or `error during connect` | Docker is not open | Open Docker Desktop and wait until it says Engine running |
+| `no configuration file provided: not found` or `open docker-compose...yml: no such file` | The Terminal is not in the lab folder | Repeat Prep step 4 |
+| There is no `BOB RECEIVED` / `BOB DECRYPTED` line yet in Bob's log | Bob is still waiting for the message | Wait 5–10 seconds, then type the `logs bob` command again |
+| Results from the old mode are mixed in | You did not shut down the previous mode | Type the two commands in Step 11 and start again |
 
-ลองแล้วยังไม่ได้ ให้ถามเพื่อนหรืออาจารย์ได้เลย
+If you still cannot do it, ask a friend or your instructor.
 
 ---
 
-## ก่อนเริ่ม: เตรียมเครื่อง (ทำที่บ้าน ทำครั้งเดียว)
+## Before you start: set up your computer (at home, once)
 
-ถ้าเคยทำ Week 2–6 หรือ 10–12 มาแล้ว มี Docker และไฟล์ ZIP อยู่แล้ว เริ่มที่**เตรียมขั้นที่ 4** ได้เลย แต่ ZIP ต้องมีโฟลเดอร์ `week13-e2e-encryption` ถ้าไม่เจอให้โหลดใหม่ตามเตรียมขั้นที่ 2
+If you already did Weeks 2–6 or 10–12, you have Docker and the ZIP file. Start at **Prep step 4**. But the ZIP must have the folder `week13-e2e-encryption`. If you cannot find it, download the ZIP again as in Prep step 2.
 
-#### เตรียมขั้นที่ 1 — เปิด Docker Desktop
+#### Prep step 1 — Open Docker Desktop
 
-**ทำอะไร:** ถ้ายังไม่มี ให้ติดตั้งจาก <https://www.docker.com/products/docker-desktop/> แล้วเปิดโปรแกรมทิ้งไว้
+**What to do:** If you do not have it yet, install it from <https://www.docker.com/products/docker-desktop/> and leave the program open.
 
-**ควรเห็น:** ในหน้าต่าง Docker Desktop ขึ้นว่า **Engine running**
+**You should see:** the Docker Desktop window says **Engine running**.
 
-#### เตรียมขั้นที่ 2 — โหลดไฟล์ lab
+#### Prep step 2 — Download the lab files
 
-**ทำอะไร:** เปิด <https://github.com/nutthakorn7/security-cryptography> กดปุ่มสีเขียว **Code** แล้วเลือก **Download ZIP** ไม่ต้องมีบัญชี GitHub และไม่ต้อง fork
+**What to do:** Open <https://github.com/nutthakorn7/security-cryptography>, click the green **Code** button, and choose **Download ZIP**. You do not need a GitHub account and you do not need to fork.
 
-#### เตรียมขั้นที่ 3 — แตกไฟล์ ZIP
+#### Prep step 3 — Unzip the ZIP file
 
-**ทำอะไร:** Windows: คลิกขวาที่ไฟล์ ZIP เลือก **Extract All** · Mac: ดับเบิลคลิกไฟล์ ZIP
+**What to do:** Windows: right-click the ZIP file and choose **Extract All** · Mac: double-click the ZIP file.
 
-**ควรเห็น:** โฟลเดอร์ชื่อ `security-cryptography-master` บางเครื่องจะมีโฟลเดอร์ชื่อเดียวกันซ้อนสองชั้น ให้เปิดเข้าไปจนเห็นโฟลเดอร์ `labs`
+**You should see:** a folder called `security-cryptography-master`. Some computers make a folder with the same name inside it; open it until you can see the `labs` folder.
 
-#### เตรียมขั้นที่ 4 — เปิด Terminal ในโฟลเดอร์ lab
+#### Prep step 4 — Open a Terminal inside the lab folder
 
-**ทำอะไร:** ในโฟลเดอร์ `security-cryptography-master` เข้าไปที่ `labs` แล้วเข้า `week13-e2e-encryption`
+**What to do:** Inside the `security-cryptography-master` folder, open `labs` and then open `week13-e2e-encryption`
 
-- **Windows:** เปิดโฟลเดอร์ `week13-e2e-encryption` ใน File Explorer คลิกขวาตรงที่ว่าง เลือก **Open in Terminal** (ถ้าไม่มีเมนูนี้ ให้กด Shift ค้างแล้วคลิกขวา เลือก **Open PowerShell window here**)
-- **Mac:** เปิดแอป Terminal พิมพ์ `cd` เว้นวรรคหนึ่งครั้ง ลากโฟลเดอร์ `week13-e2e-encryption` มาวางในหน้าต่าง แล้วกด Enter
+- **Windows:** open the `week13-e2e-encryption` folder in File Explorer, right-click an empty spot, and choose **Open in Terminal** (if you do not see it, hold Shift, right-click, and choose **Open PowerShell window here**)
+- **Mac:** open the Terminal app, type `cd` and one space, drag the `week13-e2e-encryption` folder into the window, then press Enter
 
-เช็กว่าอยู่ถูกที่ด้วยคำสั่งนี้:
+Check that you are in the right place with this command:
 
 ```bash
 ls
 ```
 
-**ควรเห็น:** มีชื่อ `alice.py` และ `docker-compose.vulnerable.yml` อยู่ในรายการ
+**You should see:** `alice.py` and `docker-compose.vulnerable.yml` in the list.
 
-#### เตรียมขั้นที่ 5 — สร้างภาพ (image) ของ lab
+#### Prep step 5 — Build the lab image
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose -f docker-compose.vulnerable.yml build
 ```
 
-**ควรเห็น:** บรรทัดลงท้ายว่า `Built` หรือ `Building ... done` ครั้งแรกต้องต่ออินเทอร์เน็ตและอาจรอหลายนาที ระหว่างนั้นอย่าปิดหน้าต่าง
+**You should see:** a line ending in `Built` or `Building ... done`. The first time you need the internet and it may take several minutes. Do not close the window while you wait.
 
 ---
 
 ## Part A — The lab (both forms, 60 points)
 
-มีตัวละครสามตัว (เป็นโปรแกรมใน Docker) ทำตามลำดับ A1 → A2 → A3 ต่อเนื่องกัน:
+There are three characters (programs in Docker). Do A1 → A2 → A3 one after the other:
 
-| ตัวละคร | ทำอะไร |
+| Character | What it does |
 |---|---|
-| **Alice** | ผู้ส่ง ส่งข้อความลับ `meet at pier 39 at midnight` ไปให้ Bob ผ่าน server |
-| **Server** | ผู้ให้บริการ รับข้อความ เก็บ และเขียนสิ่งที่ได้รับลง log ว่า `SERVER SAW: ...` โค้ดของ server **เหมือนกันทุกโหมด** |
-| **Bob** | ผู้รับ ดึงข้อความจาก server |
+| **Alice** | The sender. She sends the secret message `meet at pier 39 at midnight` to Bob through the server |
+| **Server** | The provider. It receives and stores the message, and writes what it received to its log as `SERVER SAW: ...`. The server's code is **the same in every mode** |
+| **Bob** | The receiver. He fetches the message from the server |
 
-> **ถ้าใช้ Docker ไม่ได้จริง ๆ:** บอกอาจารย์ แล้วคัดลอกบรรทัดตัวอย่างในใบงานมาใส่ใบตอบ เขียนกำกับว่า "จากตัวอย่างในใบงาน" ส่วนขั้นที่ 3, 6, 8, 9 และ 10 ตอบจากการอ่านใบงานได้
+> **If you really cannot use Docker:** tell your instructor, then copy the example lines in the worksheet into your answer sheet and write "from the worksheet example" next to them. You can answer Steps 3, 6, 8, 9 and 10 by reading the worksheet.
 
-### A1 — server อ่านข้อความได้ (HTTPS อย่างเดียว) (20 points)
+### A1 — The server can read the message (HTTPS only) (20 points)
 
-#### ขั้นที่ 1 — อ่าน: โหมดแรกไม่มี E2EE
+#### Step 1 — Read: the first mode has no E2EE
 
-**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+**What to do:** Just read. You do not need to type anything.
 
-โหมดแรกนี้ Alice ส่ง**ข้อความที่อ่านออก**ไปให้ server (เหมือนแอปที่ใช้ HTTPS ระหว่างทาง) server รับ เก็บ และเขียนลง log เหมือนที่ผู้ให้บริการจริงทำได้ จึงเห็นข้อความทุกอัน ไม่ว่าการเชื่อมต่อระหว่างทางจะเข้ารหัสหรือไม่
+In this first mode Alice sends the **readable message** to the server (like an app that uses HTTPS on the way). The server receives it, stores it, and writes it to its log, just as a real provider can, so it sees every message, whether or not the connection on the way is encrypted.
 
-#### ขั้นที่ 2 — รันโหมด HTTPS อย่างเดียว แล้วดูว่า server เห็นอะไร
+#### Step 2 — Run the HTTPS-only mode and see what the server sees
 
-**ทำอะไร:** เปิด server, Alice และ Bob ให้ Alice ส่งข้อความ แล้วดู log ของ server และของ Bob
+**What to do:** Start the server, Alice and Bob, let Alice send the message, then look at the server's log and Bob's log.
 
-**พิมพ์** ทีละบรรทัด:
+**Type** one line at a time:
 
 ```bash
 docker compose -f docker-compose.vulnerable.yml up -d --build
@@ -151,38 +151,38 @@ docker compose -f docker-compose.vulnerable.yml logs server
 docker compose -f docker-compose.vulnerable.yml logs bob
 ```
 
-**ควรเห็น:** คำสั่งแรกขึ้น `Started` สามบรรทัด ให้หาสองบรรทัดนี้ใน log (log ของ server มีบรรทัดอื่นปนอยู่ด้วย)
+**You should see:** the first command prints three lines with `Started`. Find these two lines in the logs (the server's log has other lines mixed in)
 
 ```
 week13-server  | SERVER SAW: meet at pier 39 at midnight
 week13-bob  | BOB RECEIVED: meet at pier 39 at midnight
 ```
 
-**แปลว่า:** server เห็นข้อความ**ที่อ่านออก** (`SERVER SAW: meet at pier 39 at midnight`) Bob ก็ได้รับข้อความเดียวกัน ผู้ให้บริการ (และคนที่เข้าถึง log ของ server) อ่านความลับได้
+**Means:** the server sees the **readable** message (`SERVER SAW: meet at pier 39 at midnight`). Bob receives the same message. The provider (and anyone who can reach the server's log) can read the secret.
 
-**✍️ ลงใบตอบ (ขั้นที่ 2):** คัดลอกสองบรรทัดข้างบนจากหน้าจอของตัวเอง
+**✍️ Write in the answer sheet (Step 2):** copy the two lines above from your own screen
 
-#### ขั้นที่ 3 — สรุปด้วยคำของตัวเอง
+#### Step 3 — Summarise in your own words
 
-**ทำอะไร:** เติมคำในช่องว่าง
+**What to do:** Fill in the blanks.
 
-> ในโหมดนี้ ________ อ่านความลับได้ (เลือกคำ: `server` / `แค่ Bob`) และต่อให้การเชื่อมต่อใช้ HTTPS ก็ไม่เปลี่ยนคำตอบนี้ เพราะ server เป็น ________ ของการเชื่อมต่อนั้น (เลือกคำ: `ปลายทาง` / `คนกลาง`)
+> In this mode ________ can read the secret (Choose: `the server` / `only Bob`), and even if the connection uses HTTPS the answer does not change, because the server is the ________ of that connection (Choose: `end point` / `go-between`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 3):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 3):** write the full sentence
 
-### A2 — เข้ารหัสที่เครื่อง Alice (E2EE) server อ่านไม่ได้ (20 points)
+### A2 — Encrypted on Alice's computer (E2EE), the server cannot read (20 points)
 
-#### ขั้นที่ 4 — อ่าน: โหมด E2EE
+#### Step 4 — Read: the E2EE mode
 
-**ทำอะไร:** แค่อ่าน ไม่ต้องพิมพ์อะไร
+**What to do:** Just read. You do not need to type anything.
 
-โหมดที่สอง Bob สร้างคู่กุญแจ (กุญแจสาธารณะกับกุญแจส่วนตัว) แล้ว**ส่งกุญแจสาธารณะให้ server แจก** Alice ดึงกุญแจสาธารณะของ Bob มา แล้ว**เข้ารหัสข้อความบนเครื่องของเธอเอง** ก่อนส่ง server เห็นแต่ข้อมูลที่เข้ารหัสแล้ว (ciphertext) ส่วน Bob ใช้กุญแจส่วนตัวที่ไม่เคยออกจากเครื่องของเขา ถอดรหัสข้อความได้ **โค้ดของ server ไม่ได้เปลี่ยนเลย** เปลี่ยนแค่สิ่งที่ Alice ส่ง
+In the second mode Bob makes a key pair (a public key and a private key) and **gives the public key to the server to hand out**. Alice fetches Bob's public key and **encrypts the message on her own computer** before sending. The server sees only encrypted data (ciphertext). Bob uses his private key, which never leaves his computer, to decrypt the message. **The server's code did not change at all.** Only what Alice sends changed.
 
-#### ขั้นที่ 5 — รันโหมด E2EE แล้วดูว่า server เห็นอะไร
+#### Step 5 — Run the E2EE mode and see what the server sees
 
-**ทำอะไร:** เปิดโหมดใหม่ แล้วดู log ของ server และของ Bob
+**What to do:** Start the new mode, then look at the server's log and Bob's log.
 
-**พิมพ์** ทีละบรรทัด (ถ้ายังมีโหมดแรกค้างอยู่ ให้ทำต่อได้เลย Docker จะสลับให้):
+**Type** one line at a time (if the first mode is still running, just carry on; Docker will switch for you):
 
 ```bash
 docker compose -f docker-compose.fixed.yml up -d --build
@@ -190,90 +190,90 @@ docker compose -f docker-compose.fixed.yml logs server
 docker compose -f docker-compose.fixed.yml logs bob
 ```
 
-**ควรเห็น:** ในผลมีบรรทัด `SERVER SAW:` ที่ตามด้วยตัวอักษรยาวมาก (base64 อ่านไม่ออก) และบรรทัดของ Bob ที่อ่านออก (ตัวอักษร base64 ของเราจะไม่เหมือนตัวอย่าง)
+**You should see:** in the output, a `SERVER SAW:` line followed by very long letters (base64, unreadable) and Bob's line, which is readable (your base64 letters will not be the same as the example)
 
 ```
 week13-server  | SERVER SAW: eyJlbmNfa2V5IjogIlFsUWxzL1dkbEcxT0RFUDNkVVN5YllHb2xsTVR3aVNtamg0Qm...
 week13-bob  | BOB DECRYPTED: meet at pier 39 at midnight
 ```
 
-**แปลว่า:** server เห็นแต่ข้อมูลอ่านไม่ออก (ไม่มี `meet at pier 39` ใน `SERVER SAW:`) แต่ Bob ถอดรหัสแล้วได้ข้อความเดิมครบ
+**Means:** the server sees only unreadable data (there is no `meet at pier 39` in `SERVER SAW:`), but Bob decrypts it and gets the whole original message.
 
-**✍️ ลงใบตอบ (ขั้นที่ 5):** คัดลอกสองบรรทัดข้างบนจากหน้าจอของตัวเอง (บรรทัด `SERVER SAW:` คัดลอกประมาณ 60 ตัวอักษรแรกแล้วเติม `...`)
+**✍️ Write in the answer sheet (Step 5):** copy the two lines above from your own screen (for the `SERVER SAW:` line, copy about the first 60 characters and add `...`)
 
-#### ขั้นที่ 6 — ตอบคำถามสองข้อ
+#### Step 6 — Answer the two questions
 
-**ทำอะไร:** เติมคำในช่องว่างทั้งสองข้อ (คำใบ้: ขั้นที่ 4 และผลในขั้นที่ 5)
+**What to do:** Fill in the blanks in both items (hint: Step 4 and the result in Step 5).
 
-> a) ข้อความถูกเข้ารหัสที่ ________ (เลือกคำ: `เครื่องของ Alice` / `server`) ก่อนส่ง
+> a) The message is encrypted on ________ (Choose: `Alice's computer` / `the server`) before it is sent.
 >
-> b) ใน log ของ server ไม่มี ________ (เลือกคำ: `ข้อความที่อ่านออก` / `ข้อความที่เข้ารหัส`) แต่ Bob ยังอ่านข้อความได้ เพราะมี ________ (เลือกคำ: `กุญแจส่วนตัว` / `กุญแจสาธารณะ`) ที่ไม่เคยออกจากเครื่องของเขา
+> b) The server's log has no ________ (Choose: `readable message` / `encrypted message`), but Bob can still read the message, because he has a ________ (Choose: `private key` / `public key`) that never left his computer.
 
-**✍️ ลงใบตอบ (ขั้นที่ 6):** เขียนทั้งสองประโยคให้ครบ
+**✍️ Write in the answer sheet (Step 6):** write both sentences in full
 
-### A3 — ความต่างอยู่ตรงไหน และ lab ยังไม่พิสูจน์อะไร (20 points)
+### A3 — Where the difference is, and what the lab does not prove (20 points)
 
-#### ขั้นที่ 7 — หาบรรทัดที่ต่างกันในโค้ดของ Alice
+#### Step 7 — Find the lines that differ in Alice's code
 
-**ทำอะไร:** ดูสองบรรทัดที่ Alice เลือกว่าจะส่งอะไรให้ server
+**What to do:** Look at the two lines where Alice chooses what to send to the server.
 
-**พิมพ์:**
+**Type:**
 
 ```bash
 docker compose -f docker-compose.fixed.yml run --rm --entrypoint grep alice -n "payload = " alice.py
 ```
 
-**ควรเห็น:** สองบรรทัด (เลขบรรทัดอาจต่างเล็กน้อย)
+**You should see:** two lines (the line numbers may differ a little)
 
 ```
 72:        payload = hybrid_encrypt(bob_public_key, SECRET_MESSAGE.encode())
 76:        payload = SECRET_MESSAGE
 ```
 
-**แปลว่า:** บรรทัดแรก (โหมด E2EE) Alice **เข้ารหัสด้วยกุญแจสาธารณะของ Bob ก่อน** แล้วส่ง บรรทัดที่สอง (โหมดแรก) ส่ง**ข้อความที่อ่านออก**ตรง ๆ ความต่างอยู่ที่ฝั่ง Alice ไม่ใช่ที่ server
+**Means:** in the first line (E2EE mode) Alice **encrypts with Bob's public key first** and then sends. The second line (the first mode) sends the **readable message** directly. The difference is on Alice's side, not on the server.
 
-**✍️ ลงใบตอบ (ขั้นที่ 7):** คัดลอกสองบรรทัดที่ขึ้นบนจอ
+**✍️ Write in the answer sheet (Step 7):** copy the two lines that appear on the screen
 
-#### ขั้นที่ 8 — สรุปด้วยคำของตัวเอง
+#### Step 8 — Summarise in your own words
 
-**ทำอะไร:** ดูผลขั้นที่ 7 แล้วเติมคำ
+**What to do:** Look at the result of Step 7 and fill in the blanks.
 
-> โค้ดของ server ________ (เลือกคำ: `เหมือนกัน` / `ต่างกัน`) ในสองโหมด สิ่งที่ต่างคือ Alice ส่ง ________ (เลือกคำ: `ข้อความที่เข้ารหัสแล้ว` / `ข้อความที่อ่านออก`) ในโหมด E2EE
+> The server's code is ________ (Choose: `the same` / `different`) in the two modes. What is different is that Alice sends ________ (Choose: `the encrypted message` / `the readable message`) in the E2EE mode
 
-**✍️ ลงใบตอบ (ขั้นที่ 8):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 8):** write the full sentence
 
-#### ขั้นที่ 9 — lab นี้ยังไม่พิสูจน์อะไร
+#### Step 9 — What this lab does not prove
 
-**ทำอะไร:** อ่านแล้วเติมคำ
+**What to do:** Read, then fill in the blanks.
 
-ใน lab นี้ Alice **เชื่อ**กุญแจสาธารณะที่ server ส่งมาให้ว่าเป็นของ Bob จริง ถ้า server ไม่ซื่อสัตย์ มันแอบเปลี่ยนเป็นกุญแจของตัวเองได้ Alice ก็จะเข้ารหัสให้ **server** อ่านได้ โดยไม่รู้ตัว (เหมือนใบรับรองปลอมใน Week 12) lab นี้จึงพิสูจน์แค่ว่า **server ที่ซื่อสัตย์** อ่านข้อความไม่ได้ ไม่ได้พิสูจน์ว่ากุญแจที่ได้มาเป็นของ Bob จริง
+In this lab Alice **trusts** that the public key the server gives her is really Bob's. If the server is dishonest, it can quietly swap in its own key, and Alice will encrypt the message so the **server** can read it, without knowing (like the fake certificate in Week 12). So this lab proves only that an **honest server** cannot read the message. It does not prove that the key you received really belongs to Bob.
 
-> ถ้า server เปลี่ยนกุญแจสาธารณะของ Bob เป็นของตัวเอง ข้อความของ Alice จะถูก ________ อ่านได้ (เลือกคำ: `server` / `ไม่มีใคร`) ปัญหานี้ชื่อว่าการยืนยัน ________ ของกุญแจ (เลือกคำ: `เจ้าของ` / `ความเร็ว`)
+> If the server swaps Bob's public key for its own, Alice's message can be read by ________ (Choose: `the server` / `nobody`). This problem is called verifying the ________ of the key (Choose: `owner` / `speed`)
 
-**✍️ ลงใบตอบ (ขั้นที่ 9):** เขียนประโยคนี้ให้ครบ
+**✍️ Write in the answer sheet (Step 9):** write the full sentence
 
-#### ขั้นที่ 10 — ป้องกันอย่างไร
+#### Step 10 — How do you defend against it?
 
-**ทำอะไร:** อ่านแล้วตอบ 1–2 ประโยค
+**What to do:** Read, then answer in 1–2 sentences.
 
-แอปจริง เช่น Signal ให้ผู้ใช้เปรียบเทียบ **"เลขความปลอดภัย" (safety number)** หรือสแกน QR ของกันและกัน โดยไม่ผ่าน server เพื่อยืนยันว่ากุญแจเป็นของคนที่ถูกต้อง
+Real apps such as Signal let users compare a **"safety number"** or scan each other's QR code, without going through the server, to confirm that the key belongs to the right person.
 
-> ทำไมการเปรียบเทียบ safety number นอก server จึงช่วยจับ server ที่เปลี่ยนกุญแจได้ (คำใบ้: ขั้นที่ 9)
+> Why does comparing a safety number outside the server help catch a server that swapped the key? (hint: Step 9)
 
-**✍️ ลงใบตอบ (ขั้นที่ 10):** เขียนคำตอบ
+**✍️ Write in the answer sheet (Step 10):** write your answer
 
-#### ขั้นที่ 11 — ปิด lab และเช็กใบตอบ
+#### Step 11 — Shut down the lab and check your answer sheet
 
-**ทำอะไร:** ทำหลังจากคัดลอกผลครบแล้ว (สองคำสั่งนี้ลบ container ที่ค้างอยู่)
+**What to do:** Do this after you have copied all the results (these two commands remove the containers that are still running).
 
-**พิมพ์** ทีละบรรทัด:
+**Type** one line at a time:
 
 ```bash
 docker compose -f docker-compose.vulnerable.yml down
 docker compose -f docker-compose.fixed.yml down
 ```
 
-**ควรเห็น:** บรรทัดลงท้ายว่า `Removed` จากนั้นดูว่าในใบตอบมีครบ: ขั้นที่ 2, 3 (A1), ขั้นที่ 5, 6 (A2), ขั้นที่ 7, 8, 9, 10 (A3) แล้วไปทำส่วนของแบบตัวเอง: เลขคี่ทำ Part 3 และ Part 4 เลขคู่ทำ Part 2
+**You should see:** a line ending in `Removed`. Then check that your answer sheet has everything: Steps 2, 3 (A1), Steps 5, 6 (A2), Steps 7, 8, 9, 10 (A3). Then do the part for your own form: odd IDs do Part 3 and Part 4, even IDs do Part 2.
 
 ---
 
@@ -287,33 +287,33 @@ docker compose -f docker-compose.fixed.yml down
 
 ## Part 2 — Conventional form (40 points; only if Conventional is your assigned form)
 
-ตอบข้อละ 2–3 ประโยค ภาษาไทยได้ ส่วนนี้ให้**ตอบด้วยตัวเอง** ไม่ใช้ AI ตอบ
+Answer each item in 2–3 sentences. You may answer in English or Thai. In this part **answer by yourself**, without using AI to answer.
 
-**Q1 (10). HTTPS ยังไม่พอ.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+**Q1 (10). HTTPS is not enough.** Answer all three of these (1–2 sentences each):
 
-- ในขั้นที่ 2 การเชื่อมต่ออาจใช้ HTTPS ทำไม server ยังอ่านข้อความได้ (คำใบ้: ขั้นที่ 1 และ 3)
-- HTTPS ปกป้องข้อความจากใคร และไม่ปกป้องจากใคร
-- นอกจาก log ผู้ให้บริการอ่านข้อความได้จากที่ไหนอีก (เช่น ฐานข้อมูลของ server) และ server ทำอะไรกับข้อความที่ได้รับบ้าง
+- In Step 2 the connection may use HTTPS. Why can the server still read the message? (hint: Steps 1 and 3)
+- Who does HTTPS protect the message from, and who does it not protect it from?
+- Besides the log, where else can the provider read messages (for example the server's database), and what does the server do with the messages it receives?
 
-**Q2 (10). E2EE ต่างอย่างไร.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+**Q2 (10). How is E2EE different?** Answer all three of these (1–2 sentences each):
 
-- Alice ทำอะไรก่อนส่งข้อความในโหมด E2EE และใช้กุญแจของใคร (คำใบ้: ขั้นที่ 4 และ 7)
-- ทำไม server ที่เก็บและเขียน log ข้อความ ก็ยังอ่านไม่ได้ (คำใบ้: ขั้นที่ 5)
-- ทำไม Bob ยังอ่านได้ (กุญแจส่วนตัวอยู่ที่ไหน)
+- What does Alice do before sending the message in the E2EE mode, and whose key does she use? (hint: Steps 4 and 7)
+- Why can the server, which stores the messages and writes them to its log, still not read them? (hint: Step 5)
+- Why can Bob still read it? (where is the private key?)
 
-**Q3 (10). กุญแจเป็นของ Bob จริงไหม.** ตอบให้ครบสามอย่างนี้ (ข้อละ 1–2 ประโยค):
+**Q3 (10). Is the key really Bob's?** Answer all three of these (1–2 sentences each):
 
-- ใน lab Alice ได้กุญแจสาธารณะของ Bob จากไหน (คำใบ้: ขั้นที่ 9)
-- ถ้า server ไม่ซื่อสัตย์ จะทำอะไรกับกุญแจนั้นได้ และผลคืออะไร
-- ยกตัวอย่างวิธีป้องกันหนึ่งอย่าง (เช่น safety number หรือ QR ที่เปรียบเทียบนอก server) (คำใบ้: ขั้นที่ 10)
+- In the lab, where does Alice get Bob's public key from? (hint: Step 9)
+- If the server is dishonest, what can it do with that key, and what is the result?
+- Give one example of a defence (for example a safety number or a QR code compared outside the server) (hint: Step 10)
 
-**Q4 (10). Signal ดีกว่า PGP ตรงไหน.** ตอบให้ครบสองอย่างนี้ (ข้อละ 2–3 ประโยค): PGP ใช้งานยากสำหรับคนทั่วไปเพราะอะไร (เช่น หากุญแจของอีกฝ่ายยาก ต้องจัดการกุญแจเอง) และแอปแบบ Signal ช่วยผู้ใช้ทั่วไปอย่างไร (จัดการกุญแจให้อัตโนมัติ ตรวจกุญแจด้วย safety number และเปลี่ยนกุญแจต่อเนื่องเพื่อให้ข้อความเก่าปลอดภัยแม้กุญแจใหม่รั่ว)
+**Q4 (10). Where is Signal better than PGP?** Answer both of these (2–3 sentences each): why is PGP hard for ordinary people to use (for example it is hard to find the other person's key and you have to manage the keys yourself), and how does a Signal-style app help ordinary users (it manages the keys automatically, checks keys with a safety number, and keeps changing keys so old messages stay safe even if a new key leaks)
 
 ### Going further (optional — no marks)
 
-- **Q5 — ทำไมอีเมลเข้ารหัสไม่แพร่หลาย.** ข้อจำกัดของ PGP/S/MIME (การหากุญแจ ข้อมูลรอบข้างที่ยังเห็นได้) และถ้าออกแบบอีเมลใหม่จะเปลี่ยนอะไร
-- **Q6 — ปัญหาเปิดของ E2EE.** เลือกหนึ่งอย่าง: การส่งข้อความกลุ่ม, การซิงก์กุญแจหลายเครื่อง, หรือ Key Transparency พร้อมข้อดีข้อเสียระหว่างความปลอดภัยกับการใช้งาน
-- **Q7 — Double Ratchet.** forward secrecy และ post-compromise recovery คืออะไร และมีข้อจำกัดอะไร (เช่น ถ้าเครื่องปลายทางถูกยึดอยู่)
+- **Q5 — Why is encrypted email not widespread?** The limits of PGP/S/MIME (finding keys, the surrounding data that can still be seen), and what you would change if you designed email again
+- **Q6 — Open problems of E2EE.** Choose one: group messaging, syncing keys across several devices, or Key Transparency, with the trade-offs between security and ease of use
+- **Q7 — Double Ratchet.** What forward secrecy and post-compromise recovery are, and what their limits are (for example if the end device is seized)
 
 ---
 
@@ -321,7 +321,7 @@ docker compose -f docker-compose.fixed.yml down
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
-AI เขียน "แชตหลังบ้านที่ปลอดภัย" ให้ ดูน่าเชื่อถือ แต่เป็น**โหมดแรกของ lab นี้**
+An AI wrote a "secure chat backend" for you. It looks professional, but it is **the first mode of this lab**.
 
 > **AI's answer:**
 >
@@ -339,8 +339,8 @@ AI เขียน "แชตหลังบ้านที่ปลอดภั
 >
 > — end of AI answer —
 
-1. **Find what's wrong (10).** คัดลอกบรรทัดที่ผิด และอธิบาย 2–3 ประโยคว่าใครอ่านข้อความได้ทั้งที่ใช้ HTTPS (คำใบ้: ขั้นที่ 2)
-2. **Fix it (10).** ประโยค "ใช้ TLS จึงเป็น end-to-end" ผิดเพราะอะไร และแก้ให้ผู้ให้บริการอ่านไม่ได้อย่างไร (คำใบ้: ขั้นที่ 7)
+1. **Find what's wrong (10).** Copy the wrong line and explain in 2–3 sentences who can read the message even though HTTPS is used (hint: Step 2)
+2. **Fix it (10).** Why is the sentence "we use TLS, so it is end-to-end" wrong, and how would you change the design so that the provider cannot read the message? (hint: Step 7)
 
 > Disclose any other AI use in the Part 1 table. This task counts toward the **Audit the AI** row.
 
@@ -348,16 +348,16 @@ AI เขียน "แชตหลังบ้านที่ปลอดภั
 
 ## Part 4 — Comprehension & Prompt (AIR-Sec version only: EiPE 10 + Prompt 10)
 
-**A. Explain in Plain English (EiPE, 10).** เพื่อนถามว่า *"แชตของฉันใช้ HTTPS ข้อความก็ส่วนตัวแล้ว ทำไมต้อง end-to-end?"* อธิบาย 4–6 ประโยค **ไม่ใช้ศัพท์ยาก**: HTTPS ปกป้องอะไรและไม่ปกป้องอะไร, E2EE เพิ่มอะไร, และความเสี่ยงที่ยังเหลือ (เครื่องที่ถูกยึด)
+**A. Explain in Plain English (EiPE, 10).** A friend asks: *"My chat uses HTTPS, so my messages are already private. Why do I need end-to-end?"* Explain in 4–6 sentences, **without difficult words**: what HTTPS protects and does not protect, what E2EE adds, and the risk that is still left (a seized device).
 
-**B. Prompt Problem (10).** ใช้ AI ตัวไหนก็ได้ แล้วทำตามนี้:
+**B. Prompt Problem (10).** Use any AI you like and do this:
 
-1. เขียน prompt **หนึ่งอัน** ขอให้ AI อธิบายความต่างระหว่างแชตแบบ HTTPS กับ end-to-end
-2. คัดลอกคำตอบของ AI ลงใบตอบ
-3. ตรวจ: (ก) บอกถูกไหมว่า plaintext อยู่ที่ไหนในแต่ละแบบ (ข) บอกภัยที่กัน: HTTPS กันคนดักทาง E2EE กันผู้ให้บริการด้วย (ค) พูดอะไรผิดหรือแต่งเรื่องไหม (เช่น "HTTPS คือ end-to-end อยู่แล้ว")
-4. ในตารางของใบตอบ ติ๊ก **ผ่าน / ไม่ผ่าน** ทีละข้อพร้อมเหตุผล 1 ประโยค แล้วจบด้วย 1 ประโยคว่า จะเชื่อคำตอบของ AI นี้ไหม เพราะอะไร
+1. Write **one** prompt asking the AI to explain the difference between an HTTPS chat and an end-to-end chat.
+2. Copy the AI's answer into your answer sheet.
+3. Check: (a) does it say correctly where the plaintext is in each kind? (b) does it say what each protects against: HTTPS stops people listening on the way, E2EE also stops the provider? (c) does it say anything wrong or make anything up (for example "HTTPS is already end-to-end")?
+4. In the table in your answer sheet, tick **pass / fail** for each item with a one-sentence reason, then finish with one sentence saying whether you would trust this AI's answer, and why.
 
-ส่ง **prompt + คำตอบของ AI + ตารางตรวจพร้อมเหตุผลของตัวเอง**
+Submit **your prompt + the AI's answer + your check table with your own reasons**.
 
 ---
 
@@ -365,9 +365,9 @@ AI เขียน "แชตหลังบ้านที่ปลอดภั
 
 An instructor may ask any of these live, at random, to confirm you did the work yourself:
 
-1. "ในขั้นที่ 5 โค้ดของ server เหมือนเดิมทุกอย่าง ทำไมข้อความอ่านออกใน log ของโหมดแรก แต่ไม่ใช่โหมดที่สอง ความต่างมาจากไหน"
-2. "Alice ใช้กุญแจอะไรเข้ารหัส และทำไม server ที่แจกกุญแจนั้นยังถอดรหัสไม่ได้"
-3. "เพื่อนบอกว่า lab นี้พิสูจน์ว่า Alice คุยกับ Bob จริง ๆ จริงไหม lab พิสูจน์อะไรและไม่พิสูจน์อะไร"
+1. "In Step 5 the server's code is exactly the same. Why is the message readable in the log of the first mode but not in the second? Where does the difference come from?"
+2. "What key does Alice encrypt with, and why can the server, which hands out that key, still not decrypt it?"
+3. "A friend says this lab proves that Alice is really talking to Bob. Is that true? What does the lab prove and what does it not prove?"
 
 ---
 
@@ -375,9 +375,9 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 | Criterion | Conventional | AIR-Sec |
 |---|---:|---:|
-| A1 — server อ่านข้อความได้ (HTTPS อย่างเดียว) | 20 | 20 |
-| A2 — E2EE server อ่านไม่ได้ | 20 | 20 |
-| A3 — ความต่างและข้อจำกัด + reasoning | 20 | 20 |
+| A1 — the server can read the message (HTTPS only) | 20 | 20 |
+| A2 — E2EE, the server cannot read | 20 | 20 |
+| A3 — the difference and the limits + reasoning | 20 | 20 |
 | Conventional written questions (Q1–Q4) | 40 | — |
 | AIR-Sec Audit the AI | — | 20 |
 | AIR-Sec Explain in Plain English (EiPE) | — | 10 |
@@ -386,7 +386,7 @@ An instructor may ask any of these live, at random, to confirm you did the work 
 
 ## Evidence & Integrity (required)
 
-- ใส่ชื่อ รหัสนักศึกษา และวันที่ในใบตอบ และคัดลอกคำสั่งกับผลจากเครื่อง**ของตัวเอง** ข้อความลับเหมือนกันทุกคน (เป็นค่าคงที่ของ lab) สิ่งที่ทำให้งานเป็นของเรา คือผลที่คัดลอกจากเครื่องของเราเอง ตัวอักษร base64 สุ่มไม่เหมือนเพื่อนเป็นเรื่องปกติ ห้ามเอาผลของเพื่อนมาส่งเป็นของตัวเอง
-- **อธิบายด้วยคำของตัวเอง** (ให้คะแนนจากเหตุผล): ข้อที่ให้เติมคำจากคลังคำ (ขั้นที่ 3, 6, 8, 9) ใช้คำที่ให้ไว้ได้ ส่วนคำตอบสั้น ๆ ของขั้นที่ 10 และข้อเขียนของฟอร์มตัวเองต้องเขียนด้วยคำของตัวเอง (ทำไม server อ่านข้อความได้ทั้งที่ใช้ HTTPS ทำไม E2EE กันได้ และ lab ยังไม่พิสูจน์อะไร) ไม่ต้องเขียนเพิ่มนอกจากนี้
+- Put your name, student ID and date in the answer sheet, and copy the commands and results from **your own** computer. The secret message is the same for everyone (it is a fixed value of the lab). What makes the work yours is the results copied from your own computer. It is normal that your random base64 letters are not the same as a friend's. Do not submit a friend's results as your own.
+- **Explain in your own words** (marks are given for the reasoning): for the fill-in-the-blank items that give you a word bank (Steps 3, 6, 8, 9) you may use the words given. The short answer in Step 10 and the written part of your own form must be in your own words (why the server can read the message even though HTTPS is used, why E2EE stops that, and what the lab does not prove). You do not need to write anything more than that.
 
-**กำหนดส่งและการส่งช้า:** ส่งภายใน 23:59 น. (เวลาไทย) ของ **อาทิตย์ 31 ม.ค. 2027** (กฎ KOSEN: ก่อนคาบถัดไป) ส่งช้าหักวันละ 10% ของคะแนนใบงานนี้ (ไม่เต็มวันนับเป็นหนึ่งวัน) จนเหลือ 0 การอัปโหลดหรือเปลี่ยนไฟล์หลังกำหนดส่งนับว่าส่งช้าทั้งชิ้น ส่งงานร่วม 60 คะแนน และแบบของตัวเอง**หนึ่งแบบ**เท่านั้น ทำทั้งสองแบบไม่ได้คะแนนเพิ่ม Viva ใช้ตรวจความเข้าใจ ไม่มีคะแนนแยก
+**Deadline and late submission:** Submit by 23:59 (Thai time) on **Sunday 31 Jan 2027** (KOSEN rule: before the next class). A late submission loses 10% of this worksheet's marks for each day late (a part day counts as a day), down to 0. Uploading or replacing a file after the deadline counts the whole submission as late. Submit the common 60 marks and **one** form of your own only; doing both forms gives no extra marks. The viva is used to check understanding and has no separate marks.
