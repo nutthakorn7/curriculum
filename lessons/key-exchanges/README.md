@@ -5,16 +5,20 @@
 public-key authentication, forward secrecy · **Analogous CWE:** CWE-322 (Key Exchange without
 Entity Authentication), CWE-300 (Channel Accessible by Non-Endpoint)
 
-## This week — what to do
-1. **Before class** — Docker Desktop working (same Docker-first setup as `software-security` and
-   this course's {{ ref('macs') }}); skim last week's recap.
-2. **Lecture (120 min)** — weekly quiz first (~10 min), then the lecture: why raw DH gives you
-   secrecy against eavesdroppers but no identity guarantee at all. Slides: `{{ slides }}`.
-3. **Lab (180 min)** — run the demo in both modes below, then complete **Worksheet 5**
-   (`worksheet.md`, Part 1 — Conventional essays; Part 2 — AIR-Sec arm: lab evidence, EiPE,
-   Prompt Problem, viva prep).
-4. **Submit** — worksheet PDF + captured log evidence → see [SUBMISSION.md](../../SUBMISSION.md) · code unchanged (this is a
-   read/run/observe lab, not an exploit-and-fix-the-code lab) → GitHub. (How: [SUBMISSION.md](../../SUBMISSION.md).)
+## This week — 100-minute class and assigned assessment
+
+1. **Before class** — Prepare Docker and download the lab files before the contact block. Read the Week 4 recap.
+2. **In class (100 minutes)** — 10 quiz/review + 10 brief + 60 shared practice/analysis +
+   15 debrief + 5 evidence capture. The opening quiz reviews Week 4; the Week 5 quiz is
+   taken at the start of Week 6. Slides: `{{ slides }}`.
+3. **Common work (60 points)** — Run both DH topologies. Trace Relay's two independent handshakes, the intercepted message, and both authentication failures. Explain what the HMAC check changes and why fresh DH is still used. The worksheet guides this in 13 numbered steps: A1 relay reads the message (steps 1–4), A2 the HMAC check stops it (5–9), A3 why it works and its limits (10–12).
+4. **Assigned format (40 points)** — complete **either** four short Conventional questions
+   **or** AIR-Sec (Audit the AI 20 + EiPE 10 + Prompt Problem 10). Both versions total 100.
+   Viva checks support feedback/authenticity within the criteria; they add no separate marks.
+5. **After class** — finish the short explanations and assigned format. The group-validation
+   questions are optional study only. Submit the worksheet
+   PDF and required evidence according to [SUBMISSION.md](../../SUBMISSION.md). This week
+   has no separate code-fix/GitHub submission.
 
 ## Objectives
 - Explain why Alice and Bob need a *key exchange* rather than simply sending a symmetric key,
@@ -28,9 +32,8 @@ Entity Authentication), CWE-300 (Channel Accessible by Non-Endpoint)
 - Explain why authenticating the DH public keys (here: an HMAC under a pre-shared key) defeats
   that MITM, **without** giving up the property DH exists for in the first place (forward
   secrecy of the session key).
-- Recognize related pitfalls this week's code does *not* exploit but that Q7–Q9 ask you to
-  reason about: weak/non-standard groups, missing public-key validation, and small-subgroup
-  confinement.
+- Recognize that input validation is a separate concern; a small-subgroup attack is **not**
+  demonstrated or assessed this week.
 
 ## 🕵️ Signature game — "The Silent Third Wheel"
 Be the eavesdropper who becomes an active puppet-master: sit silently between Alice and Bob,
@@ -49,7 +52,7 @@ Three services, three roles, one shared 2048-bit MODP group (RFC3526 Group 14):
 |---|---|---|
 | `bob.py` | Server | Listens on `:5000`, does a DH handshake with whoever connects, decrypts one AES-GCM message, prints `BOB RECEIVED: <plaintext>`. |
 | `alice.py` | Client | Connects to `PEER_HOST:PEER_PORT` (`relay`, **never** `bob` directly), does a DH handshake, encrypts a fixed message under the derived key, sends it. |
-| `relay.py` | Attacker | Sits on the network path between Alice and Bob. In vulnerable mode it runs **two entirely independent DH handshakes** — one with Alice (posing as Bob), one with Bob (posing as Alice) — giving it two different shared secrets it alone knows. It decrypts Alice's message with the Alice-side key, logs it, then re-encrypts the *same* plaintext under the Bob-side key and forwards it on, so the handshake completes cleanly on both ends. |
+| `relay.py` | Attacker | Sits on the network path between Alice and Bob. In vulnerable mode it runs **two entirely independent DH handshakes** — one with Alice (posing as Bob), one with Bob (posing as Alice). Alice and Relay share the first secret; Bob and Relay share the second. Relay is the **only party holding both**. It decrypts Alice's message with the Alice-side key, logs it, then re-encrypts the same plaintext under the Bob-side key and forwards it on. |
 
 The premise: **Alice's `PEER_HOST` is `relay`, not `bob`.** That is the whole lesson — over an
 unauthenticated network, "whoever answers when I dial Bob's address" is not the same claim as
@@ -57,12 +60,12 @@ unauthenticated network, "whoever answers when I dial Bob's address" is not the 
 discrete-log problem), but it gives neither side any way to check *who* they just agreed that
 secret with. An *active* attacker who can intercept and re-originate connections can simply run
 the protocol twice and stand in the middle — invisibly, because both handshakes complete
-successfully and no MAC/signature ever gets checked.
+successfully and no independently trusted authentication tag gets checked.
 
 The fix (`SIGNED=1`) does **not** replace DH with sending a symmetric key directly — Alice and
-Bob still run a fresh DH exchange every session, so the session key is still ephemeral (forward
-secrecy: if `AUTH_KEY` leaks next year, past captured traffic is still safe). What changes is
-that each side HMAC-signs its DH **public key** under a pre-shared `AUTH_KEY` that `relay` does
+Bob still run a fresh DH exchange every session. If the ephemeral DH secrets are erased,
+later disclosure of `AUTH_KEY` alone does not reveal captured past session traffic. Each side
+computes an HMAC **tag** over its DH public key under a pre-shared `AUTH_KEY` that `relay` does
 not have, and verifies the peer's tag before deriving any session key. `relay` still *attempts*
 the identical key-substitution attack — same code path, same two-handshake structure — but
 without `AUTH_KEY` it cannot forge a valid tag for the public keys it substitutes, so Alice's and
@@ -70,16 +73,25 @@ Bob's own verification fails and both abort. (Production systems typically authe
 signatures/certificates rather than a shared secret — TLS and SSH both do this — but the
 principle demonstrated here, *authenticate the exchange, don't just run it*, is the same one.)
 
-**What this lab does *not* show:** a small-subgroup attack, or the consequences of skipping
-public-key validation (this code does not validate `peer_y` against the group order — see
-Worksheet Q8/Q9). Those stay conceptual this week (Part 2b, EiPE) — the running demo is
-specifically the key-substitution MITM, not subgroup confinement.
+**What this lab does *not* show:** a small-subgroup attack or the consequences of skipping
+public-key validation. Those are optional study topics. The running demo is specifically
+the key-substitution MITM.
 
 ## Run it
 
+Start Docker Desktop and wait for **Engine running**. Download the course ZIP from
+<https://github.com/nutthakorn7/security-cryptography> (**Code → Download ZIP**)
+and extract it, unless your existing Week 4 ZIP already has this lab. Open
+`security-cryptography-master/labs/week05-key-exchanges` in File Explorer (Windows)
+or Finder (Mac). On Windows, right-click empty space and choose **Open in Terminal**
+(or Shift-right-click → **Open PowerShell window here**). On Mac, open Terminal,
+type `cd `, drag the lab folder into Terminal, then press Enter. Check that `dir`
+(Windows) or `ls` (Mac) lists both `docker-compose.vulnerable.yml` and
+`docker-compose.fixed.yml`. Run every command below from that lab folder; no host
+Python installation is needed. The worksheet has the full beginner checklist.
+
 Vulnerable mode — full, invisible MITM:
 ```bash
-cd {{ labpath }}
 docker compose -f docker-compose.vulnerable.yml up --build
 ```
 Expected log lines (interleaving/ports/IPs vary run to run — the container names and message
@@ -142,14 +154,19 @@ this directory, `down` + images removed after each mode).
   code `1` each), `RELAY: (fixed mode) attempted DH substitution with Alice (posing as Bob)` and
   the matching line for Bob, and **zero** occurrences of `RELAY INTERCEPTED` — confirmed with
   `docker compose -f docker-compose.fixed.yml logs | grep -c "RELAY INTERCEPTED"` returning `0`
-  on both runs.
+  on both runs (Mac/Linux Terminal). On Windows PowerShell, use
+  `(docker compose -f docker-compose.fixed.yml logs | Select-String -SimpleMatch "RELAY INTERCEPTED" | Measure-Object).Count`.
 - Both stacks were torn down (`docker compose down`) and their built images removed after
   verification; nothing was left running.
 
 ## Deliverable
-Worksheet 5 (`worksheet.md`, Parts 1–2), including the captured log evidence from both modes
-(Part 2a), the EiPE explanation of small-subgroup attacks (Part 2b), the Prompt Problem critique
-(Part 2c), and viva prep (Part 2d).
+
+Submit the common evidence and reasoning (60) plus only the assigned Conventional (40)
+or AIR-Sec (40) format. The details below describe the common artifact; the worksheet
+identifies the alternative sections.
+Worksheet 5: shared log evidence and control/limitations explanation (common 60), plus
+either four short Part 1 questions (Conventional 40) or Audit-the-AI, EiPE and Prompt
+Problem tasks (AIR-Sec 20/10/10). Part 2d viva is formative/authenticity feedback.
 
 ## References
 - RFC 3526, *More Modular Exponential (MODP) Diffie-Hellman groups for Internet Key Exchange
@@ -157,5 +174,5 @@ Worksheet 5 (`worksheet.md`, Parts 1–2), including the captured log evidence f
 - Boneh & Shoup, *A Graduate Course in Applied Cryptography*, ch. 10 (Key Exchange) — covers
   authenticated vs. unauthenticated DH and active-attacker MITM; free online.
 - NIST SP 800-56A Rev. 3, *Recommendation for Pair-Wise Key-Establishment Schemes Using Discrete
-  Logarithm Cryptography* — public-key validation requirements (relevant to Q8/Q9).
+  Logarithm Cryptography* — public-key validation requirements (optional study).
 - https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange#Man-in-the-middle_attack

@@ -6,7 +6,7 @@ not `bob` -- Alice has no way to tell the difference over an unauthenticated
 channel). Performs a Diffie-Hellman handshake, derives an AES-256-GCM key
 from the shared secret, encrypts a fixed secret message, and sends it.
 
-In "fixed" (authenticated) mode -- SIGNED=1 -- Alice additionally HMAC-signs
+In "fixed" (authenticated) mode -- SIGNED=1 -- Alice additionally computes an HMAC tag for
 her DH public key with a pre-shared AUTH_KEY and verifies the peer's HMAC tag
 on their public key before deriving any session key. If verification fails,
 Alice prints "AUTH FAILED - ABORTING" and exits nonzero.
