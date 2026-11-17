@@ -95,9 +95,10 @@ sends the result to `/decrypt`, and prints the server's answer. It uses only the
 and never sees a key.
 
 Flag configuration: the shared demo flag is fine. Every student's run shows the same ciphertext
-because the lab uses a fixed key and nonce **for this demo only**: it encrypts exactly one message.
-Real systems must never repeat a nonce under a key. Record the value from your own run with your own
-evidence and explanation; no personal flag is required this week.
+because this demo encrypts the same message with a fixed key and nonce. Do not substitute different
+personal flags while keeping that key and nonce: reuse across runs would break GCM's security rule.
+Real systems must use a unique nonce for each encryption under a key, including across processes.
+Record the value from your own run with your own evidence and explanation; no personal flag is required this week.
 
 **Verified (2026-11-09):** every command in `worksheet.md` was run in order against freshly started
 containers on this machine. The CBC secret is 88 base64 characters (IV + 3 blocks) and the GCM one

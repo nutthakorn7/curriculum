@@ -30,9 +30,9 @@ assert len(KEY) == 32, "AES_KEY_HEX must be 64 hex chars (32 bytes) for AES-256"
 
 FLAG_AEAD = os.environ.get("FLAG_AEAD", "FLAG{padding_oracle_leaks_all}")
 
-# 96-bit nonce (GCM standard). Fixed so /secret is stable within a process. (In real systems a
-# GCM nonce must be UNIQUE per message under a key -- see Week 10's nonce-reuse audit; a fixed
-# nonce is acceptable here only because we encrypt exactly one message per process.)
+# 96-bit nonce (GCM standard). Fixed for this shared, identical-message demo only.
+# Different FLAG_AEAD values with this default key would reuse the key/nonce pair across runs.
+# Real systems need a unique nonce per encryption under a key, including across processes.
 NONCE = bytes.fromhex(os.environ.get("AES_NONCE_HEX", "0f1e2d3c4b5a69788796a5b4"))
 assert len(NONCE) == 12, "AES_NONCE_HEX must be 24 hex chars (12 bytes)"
 
@@ -69,7 +69,7 @@ def secret():
 @app.route("/decrypt", methods=["POST"])
 def decrypt():
     body = request.get_json(silent=True) or {}
-    blob = body.get("ciphertext", "")
+    blob = body.get("ciphertext", "") if isinstance(body, dict) else ""
 
     # UNIFORM failure. EVERY error -- bad base64, wrong length, bad nonce, tag mismatch -- returns
     # the identical 403. A 400-vs-403 split, or a 500 stack trace, would reintroduce exactly the
