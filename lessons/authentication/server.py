@@ -6,7 +6,7 @@ One binary, two behaviours, selected by the PAKE environment variable:
 VULNERABLE (PAKE unset/empty) -- plain password login:
     POST /login  {username, password}
     The server receives the ACTUAL password in the request body. It LOGS it:
-        SERVER SAW PASSWORD: correct-horse-battery
+        SERVER SAW PASSWORD: <submitted password>
     then checks it against the stored verifier and returns {"status": "ok"}.
     This models a malicious / compromised / over-logging server harvesting the
     plaintext password. Note: TLS would encrypt this on the wire, but the
@@ -38,17 +38,15 @@ PAKE = os.environ.get("PAKE", "").strip() == "1"
 LISTEN_HOST = os.environ.get("LISTEN_HOST", "0.0.0.0")
 LISTEN_PORT = int(os.environ.get("LISTEN_PORT", "8080"))
 
-# The one demo account. In the fixed path the server stores ONLY (salt,
-# verifier) -- never the password. We derive the verifier once at startup from
-# a password the *provisioning* step knew; in a real system the verifier would
-# have been registered by the user's own client and the server would never
-# have touched the plaintext at all. We keep the plaintext in a constant here
-# ONLY so the vulnerable path has something to compare against; the fixed path
-# below never reads DEMO_PASSWORD after startup.
+# The one demo account. This verifier was precomputed for the lab password
+# during an imaginary registration step. The fixed server image contains only
+# the public salt and password-derived verifier, not the plaintext password.
+# This is not a real registration protocol or a production-safe verifier.
 DEMO_USERNAME = "alice"
-DEMO_PASSWORD = b"correct-horse-battery"
 DEMO_SALT = b"week14-demo-salt"
-DEMO_VERIFIER = derive_verifier(DEMO_SALT, DEMO_PASSWORD)
+DEMO_VERIFIER = bytes.fromhex(
+    "d40d66b95547a1a3526a4d424c693a0ea39e8203234335ce0ba48bc212778524"
+)
 
 # Issued challenges: username -> nonce (single-use, popped on /login).
 _outstanding_nonces: dict[str, bytes] = {}
@@ -78,8 +76,12 @@ def challenge():
 
 @app.post("/login")
 def login():
-    body = request.get_json(force=True, silent=True) or {}
+    body = request.get_json(force=True, silent=True)
+    if not isinstance(body, dict):
+        return jsonify({"status": "denied", "reason": "expected a JSON object"}), 400
     username = body.get("username", "")
+    if not isinstance(username, str):
+        return jsonify({"status": "denied", "reason": "invalid username"}), 400
 
     if not PAKE:
         # -------------------------------------------------------------------
@@ -88,11 +90,13 @@ def login():
         # writes it straight to the log before doing anything else.
         # -------------------------------------------------------------------
         password = body.get("password", "")
+        if not isinstance(password, str):
+            return jsonify({"status": "denied", "reason": "invalid password field"}), 400
         print(f"SERVER SAW PASSWORD: {password}", flush=True)
 
         ok = (
             username == DEMO_USERNAME
-            and derive_verifier(DEMO_SALT, password.encode()) == DEMO_VERIFIER
+            and secrets.compare_digest(derive_verifier(DEMO_SALT, password.encode()), DEMO_VERIFIER)
         )
         if ok:
             return jsonify({"status": "ok"})
@@ -106,17 +110,22 @@ def login():
     # -----------------------------------------------------------------------
     nonce_hex = body.get("nonce", "")
     proof_hex = body.get("proof", "")
-    print(f"SERVER SAW: nonce={nonce_hex} proof={proof_hex}", flush=True)
-
-    expected_nonce = _outstanding_nonces.pop(username, None)
-    if expected_nonce is None:
-        return jsonify({"status": "denied", "reason": "no outstanding challenge"}), 401
+    if not isinstance(nonce_hex, str) or not isinstance(proof_hex, str):
+        return jsonify({"status": "denied", "reason": "invalid nonce/proof fields"}), 400
 
     try:
         nonce = bytes.fromhex(nonce_hex)
         proof = bytes.fromhex(proof_hex)
     except ValueError:
         return jsonify({"status": "denied", "reason": "malformed nonce/proof"}), 400
+    if len(nonce) != 16 or len(proof) != 32:
+        return jsonify({"status": "denied", "reason": "wrong nonce/proof length"}), 400
+
+    print(f"SERVER SAW: nonce={nonce.hex()} proof={proof.hex()}", flush=True)
+
+    expected_nonce = _outstanding_nonces.pop(username, None)
+    if expected_nonce is None:
+        return jsonify({"status": "denied", "reason": "no outstanding challenge"}), 401
 
     if nonce != expected_nonce:
         return jsonify({"status": "denied", "reason": "stale or wrong nonce"}), 401

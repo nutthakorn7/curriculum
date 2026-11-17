@@ -18,11 +18,10 @@ The lab contrasts two ways a client can "log in" to a server:
 
 HONEST SCOPE (read this): the fixed side here demonstrates ONLY the
 "password is never transmitted" property. It is a deliberately simplified
-challenge-response, NOT a full PAKE. A real PAKE (SRP, OPAQUE) additionally
-(a) makes the stored verifier resistant to offline dictionary attacks if the
-server database leaks, and (b) provides mutual authentication (the client also
-verifies it is talking to the genuine server). This demo provides neither of
-those extra properties -- do not present it as a complete PAKE. See README.md
+challenge-response, NOT a full PAKE. A real PAKE adds mutually authenticated key exchange and resistance to offline
+guessing from protocol transcripts. OPAQUE prevents pre-computation, not all
+offline guesses after full server compromise (RFC9807 section10.11).
+This toy protocol lacks those guarantees and its verifier is password-equivalent. See README.md
 and the worksheet for where this simplification matters.
 """
 import hashlib
@@ -54,9 +53,9 @@ def compute_proof(verifier: bytes, nonce: bytes) -> bytes:
 
     The client computes this from verifier = KDF(salt, password) it derived
     locally; the server recomputes it from the verifier it has stored. If the
-    two match, the client has demonstrated knowledge of the password WITHOUT
-    ever sending the password itself -- only this proof and the public nonce
-    ever go on the wire.
+    two match, the client has the verifier or can derive it; a verifier thief
+    can also authenticate. The login sends the proof and public nonce, not
+    the password. This toy result is not password-only proof of knowledge.
     """
     return hmac.new(verifier, nonce, hashlib.sha256).digest()
 
