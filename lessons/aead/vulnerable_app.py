@@ -99,7 +99,7 @@ def secret():
 @app.route("/decrypt", methods=["POST"])
 def decrypt():
     body = request.get_json(silent=True) or {}
-    blob = body.get("ciphertext", "")
+    blob = body.get("ciphertext", "") if isinstance(body, dict) else ""
 
     # EVERY error path funnels to the SAME 403 as "bad padding" EXCEPT one: valid padding -> 200.
     # A distinct response for malformed input would itself be an extra side channel, so we avoid
