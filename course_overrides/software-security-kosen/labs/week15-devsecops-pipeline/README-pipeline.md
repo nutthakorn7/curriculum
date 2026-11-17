@@ -19,14 +19,13 @@ copy it into a repo's `.github/workflows/` directory.
 
 ## 1. Wire it in
 
+In a lab-only repository that holds this lab's files: `git add .` includes the workflow AND the lab source it scans, and the push runs the workflow:
 ```bash
-# In a prepared lab-only repository containing this lab's files:
 mkdir -p .github/workflows
-cp path/to/labs/week15-devsecops-pipeline/security-ci.yml \
-   .github/workflows/security-ci.yml
-git add .  # include the workflow AND the lab source it scans
+cp security-ci.yml .github/workflows/security-ci.yml
+git add .
 git commit -m "ci: add security gate (Semgrep + Trivy + Gitleaks)"
-git push        # the workflow runs on push/PR to main
+git push
 ```
 
 No secrets are required: Semgrep, Trivy, and Gitleaks all run with the
@@ -91,16 +90,18 @@ Report-then-gate gives you both the full picture *and* a red build.
 
 ## 6. Run the sample service locally (logging + fail-closed demo)
 
+From this lab folder (on Git Bash for Windows, activate with `source .venv/Scripts/activate`):
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate  # Git Bash on Windows: source .venv/Scripts/activate
+source .venv/bin/activate
 python -m pip install flask
 python sample-service.py
-# In another shell:
-curl -s -X POST localhost:5001/login -H 'Content-Type: application/json' \
-     -d '{"token":"nope"}'                       # -> 401, logs authn_failure
-curl -s localhost:5001/admin -H 'Authorization: bob-token'   # -> 403 authz_failure
-curl -s localhost:5001/admin -H 'Authorization: alice-token' # -> 200 (admin)
+```
+In another window, expect 401 (`authn_failure`), 403 (`authz_failure`) and 200 (admin):
+```bash
+curl -s -X POST localhost:5001/login -H 'Content-Type: application/json' -d '{"token":"nope"}'
+curl -s localhost:5001/admin -H 'Authorization: bob-token'
+curl -s localhost:5001/admin -H 'Authorization: alice-token'
 ```
 Watch the structured `event=...` security log lines — those are what a SIEM
 would alert on (A09). Note that errors deny by default (A10, fail-closed).
