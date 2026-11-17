@@ -2,53 +2,55 @@
 marp: true
 theme: default
 paginate: true
-header: "Software Security 2 · KOSEN02005094 · Week 9 · Midterm individual practical"
+header: "Software Security 2 · 02005094 · Week 9 · Midterm practical"
 ---
 
 # Week 9 — Midterm individual practical
-## Current KOSEN02005094 sitting
-Individual · scope: Weeks 1–6
+## Software Security 2 (02005094)
+Individual work · revise Weeks 1–4 and 6
 
-<!-- Use the current bounded sitting pack and matching key, with preflighted dependencies/fixtures. No new hosted instance or personal flag is claimed to be deployed. -->
+<!-- Instructor: use the current sitting pack and matching key, with dependencies checked beforehand. No hosted instance or personal flag is issued unless announced. -->
 
 ---
 
 ## Format and time
 
-- **150-minute slot:** briefing 10 + bounded tasks 130 + submission 10
-- **Four bounded stations ×25 raw = 100**
-- Ability classification: **Basic 50 + Technical 50**; course contribution **12%**
-- Fixed academic rubric; dynamic CTFd scores, first-blood, prizes and HouseXP add no course points
+- **150 minutes in total:** 10 minutes briefing + 130 minutes on the tasks + 10 minutes to check your upload
+- **Four stations × 25 points = 100 points**
+- Each station is marked in two halves: **Basic 50 + Technical 50** in total
+- The practical counts as **12%** of your course grade
+- Leaderboards, "first blood", prizes and House XP give no course marks
 
 ---
 
-## Four station plan —130 task minutes
+## The four stations — 130 minutes
 
-- **A: 35 minutes,25 raw** — Threat model and scanner triage
-- **B: 35 minutes,25 raw** — Successful-login password-record migration
-- **C: 30 minutes,25 raw** — Parameterized SQL and validated IPv4 argv control
-- **D: 30 minutes,25 raw** — Pinned JWT verification and object ownership
+- **A · 35 minutes · 25 points** — Threat model and scanner triage (Weeks 1–2)
+- **B · 35 minutes · 25 points** — Move old password records to Argon2id at login (Week 3)
+- **C · 30 minutes · 25 points** — Parameterized SQL and a safe IPv4 ping (Week 4)
+- **D · 30 minutes · 25 points** — Check the login token and who owns the order (Week 6)
 
-Follow the issued starter/evidence scope. Do not add the older full challenge bank to this sitting.
-
----
-
-## Evidence and marking
-
-- Submit changed source/diff, exact command and observed result
-- Include a legitimate positive control and a negative control
-- Explain the mechanism, correction and remaining limits
-- A flag alone does not earn full academic marks; public demo values are not personal proof
-
-Each station: Basic 12.5 for observation/mechanism/evidence interpretation + Technical 12.5 for correction/controls/reproduction. Total Basic 50 + Technical 50 converts to course 6 +6.
+Use only the starter files in the exam pack your instructor hands out.
 
 ---
 
-## Submission and project arrangements
+## What earns marks
 
-- Use only the supplied authorized sandbox pack and announced submission assignment
-- Use an assigned hosted instance only when the instructor actually issues one
-- Stop task work after 130minutes; use the final 10minutes to verify submission
-- Individual work; submit one evidence bundle per student
+- Hand in the file you changed (or a diff), the exact command and what you saw
+- Include one **positive test** (normal use still works) and one **negative test** (the attack is refused)
+- Explain why the problem happened, why your fix works, and one limit of your test
+- A flag on its own does not earn full marks
 
-[Current four-station brief](../labs/week09-midterm-practical/ctf.md)
+Each station: **Basic 12.5** (finding, explanation, reading your results) + **Technical 12.5** (your fix, your tests, repeatable results). Basic 50 + Technical 50 → 6 + 6 course marks.
+
+---
+
+## On the day
+
+- Work only on the exam pack, on your own machine; never attack another system
+- Use a hosted server only if your instructor gives you one
+- Stop task work after 130 minutes; use the final 10 minutes to check your upload opens
+- Individual work: one evidence file per student
+- Date, room and permitted aids: see the official exam notice
+
+[Read the full practical brief](../labs/week09-midterm-practical/ctf.md)
