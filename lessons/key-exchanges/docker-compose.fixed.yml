@@ -3,7 +3,7 @@
 # Run with:
 #   docker compose -f docker-compose.fixed.yml up --build
 #
-# Alice and Bob share AUTH_KEY (relay does NOT have it) and each HMAC-signs
+# Alice and Bob share AUTH_KEY (relay does NOT have it) and each creates an HMAC tag for
 # their DH public key with it, verifying the peer's tag before deriving any
 # session key. `relay` still attempts the same key-substitution attack as in
 # the vulnerable topology, but without AUTH_KEY it cannot forge a valid tag

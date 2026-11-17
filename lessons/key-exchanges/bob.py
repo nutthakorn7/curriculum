@@ -6,7 +6,7 @@ topology, that is actually `relay`, not `alice`), derives an AES-256-GCM key
 from the shared secret, reads one encrypted message, decrypts it, and prints
 "BOB RECEIVED: <plaintext>".
 
-In "fixed" (authenticated) mode -- SIGNED=1 -- Bob additionally HMAC-signs his
+In "fixed" (authenticated) mode -- SIGNED=1 -- Bob additionally computes an HMAC tag for his
 DH public key with a pre-shared AUTH_KEY and verifies the peer's HMAC tag on
 their public key before deriving any session key. If verification fails, Bob
 prints "AUTH FAILED - ABORTING" and exits nonzero, refusing to proceed with a
