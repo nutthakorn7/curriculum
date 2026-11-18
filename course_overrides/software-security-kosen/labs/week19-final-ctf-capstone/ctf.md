@@ -1,53 +1,53 @@
-# Final team practical — current KOSEN assessment
+# Final team practical — the four stations
 
-**02005094 · Week 19 · 150-minute slot: briefing10 + bounded tasks130 + submission10.**
+**02005094 · Week 19 · 150-minute exam: 10 minutes instructions + 130 minutes on the stations + 10 minutes to check your submission.**
 
-**Raw 100 · Technical 100 · course contribution 15%. Existing teams of 2–3.** Only the four stations below are required. Course marks use the fixed rubric, independent of CTFd dynamic scores, first-blood, prizes or House XP. A flag alone does not demonstrate correction and cannot earn full academic marks.
+**100 marks, all Technical · counts 15% of the course · your existing project team of 2–3.** Only the four stations below are required. Marks come from the fixed marking scheme at the bottom of this page, not from scoreboard points, bonuses for solving first, prizes or House points. A flag alone does not show that you fixed anything, so it cannot earn full marks.
 
-![Four fixed stations, 130 task minutes, raw 100; flags and engagement scores do not replace evidence.](img/capstone-map.svg)
+![Four stations, 130 minutes, 100 marks; flags and game points do not replace evidence.](img/capstone-map.svg)
 
-The instructor supplies a preflighted local examination pack with the selected starters, data and dependency/runtime instructions. Public weekly labs are practice, not personalized examination evidence; fresh exam flags/instances are not claimed to be deployed. If a supplied hosted instance is used, its proof must come from the assigned instance, but the correction and control evidence below still applies. Never attack an external system.
+Your instructor gives you a starter pack on the day, already tested, with the starter code, data and instructions to run it offline. The weekly labs are for practice; your exam evidence must come from the exam pack. If your instructor gives you an online exam instance, take your proof from that instance; the fix and check evidence below still applies. Never attack any system outside the exam pack.
 
-## Station A — API boundary and field control: 25 raw points, 30 minutes
+**How to prepare:** redo the weekly student task that matches each station (listed under each station below).
 
-**Scope:** W10 with W4–6 callback.
+## Station A — Who may read what, and which fields a client may set: 25 marks, 30 minutes
 
-Implement owner/admin order authorization and an allowlist of account-creation fields. Demonstrate owner/admin success, cross-user denial and exclusion of a privilege field. Explain why the teaching identity-header assumption is not a production authentication design.
+**Practice:** Week 10 (plus Weeks 4–6).
 
-**Submit:** Student code, positive/negative checks and the trust-boundary explanation.
+Write the owner/admin check for reading orders, and a list of fields a client may set when creating an account. Show that the owner and an admin can read the orders, that another user is refused, and that a privilege field such as `is_admin` is ignored or rejected. Explain why the lab's identity header is not real login.
 
-## Station B — Memory safety and input boundary: 25 raw points, 35 minutes
+**Submit:** your code, the checks that pass and fail as expected, and your explanation of where the trust boundary is.
 
-**Scope:** W11.
+## Station B — Memory safety and input checks: 25 marks, 35 minutes
 
-Use the supplied architecture-compatible starter. Explain the unsafe C copy and build-specific ret2win offset from provided diagnostic evidence; complete the Rust Unicode scalar-value counter and validate the supplied invalid-UTF-8 path. Run valid and invalid-input controls. No exploit construction/fuzzing from scratch is required.
+**Practice:** Week 11.
 
-**Submit:** Diagnostic explanation plus student Rust code and both observed controls. The provided C crash trace is an input, not proof that the student ran an exploit.
+Use the starter that matches your computer. Using the crash information you are given, explain the unsafe C copy and why the ret2win offset only works on that one build. Then finish the Rust function that counts Unicode characters, and check that it handles the invalid UTF-8 input you are given. Run one valid and one invalid input. You do not have to write an exploit or fuzz anything yourself.
 
-## Station C — Artifact trust and least privilege: 25 raw points, 30 minutes
+**Submit:** your explanation of the crash information, your Rust code, and the output of both input checks. The C crash trace is given to you; it is not proof that you ran an exploit.
 
-**Scope:** W12/W13.
+## Station C — Trusting a signed file, and least privilege: 25 marks, 30 minutes
 
-Complete the trusted-public-key fingerprint decision in the prepared local RSA signature fixture. Run trusted-valid, tampered and valid-wrong-key controls; identify the separate authorization decisions in a supplied minimal S3 policy and correct the indicated wildcard. Explain the local fixture/runtime limits.
+**Practice:** Weeks 12 and 13.
 
-**Submit:** Student key-pin patch, three verification outcomes, one focused policy diff and scope statement. No registry/OIDC/AWS account is required.
+In the prepared local signature example, finish the code that accepts a signature only if the public key's fingerprint is the trusted one. Run three checks: valid signature with the trusted key, tampered file, and valid signature with the wrong key. Then, in a small S3 policy you are given, point out the separate permission decisions and fix the marked `*` wildcard. Explain what this local test cannot prove about a real system.
 
-## Station D — AI output boundary and fail-closed CI: 25 raw points, 35 minutes
+**Submit:** your key-check code, the three results, one policy diff, and a short statement of what your test covers. You do not need a registry, an OIDC login or an AWS account.
 
-**Scope:** W14/W15.
+## Station D — Untrusted AI output, and deny on error: 25 marks, 35 minutes
 
-Complete secret redaction plus HTML text encoding and fail-closed authorization on a lookup exception. Keep a legitimate request working; reject the secret/XSS or exception case. Record safe audit fields without leaking token/exception text.
+**Practice:** Weeks 14 and 15.
 
-**Submit:** Student patches, positive/negative checks and safe log output. No external AI account or hosted jailbreak leaderboard is required.
+Finish two things: remove the secret from the AI output and HTML-escape it, and make the permission check deny access when the lookup throws an error. Keep a normal request working; refuse the secret, the script markup and the error case. Write a safe log line that never contains the token or the error text.
 
-## Fixed marking and conversion
+**Submit:** your code changes, the checks that pass and fail as expected, and the safe log output. You do not need an online AI account.
 
-Each station: root cause and boundary5 + student correction10 + legitimate/negative controls7 + reproducible evidence/limits3 =25. Four stations give raw 100, all Technical. Course contribution = raw/100×15. Record each member's contribution; team2–3 matches existing project grouping. Evidence and reasoning, not flag count, establish partial credit. Leaderboard/first-blood is engagement only.
+## Marking scheme
 
-The project report/code and video of at most 5 minutes are due **before this session** and carry their separate15% rubric. There is no project Q&A inside the130-minute practical. Clarification belongs in Weeks16 and20; the project peer-adjusted raw is capped at 100 before ×0.15.
+Each station (25 marks): root cause and trust boundary 5 + your fix 10 + one allowed and one refused example 7 + evidence that someone else can repeat, and the limits 3 = 25. Four stations = 100 marks, all Technical. Course points = marks ÷ 100 × 15. Write down what each team member did. Partial marks come from your evidence and reasoning, not from how many flags you found. Leaderboard points give no marks.
+
+Your project report, code and a video of at most 5 minutes are due **before this exam** and are marked separately (15% of the course). There are no project questions during the 130 minutes; ask them in Weeks 16 and 20. Each member's project mark is adjusted by peer contribution and can be at most 100 before it is converted to 15%.
 
 ## Submission
 
-Submit one evidence bundle per student (midterm) or existing team (final): station ID, changed source/diff, exact command, observed result, legitimate positive control, negative control, mechanism and remaining limits. Use the actual sitting assignment announced by the instructor; this update does not silently repurpose historical MFU assignment #16 or change old grades. Verify upload within the final10minutes; no extra task work is scheduled then.
-
-The complete earlier challenge sheet archived in the course source remains an optional practice bank. Its old challenge count, hash-cracking/ECB tasks, raw totals and flag-only submission rule are superseded for this KOSEN sitting.
+Submit **one evidence pack per team**. For each station include: the station letter, your changed code or diff, the exact command, what it printed, one example that should work, one that should be refused, how the problem works, and what your fix still cannot prove. Submit where your instructor announces. Use the last 10 minutes to check that your upload arrived; there is no extra station work in that time.
