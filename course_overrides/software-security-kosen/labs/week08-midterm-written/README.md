@@ -4,4 +4,4 @@
 
 Scope: Weeks 1–6: threat modeling, tooling, application crypto misuse/migration, injection, XSS and authentication/authorization. Correction, appropriate controls and limits are assessed.
 
-This is a paper exam and **closed book**: bring only a pen. No notes, phone, calculator or computer. The real exam paper is handed out at the exam; the specimen is for practice only. Watch for the official midterm notice as well. [Agenda](../../AGENDA.md) · [Syllabus](../../syllabus.md).
+This is a paper exam and **closed book**: bring your student ID card and a pen (blue or black). No notes, phone, calculator or computer. The real exam paper is handed out at the exam; the specimen is for practice only. Watch for the official midterm notice as well. [Agenda](../../AGENDA.md) · [Syllabus](../../syllabus.md).

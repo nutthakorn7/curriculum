@@ -2,7 +2,7 @@
 
 **Software Security 2 (02005094) · individual work · Tuesday 29 December 2026, 09:05–11:50, in our usual classroom.** 150 minutes in total: 10 minutes of instructions, 130 minutes on the tasks, 10 minutes to collect papers.
 
-**This is a paper exam.** You get printed code, scanner results and test output, and you write your answers on the paper. **Closed book: bring only a pen.** No computer, phone, notes or AI.
+**This is a paper exam.** You get printed code, scanner results and test output, and you write your answers on the paper. **Closed book: bring your student ID card and a pen (blue or black).** No computer, phone, notes or AI.
 
 There are **four stations (A, B, C, D)**. Each station is worth 25 points, so the practical is out of 100. Those 100 points count as **12% of your course grade**. What each station asks and how it is marked: **[practical brief](ctf.md)**.
 
