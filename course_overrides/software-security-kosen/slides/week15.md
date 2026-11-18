@@ -177,7 +177,7 @@ fail-open
 - **Score:** Blue +1 per catch · Red +1 per defect that slips through (e.g. `chmod 777`, `FROM :latest` stay green) — then propose a rule that would catch it
 - **Flag:** leak it from the fail-open `/admin` in `insecure_service.py` (local run = public demo flag; personal flag only if an instance is actually issued)
 
-<!-- The full scanner game remains extended project practice. In class, capture one prepared bounded checker red result and a corrected green result; keep the legitimate-admin positive control and safe-log evidence. Game points do not add to the worksheet rubric. -->
+<!-- The full scanner game remains extended project practice. In class, capture one local bounded checker red result and a corrected green result; keep the legitimate-admin positive control and safe-log evidence. Game points do not add to the worksheet rubric. -->
 
 ---
 
@@ -215,11 +215,11 @@ red-team-pr
 
 - Your bounded `student_task.py` fail-closed and safe-log change
 - `python3 check_student.py` results: deny missing/invalid/error cases while preserving legitimate admin access
-- One prepared `student-check-ci.yml` red run and corrected green run under the same checks; record the local equivalent if CI is unavailable
+- One local `check_student.py` red result before your fix and a green result after it, under the same checks
 - Full scanner workflow and all three planted-defect families: extended project practice
 - **Assigned written version only:** Conventional Part 2/4 (20/20) or AIR Audit/EiPE/Prompt (20/10/10), after the shared practical 60.
 
-<!-- A hosted verifier/personal instance exists only when explicitly issued. Public demo flags are observations, not personal proof. The prepared bounded checker and full Semgrep/Trivy/Gitleaks workflow have different scopes. -->
+<!-- A hosted verifier/personal instance exists only when explicitly issued. Public demo flags are observations, not personal proof. The local bounded checker and the full Semgrep/Trivy/Gitleaks workflow have different scopes. -->
 
 ---
 

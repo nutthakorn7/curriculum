@@ -4,9 +4,9 @@
 
 ## Bounded class check and full workflow extension
 
-The current class uses `student_task.py` and `check_student.py` for a small, explainable fail-closed/logging change. The instructor prepares a lab-only repository before class with `student-check-ci.yml` at `.github/workflows/student-check-ci.yml`. An unfilled starter produces a red result; a correct student change produces green under the **same** checks. Retain both run links/output and the code diff. The workflow has read-only repository permission and does not use an AI service or credentials.
+The current class uses `student_task.py` and `check_student.py` for a small, explainable fail-closed/logging change. Run `python3 check_student.py` on your own machine: an unfilled starter produces a red result; a correct student change produces green under the **same** checks. Keep both outputs and the code diff. (`student-check-ci.yml` is included if you want to try the same check in your own lab-only repository; it is optional and adds no points. It has read-only repository permission and uses no AI service or credentials.)
 
-The full Semgrep/Trivy/Gitleaks workflow described below is retained as extended project practice. Its findings/thresholds are a different scope from the bounded student-control job; passing one does not prove that the other passed. If a CI queue or account is unavailable, run `python3 check_student.py` locally and record that limitation with the same positive/negative evidence. Ranking/game points do not add to the worksheet's 100 points.
+The full Semgrep/Trivy/Gitleaks workflow described below is retained as extended project practice. Its findings/thresholds are a different scope from the bounded student-control job; passing one does not prove that the other passed. Ranking/game points do not add to the worksheet's 100 points.
 
 
 **OWASP 2025:** A09 Security Logging & Alerting Failures, A10 Mishandling of

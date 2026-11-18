@@ -36,7 +36,7 @@ Use this lab's own pipeline template as the starting point: [`security-ci.yml`](
 - **Score:** Blue gets points for each catch, Red for each bypass.
 
 ## Hand-in and extended pipeline practice
-Required core: the student function diff, local failing-then-passing checker output, the fail-open/fail-closed responses and log line, and your explanation. A CI red/green run in an instructor-prepared repository is optional. The full scanner PR exercise below is retained as extended project practice; its scoreboard does not add course points.
+Required core: the student function diff, local failing-then-passing checker output, the fail-open/fail-closed responses and log line, and your explanation. The full scanner PR exercise below is retained as extended project practice; its scoreboard does not add course points.
 
 ## References
 - https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html
