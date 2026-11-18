@@ -16,7 +16,7 @@ header: "Software Security 2 · KOSEN 02005094 · Week 17"
 
 ## Today: 150 minutes
 
-- 0–30: cumulative review quiz
+- 0–30: cumulative review quiz on learn.zcr.ai (code given in class)
 - 30–50: selected Jeopardy clues and reasoning
 - 50–120: two practice checkpoints, 35 minutes each
 - 120–145: correction, explanation and revision
