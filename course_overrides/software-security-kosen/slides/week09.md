@@ -16,7 +16,7 @@ Paper exam · Tuesday 29 December 2026, 09:05–11:50 · our usual classroom
 ## Format and time
 
 - **150 minutes in total:** 10 minutes instructions + 130 minutes on the tasks + 10 minutes to collect papers
-- **Paper, closed book:** bring only a pen; no computer, phone, notes or AI
+- **Paper, closed book:** bring your student ID card and a pen; no computer, phone, notes or AI
 - **Four stations × 25 points = 100 points**
 - Each station is marked in two halves: **Basic 50 + Technical 50** in total
 - The practical counts as **12%** of your course grade
@@ -47,7 +47,7 @@ Each station: **Basic 12.5** (finding, explanation, reading evidence) + **Techni
 
 ## On the day
 
-- Bring a pen; write your name and student ID on the first page
+- Bring your student ID card and a pen; write your name and student ID on the first page
 - Individual work; no talking
 - Stop writing after 130 minutes; papers are collected in the final 10 minutes
 

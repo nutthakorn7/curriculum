@@ -6,7 +6,7 @@
 
 Name: __________________ Student ID: ______________ Date: ___________
 
-This public specimen fixes scope and workload. The real exam paper is different and is handed out at the exam. Answer only the ten questions below. Each is 10 raw points, with a suggested 12 minutes (120 minutes total), then use 10 minutes to review within the 130-minute working window. Administrative time is not additional task time. This is a paper exam and closed book: write your answers in your own words on the paper. Bring only a pen; no notes, phone, calculator or computer. Precise mechanisms and tested-design reasoning matter more than memorized catalogue IDs.
+This public specimen fixes scope and workload. The real exam paper is different and is handed out at the exam. Answer only the ten questions below. Each is 10 raw points, with a suggested 12 minutes (120 minutes total), then use 10 minutes to review within the 130-minute working window. Administrative time is not additional task time. This is a paper exam and closed book: write your answers in your own words on the paper. Bring your student ID card and a pen (blue or black); no notes, phone, calculator or computer. Precise mechanisms and tested-design reasoning matter more than memorized catalogue IDs.
 
 ![Current examination blueprint: 150-minute slot, 130 working minutes, Basic 50 Technical 50.](img/exam-blueprint.svg)
 
