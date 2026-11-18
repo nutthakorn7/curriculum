@@ -32,11 +32,18 @@ Target: provided app with user objects and JWT auth (or Juice Shop).
 4. **Fix:** enforce a server-side ownership check on every object access (`order["owner"] != user`, not RBAC/ABAC), validate JWT alg + signature with a strong secret/key, and add deny-by-default checks.
 
 ## Run the local target
+
+Once, before class, while online:
 ```bash
-docker compose build                         # once before class, while online
-docker compose up --no-build --pull never    # vulnerable_app.py on http://localhost:8080
+cd ~/software-security/labs/week06-authn-authz
+docker compose build
 ```
-The fixed version is `solution_app.py`.
+Then, in class:
+```bash
+cd ~/software-security/labs/week06-authn-authz
+docker compose up --no-build --pull never
+```
+This keeps running: the insecure `vulnerable_app.py` is on `http://localhost:8080`. Use a second terminal for the other commands. The fixed version is `solution_app.py`.
 
 ## Student-written patch and control checks
 
