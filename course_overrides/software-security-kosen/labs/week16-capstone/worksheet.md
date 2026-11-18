@@ -59,7 +59,7 @@ Answer as a team (2–4 sentences each).
 | 3:30–4:30 | Delivery | SBOM scope, trusted-signature verification, CI red/green result |
 | 4:30–5:00 | Limits | Outstanding risk and next action |
 
-This is feedback. The final recorded project video is also at most 5 minutes, submitted with the report before Week 19. Project marks follow only the existing project rubric.
+This is feedback. The final recorded project video is also at most 5 minutes, submitted with the report by Sunday 28 February 2027, 23:59. Project marks follow only the existing project rubric.
 
 ### C) Peer-review rubric (score the team you review, 1–5 each)
 
@@ -96,7 +96,7 @@ This is feedback. The final recorded project video is also at most 5 minutes, su
 | CI pipeline | 10 | Security gate fails closed on the stated threshold; red/green run linked |
 | Presentation & report clarity | 5 | Report and recorded video of at most 5 minutes explain the evidence and limits |
 
-**Feedback only:** retain the checklist and peer comments in the project working folder. There are no separate Week 16 worksheet marks or late penalties. The project deadline and rubric remain in the project guide and published assignment.
+**Feedback only:** retain the checklist and peer comments in the project working folder. There are no separate Week 16 worksheet marks or late penalties. The project deadline is Sunday 28 February 2027, 23:59 on learn.zcr.ai/submit; the rubric is in the project guide.
 
 ---
 

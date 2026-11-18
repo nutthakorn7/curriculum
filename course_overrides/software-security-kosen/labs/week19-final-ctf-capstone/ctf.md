@@ -46,7 +46,7 @@ Finish two things: remove the secret from the AI output and HTML-escape it, and 
 
 Each station (25 marks): root cause and trust boundary 5 + your fix 10 + one allowed and one refused example 7 + evidence that someone else can repeat, and the limits 3 = 25. Four stations = 100 marks, all Technical. Course points = marks ÷ 100 × 15. Write down what each team member did. Partial marks come from your evidence and reasoning, not from how many flags you found. Leaderboard points give no marks.
 
-Your project report, code and a video of at most 5 minutes are due **before this exam** and are marked separately (15% of the course). There are no project questions during the 130 minutes; ask them in Weeks 16 and 20. Each member's project mark is adjusted by peer contribution and can be at most 100 before it is converted to 15%.
+Your project report, code and a video of at most 5 minutes are due **Sunday 28 February 2027, 23:59** (before this exam) and are marked separately (15% of the course). There are no project questions during the 130 minutes; ask them in Weeks 16 and 20. Each member's project mark is adjusted by peer contribution and can be at most 100 before it is converted to 15%.
 
 ## Submission
 

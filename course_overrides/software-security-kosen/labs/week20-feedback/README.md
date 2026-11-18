@@ -12,7 +12,7 @@ In this last session you get your exam results back, ask about anything you don'
 | 105–140 | Look back on what you learned and what you would do differently |
 | 140–150 | Last questions and next steps |
 
-Bring your own exam results, your Week 18 and Week 19 work, and the project report, code and video your team submitted before Week 19. Keep other students' results private.
+Bring your own exam results, your Week 18 and Week 19 work, and the project report, code and video your team submitted by 28 February. Keep other students' results private.
 
 [Notes to keep during the session](feedback.md)
 

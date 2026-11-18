@@ -48,9 +48,9 @@ Feedback stays formative. Optional scrimmage work uses remaining time only.
 
 ---
 
-## Before Week 19
+## Project deadline: Sunday 28 February 2027
 
-Submit the project report + code + a recorded video of **at most 5 minutes** (check the project assignment for the exact deadline).
+Submit the project report + code + a recorded video of **at most 5 minutes** by 23:59 on learn.zcr.ai/submit (one report PDF per team, with the code and video links inside).
 
 Project questions: Weeks 16 and 20. Week 19 is the separate 150-minute team practical (four stations, 100 points); no project questions take exam time.
 
