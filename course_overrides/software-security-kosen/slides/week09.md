@@ -7,19 +7,19 @@ header: "Software Security 2 · 02005094 · Week 9 · Midterm practical"
 
 # Week 9 — Midterm individual practical
 ## Software Security 2 (02005094)
-Individual work · revise Weeks 1–4 and 6
+Paper exam · Tuesday 29 December 2026, 09:05–11:50 · our usual classroom
 
-<!-- Instructor: use the current sitting pack and matching key, with dependencies checked beforehand. No hosted instance or personal flag is issued unless announced. -->
+<!-- Instructor: print the paper version (instructor/exams/kosen-02005094/week09-paper-form-B.md) and use its matching key. No computers in this exam. -->
 
 ---
 
 ## Format and time
 
-- **150 minutes in total:** 10 minutes briefing + 130 minutes on the tasks + 10 minutes to check your upload
+- **150 minutes in total:** 10 minutes instructions + 130 minutes on the tasks + 10 minutes to collect papers
+- **Paper, closed book:** bring only a pen; no computer, phone, notes or AI
 - **Four stations × 25 points = 100 points**
 - Each station is marked in two halves: **Basic 50 + Technical 50** in total
 - The practical counts as **12%** of your course grade
-- Leaderboards, "first blood", prizes and House XP give no course marks
 
 ---
 
@@ -30,27 +30,25 @@ Individual work · revise Weeks 1–4 and 6
 - **C · 30 minutes · 25 points** — Parameterized SQL and a safe IPv4 ping (Week 4)
 - **D · 30 minutes · 25 points** — Check the login token and who owns the order (Week 6)
 
-Use only the starter files in the exam pack your instructor hands out.
+Practise writing these fixes by hand before the exam.
 
 ---
 
 ## What earns marks
 
-- Hand in the file you changed (or a diff), the exact command and what you saw
-- Include one **positive test** (normal use still works) and one **negative test** (the attack is refused)
-- Explain why the problem happened, why your fix works, and one limit of your test
-- A flag on its own does not earn full marks
+- Find the problem and explain why it happens and where the trust boundary is
+- Write your own fix as code (small syntax slips are fine if the idea is clear)
+- Write one **positive test** (normal use still works) and one **negative test** (the attack is refused), with the result you expect
+- Read a printed test output and say what it shows and what it cannot prove
 
-Each station: **Basic 12.5** (finding, explanation, reading your results) + **Technical 12.5** (your fix, your tests, repeatable results). Basic 50 + Technical 50 → 6 + 6 course marks.
+Each station: **Basic 12.5** (finding, explanation, reading evidence) + **Technical 12.5** (your fix, your tests, reading test output). Basic 50 + Technical 50 → 6 + 6 course marks.
 
 ---
 
 ## On the day
 
-- Work only on the exam pack, on your own machine; never attack another system
-- Use a hosted server only if your instructor gives you one
-- Stop task work after 130 minutes; use the final 10 minutes to check your upload opens
-- Individual work: one evidence file per student
-- Date, room and permitted aids: see the official exam notice
+- Bring a pen; write your name and student ID on the first page
+- Individual work; no talking
+- Stop writing after 130 minutes; papers are collected in the final 10 minutes
 
 [Read the full practical brief](../labs/week09-midterm-practical/ctf.md)
