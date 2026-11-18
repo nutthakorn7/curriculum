@@ -6,8 +6,8 @@ header: "Software Security 2 · KOSEN02005094 · Week 8 · Midterm"
 ---
 
 # Week 8 — Midterm written examination
-## Current KOSEN02005094 sitting
-Weeks 1–6
+## KOSEN 02005094
+Weeks 1–6 · Tuesday 22 December 2026, 09:05–11:50 · our usual classroom
 
 <!-- Confirm the current sitting paper, matching key and permitted aids before starting. This deck is KOSEN-specific; do not substitute it for MFU session papers. -->
 
@@ -36,11 +36,11 @@ Read the provided scenario/code and explain mechanisms, corrections, legitimate 
 ## Answer and checking guidance
 
 - Answer the ten questions on the issued current paper
-- Use the permitted aids announced for the sitting
+- Closed book: bring only a pen; no notes, phone, calculator or computer
 - State assumptions and scope; accept equivalent technically sound designs
 - Reserve the final 10 working minutes to check all answers
 
-<!-- No new closed/open-book or AI rule is invented here; publish the sitting's permitted aids before release. -->
+<!-- Owner decision 18 Nov 2026: closed book, pen only. -->
 
 ---
 
@@ -48,6 +48,6 @@ Read the provided scenario/code and explain mechanisms, corrections, legitimate 
 
 Stop task work when the 130-minute working window ends; follow the proctor's collection instructions.
 
-Week 9 is the individual four-station practical, with its own 150-minute slot.
+Week 9 (Tuesday 29 December) is the individual four-station practical, also on paper and closed book.
 
 [Current specimen and scope](../labs/week08-midterm-written/exam.md)
