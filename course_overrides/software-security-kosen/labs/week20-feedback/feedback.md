@@ -6,7 +6,7 @@
 |---|---|
 | 0–20 | Read your results and how each part was marked. Write down any question you want explained. |
 | 20–60 | Pick one important mistake. Fix it using the real code, policy or result, then show one example that should work and one that should be refused, and say what that proves. |
-| 60–105 | If your project needs explaining, bring the report, code and video submitted before Week 19, and explain what each team member did. The usual project marking scheme (15% of the course) applies. |
+| 60–105 | If your project needs explaining, bring the report, code and video submitted by 28 February, and explain what each team member did. The usual project marking scheme (15% of the course) applies. |
 | 105–140 | Think about how your security thinking changed, what your evidence could not prove, and one thing you will do next. |
 | 140–150 | Write down answers, open questions and next steps. |
 

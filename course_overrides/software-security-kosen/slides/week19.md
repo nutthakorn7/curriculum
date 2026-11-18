@@ -52,7 +52,7 @@ Each station: root cause 5 + fix 10 + examples 7 + repeatable evidence and limit
 - Use an online exam instance only if your instructor gives you one
 - Stop station work after 130 minutes; use the last 10 minutes to check your upload
 - Submit one evidence pack per team; write down what each member did
-- Project report, code and a **video of at most 5 minutes** are due **before Week 19**, marked separately (15%)
+- Project report, code and a **video of at most 5 minutes** were due **Sunday 28 February 2027, 23:59**, marked separately (15%)
 - No project questions during the 130 minutes; ask them in Weeks 16 and 20
 
 [The four stations](../labs/week19-final-ctf-capstone/ctf.md)

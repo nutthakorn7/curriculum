@@ -50,6 +50,6 @@ Read the scenario or code on the paper. Explain how the problem works, how to fi
 
 Stop writing when the 130 minutes end, and follow the invigilator's instructions.
 
-Week 19 is the team practical with four stations. The project report, code and a video of at most 5 minutes are due **before Week 19**; project questions are answered in Weeks 16 and 20.
+Week 19 is the team practical with four stations. The project report, code and a video of at most 5 minutes were due **Sunday 28 February 2027, 23:59**; project questions are answered in Weeks 16 and 20.
 
 [Practice paper](../labs/week18-final-written/exam.md)
