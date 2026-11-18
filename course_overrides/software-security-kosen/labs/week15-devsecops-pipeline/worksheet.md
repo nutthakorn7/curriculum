@@ -98,7 +98,7 @@ Stop the services when you finish: press Ctrl+C in window A, then run `docker co
 
 ## Optional extension — not needed for full marks
 
-If your instructor provides a prepared lab repository, you can also add `student-check-ci.yml` there as a workflow and keep its red and green runs. The tasks below are the original, longer version of this lab: the full Semgrep/Trivy/Gitleaks pipeline in your own public repo and the Red/Blue "Break the Build" game. They need GitHub Actions and add no points.
+The tasks below are the original, longer version of this lab: the full Semgrep/Trivy/Gitleaks pipeline in your own public repo and the Red/Blue "Break the Build" game. They need GitHub Actions and add no points.
 
 > The task budgets below add up to 205 min. That is deliberate over-provisioning, not a schedule:
 > Tasks 2–4 are dominated by Actions queue and scan wall-clock. Push the gate in class (Task 2);

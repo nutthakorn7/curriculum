@@ -48,4 +48,8 @@ Design a least-privilege S3 policy that can read only `releases/*` in the bucket
 
 ## 10. T5 · Technical — 10 marks, about 12 minutes
 
-An assistant that reads documents shows its reply as HTML and can call a privileged tool. Separately, a CI service catches login errors and then gives admin access. Describe: HTML-escaping the reply, a server-side permission check before the tool runs, denying access when an error happens, and logging that never records secrets. Give one allowed and one refused example.
+This question has two parts, 5 marks each (spend about 6 minutes on each).
+
+**(a) AI output and tool, 5 marks.** An assistant that reads documents shows its reply as HTML and can call a privileged tool. Describe HTML-escaping the reply and a server-side permission check before the tool runs. Give one allowed and one refused example.
+
+**(b) Deny on error, 5 marks.** A CI service catches login errors and then gives admin access. Describe denying access when an error happens, and logging that never records secrets. Give one allowed and one refused example.
