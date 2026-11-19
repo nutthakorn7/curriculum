@@ -1,6 +1,6 @@
 # Week 9 midterm practical — what you will do
 
-**02005094 · Week 9 · individual work · Tuesday 29 December 2026, 09:05–11:50, our usual classroom · 150 minutes:** 10 minutes of instructions, 130 minutes on the four stations, 10 minutes to collect papers.
+**02005094 · Week 9 · individual work · Tuesday 29 December 2026, 09:05–11:50, our usual classroom · 165 minutes:** 10 minutes of instructions, 145 minutes on the four stations (suggested times below add up to 130, which leaves 15 to check), 10 minutes to collect papers.
 
 **Paper exam, closed book.** Bring your student ID card and a pen (blue or black). No computer, phone, notes or AI. Each station gives you printed code, results or a short description; you write your answers on the paper.
 
