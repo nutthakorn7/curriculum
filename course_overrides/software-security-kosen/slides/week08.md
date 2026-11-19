@@ -15,9 +15,9 @@ Weeks 1–6 · Tuesday 22 December 2026, 09:05–11:50 · our usual classroom
 
 ## Format and time
 
-- **150-minute slot:** administration 10 + working/checking 130 + collection 10
+- **165-minute slot:** administration 10 + working/checking 145 + collection 10
 - **Ten questions ×10 raw = 100:** five Basic and five Technical
-- Suggested pace: 12 minutes per question (120 minutes) + 10 minutes checking = 130 working minutes
+- Suggested pace: 12 minutes per question (120 minutes) + 25 minutes checking = 145 working minutes
 - Course contribution: **8%**, split Basic 4 + Technical 4
 
 <!-- Administration is not additional task time. Use the current sitting variant and its matching key; the public specimen is practice material. -->
@@ -46,7 +46,7 @@ Read the provided scenario/code and explain mechanisms, corrections, legitimate 
 
 ## Collection and next session
 
-Stop task work when the 130-minute working window ends; follow the proctor's collection instructions.
+Stop task work when the 145-minute working window ends; follow the proctor's collection instructions.
 
 Week 9 (Tuesday 29 December) is the individual four-station practical, also on paper and closed book.
 

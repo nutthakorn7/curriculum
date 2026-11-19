@@ -50,7 +50,7 @@ The practice checkpoints are not marked. Game, first-blood and House points are 
 
 W8 written 8% + W9 individual practical 12%.
 
-Each sitting: 150-minute slot, 130 working minutes plus 20 administration.
+Each midterm sitting: 165 minutes, 145 working minutes plus 20 administration.
 
 Four practical stations; no hash-cracking or ECB requirement in current Software core.
 

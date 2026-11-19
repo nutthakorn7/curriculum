@@ -15,7 +15,7 @@ Paper exam · Tuesday 29 December 2026, 09:05–11:50 · our usual classroom
 
 ## Format and time
 
-- **150 minutes in total:** 10 minutes instructions + 130 minutes on the tasks + 10 minutes to collect papers
+- **165 minutes in total:** 10 minutes instructions + 145 minutes on the tasks + 10 minutes to collect papers
 - **Paper, closed book:** bring your student ID card and a pen; no computer, phone, notes or AI
 - **Four stations × 25 points = 100 points**
 - Each station is marked in two halves: **Basic 50 + Technical 50** in total
@@ -23,7 +23,7 @@ Paper exam · Tuesday 29 December 2026, 09:05–11:50 · our usual classroom
 
 ---
 
-## The four stations — 130 minutes
+## The four stations — 130 minutes, then 15 to check
 
 - **A · 35 minutes · 25 points** — Threat model and scanner triage (Weeks 1–2)
 - **B · 35 minutes · 25 points** — Move old password records to Argon2id at login (Week 3)
@@ -49,6 +49,6 @@ Each station: **Basic 12.5** (finding, explanation, reading evidence) + **Techni
 
 - Bring your student ID card and a pen; write your name and student ID on the first page
 - Individual work; no talking
-- Stop writing after 130 minutes; papers are collected in the final 10 minutes
+- Stop writing after 145 minutes; papers are collected in the final 10 minutes
 
 [Read the full practical brief](../labs/week09-midterm-practical/ctf.md)

@@ -1,6 +1,6 @@
 # Week 9 — Midterm individual practical (on paper)
 
-**Software Security 2 (02005094) · individual work · Tuesday 29 December 2026, 09:05–11:50, in our usual classroom.** 150 minutes in total: 10 minutes of instructions, 130 minutes on the tasks, 10 minutes to collect papers.
+**Software Security 2 (02005094) · individual work · Tuesday 29 December 2026, 09:05–11:50, in our usual classroom.** 165 minutes in total: 10 minutes of instructions, 145 minutes on the tasks (about 130 on the four stations and 15 to check), 10 minutes to collect papers.
 
 **This is a paper exam.** You get printed code, scanner results and test output, and you write your answers on the paper. **Closed book: bring your student ID card and a pen (blue or black).** No computer, phone, notes or AI.
 
