@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 330" width="760" height="251" role="img" aria-label="One signature on message all zeros reveals the zero token at each of the thirty-two bit positions. The one tokens stay secret. So the attacker knows 32 of the 64 tokens, which is half the key and not enough to sign a different message.">
+  <title>One signature reveals half the key</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .bgr{ fill: #eef8f0; stroke: #2f855a; stroke-width: 2 }
+    .br { fill: #fdeeee; stroke: #c53030; stroke-width: 2 }
+    .t  { font: 700 18px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 14px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .tg { font: 700 16px system-ui, sans-serif; fill: #2f855a; text-anchor: middle }
+    .tr { font: 700 16px system-ui, sans-serif; fill: #c53030; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.2; fill: none; marker-end: url(#aro) }
+    .ab { stroke: #017BC4; stroke-width: 2.2; fill: none; marker-end: url(#arb) }
+    .ad { stroke: #E35205; stroke-width: 2.2; fill: none; stroke-dasharray: 6 5; marker-end: url(#aro) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad } .bgr { fill: #14251a; stroke: #5fbf8a } .br { fill: #2a1515; stroke: #f08080 }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d } .tg { fill: #5fbf8a } .tr { fill: #f08080 }
+      .a  { stroke: #c9ced3 } .ao, .ad { stroke: #ff7a3d } .ab { stroke: #4aa3dd }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#017BC4"/></marker>
+  </defs>
+  <text class="t" x="500" y="28">One signature on 00000000 (8 of 32 positions drawn)</text>
+  <text class="ts" x="64" y="62">bit 0</text>
+  <rect class="bo" x="30" y="72" width="68" height="50" rx="8"/>
+  <text class="tm" x="64" y="94">token 0</text>
+  <text class="to" x="64" y="112">known</text>
+  <rect class="bg" x="30" y="132" width="68" height="50" rx="8"/>
+  <text class="tm" x="64" y="154">token 1</text>
+  <text class="ts" x="64" y="172">secret</text>
+  <text class="ts" x="140" y="62">bit 1</text>
+  <rect class="bo" x="106" y="72" width="68" height="50" rx="8"/>
+  <text class="tm" x="140" y="94">token 0</text>
+  <text class="to" x="140" y="112">known</text>
+  <rect class="bg" x="106" y="132" width="68" height="50" rx="8"/>
+  <text class="tm" x="140" y="154">token 1</text>
+  <text class="ts" x="140" y="172">secret</text>
+  <text class="ts" x="216" y="62">bit 2</text>
+  <rect class="bo" x="182" y="72" width="68" height="50" rx="8"/>
+  <text class="tm" x="216" y="94">token 0</text>
+  <text class="to" x="216" y="112">known</text>
+  <rect class="bg" x="182" y="132" width="68" height="50" rx="8"/>
+  <text class="tm" x="216" y="154">token 1</text>
+  <text class="ts" x="216" y="172">secret</text>
+  <text class="ts" x="292" y="62">bit 3</text>
+  <rect class="bo" x="258" y="72" width="68" height="50" rx="8"/>
+  <text class="tm" x="292" y="94">token 0</text>
+  <text class="to" x="292" y="112">known</text>
+  <rect class="bg" x="258" y="132" width="68" height="50" rx="8"/>
+  <text class="tm" x="292" y="154">token 1</text>
+  <text class="ts" x="292" y="172">secret</text>
+  <text class="ts" x="368" y="62">bit 4</text>
+  <rect class="bo" x="334" y="72" width="68" height="50" rx="8"/>
+  <text class="tm" x="368" y="94">token 0</text>
+  <text class="to" x="368" y="112">known</text>
+  <rect class="bg" x="334" y="132" width="68" height="50" rx="8"/>
+  <text class="tm" x="368" y="154">token 1</text>
+  <text class="ts" x="368" y="172">secret</text>
+  <text class="ts" x="444" y="62">bit 5</text>
+  <rect class="bo" x="410" y="72" width="68" height="50" rx="8"/>
+  <text class="tm" x="444" y="94">token 0</text>
+  <text class="to" x="444" y="112">known</text>
+  <rect class="bg" x="410" y="132" width="68" height="50" rx="8"/>
+  <text class="tm" x="444" y="154">token 1</text>
+  <text class="ts" x="444" y="172">secret</text>
+  <text class="ts" x="520" y="62">bit 6</text>
+  <rect class="bo" x="486" y="72" width="68" height="50" rx="8"/>
+  <text class="tm" x="520" y="94">token 0</text>
+  <text class="to" x="520" y="112">known</text>
+  <rect class="bg" x="486" y="132" width="68" height="50" rx="8"/>
+  <text class="tm" x="520" y="154">token 1</text>
+  <text class="ts" x="520" y="172">secret</text>
+  <text class="ts" x="596" y="62">bit 7</text>
+  <rect class="bo" x="562" y="72" width="68" height="50" rx="8"/>
+  <text class="tm" x="596" y="94">token 0</text>
+  <text class="to" x="596" y="112">known</text>
+  <rect class="bg" x="562" y="132" width="68" height="50" rx="8"/>
+  <text class="tm" x="596" y="154">token 1</text>
+  <text class="ts" x="596" y="172">secret</text>
+  <text class="t" x="30" y="228">...</text>
+  <rect class="bg" x="655" y="60" width="320" height="135" rx="8"/>
+  <text class="t" x="815.0" y="98.5">What the attacker knows</text>
+  <text class="ts" x="815.0" y="132.5">32 of 64 tokens</text>
+  <text class="ts" x="815.0" y="166.5">the other 32 stay secret</text>
+  <rect class="b" x="40" y="225" width="935" height="70" rx="10"/>
+  <text class="tm" x="507" y="252">Lab check, bit 0: H(sig[0]) matches pk[0][0] but not pk[0][1]</text>
+  <text class="ts" x="507" y="280">Half the key is not enough to sign a different message</text>
+</svg>

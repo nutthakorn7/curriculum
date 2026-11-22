@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 290" width="760" height="220" role="img" aria-label="Step 1: the server sends a fresh random nonce and the public salt. Step 2: on its own computer the client derives the verifier from the salt and password, computes the proof as an HMAC of the nonce under the verifier, and sends the nonce and proof, never the password. Step 3: the server recomputes the HMAC from its stored verifier and compares; if equal the login is OK. A used nonce is thrown away, so a captured request cannot be replayed.">
+  <title>Challenge-response in three steps</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .bgr{ fill: #eef8f0; stroke: #2f855a; stroke-width: 2 }
+    .br { fill: #fdeeee; stroke: #c53030; stroke-width: 2 }
+    .t  { font: 700 18px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 14px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .tg { font: 700 16px system-ui, sans-serif; fill: #2f855a; text-anchor: middle }
+    .tr { font: 700 16px system-ui, sans-serif; fill: #c53030; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.2; fill: none; marker-end: url(#aro) }
+    .ab { stroke: #017BC4; stroke-width: 2.2; fill: none; marker-end: url(#arb) }
+    .ad { stroke: #E35205; stroke-width: 2.2; fill: none; stroke-dasharray: 6 5; marker-end: url(#aro) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad } .bgr { fill: #14251a; stroke: #5fbf8a } .br { fill: #2a1515; stroke: #f08080 }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d } .tg { fill: #5fbf8a } .tr { fill: #f08080 }
+      .a  { stroke: #c9ced3 } .ao, .ad { stroke: #ff7a3d } .ab { stroke: #4aa3dd }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#017BC4"/></marker>
+  </defs>
+  <text class="t" x="500" y="28">Challenge-response: the proof travels, the password does not</text>
+  <rect class="bo" x="20" y="50" width="300" height="190" rx="12"/>
+  <text class="to" x="170" y="84">1  Server</text>
+  <text class="ts" x="170" y="118">sends a fresh nonce</text>
+  <text class="ts" x="170" y="142">and the public salt</text>
+  <text class="ts" x="170" y="186">used once, then thrown away</text>
+  <text class="ts" x="170" y="210">so a copy cannot be replayed</text>
+  <rect class="b" x="350" y="50" width="300" height="190" rx="12"/>
+  <text class="tb" x="500" y="84">2  Client, on its own computer</text>
+  <text class="tm" x="500" y="124">v = KDF(salt, password)</text>
+  <text class="tm" x="500" y="150">proof = HMAC(v, nonce)</text>
+  <text class="ts" x="500" y="190">sends (username, nonce, proof)</text>
+  <text class="tg" x="500" y="214">no password in the request</text>
+  <rect class="bo" x="680" y="50" width="300" height="190" rx="12"/>
+  <text class="to" x="830" y="84">3  Server checks</text>
+  <text class="tm" x="830" y="124">proof ==</text>
+  <text class="tm" x="830" y="150">HMAC(v_stored, nonce) ?</text>
+  <text class="tg" x="830" y="196">yes  →  LOGIN OK</text>
+  <text class="ts" x="830" y="220">never sees the password</text>
+  <path class="a" d="M322,145 H346"/>
+  <path class="a" d="M652,145 H676"/>
+  <text class="ts" x="500" y="275">the server stored v, never the password</text>
+</svg>

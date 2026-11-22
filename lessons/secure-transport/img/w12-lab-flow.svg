@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 340" width="760" height="258" role="img" aria-label="Today's lab flow in three steps, then your form. A1: run Alice with the vulnerable compose file and Eve reads the secret. A2: run Alice with the fixed compose file and Eve gets nothing. A3: fix alice_student.py and run the student-task compose file; Eve is rejected and Bob is accepted. Then do the 40 points of your form: student ID ends odd is Conventional, even is AIR-Sec. Hand in Wk12 student ID PDF at learn.zcr.ai/submit plus the GitHub commit link of alice_student.py.">
+  <title>Today's lab flow</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .bgr{ fill: #eef8f0; stroke: #2f855a; stroke-width: 2 }
+    .br { fill: #fdeeee; stroke: #c53030; stroke-width: 2 }
+    .t  { font: 700 18px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 14px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .tg { font: 700 16px system-ui, sans-serif; fill: #2f855a; text-anchor: middle }
+    .tr { font: 700 16px system-ui, sans-serif; fill: #c53030; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.2; fill: none; marker-end: url(#aro) }
+    .ab { stroke: #017BC4; stroke-width: 2.2; fill: none; marker-end: url(#arb) }
+    .ad { stroke: #E35205; stroke-width: 2.2; fill: none; stroke-dasharray: 6 5; marker-end: url(#aro) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad } .bgr { fill: #14251a; stroke: #5fbf8a } .br { fill: #2a1515; stroke: #f08080 }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d } .tg { fill: #5fbf8a } .tr { fill: #f08080 }
+      .a  { stroke: #c9ced3 } .ao, .ad { stroke: #ff7a3d } .ab { stroke: #4aa3dd }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#017BC4"/></marker>
+  </defs>
+  <text class="t" x="500" y="30">Today's lab: three steps, then your form</text>
+  <rect class="br" x="20" y="55" width="300" height="190" rx="12"/>
+  <text class="tr" x="170" y="92" style="font-size:28px">A1</text>
+  <text class="tm" x="170" y="120" style="font-size:12px">docker-compose.vulnerable.yml</text>
+  <text class="ts" x="170" y="152">Alice does not check</text>
+  <path class="a" d="M170,166 V184"/>
+  <text class="tr" x="170" y="208">Eve reads</text>
+  <text class="tr" x="170" y="230">the secret</text>
+  <rect class="bgr" x="350" y="55" width="300" height="190" rx="12"/>
+  <text class="tg" x="500" y="92" style="font-size:28px">A2</text>
+  <text class="tm" x="500" y="120" style="font-size:12px">docker-compose.fixed.yml</text>
+  <text class="ts" x="500" y="152">Alice checks</text>
+  <path class="a" d="M500,166 V184"/>
+  <text class="tg" x="500" y="208">Eve gets</text>
+  <text class="tg" x="500" y="230">nothing</text>
+  <rect class="b" x="680" y="55" width="300" height="190" rx="12"/>
+  <text class="tb" x="830" y="92" style="font-size:28px">A3</text>
+  <text class="tm" x="830" y="120" style="font-size:12px">docker-compose.student-task.yml</text>
+  <text class="ts" x="830" y="152">You fix alice_student.py</text>
+  <path class="a" d="M830,166 V184"/>
+  <text class="tb" x="830" y="208">Eve rejected,</text>
+  <text class="tb" x="830" y="230">Bob accepted</text>
+  <path class="a" d="M324,150 H346"/>
+  <path class="a" d="M654,150 H676"/>
+  <text class="t" x="500" y="282">Then your form (40): student ID ends odd = Conventional  ·  even = AIR-Sec</text>
+  <text class="tm" x="500" y="318">Hand in Wk12_&lt;StudentID&gt;.pdf at learn.zcr.ai/submit, plus the GitHub commit link</text>
+</svg>

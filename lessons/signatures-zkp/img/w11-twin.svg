@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 320" width="760" height="243" role="img" aria-label="The attacker holds a valid signature (r, s). Subtracting s from the public curve order n gives the twin (r, n minus s), with no private key. Both signatures verify as true for the same message and the same key, but the numbers are different.">
+  <title>Making the twin needs no private key</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .bgr{ fill: #eef8f0; stroke: #2f855a; stroke-width: 2 }
+    .br { fill: #fdeeee; stroke: #c53030; stroke-width: 2 }
+    .t  { font: 700 18px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 14px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .tg { font: 700 16px system-ui, sans-serif; fill: #2f855a; text-anchor: middle }
+    .tr { font: 700 16px system-ui, sans-serif; fill: #c53030; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.2; fill: none; marker-end: url(#aro) }
+    .ab { stroke: #017BC4; stroke-width: 2.2; fill: none; marker-end: url(#arb) }
+    .ad { stroke: #E35205; stroke-width: 2.2; fill: none; stroke-dasharray: 6 5; marker-end: url(#aro) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad } .bgr { fill: #14251a; stroke: #5fbf8a } .br { fill: #2a1515; stroke: #f08080 }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d } .tg { fill: #5fbf8a } .tr { fill: #f08080 }
+      .a  { stroke: #c9ced3 } .ao, .ad { stroke: #ff7a3d } .ab { stroke: #4aa3dd }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#017BC4"/></marker>
+  </defs>
+  <text class="t" x="500" y="30">The twin is one subtraction away</text>
+  <rect class="b" x="30" y="55" width="270" height="100" rx="8"/>
+  <text class="tb" x="165.0" y="82.0">valid signature</text>
+  <text class="ts" x="165.0" y="110.0">(r, s)</text>
+  <text class="ts" x="165.0" y="138.0">from the owner</text>
+  <path class="ao" d="M305,105 H355"/>
+  <rect class="bo" x="360" y="55" width="280" height="100" rx="8"/>
+  <text class="to" x="500.0" y="82.0">s' = n - s</text>
+  <text class="ts" x="500.0" y="110.0">only the public number n</text>
+  <text class="ts" x="500.0" y="138.0">no private key</text>
+  <path class="ao" d="M645,105 H695"/>
+  <rect class="bo" x="700" y="55" width="270" height="100" rx="8"/>
+  <text class="to" x="835.0" y="82.0">twin signature</text>
+  <text class="ts" x="835.0" y="110.0">(r, s')</text>
+  <text class="ts" x="835.0" y="138.0">different numbers</text>
+  <path class="ab" d="M165,160 V205"/>
+  <path class="ao" d="M835,160 V205"/>
+  <rect class="bgr" x="100" y="210" width="800" height="80" rx="8"/>
+  <text class="tg" x="500.0" y="240.0">verify(pk, m, ...) = True  for both</text>
+  <text class="ts" x="500.0" y="270.0">same message, same key, but two different signatures</text>
+</svg>

@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 360" width="760" height="274" role="img" aria-label="A four-bit example with message bits one, zero, one, one. For each bit position the secret key holds two tokens and the public key holds the hash of each. To sign, the signer reveals the token that matches the bit value. The verifier hashes the revealed token and compares it with the public key hash for that bit.">
+  <title>How a Lamport signature works</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .bgr{ fill: #eef8f0; stroke: #2f855a; stroke-width: 2 }
+    .br { fill: #fdeeee; stroke: #c53030; stroke-width: 2 }
+    .t  { font: 700 18px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 14px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .tg { font: 700 16px system-ui, sans-serif; fill: #2f855a; text-anchor: middle }
+    .tr { font: 700 16px system-ui, sans-serif; fill: #c53030; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.2; fill: none; marker-end: url(#aro) }
+    .ab { stroke: #017BC4; stroke-width: 2.2; fill: none; marker-end: url(#arb) }
+    .ad { stroke: #E35205; stroke-width: 2.2; fill: none; stroke-dasharray: 6 5; marker-end: url(#aro) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad } .bgr { fill: #14251a; stroke: #5fbf8a } .br { fill: #2a1515; stroke: #f08080 }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d } .tg { fill: #5fbf8a } .tr { fill: #f08080 }
+      .a  { stroke: #c9ced3 } .ao, .ad { stroke: #ff7a3d } .ab { stroke: #4aa3dd }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#017BC4"/></marker>
+  </defs>
+  <text class="t" x="500" y="28">Tiny example: sign the 4-bit message 1 0 1 1</text>
+  <text class="tb" x="100" y="118">secret key</text>
+  <text class="ts" x="100" y="138">(private)</text>
+  <text class="tb" x="100" y="228">public key</text>
+  <text class="ts" x="100" y="248">(published)</text>
+  <text class="tg" x="100" y="325">verifier</text>
+  <text class="tm" x="255" y="68">bit 0 = 1</text>
+  <rect class="bg" x="156" y="90" width="94" height="50" rx="8"/>
+  <text class="tm" x="203" y="112">token 0</text>
+  <text class="ts" x="203" y="130">secret</text>
+  <rect class="bg" x="156" y="200" width="94" height="50" rx="8"/>
+  <text class="tm" x="203" y="222">H(token 0)</text>
+  <text class="ts" x="203" y="240">public</text>
+  <path class="a" d="M203,143 V196"/>
+  <rect class="bo" x="260" y="90" width="94" height="50" rx="8"/>
+  <text class="tm" x="307" y="112">token 1</text>
+  <text class="to" x="307" y="130">revealed</text>
+  <rect class="b" x="260" y="200" width="94" height="50" rx="8"/>
+  <text class="tm" x="307" y="222">H(token 1)</text>
+  <text class="ts" x="307" y="240">public</text>
+  <path class="ao" d="M307,143 V196"/>
+  <rect class="bgr" x="156" y="285" width="198" height="50" rx="8"/>
+  <text class="tm" x="255" y="308">H(token 1) = pk[0][1]</text>
+  <text class="tg" x="255" y="326">match</text>
+  <path class="ab" d="M307,253 V281"/>
+  <text class="tm" x="465" y="68">bit 1 = 0</text>
+  <rect class="bo" x="366" y="90" width="94" height="50" rx="8"/>
+  <text class="tm" x="413" y="112">token 0</text>
+  <text class="to" x="413" y="130">revealed</text>
+  <rect class="b" x="366" y="200" width="94" height="50" rx="8"/>
+  <text class="tm" x="413" y="222">H(token 0)</text>
+  <text class="ts" x="413" y="240">public</text>
+  <path class="ao" d="M413,143 V196"/>
+  <rect class="bg" x="470" y="90" width="94" height="50" rx="8"/>
+  <text class="tm" x="517" y="112">token 1</text>
+  <text class="ts" x="517" y="130">secret</text>
+  <rect class="bg" x="470" y="200" width="94" height="50" rx="8"/>
+  <text class="tm" x="517" y="222">H(token 1)</text>
+  <text class="ts" x="517" y="240">public</text>
+  <path class="a" d="M517,143 V196"/>
+  <rect class="bgr" x="366" y="285" width="198" height="50" rx="8"/>
+  <text class="tm" x="465" y="308">H(token 0) = pk[1][0]</text>
+  <text class="tg" x="465" y="326">match</text>
+  <path class="ab" d="M413,253 V281"/>
+  <text class="tm" x="675" y="68">bit 2 = 1</text>
+  <rect class="bg" x="576" y="90" width="94" height="50" rx="8"/>
+  <text class="tm" x="623" y="112">token 0</text>
+  <text class="ts" x="623" y="130">secret</text>
+  <rect class="bg" x="576" y="200" width="94" height="50" rx="8"/>
+  <text class="tm" x="623" y="222">H(token 0)</text>
+  <text class="ts" x="623" y="240">public</text>
+  <path class="a" d="M623,143 V196"/>
+  <rect class="bo" x="680" y="90" width="94" height="50" rx="8"/>
+  <text class="tm" x="727" y="112">token 1</text>
+  <text class="to" x="727" y="130">revealed</text>
+  <rect class="b" x="680" y="200" width="94" height="50" rx="8"/>
+  <text class="tm" x="727" y="222">H(token 1)</text>
+  <text class="ts" x="727" y="240">public</text>
+  <path class="ao" d="M727,143 V196"/>
+  <rect class="bgr" x="576" y="285" width="198" height="50" rx="8"/>
+  <text class="tm" x="675" y="308">H(token 1) = pk[2][1]</text>
+  <text class="tg" x="675" y="326">match</text>
+  <path class="ab" d="M727,253 V281"/>
+  <text class="tm" x="885" y="68">bit 3 = 1</text>
+  <rect class="bg" x="786" y="90" width="94" height="50" rx="8"/>
+  <text class="tm" x="833" y="112">token 0</text>
+  <text class="ts" x="833" y="130">secret</text>
+  <rect class="bg" x="786" y="200" width="94" height="50" rx="8"/>
+  <text class="tm" x="833" y="222">H(token 0)</text>
+  <text class="ts" x="833" y="240">public</text>
+  <path class="a" d="M833,143 V196"/>
+  <rect class="bo" x="890" y="90" width="94" height="50" rx="8"/>
+  <text class="tm" x="937" y="112">token 1</text>
+  <text class="to" x="937" y="130">revealed</text>
+  <rect class="b" x="890" y="200" width="94" height="50" rx="8"/>
+  <text class="tm" x="937" y="222">H(token 1)</text>
+  <text class="ts" x="937" y="240">public</text>
+  <path class="ao" d="M937,143 V196"/>
+  <rect class="bgr" x="786" y="285" width="198" height="50" rx="8"/>
+  <text class="tm" x="885" y="308">H(token 1) = pk[3][1]</text>
+  <text class="tg" x="885" y="326">match</text>
+  <path class="ab" d="M937,253 V281"/>
+</svg>
