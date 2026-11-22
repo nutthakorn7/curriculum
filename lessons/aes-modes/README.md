@@ -13,9 +13,7 @@ encryption (AEAD) · **Analogous CWE:** CWE-353 (Missing Support for Integrity C
    do **not** need Python on your own laptop. Read the Week 3 recap.
 2. **In class (100 minutes)** — 10-minute Week 3 quiz + short brief + guided lab (change an
    encrypted token, let the script turn it into `admin`, see GCM refuse the same kind of change) +
-   debrief + evidence capture. Slides: `{{ slides }}`. The CryptoVault team and design-plan
-   milestone is also handled in this class: teams review the KDF + AEAD design plan and submit it as the
-   project brief says. It is a project item, not part of the worksheet.
+   debrief + evidence capture. Slides: `{{ slides }}`.
 3. **Common work (60 points)** — see that the server does not notice a change to a CBC token, run
    `exploit.py` to turn `guest` into `admin`, then show that the GCM copy refuses a changed token.
    Explain why.
