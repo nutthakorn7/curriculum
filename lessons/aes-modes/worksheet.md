@@ -28,7 +28,6 @@
 - **Answer sheet:** in Classroom → Week 04, open the file for your form (`Wk04_Answer_Sheet_Conventional` or `Wk04_Answer_Sheet_AIR-Sec`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
 - Submit one file named with your student ID, for example `Wk04_66990000.pdf` (do not type the `<` `>` signs), at `learn.zcr.ai/submit` with your Week 4 submission code from your KMITL email, by **Sunday 29 Nov, 23:59**.
 - Items marked *optional* have no marks. You can skip them.
-- **At the end of today's class:** your CryptoVault team reviews its design plan (KDF + AEAD) with the instructor, then hands in the plan as the project brief says. That is project work, not part of this worksheet, and it does not go in your worksheet PDF.
 
 | Part A | Marks | Steps to write in the answer sheet |
 |---|---:|---|
