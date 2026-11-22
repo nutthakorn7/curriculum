@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 375" width="760" height="285" role="img" aria-label="Three lab steps. A1: run the vulnerable pair; relay reads the message (RELAY INTERCEPTED). A2: run the fixed pair with the tag check; both sides print AUTH FAILED. A3: explain why it works and what it needs. Then hand in Wk05 student ID PDF at learn.zcr.ai/submit by Sunday 6 December 23:59.">
+  <title>Today's lab flow</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .bgr{ fill: #eef8f0; stroke: #2f855a; stroke-width: 2 }
+    .br { fill: #fdeeee; stroke: #c53030; stroke-width: 2 }
+    .t  { font: 700 18px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 14px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .tg { font: 700 16px system-ui, sans-serif; fill: #2f855a; text-anchor: middle }
+    .tr { font: 700 16px system-ui, sans-serif; fill: #c53030; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.2; fill: none; marker-end: url(#aro) }
+    .ab { stroke: #017BC4; stroke-width: 2.2; fill: none; marker-end: url(#arb) }
+    .ad { stroke: #E35205; stroke-width: 2.2; fill: none; stroke-dasharray: 6 5; marker-end: url(#aro) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad } .bgr { fill: #14251a; stroke: #5fbf8a } .br { fill: #2a1515; stroke: #f08080 }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d } .tg { fill: #5fbf8a } .tr { fill: #f08080 }
+      .a  { stroke: #c9ced3 } .ao, .ad { stroke: #ff7a3d } .ab { stroke: #4aa3dd }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#017BC4"/></marker>
+  </defs>
+  <text class="t" x="500" y="30">Today's lab: three steps</text>
+  <rect class="bo" x="20" y="55" width="300" height="190" rx="12"/>
+  <text class="to" x="170" y="92" style="font-size:28px">A1</text>
+  <text class="tm" x="170" y="122">vulnerable pair (no tag check)</text>
+  <text class="ts" x="170" y="158">Run it, find the relay lines</text>
+  <path class="a" d="M170,170 V188"/>
+  <text class="to" x="170" y="210">RELAY INTERCEPTED:</text>
+  <text class="to" x="170" y="232">the launch code is 4471</text>
+  <rect class="bgr" x="350" y="55" width="300" height="190" rx="12"/>
+  <text class="tg" x="500" y="92" style="font-size:28px">A2</text>
+  <text class="tm" x="500" y="122">fixed pair (tag check)</text>
+  <text class="ts" x="500" y="158">Run it, count the lines</text>
+  <path class="a" d="M500,170 V188"/>
+  <text class="tg" x="500" y="210">AUTH FAILED - ABORTING</text>
+  <text class="tg" x="500" y="232">(alice and bob)</text>
+  <rect class="b" x="680" y="55" width="300" height="190" rx="12"/>
+  <text class="tb" x="830" y="92" style="font-size:28px">A3</text>
+  <text class="tm" x="830" y="122">explain</text>
+  <text class="ts" x="830" y="158">Why does the tag stop relay?</text>
+  <path class="a" d="M830,170 V188"/>
+  <text class="tb" x="830" y="210">relay has no AUTH_KEY</text>
+  <text class="tb" x="830" y="232">(it was shared first)</text>
+  <path class="a" d="M324,150 H346"/>
+  <path class="a" d="M654,150 H676"/>
+  <text class="t" x="500" y="285">Then: save your evidence in the answer sheet for your form</text>
+  <rect class="bg" x="150" y="300" width="700" height="56" rx="10"/>
+  <text class="tm" x="500" y="323">Wk05_&lt;StudentID&gt;.pdf  →  learn.zcr.ai/submit</text>
+  <text class="ts" x="500" y="345">by Sunday 6 Dec, 23:59  ·  odd ID: AIR-Sec  ·  even ID: Conventional</text>
+</svg>

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 430" width="760" height="327" role="img" aria-label="Alice sends her public value A with a tag made from AUTH_KEY. The relay replaces A with its own value R but has no AUTH_KEY so it cannot make a matching tag. Bob recomputes the tag and compares: on a match he continues, on no match he stops with AUTH FAILED.">
+  <title>The tag check stops the relay</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .bgr{ fill: #eef8f0; stroke: #2f855a; stroke-width: 2 }
+    .br { fill: #fdeeee; stroke: #c53030; stroke-width: 2 }
+    .t  { font: 700 18px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 14px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .tg { font: 700 16px system-ui, sans-serif; fill: #2f855a; text-anchor: middle }
+    .tr { font: 700 16px system-ui, sans-serif; fill: #c53030; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.2; fill: none; marker-end: url(#aro) }
+    .ab { stroke: #017BC4; stroke-width: 2.2; fill: none; marker-end: url(#arb) }
+    .ad { stroke: #E35205; stroke-width: 2.2; fill: none; stroke-dasharray: 6 5; marker-end: url(#aro) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad } .bgr { fill: #14251a; stroke: #5fbf8a } .br { fill: #2a1515; stroke: #f08080 }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d } .tg { fill: #5fbf8a } .tr { fill: #f08080 }
+      .a  { stroke: #c9ced3 } .ao, .ad { stroke: #ff7a3d } .ab { stroke: #4aa3dd }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#017BC4"/></marker>
+  </defs>
+  <text class="t" x="500" y="28">The fix: a tag on every public value (AUTH_KEY shared before)</text>
+  <rect class="b" x="30" y="60" width="270" height="70" rx="8"/>
+  <text class="tm" x="165.0" y="89.0">Alice sends</text>
+  <text class="tm" x="165.0" y="111.0">A  +  tag = HMAC(AUTH_KEY, A)</text>
+  <path class="ao" d="M300,95 H350"/>
+  <rect class="br" x="350" y="60" width="300" height="70" rx="8"/>
+  <text class="tr" x="500.0" y="89.0">relay swaps in R</text>
+  <text class="ts" x="500.0" y="111.0">no AUTH_KEY → guesses a tag</text>
+  <path class="ao" d="M650,95 H700"/>
+  <rect class="b" x="700" y="60" width="270" height="70" rx="8"/>
+  <text class="tm" x="835.0" y="89.0">Bob receives</text>
+  <text class="tm" x="835.0" y="111.0">R  +  t'</text>
+  <path class="a" d="M835,132 V170"/>
+  <rect class="bo" x="560" y="172" width="420" height="56" rx="8"/>
+  <text class="tm" x="770.0" y="205.0">check:  t' == HMAC(AUTH_KEY, R)  ?</text>
+  <path class="a" d="M700,230 V290"/>
+  <path class="a" d="M860,230 V290"/>
+  <rect class="bgr" x="40" y="292" width="420" height="70" rx="8"/>
+  <text class="tg" x="250.0" y="321.0">match → derive the key</text>
+  <text class="ts" x="250.0" y="343.0">(this is what an honest peer gets)</text>
+  <rect class="br" x="520" y="292" width="450" height="70" rx="8"/>
+  <text class="tr" x="745.0" y="321.0">no match → AUTH FAILED - ABORTING</text>
+  <text class="ts" x="745.0" y="343.0">no key is derived, nothing is read</text>
+  <path class="a" d="M520,327 H462"/>
+  <text class="ts" x="500" y="400">relay never had AUTH_KEY, so with the fix it always lands on "no match"</text>
+</svg>
