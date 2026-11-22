@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 340" width="760" height="258" role="img"
+     aria-label="A message longer than 16 bytes is cut into blocks of 16 bytes. AES locks each block with the secret key and gives one ciphertext block. AES itself is strong; the open question is how the blocks are connected to each other, and that choice is called the mode: ECB, CBC or GCM.">
+  <title>AES locks one block at a time; the mode connects the blocks</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .t  { font: 700 18px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 14px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 19px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    .q  { font: 800 26px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to, .q { fill: #ff7a3d }
+      .a  { stroke: #c9ced3 }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+  </defs>
+
+  <text class="t" x="285" y="30">AES locks ONE block (16 bytes) at a time</text>
+
+  <!-- message cut into blocks -->
+  <text class="ts" x="290" y="58">A real message is longer, so it is cut into blocks</text>
+  <rect class="bg" x="20"  y="70" width="150" height="48" rx="8"/><text class="tm" x="95" y="100">block 1</text>
+  <rect class="bg" x="215" y="70" width="150" height="48" rx="8"/><text class="tm" x="290" y="100">block 2</text>
+  <rect class="bg" x="410" y="70" width="150" height="48" rx="8"/><text class="tm" x="485" y="100">block 3</text>
+
+  <!-- lock -->
+  <path class="a" d="M95,122 V148"/><path class="a" d="M290,122 V148"/><path class="a" d="M485,122 V148"/>
+  <rect class="b" x="20"  y="152" width="150" height="48" rx="8"/><text class="tb" x="95" y="182">AES lock + key</text>
+  <rect class="b" x="215" y="152" width="150" height="48" rx="8"/><text class="tb" x="290" y="182">AES lock + key</text>
+  <rect class="b" x="410" y="152" width="150" height="48" rx="8"/><text class="tb" x="485" y="182">AES lock + key</text>
+
+  <!-- ciphertext -->
+  <path class="a" d="M95,204 V230"/><path class="a" d="M290,204 V230"/><path class="a" d="M485,204 V230"/>
+  <rect class="bo" x="20"  y="234" width="150" height="48" rx="8"/><text class="tm" x="95" y="264">7F3A 91C0 …</text>
+  <rect class="bo" x="215" y="234" width="150" height="48" rx="8"/><text class="tm" x="290" y="264">5D1B A4E8 …</text>
+  <rect class="bo" x="410" y="234" width="150" height="48" rx="8"/><text class="tm" x="485" y="264">B2E4 05D7 …</text>
+  <text class="ts" x="290" y="310">locked blocks (the hex values are only examples)</text>
+
+  <!-- how are the blocks connected? -->
+  <path d="M170,176 H215" stroke="#E35205" stroke-width="2.4" stroke-dasharray="5 4" fill="none"/>
+  <path d="M365,176 H410" stroke="#E35205" stroke-width="2.4" stroke-dasharray="5 4" fill="none"/>
+  <text class="q" x="192" y="168">?</text>
+  <text class="q" x="388" y="168">?</text>
+
+  <rect class="bo" x="610" y="70" width="370" height="212" rx="14"/>
+  <text class="t" x="795" y="108">AES itself is strong.</text>
+  <text class="ts" x="795" y="140">The real question:</text>
+  <text class="to" x="795" y="172">How are the blocks connected?</text>
+  <text class="ts" x="795" y="206">That choice is called the</text>
+  <text class="to" x="795" y="238">MODE</text>
+  <text class="t" x="795" y="268">ECB · CBC · GCM</text>
+</svg>
