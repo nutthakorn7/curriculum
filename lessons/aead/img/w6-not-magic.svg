@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" width="760" height="228" role="img" aria-label="Three ways GCM can still fail: ignoring the tag error, repeating a nonce with the same key, and other different answers such as user not found versus wrong password.">
+  <title>GCM is not magic</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .bgr{ fill: #eef8f0; stroke: #2f855a; stroke-width: 2 }
+    .br { fill: #fdeeee; stroke: #c53030; stroke-width: 2 }
+    .t  { font: 700 18px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 14px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .tg { font: 700 16px system-ui, sans-serif; fill: #2f855a; text-anchor: middle }
+    .tr { font: 700 16px system-ui, sans-serif; fill: #c53030; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.2; fill: none; marker-end: url(#aro) }
+    .ab { stroke: #017BC4; stroke-width: 2.2; fill: none; marker-end: url(#arb) }
+    .ad { stroke: #E35205; stroke-width: 2.2; fill: none; stroke-dasharray: 6 5; marker-end: url(#aro) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad } .bgr { fill: #14251a; stroke: #5fbf8a } .br { fill: #2a1515; stroke: #f08080 }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d } .tg { fill: #5fbf8a } .tr { fill: #f08080 }
+      .a  { stroke: #c9ced3 } .ao, .ad { stroke: #ff7a3d } .ab { stroke: #4aa3dd }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#017BC4"/></marker>
+  </defs>
+  <text class="t" x="500" y="28">GCM only helps if the program does its part</text>
+  <rect class="bo" x="25" y="60" width="290" height="180" rx="12"/>
+  <text class="to" x="170" y="100">Ignore the tag error</text>
+  <text class="ts" x="170" y="135">and carry on</text>
+  <text class="t" x="170" y="160">GCM protects nothing</text>
+  <text class="ts" x="170" y="215">Week 4, step 11</text>
+  <rect class="bo" x="355" y="60" width="290" height="180" rx="12"/>
+  <text class="to" x="500" y="100">Repeat a nonce</text>
+  <text class="ts" x="500" y="135">with the same key</text>
+  <text class="t" x="500" y="160">data leaks, tags forged</text>
+  <text class="ts" x="500" y="215">Week 4</text>
+  <rect class="bo" x="685" y="60" width="290" height="180" rx="12"/>
+  <text class="to" x="830" y="100">Other answers still leak</text>
+  <text class="ts" x="830" y="135">"user not found" vs</text>
+  <text class="t" x="830" y="160">"wrong password"</text>
+  <text class="ts" x="830" y="215">CWE-204</text>
+  <text class="tg" x="500" y="278">The fix for every card: check first, then answer the same way</text>
+</svg>
