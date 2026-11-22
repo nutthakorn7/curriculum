@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 420" width="760" height="319" role="img" aria-label="Today the lab uses two servers, vulnerable on port 8100 where a second signature is allowed and fixed on port 8101 where it is refused with 403. Step A1 signs one message and checks that half the key is known. Step A2 signs the opposite message, recovers the key and forges the admin signature. Step A3 shows the fixed server refusing and how far the fix goes. Then do your form worth 40 marks: a student ID ending in an odd digit does AIR-Sec and an even digit does Conventional. Hand in Wk15 student ID PDF at learn.zcr.ai/submit by Sunday 14 February 23:59.">
+  <title>Today's lab flow</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .bgr{ fill: #eef8f0; stroke: #2f855a; stroke-width: 2 }
+    .br { fill: #fdeeee; stroke: #c53030; stroke-width: 2 }
+    .t  { font: 700 18px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 14px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .tg { font: 700 16px system-ui, sans-serif; fill: #2f855a; text-anchor: middle }
+    .tr { font: 700 16px system-ui, sans-serif; fill: #c53030; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.2; fill: none; marker-end: url(#aro) }
+    .ab { stroke: #017BC4; stroke-width: 2.2; fill: none; marker-end: url(#arb) }
+    .ad { stroke: #E35205; stroke-width: 2.2; fill: none; stroke-dasharray: 6 5; marker-end: url(#aro) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad } .bgr { fill: #14251a; stroke: #5fbf8a } .br { fill: #2a1515; stroke: #f08080 }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d } .tg { fill: #5fbf8a } .tr { fill: #f08080 }
+      .a  { stroke: #c9ced3 } .ao, .ad { stroke: #ff7a3d } .ab { stroke: #4aa3dd }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#017BC4"/></marker>
+  </defs>
+  <text class="t" x="500" y="28">Today's lab: two servers, three steps</text>
+  <rect class="br" x="25" y="48" width="455" height="50" rx="10"/>
+  <text class="tr" x="252" y="70">vulnerable  :8100</text>
+  <text class="ts" x="252" y="89">second signature allowed (the bug)</text>
+  <rect class="bgr" x="520" y="48" width="455" height="50" rx="10"/>
+  <text class="tg" x="747" y="70">fixed  :8101</text>
+  <text class="ts" x="747" y="89">second signature refused (403)</text>
+  <rect class="bo" x="20" y="125" width="300" height="130" rx="12"/>
+  <text class="to" x="170" y="158" style="font-size:26px">A1</text>
+  <text class="tm" x="170" y="186">vulnerable :8100</text>
+  <text class="ts" x="170" y="216">one signature,</text>
+  <text class="ts" x="170" y="238">half the key</text>
+  <rect class="bo" x="350" y="125" width="300" height="130" rx="12"/>
+  <text class="to" x="500" y="158" style="font-size:26px">A2</text>
+  <text class="tm" x="500" y="186">vulnerable :8100</text>
+  <text class="ts" x="500" y="216">sign the opposite,</text>
+  <text class="ts" x="500" y="238">recover key, forge admin</text>
+  <rect class="bgr" x="680" y="125" width="300" height="130" rx="12"/>
+  <text class="tg" x="830" y="158" style="font-size:26px">A3</text>
+  <text class="tm" x="830" y="186">fixed :8101</text>
+  <text class="ts" x="830" y="216">second sign refused,</text>
+  <text class="ts" x="830" y="238">how far the fix goes</text>
+  <path class="a" d="M324,190 H346"/>
+  <path class="a" d="M654,190 H676"/>
+  <text class="t" x="500" y="290">Common 60 for everyone, then your form (40)</text>
+  <rect class="bg" x="40" y="305" width="920" height="40" rx="10"/>
+  <text class="tm" x="500" y="331">student ID ends odd: AIR-Sec   ·   ends even: Conventional</text>
+  <rect class="bg" x="40" y="360" width="920" height="48" rx="10"/>
+  <text class="tm" x="500" y="382">Wk15_&lt;StudentID&gt;.pdf  →  learn.zcr.ai/submit</text>
+  <text class="ts" x="500" y="401">by Sunday 14 Feb, 23:59</text>
+</svg>

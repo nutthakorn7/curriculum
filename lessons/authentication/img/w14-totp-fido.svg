@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 380" width="760" height="289" role="img" aria-label="TOTP: your authenticator app makes a six-digit code from a shared secret and the time, you type it, and a fake login page can relay it to the real site, because the code is bound to nothing. FIDO2 or WebAuthn: a private key on your device signs a challenge together with the site origin, so a signature made for a fake domain does not verify on the real site.">
+  <title>TOTP versus FIDO2</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .bgr{ fill: #eef8f0; stroke: #2f855a; stroke-width: 2 }
+    .br { fill: #fdeeee; stroke: #c53030; stroke-width: 2 }
+    .t  { font: 700 18px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 14px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .tg { font: 700 16px system-ui, sans-serif; fill: #2f855a; text-anchor: middle }
+    .tr { font: 700 16px system-ui, sans-serif; fill: #c53030; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.2; fill: none; marker-end: url(#aro) }
+    .ab { stroke: #017BC4; stroke-width: 2.2; fill: none; marker-end: url(#arb) }
+    .ad { stroke: #E35205; stroke-width: 2.2; fill: none; stroke-dasharray: 6 5; marker-end: url(#aro) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad } .bgr { fill: #14251a; stroke: #5fbf8a } .br { fill: #2a1515; stroke: #f08080 }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d } .tg { fill: #5fbf8a } .tr { fill: #f08080 }
+      .a  { stroke: #c9ced3 } .ao, .ad { stroke: #ff7a3d } .ab { stroke: #4aa3dd }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#017BC4"/></marker>
+  </defs>
+  <text class="t" x="500" y="28">What is the code or signature bound to?</text>
+  <rect class="bo" x="25" y="55" width="455" height="250" rx="12"/>
+  <text class="to" x="252" y="88">TOTP (authenticator app)</text>
+  <text class="ts" x="252" y="125">shared secret + time</text>
+  <text class="ts" x="252" y="151">→ 6-digit code</text>
+  <text class="ts" x="252" y="177">you type it into any page</text>
+  <rect class="br" x="55" y="215" width="395" height="70" rx="8"/>
+  <text class="tr" x="252.5" y="243.0">fake page relays the code</text>
+  <text class="ts" x="252.5" y="267.0">real site accepts it</text>
+  <rect class="bgr" x="520" y="55" width="455" height="250" rx="12"/>
+  <text class="tg" x="747" y="88">FIDO2 / WebAuthn</text>
+  <text class="ts" x="747" y="125">private key on your device</text>
+  <text class="ts" x="747" y="151">signs challenge + site origin</text>
+  <text class="ts" x="747" y="177">the key never leaves it</text>
+  <rect class="bgr" x="550" y="215" width="395" height="70" rx="8"/>
+  <text class="tg" x="747.5" y="243.0">fake domain: wrong origin</text>
+  <text class="ts" x="747.5" y="267.0">real site rejects the signature</text>
+  <text class="t" x="500" y="345">TOTP is bound to nothing  ·  FIDO2 is bound to the real site</text>
+</svg>

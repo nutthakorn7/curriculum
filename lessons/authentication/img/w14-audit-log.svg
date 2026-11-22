@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 360" width="760" height="274" role="img" aria-label="The login handler checks the password correctly with bcrypt, which is fine. But line A logs the whole request body and line B logs the raw password, so the credential reaches the log file. People who can read the log, such as a log service, an engineer on call, or anyone who breaches the log store, can read it. The bcrypt hash was never the leak; the log file is.">
+  <title>The log is the leak</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .bgr{ fill: #eef8f0; stroke: #2f855a; stroke-width: 2 }
+    .br { fill: #fdeeee; stroke: #c53030; stroke-width: 2 }
+    .t  { font: 700 18px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 14px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .tg { font: 700 16px system-ui, sans-serif; fill: #2f855a; text-anchor: middle }
+    .tr { font: 700 16px system-ui, sans-serif; fill: #c53030; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.2; fill: none; marker-end: url(#aro) }
+    .ab { stroke: #017BC4; stroke-width: 2.2; fill: none; marker-end: url(#arb) }
+    .ad { stroke: #E35205; stroke-width: 2.2; fill: none; stroke-dasharray: 6 5; marker-end: url(#aro) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad } .bgr { fill: #14251a; stroke: #5fbf8a } .br { fill: #2a1515; stroke: #f08080 }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d } .tg { fill: #5fbf8a } .tr { fill: #f08080 }
+      .a  { stroke: #c9ced3 } .ao, .ad { stroke: #ff7a3d } .ab { stroke: #4aa3dd }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#017BC4"/></marker>
+  </defs>
+  <text class="t" x="500" y="28">Audit the AI: where does the password go?</text>
+  <rect class="bg" x="25" y="55" width="390" height="230" rx="12"/>
+  <text class="t" x="220" y="85">login handler</text>
+  <rect class="bgr" x="45" y="100" width="350" height="50" rx="8"/>
+  <text class="tg" x="220.0" y="119.0">bcrypt.checkpw(...)</text>
+  <text class="ts" x="220.0" y="141.0">correct, the hash is fine</text>
+  <rect class="br" x="45" y="162" width="350" height="50" rx="8"/>
+  <text class="tr" x="220.0" y="181.0">(A) log the whole request body</text>
+  <text class="ts" x="220.0" y="203.0">contains the password</text>
+  <rect class="br" x="45" y="224" width="350" height="50" rx="8"/>
+  <text class="tr" x="220.0" y="243.0">(B) log the raw password</text>
+  <text class="ts" x="220.0" y="265.0">on a failed login</text>
+  <path class="ao" d="M415,200 H500"/>
+  <rect class="br" x="500" y="160" width="170" height="80" rx="8"/>
+  <text class="tr" x="585.0" y="192.0">log file</text>
+  <text class="ts" x="585.0" y="218.0">password in it</text>
+  <path class="ao" d="M670,200 H730"/>
+  <rect class="bo" x="730" y="70" width="240" height="50" rx="8"/>
+  <text class="to" x="850.0" y="100.0">log service</text>
+  <rect class="bo" x="730" y="135" width="240" height="50" rx="8"/>
+  <text class="to" x="850.0" y="165.0">engineer on call</text>
+  <rect class="bo" x="730" y="200" width="240" height="60" rx="8"/>
+  <text class="to" x="850.0" y="225.0">anyone who breaches</text>
+  <text class="ts" x="850.0" y="245.0">the log store</text>
+  <text class="ts" x="850" y="290">who can read production logs?</text>
+  <text class="t" x="500" y="330">The bcrypt hash was never the leak. The log file is.</text>
+</svg>

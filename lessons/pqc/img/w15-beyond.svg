@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 360" width="760" height="274" role="img" aria-label="Two trees of one-time keys. Stateful schemes such as XMSS and LMS use leaves in order, so the signer must save which leaf was used; losing that state can reuse a key. Stateless SPHINCS plus, standardised as SLH-DSA in FIPS 205, uses a huge tree and picks a leaf pseudorandomly so reuse is negligible. Crypto-agility means swapping algorithms without a rewrite, for example a hybrid of classical and ML-KEM.">
+  <title>Beyond one signature ever</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .bgr{ fill: #eef8f0; stroke: #2f855a; stroke-width: 2 }
+    .br { fill: #fdeeee; stroke: #c53030; stroke-width: 2 }
+    .t  { font: 700 18px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 14px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .tg { font: 700 16px system-ui, sans-serif; fill: #2f855a; text-anchor: middle }
+    .tr { font: 700 16px system-ui, sans-serif; fill: #c53030; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.2; fill: none; marker-end: url(#aro) }
+    .ab { stroke: #017BC4; stroke-width: 2.2; fill: none; marker-end: url(#arb) }
+    .ad { stroke: #E35205; stroke-width: 2.2; fill: none; stroke-dasharray: 6 5; marker-end: url(#aro) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad } .bgr { fill: #14251a; stroke: #5fbf8a } .br { fill: #2a1515; stroke: #f08080 }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d } .tg { fill: #5fbf8a } .tr { fill: #f08080 }
+      .a  { stroke: #c9ced3 } .ao, .ad { stroke: #ff7a3d } .ab { stroke: #4aa3dd }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#017BC4"/></marker>
+  </defs>
+  <text class="t" x="500" y="28">Many one-time keys under one public key</text>
+  <path d="M250,82 L171,118 M250,82 L329,118" stroke="#8a929b" stroke-width="1.6" fill="none"/>
+  <path d="M171,118 L132,154 M171,118 L210,154" stroke="#8a929b" stroke-width="1.6" fill="none"/>
+  <path d="M329,118 L290,154 M329,118 L368,154" stroke="#8a929b" stroke-width="1.6" fill="none"/>
+  <path d="M132,154 L110,192 M132,154 L154,192" stroke="#8a929b" stroke-width="1.6" fill="none"/>
+  <path d="M211,154 L189,192 M211,154 L233,192" stroke="#8a929b" stroke-width="1.6" fill="none"/>
+  <path d="M289,154 L267,192 M289,154 L311,192" stroke="#8a929b" stroke-width="1.6" fill="none"/>
+  <path d="M368,154 L346,192 M368,154 L390,192" stroke="#8a929b" stroke-width="1.6" fill="none"/>
+  <rect class="b" x="232" y="66" width="36" height="26" rx="6"/>
+  <rect class="b" x="155" y="106" width="32" height="24" rx="6"/>
+  <rect class="b" x="313" y="106" width="32" height="24" rx="6"/>
+  <rect class="b" x="118" y="142" width="28" height="24" rx="6"/>
+  <rect class="b" x="197" y="142" width="28" height="24" rx="6"/>
+  <rect class="b" x="275" y="142" width="28" height="24" rx="6"/>
+  <rect class="b" x="354" y="142" width="28" height="24" rx="6"/>
+  <rect class="bg" x="78" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="93" y="211">0</text>
+  <rect class="bg" x="123" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="138" y="211">1</text>
+  <rect class="bg" x="168" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="183" y="211">2</text>
+  <rect class="bo" x="213" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="228" y="211">3</text>
+  <rect class="b" x="258" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="273" y="211">4</text>
+  <rect class="b" x="303" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="318" y="211">5</text>
+  <rect class="b" x="348" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="363" y="211">6</text>
+  <rect class="b" x="393" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="408" y="211">7</text>
+  <path d="M750,82 L671,118 M750,82 L829,118" stroke="#8a929b" stroke-width="1.6" fill="none"/>
+  <path d="M671,118 L632,154 M671,118 L710,154" stroke="#8a929b" stroke-width="1.6" fill="none"/>
+  <path d="M829,118 L790,154 M829,118 L868,154" stroke="#8a929b" stroke-width="1.6" fill="none"/>
+  <path d="M632,154 L610,192 M632,154 L654,192" stroke="#8a929b" stroke-width="1.6" fill="none"/>
+  <path d="M711,154 L689,192 M711,154 L733,192" stroke="#8a929b" stroke-width="1.6" fill="none"/>
+  <path d="M789,154 L767,192 M789,154 L811,192" stroke="#8a929b" stroke-width="1.6" fill="none"/>
+  <path d="M868,154 L846,192 M868,154 L890,192" stroke="#8a929b" stroke-width="1.6" fill="none"/>
+  <rect class="b" x="732" y="66" width="36" height="26" rx="6"/>
+  <rect class="b" x="655" y="106" width="32" height="24" rx="6"/>
+  <rect class="b" x="813" y="106" width="32" height="24" rx="6"/>
+  <rect class="b" x="618" y="142" width="28" height="24" rx="6"/>
+  <rect class="b" x="697" y="142" width="28" height="24" rx="6"/>
+  <rect class="b" x="775" y="142" width="28" height="24" rx="6"/>
+  <rect class="b" x="854" y="142" width="28" height="24" rx="6"/>
+  <rect class="b" x="578" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="593" y="211">0</text>
+  <rect class="b" x="623" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="638" y="211">1</text>
+  <rect class="b" x="668" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="683" y="211">2</text>
+  <rect class="b" x="713" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="728" y="211">3</text>
+  <rect class="b" x="758" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="773" y="211">4</text>
+  <rect class="bo" x="803" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="818" y="211">5</text>
+  <rect class="b" x="848" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="863" y="211">6</text>
+  <rect class="b" x="893" y="190" width="30" height="30" rx="5"/>
+  <text class="ts" x="908" y="211">7</text>
+  <text class="tb" x="250" y="52">Stateful: XMSS, LMS</text>
+  <text class="tb" x="750" y="52">Stateless: SPHINCS+ (SLH-DSA)</text>
+  <text class="ts" x="250" y="250">leaves used in order: 0, 1, 2, then 3</text>
+  <text class="ts" x="250" y="272">the signer must save the counter</text>
+  <text class="ts" x="750" y="250">a huge tree, a pseudorandom leaf each time</text>
+  <text class="ts" x="750" y="272">reuse is negligible</text>
+  <text class="tr" x="250" y="308">risk: a VM snapshot rollback reuses a leaf</text>
+  <text class="tg" x="750" y="308">no state to lose</text>
+  <text class="t" x="500" y="345">Crypto-agility: be able to swap algorithms without a rewrite</text>
+</svg>

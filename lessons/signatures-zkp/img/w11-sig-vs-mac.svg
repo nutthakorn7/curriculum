@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 350" width="760" height="266" role="img" aria-label="Left, a MAC: Alice and Bob hold the same secret key k, so both can create and check a tag, but a stranger without k cannot check it. Right, a digital signature: the owner signs with a private key and anyone with the public key can verify it, so a stranger can check it too.">
+  <title>A MAC shares a key, a signature does not</title>
+  <style>
+    .b  { fill: #fffdf9; stroke: #017BC4; stroke-width: 2 }
+    .bo { fill: #fff6f0; stroke: #E35205; stroke-width: 2 }
+    .bg { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5 }
+    .bgr{ fill: #eef8f0; stroke: #2f855a; stroke-width: 2 }
+    .br { fill: #fdeeee; stroke: #c53030; stroke-width: 2 }
+    .t  { font: 700 18px system-ui, sans-serif; fill: #16191d; text-anchor: middle }
+    .ts { font: 500 14px system-ui, sans-serif; fill: #374151; text-anchor: middle }
+    .tm { font: 600 14px ui-monospace, Menlo, monospace; fill: #16191d; text-anchor: middle }
+    .tb { font: 700 16px system-ui, sans-serif; fill: #017BC4; text-anchor: middle }
+    .to { font: 700 16px system-ui, sans-serif; fill: #E35205; text-anchor: middle }
+    .tg { font: 700 16px system-ui, sans-serif; fill: #2f855a; text-anchor: middle }
+    .tr { font: 700 16px system-ui, sans-serif; fill: #c53030; text-anchor: middle }
+    .a  { stroke: #16191d; stroke-width: 1.8; fill: none; marker-end: url(#ar) }
+    .ao { stroke: #E35205; stroke-width: 2.2; fill: none; marker-end: url(#aro) }
+    .ab { stroke: #017BC4; stroke-width: 2.2; fill: none; marker-end: url(#arb) }
+    .ad { stroke: #E35205; stroke-width: 2.2; fill: none; stroke-dasharray: 6 5; marker-end: url(#aro) }
+    @media (prefers-color-scheme: dark) {
+      .b  { fill: #151a20; stroke: #4aa3dd } .bo { fill: #2a1c14; stroke: #ff7a3d }
+      .bg { fill: #22262b; stroke: #9aa3ad } .bgr { fill: #14251a; stroke: #5fbf8a } .br { fill: #2a1515; stroke: #f08080 }
+      .t, .tm { fill: #e6e8ea } .ts { fill: #b8c0c8 }
+      .tb { fill: #4aa3dd } .to { fill: #ff7a3d } .tg { fill: #5fbf8a } .tr { fill: #f08080 }
+      .a  { stroke: #c9ced3 } .ao, .ad { stroke: #ff7a3d } .ab { stroke: #4aa3dd }
+      [fill="#16191d"] { fill: #c9ced3 }
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16191d"/></marker>
+    <marker id="aro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E35205"/></marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#017BC4"/></marker>
+  </defs>
+  <text class="t" x="500" y="30">Who can check it?</text>
+  <text class="tb" x="250" y="68">MAC: one shared secret key</text>
+  <rect class="b" x="30" y="90" width="180" height="70" rx="8"/>
+  <text class="tb" x="120.0" y="120.0">Alice</text>
+  <text class="ts" x="120.0" y="140.0">has k</text>
+  <rect class="b" x="290" y="90" width="180" height="70" rx="8"/>
+  <text class="tb" x="380.0" y="120.0">Bob</text>
+  <text class="ts" x="380.0" y="140.0">has k</text>
+  <path class="ab" d="M210,125 H286"/>
+  <text class="ts" x="248" y="114">m + tag</text>
+  <rect class="br" x="130" y="205" width="240" height="70" rx="8"/>
+  <text class="tr" x="250.0" y="235.0">Stranger</text>
+  <text class="ts" x="250.0" y="255.0">no k: cannot check</text>
+  <text class="ts" x="250" y="310">checking needs the secret that creates it</text>
+  <text class="to" x="750" y="68">Signature: a key pair</text>
+  <rect class="bo" x="530" y="90" width="200" height="70" rx="8"/>
+  <text class="to" x="630.0" y="120.0">Owner</text>
+  <text class="ts" x="630.0" y="140.0">private key signs</text>
+  <rect class="bgr" x="790" y="90" width="190" height="70" rx="8"/>
+  <text class="tg" x="885.0" y="120.0">Anyone</text>
+  <text class="ts" x="885.0" y="140.0">public key checks</text>
+  <path class="ao" d="M730,125 H786"/>
+  <text class="ts" x="758" y="114">m + sig</text>
+  <rect class="bgr" x="640" y="205" width="250" height="70" rx="8"/>
+  <text class="tg" x="765.0" y="235.0">Stranger</text>
+  <text class="ts" x="765.0" y="255.0">can check it too</text>
+  <text class="ts" x="765" y="310">this is why PKI uses signatures</text>
+  <path class="bg" d="M500,60 V300" style="fill:none"/>
+</svg>
