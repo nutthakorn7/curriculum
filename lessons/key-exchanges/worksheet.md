@@ -25,7 +25,7 @@
 - Everyone does **Part A (60 marks)**, which is the same for both forms.
 - Then do **only your own form (40 marks)**. Look at the last digit of your student ID: **odd = AIR-Sec (Parts 3–4)**, **even = Conventional (Part 2)** (0 counts as even). Write your form in the Group box.
 - You may answer in English or Thai. Short and clear is enough.
-- **Answer sheet:** in Classroom → Week 05, open the file for your form (`Wk05_Answer_Sheet_Conventional` or `Wk05_Answer_Sheet_AIR-Sec`), choose Open with → Google Docs, type in the grey boxes, then choose File → Download → PDF.
+- **Answer sheet:** in Classroom → Week 05, open the file for your form (`Wk05_Answer_Sheet_Conventional` or `Wk05_Answer_Sheet_AIR-Sec`), choose Open with → Google Docs. If it says View only, choose File → Make a copy and work in your copy. Type in the grey boxes, then choose File → Download → PDF.
 - Submit one file named with your student ID, for example `Wk05_66990000.pdf` (do not type the `<` `>` signs), at `learn.zcr.ai/submit` with your Week 5 submission code from your KMITL email, by **Sunday 6 Dec, 23:59**.
 - Items marked *optional* have no marks. You can skip them.
 
@@ -61,10 +61,11 @@
 
 | Message on screen | Cause | Fix |
 |---|---|---|
-| `Cannot connect to the Docker daemon` or `error during connect` | Docker is not open | Open Docker Desktop and wait until it says Engine running |
-| `no configuration file provided: not found` or `open docker-compose...: no such file` | The Terminal is not in the lab folder | Repeat Prep step 4 |
+| `failed to connect to the docker API`, `Cannot connect to the Docker daemon` or `error during connect` | Docker is not open | Open Docker Desktop, wait until it says Engine running, then type the command again |
+| `no configuration file provided: not found`, or `docker-compose...yml: no such file or directory` | The Terminal is not in the lab folder | Repeat Prep step 4 |
 | Step 2 or 6 does not show everything | It has not finished running | Wait 10–15 seconds, then type the same command again |
-| Step 6 shows only one `AUTH FAILED` line | You read the screen too early | Wait a moment and type the same command again. You must see two lines (alice and bob) |
+| `RELAY: error handling connection` with `Connection refused`, or lines are still missing after one minute | Bob was not ready when relay tried to reach Bob | Type the `up -d` command again (Step 1 for the first round, Step 5 for the second), wait 15 seconds, then read the log again |
+| Step 6 shows only one `AUTH FAILED` line | You read the screen too early, or Bob was not ready | Wait a moment and type the same command again. If there is still only one line, type the Step 5 command again, wait 15 seconds, then repeat Step 6. You must see two lines (alice and bob) |
 | Windows: `grep` is not recognised | Windows has no `grep` | Use the `findstr` or PowerShell commands that the worksheet gives in each step |
 
 If you still cannot do it, ask a friend or your instructor. If you really cannot use Docker, tell your instructor, then answer Steps 3 and 10–12 by reading the worksheet and the picture. For the other steps, write "did not run it myself".
