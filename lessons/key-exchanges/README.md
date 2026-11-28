@@ -165,8 +165,8 @@ Submit the common evidence and reasoning (60) plus only the assigned Conventiona
 or AIR-Sec (40) format. The details below describe the common artifact; the worksheet
 identifies the alternative sections.
 Worksheet 5: shared log evidence and control/limitations explanation (common 60), plus
-either four short Part 1 questions (Conventional 40) or Audit-the-AI, EiPE and Prompt
-Problem tasks (AIR-Sec 20/10/10). Part 2d viva is formative/authenticity feedback.
+either four short Part 2 questions (Conventional 40) or Audit-the-AI (Part 3), EiPE and Prompt
+Problem (Part 4) tasks (AIR-Sec 20/10/10). The viva spot-check is formative/authenticity feedback.
 
 ## References
 - RFC 3526, *More Modular Exponential (MODP) Diffie-Hellman groups for Internet Key Exchange
