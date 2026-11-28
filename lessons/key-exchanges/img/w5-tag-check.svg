@@ -46,14 +46,13 @@
   <path class="a" d="M835,132 V170"/>
   <rect class="bo" x="560" y="172" width="420" height="56" rx="8"/>
   <text class="tm" x="770.0" y="205.0">check:  t' == HMAC(AUTH_KEY, R)  ?</text>
-  <path class="a" d="M700,230 V290"/>
-  <path class="a" d="M860,230 V290"/>
+  <path class="a" d="M560,200 H250 V290"/>
+  <path class="a" d="M770,230 V290"/>
   <rect class="bgr" x="40" y="292" width="420" height="70" rx="8"/>
   <text class="tg" x="250.0" y="321.0">match → derive the key</text>
   <text class="ts" x="250.0" y="343.0">(this is what an honest peer gets)</text>
   <rect class="br" x="520" y="292" width="450" height="70" rx="8"/>
   <text class="tr" x="745.0" y="321.0">no match → AUTH FAILED - ABORTING</text>
   <text class="ts" x="745.0" y="343.0">no key is derived, nothing is read</text>
-  <path class="a" d="M520,327 H462"/>
   <text class="ts" x="500" y="400">relay never had AUTH_KEY, so with the fix it always lands on "no match"</text>
 </svg>
